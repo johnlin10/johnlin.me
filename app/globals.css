@@ -1,26 +1,75 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  letter-spacing: 0.05rem;
+  outline: none;
+  border: 0 solid #00000000;
+
+  transition: 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+  -webkit-transition: 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+  -moz-transition: 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+  -ms-transition: 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+  -o-transition: 0.3s cubic-bezier(0.23, 1, 0.32, 1);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  overflow-x: hidden;
 }
 
 body {
-  background: var(--background);
+  width: 100vw;
+  height: 100vh;
+  background: var(--background-color);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+a {
+  text-decoration: none;
+}
+
+/* title */
+h1 {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  font-size: 2rem;
+  font-weight: bold;
+  letter-spacing: 0.1rem;
+}
+h2 {
+  font-size: 1.5rem;
+  font-weight: bold;
+  letter-spacing: 0.05rem;
+  margin-top: 2rem;
+}
+h3 {
+  font-size: 1.25rem;
+  font-weight: bold;
+  letter-spacing: 0.05rem;
+}
+
+p {
+  font-size: 0.9rem;
+  letter-spacing: 0.05rem;
+}
+
+:root {
+  --space-0-25x: 3px;
+  --space-0-5x: 6px;
+  --space-0-75x: 9px;
+  --space: 12px;
+  --space-1-5x: 18px;
+  --space-2x: 24px;
+  --space-3x: 36px;
+  --space-4x: 48px;
+  --space-5x: 60px;
+  --space-6x: 72px;
+
+  --safe-area-left: 0;
+  --safe-area-right: 0;
+  --safe-area-top: 0;
+  --safe-area-bottom: 0;
 }
