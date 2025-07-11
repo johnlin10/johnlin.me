@@ -1,23 +1,23 @@
 import { getTranslations } from 'next-intl/server'
-import { useTranslations } from 'next-intl'
 import style from './page.module.scss'
-import ThemeToggle from '@/app/components/ThemeToggle/ThemeToggle'
-import LanguageSwitch from '../components/LanguageSwitch/LanguageSwitch'
+// import ThemeToggle from '@/app/components/ThemeToggle/ThemeToggle'
+// import LanguageSwitch from '../components/LanguageSwitch/LanguageSwitch'
 
 type Props = {
-  params: {
-    lang: string
-  }
+  params: Promise<{
+    locale: string
+  }>
 }
 
 export async function generateMetadata({ params }: Props) {
+  const { locale } = await params
   const t = await getTranslations('HomePage')
 
   return {
     title: t('title'),
     description: t('description'),
     alternates: {
-      canonical: `/${params.lang}`,
+      canonical: `/${locale}`,
       languages: {
         en: '/en',
         'zh-TW': '/zh-tw',
@@ -28,7 +28,7 @@ export async function generateMetadata({ params }: Props) {
 }
 
 export default async function Home({ params }: Props) {
-  const { lang } = params
+  const { locale } = await params
   const t = await getTranslations('HomePage')
 
   return (
