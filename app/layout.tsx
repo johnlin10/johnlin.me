@@ -1,38 +1,14 @@
-import type { Metadata } from 'next'
-import { Geist, Geist_Mono } from 'next/font/google'
-import './globals.css'
-import './styles/_colors.scss'
+import { type ReactNode } from 'react'
+import '@/app/globals.scss'
+import '@/app/styles/_colors.scss'
 
-const geistSans = Geist({
-  variable: '--font-geist-sans',
-  subsets: ['latin'],
-})
-
-const geistMono = Geist_Mono({
-  variable: '--font-geist-mono',
-  subsets: ['latin'],
-})
-
-export const metadata: Metadata = {
-  title: 'John Lin | 林昌龍',
-  description: 'Web designer and developer.',
-  icons: {
-    icon: '/johnlin-logo-128-nb.png',
-  },
+type Props = {
+  children: ReactNode
 }
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode
-}>) {
-  return (
-    <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        {children}
-      </body>
-    </html>
-  )
+// Even though this component is just passing its children through, the presence
+// of this file fixes an issue in Next.js 13.4+ where link clicks that switch
+// the locale would otherwise be ignored.
+export default function RootLayout({ children }: Props) {
+  return children
 }

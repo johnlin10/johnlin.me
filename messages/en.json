@@ -1,0 +1,22 @@
+{
+  "HomePage": {
+    "title": "John Lin | Web Developer",
+    "description": "Welcome to my new personal website.",
+
+    "theme_toggle": "Theme Toggle",
+    "language_switch": "Language Switch"
+  },
+  "AboutPage": {
+    "title": "About",
+    "description": "This is the about page."
+  },
+  "ThemeToggle": {
+    "light": "Light",
+    "light_action_label": "Switch to light theme",
+    "dark": "Dark",
+    "dark_action_label": "Switch to dark theme",
+    "system": "System",
+    "system_action_label": "Follow system theme",
+    "current_theme": "Current Theme:"
+  }
+}

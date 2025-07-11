@@ -1,0 +1,22 @@
+{
+  "HomePage": {
+    "title": "林昌龍 | John Lin",
+    "description": "歡迎來到我全新的個人網站。",
+
+    "theme_toggle": "主題切換",
+    "language_switch": "語言切換"
+  },
+  "AboutPage": {
+    "title": "關於我",
+    "description": "這是關於我的頁面。"
+  },
+  "ThemeToggle": {
+    "light": "淺色",
+    "light_action_label": "切換到淺色主題",
+    "dark": "深色",
+    "dark_action_label": "切換到深色主題",
+    "system": "系統",
+    "system_action_label": "跟隨系統主題",
+    "current_theme": "目前主題："
+  }
+}

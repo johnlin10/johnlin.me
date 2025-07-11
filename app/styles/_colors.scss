@@ -1,6 +1,7 @@
 :root {
   --primary-color: var(--color-orange);
   --background-color: #ffffff;
+  --background-color-secondary: #f0f0f0;
   --foreground-color: #131313;
 
   /* Colors */
@@ -15,9 +16,10 @@
   --color-white: oklch(1 0 0);
 }
 
-[data-theme='dark'] {
+.dark {
   --primary-color: var(--color-orange);
   --background-color: #131313;
+  --background-color-secondary: #1f1f1f;
   --foreground-color: #ffffff;
 
   /* Colors */

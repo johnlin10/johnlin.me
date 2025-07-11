@@ -1,4 +1,5 @@
 @import 'tailwindcss';
+@import '@/app/styles/_mixins.scss';
 
 * {
   box-sizing: border-box;
@@ -8,20 +9,27 @@
   outline: none;
   border: 0 solid #00000000;
 
-  transition: 0.3s cubic-bezier(0.23, 1, 0.32, 1);
-  -webkit-transition: 0.3s cubic-bezier(0.23, 1, 0.32, 1);
-  -moz-transition: 0.3s cubic-bezier(0.23, 1, 0.32, 1);
-  -ms-transition: 0.3s cubic-bezier(0.23, 1, 0.32, 1);
-  -o-transition: 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+  transition: 0.3s var(--transition-bezier);
+  -webkit-transition: 0.3s var(--transition-bezier);
+  -moz-transition: 0.3s var(--transition-bezier);
+  -ms-transition: 0.3s var(--transition-bezier);
+  -o-transition: 0.3s var(--transition-bezier);
 }
 
 html {
+  padding: 0;
+  height: 100vh;
+  width: 100vw;
   overflow-x: hidden;
+  overflow-y: auto;
+  background: var(--background-color);
 }
 
 body {
+  top: 0;
   width: 100vw;
-  height: 100vh;
+  height: fit-content;
+  min-height: 100vh;
   background: var(--background-color);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
@@ -33,7 +41,7 @@ a {
 
 /* title */
 h1 {
-  margin-top: 1rem;
+  margin-top: 2rem;
   margin-bottom: 1rem;
   font-size: 2rem;
   font-weight: bold;
@@ -56,7 +64,22 @@ p {
   letter-spacing: 0.05rem;
 }
 
+main {
+  width: 100%;
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 72px 0;
+
+  @include respond-to('phone') {
+    padding: 72px 24px;
+  }
+  @include respond-to('tablet') {
+    padding: 72px 48px;
+  }
+}
+
 :root {
+  /* 間距變數 */
   --space-0-25x: 3px;
   --space-0-5x: 6px;
   --space-0-75x: 9px;
@@ -68,8 +91,5 @@ p {
   --space-5x: 60px;
   --space-6x: 72px;
 
-  --safe-area-left: 0;
-  --safe-area-right: 0;
-  --safe-area-top: 0;
-  --safe-area-bottom: 0;
+  --transition-bezier: cubic-bezier(0.23, 1, 0.32, 1);
 }
