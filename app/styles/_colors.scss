@@ -1,8 +1,15 @@
 :root {
   --primary-color: var(--color-orange);
   --background-color: #ffffff;
+  --background-color-rgb: 255, 255, 255;
   --background-color-secondary: #f0f0f0;
+  --background-color-secondary-rgb: 240, 240, 240;
+  --background-color-tertiary: #e0e0e0;
+  --background-color-tertiary-rgb: 224, 224, 224;
   --foreground-color: #131313;
+
+  --glass-color: rgba(255, 255, 255, 0.1);
+  --glass-background-color: rgba(255, 255, 255, 0.667);
 
   /* Colors */
   --color-red: oklch(0.71 0.16 24.58);
@@ -20,7 +27,11 @@
   --primary-color: var(--color-orange);
   --background-color: #131313;
   --background-color-secondary: #1f1f1f;
+  --background-color-tertiary: #2f2f2f;
   --foreground-color: #ffffff;
+
+  --glass-color: rgba(255, 255, 255, 0.1);
+  --glass-background-color: rgba(19, 19, 19, 0.667);
 
   /* Colors */
   --color-red: oklch(0.66 0.15 24.58);

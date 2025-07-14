@@ -1,20 +1,78 @@
 @import '@/app/styles/_mixins.scss';
 
 .header {
-  z-index: 1000;
+  z-index: 5000;
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 72px;
-  // background-color: var(--background-color);
 
   > .header_container {
+    position: relative;
     @include flexbox(row, space-between, center);
     width: 100%;
-    // max-width: 1200px;
     height: 100%;
-    // margin: 0 auto;
-    padding: 0 12px;
+    padding: 12px;
+
+    > .header_nav {
+      position: relative;
+      @include flexbox(row, space-between, center);
+      width: fit-content;
+      height: 100%;
+      background-color: var(--background-color-secondary);
+      // @include glass-blur(12px);
+      @include radius(24px);
+
+      @supports not (backdrop-filter: blur(1px)) {
+        background-color: var(--background-color-secondary);
+      }
+
+      > .nav_focus_indicator {
+        position: absolute;
+        top: 12px;
+        left: 12px;
+        width: 96px;
+        height: 48px;
+        background-color: var(--glass-color);
+        @include radius(24px);
+      }
+
+      > .header_nav_item {
+        position: relative;
+        @include flexbox(row, center, center);
+        gap: 6px;
+        padding: 0 18px;
+        height: 100%;
+        cursor: pointer;
+        @include radius(24px);
+
+        @include respond-to('phone') {
+          width: 48px;
+          padding: 0;
+        }
+
+        &.active {
+          background-color: var(--background-color-tertiary);
+        }
+
+        > .header_nav_item_icon {
+          width: 20px;
+          height: 20px;
+        }
+
+        > .header_nav_item_text {
+          @include respond-to('phone') {
+            display: none;
+          }
+        }
+      }
+    }
+
+    > .actions {
+      @include flexbox(row, center, center);
+      background-color: var(--background-color-secondary);
+      @include radius(24px);
+    }
   }
 }

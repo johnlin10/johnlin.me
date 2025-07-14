@@ -8,12 +8,11 @@
   letter-spacing: 0.05rem;
   outline: none;
   border: 0 solid #00000000;
-
-  transition: 0.3s var(--transition-bezier);
-  -webkit-transition: 0.3s var(--transition-bezier);
-  -moz-transition: 0.3s var(--transition-bezier);
-  -ms-transition: 0.3s var(--transition-bezier);
-  -o-transition: 0.3s var(--transition-bezier);
+  transition: 0.5s var(--transition-bezier);
+  -webkit-transition: 0.5s var(--transition-bezier);
+  -moz-transition: 0.5s var(--transition-bezier);
+  -ms-transition: 0.5s var(--transition-bezier);
+  -o-transition: 0.5s var(--transition-bezier);
 }
 
 html {
@@ -66,16 +65,7 @@ p {
 
 main {
   width: 100%;
-  max-width: 720px;
   margin: 0 auto;
-  padding: 72px 0;
-
-  @include respond-to('phone') {
-    padding: 72px 24px;
-  }
-  @include respond-to('tablet') {
-    padding: 72px 48px;
-  }
 }
 
 :root {

@@ -1,0 +1,13 @@
+.page {
+  position: relative;
+  padding-top: 72px;
+  width: 100%;
+  height: 100%;
+
+  > .page_container {
+    margin: 0 auto;
+    width: calc(100% - 38px);
+    max-width: 720px;
+    height: fit-content;
+  }
+}

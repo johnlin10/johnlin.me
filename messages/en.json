@@ -2,13 +2,17 @@
   "HomePage": {
     "title": "John Lin | Web Developer",
     "description": "Welcome to my new personal website.",
-
-    "theme_toggle": "Theme Toggle",
-    "language_switch": "Language Switch"
+    "page_title": "John Lin"
+  },
+  "BlogPage": {
+    "title": "Blog | John Lin",
+    "description": "Welcome to my blog.",
+    "page_title": "Blog"
   },
   "AboutPage": {
-    "title": "About",
-    "description": "This is the about page."
+    "title": "About | John Lin",
+    "description": "This is the about page.",
+    "page_title": "About"
   },
   "ThemeToggle": {
     "light": "Light",

@@ -33,7 +33,13 @@
   -o-border-radius: $radius;
 }
 
-@mixin transition($transition: none) {
+@mixin glass-blur($blur: 6px) {
+  backdrop-filter: blur($blur) !important;
+  -webkit-backdrop-filter: blur($blur) !important;
+  -moz-backdrop-filter: blur($blur) !important;
+}
+
+@mixin transition($transition...) {
   transition: $transition;
   -webkit-transition: $transition;
   -moz-transition: $transition;

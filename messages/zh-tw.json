@@ -2,13 +2,17 @@
   "HomePage": {
     "title": "林昌龍 | John Lin",
     "description": "歡迎來到我全新的個人網站。",
-
-    "theme_toggle": "主題切換",
-    "language_switch": "語言切換"
+    "page_title": "首頁"
+  },
+  "BlogPage": {
+    "title": "部落格｜林昌龍",
+    "description": "歡迎來到我的部落格。",
+    "page_title": "部落格"
   },
   "AboutPage": {
-    "title": "關於我",
-    "description": "這是關於我的頁面。"
+    "title": "關於我｜林昌龍",
+    "description": "這是關於我的頁面。",
+    "page_title": "關於我"
   },
   "ThemeToggle": {
     "light": "淺色",

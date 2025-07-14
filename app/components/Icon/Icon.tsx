@@ -1,21 +1,39 @@
+'use client'
+
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { type IconProp } from '@fortawesome/fontawesome-svg-core'
 import {
+  faHome,
+  faNewspaper,
+  faUser,
   faSun,
   faMoon,
   faDesktop,
   faCircleHalfStroke,
+  faChevronDown,
 } from '@fortawesome/free-solid-svg-icons'
 
 //* 定義可用的圖標名稱類型
-export type IconName = 'sun' | 'moon' | 'desktop' | 'circle-half-stroke'
+export type IconName =
+  | 'home'
+  | 'newspaper'
+  | 'user'
+  | 'sun'
+  | 'moon'
+  | 'desktop'
+  | 'circle-half-stroke'
+  | 'chevron-down'
 
 //* 圖標映射表
 const iconMap: Record<IconName, IconProp> = {
+  home: faHome,
+  newspaper: faNewspaper,
+  user: faUser,
   sun: faSun,
   moon: faMoon,
   desktop: faDesktop,
   'circle-half-stroke': faCircleHalfStroke,
+  'chevron-down': faChevronDown,
 }
 
 interface IconProps {

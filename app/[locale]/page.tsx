@@ -1,5 +1,6 @@
 import { getTranslations } from 'next-intl/server'
 import style from './page.module.scss'
+import PageContainer from '@/app/components/PageContainer/PageContainer'
 // import ThemeToggle from '@/app/components/ThemeToggle/ThemeToggle'
 // import LanguageSwitch from '../components/LanguageSwitch/LanguageSwitch'
 
@@ -32,23 +33,12 @@ export default async function Home({ params }: Props) {
   const t = await getTranslations('HomePage')
 
   return (
-    <div className={style.home}>
+    <PageContainer className={style.home}>
       <main>
         <h1>{t('title')}</h1>
         <p>{t('description')}</p>
-
-        {/* 主題切換元件示範 */}
-        {/* <div>
-          <h2>{t('theme_toggle')}</h2>
-          <ThemeToggle />
-        </div> */}
-
-        {/* <div>
-          <h2>{t('language_switch')}</h2>
-          <LanguageSwitch />
-        </div> */}
       </main>
       <footer></footer>
-    </div>
+    </PageContainer>
   )
 }
