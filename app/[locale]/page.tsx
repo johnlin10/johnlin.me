@@ -64,14 +64,14 @@ export default async function Home({ params }: Props) {
               <h2>{t('section_features.blog.title')}</h2>
               <p>{t('section_features.blog.description')}</p>
             </Link>
-            <Link href="/gallery" className={style.feature_card}>
+            {/*<Link href="/gallery" className={style.feature_card}>
               <h2>{t('section_features.gallery.title')}</h2>
               <p>{t('section_features.gallery.description')}</p>
             </Link>
             <Link href="/shorten" className={style.feature_card}>
               <h2>{t('section_features.shorten.title')}</h2>
               <p>{t('section_features.shorten.description')}</p>
-            </Link>
+            </Link> */}
             <Link href="/about" className={style.feature_card}>
               <h2>{t('section_features.about.title')}</h2>
               <p>{t('section_features.about.description')}</p>
