@@ -2,7 +2,8 @@
 
 import style from './LanguageSwitch.module.scss'
 import { useLocale } from 'next-intl'
-import { usePathname, useRouter } from 'next/navigation'
+// 修正：使用 next-intl 的 navigation hooks
+import { usePathname, useRouter } from '@/i18n/navigation'
 import { routing } from '@/i18n/routing'
 import { useTransition } from 'react'
 import { getLanguageDisplayName, languages } from '@/i18n/langueges'
@@ -19,14 +20,9 @@ export default function LanguageSwitch() {
   const currentShortName = languages[locale]?.shortName || locale.toUpperCase()
 
   const handleLanguageChange = (newLocale: string) => {
-    let parsedPathname = pathname
-
-    if (pathname.startsWith(`/${locale}`)) {
-      parsedPathname = pathname.replace(`/${locale}`, `/${newLocale}`)
-    }
-
+    // 修正：使用 next-intl 的 router.push，會自動處理 locale 路由
     startTransition(() => {
-      router.push(parsedPathname)
+      router.push(pathname, { locale: newLocale })
     })
   }
 

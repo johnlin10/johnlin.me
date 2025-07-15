@@ -1,10 +1,9 @@
 import { getTranslations } from 'next-intl/server'
 import style from './page.module.scss'
 import PageContainer from '@/app/components/PageContainer/PageContainer'
-import Link from 'next/link'
+// 修正：使用 next-intl 的 Link 組件
+import { Link } from '@/i18n/navigation'
 import Icon from '../components/Icon/Icon'
-// import ThemeToggle from '@/app/components/ThemeToggle/ThemeToggle'
-// import LanguageSwitch from '../components/LanguageSwitch/LanguageSwitch'
 
 type Props = {
   params: Promise<{

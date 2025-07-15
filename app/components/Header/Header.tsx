@@ -1,6 +1,7 @@
 'use client'
 
-import Link from 'next/link'
+// 修正：使用 next-intl 的 Link 組件
+import { Link } from '@/i18n/navigation'
 import style from './Header.module.scss'
 
 import Icon from '@/app/components/Icon/Icon'
