@@ -21,12 +21,8 @@
       width: fit-content;
       height: 100%;
       background-color: var(--background-color-secondary);
-      // @include glass-blur(12px);
       @include radius(24px);
-
-      @supports not (backdrop-filter: blur(1px)) {
-        background-color: var(--background-color-secondary);
-      }
+      @include glass-border;
 
       > .nav_focus_indicator {
         position: absolute;
@@ -46,14 +42,19 @@
         height: 100%;
         cursor: pointer;
         @include radius(24px);
-
-        @include respond-to('phone') {
-          width: 48px;
-          padding: 0;
-        }
+        @include glass-border-actions;
 
         &.active {
           background-color: var(--background-color-tertiary);
+        }
+        &:hover {
+          z-index: 10;
+          background-color: var(--background-color-quaternary);
+          @include transform(scale(1.1));
+        }
+        @include respond-to('phone') {
+          width: 48px;
+          padding: 0;
         }
 
         > .header_nav_item_icon {
@@ -71,8 +72,10 @@
 
     > .actions {
       @include flexbox(row, center, center);
+      height: 48px;
       background-color: var(--background-color-secondary);
       @include radius(24px);
+      @include glass-border;
     }
   }
 }

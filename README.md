@@ -1,36 +1,58 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# johnlin.me
 
-## Getting Started
+個人網站專案，使用現代化的前端技術棧建構。
 
-First, run the development server:
+## 技術
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+### 核心框架
+
+- **Next.js 15.3.5** - 使用最新的 App Router 架構
+- **React 19.0.0** - 最新版本的 React
+- **TypeScript 5** - 型別安全的 JavaScript 開發
+
+### 樣式與 UI
+
+- **Tailwind CSS 4** - 實用優先的 CSS 框架
+- **Sass/SCSS** - CSS 預處理器
+- **CSS Modules** - 元件級樣式隔離
+- **Font Awesome** - 豐富的圖示庫
+
+### 功能特色
+
+- **國際化支援（繁體中文 / 英文）** - `next-intl`
+- **深色/淺色主題切換** - `next-themes`
+- **響應式設計** - 支援各種裝置尺寸
+- **SEO 優化** - Next.js 內建 SEO 功能
+
+## 📁 專案結構
+
+```txt
+johnlin.me/
+├── app/                    # Next.js App Router
+│   ├── [locale]/          # 國際化路由
+│   ├── components/        # 可重用元件
+│   └── contexts/          # React Context
+├── i18n/                  # 國際化配置
+├── messages/              # 翻譯檔案
+└── public/                # 靜態資源
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 多語言支援
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+目前支援語言：
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- 繁體中文 (zh-tw)
+- English (en)
 
-## Learn More
+## 主要功能
 
-To learn more about Next.js, take a look at the following resources:
+- ✅ 響應式設計
+- ✅ 深色/淺色主題切換
+- ✅ 多語言國際化
+- ✅ SEO 優化
+- ✅ 現代化 UI 設計
+- ✅ TypeScript 型別安全
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 授權
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+本專案僅供個人使用。

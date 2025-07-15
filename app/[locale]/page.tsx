@@ -35,8 +35,10 @@ export default async function Home({ params }: Props) {
   return (
     <PageContainer className={style.home}>
       <main>
-        <h1>{t('title')}</h1>
-        <p>{t('description')}</p>
+        <section>
+          <h1>{t('title')}</h1>
+          <p>{t('description')}</p>
+        </section>
       </main>
       <footer></footer>
     </PageContainer>

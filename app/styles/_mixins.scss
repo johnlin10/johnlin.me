@@ -39,6 +39,30 @@
   -moz-backdrop-filter: blur($blur) !important;
 }
 
+@mixin empty-border($border: var(--glass-border-width)) {
+  border-top: $border solid var(--empty-color) !important;
+  border-left: $border solid var(--empty-color) !important;
+  border-right: $border solid var(--empty-color) !important;
+  border-bottom: $border solid var(--empty-color) !important;
+}
+
+@mixin glass-border($border: var(--glass-border-width)) {
+  border-top: $border solid var(--glass-border-top-color) !important;
+  border-left: $border solid var(--glass-border-left-color) !important;
+  border-right: $border solid var(--glass-border-right-color) !important;
+  border-bottom: $border solid var(--glass-border-bottom-color) !important;
+}
+
+@mixin glass-border-actions($border: var(--glass-border-width)) {
+  @include empty-border($border);
+  &:hover {
+    border-top: $border solid var(--glass-border-top-color) !important;
+    border-left: $border solid var(--glass-border-left-color) !important;
+    border-right: $border solid var(--glass-border-right-color) !important;
+    border-bottom: $border solid var(--glass-border-bottom-color) !important;
+  }
+}
+
 @mixin transition($transition...) {
   transition: $transition;
   -webkit-transition: $transition;

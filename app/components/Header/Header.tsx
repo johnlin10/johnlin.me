@@ -7,14 +7,16 @@ import Icon from '@/app/components/Icon/Icon'
 import LanguageSwitch from '@/app/components/LanguageSwitch/LanguageSwitch'
 import ThemeToggle from '@/app/components/ThemeToggle/ThemeToggle'
 import { usePathname } from '@/i18n/navigation'
+import { useTranslations } from 'next-intl'
 
 export default function Header() {
   const currentPath = usePathname()
+  const t = useTranslations('Header')
+
   return (
     <header className={style.header}>
       <div className={style.header_container}>
         <div className={style.header_nav}>
-          {/* <div className={style.nav_focus_indicator}></div> */}
           <Link
             href="/"
             className={`${style.header_nav_item} ${
@@ -22,7 +24,7 @@ export default function Header() {
             }`}
           >
             <Icon name="home" className={style.header_nav_item_icon} />
-            <span className={style.header_nav_item_text}>Home</span>
+            <span className={style.header_nav_item_text}>{t('home')}</span>
           </Link>
           <Link
             href="/blog"
@@ -31,7 +33,7 @@ export default function Header() {
             }`}
           >
             <Icon name="newspaper" className={style.header_nav_item_icon} />
-            <span className={style.header_nav_item_text}>Blog</span>
+            <span className={style.header_nav_item_text}>{t('blog')}</span>
           </Link>
           <Link
             href="/about"
@@ -40,7 +42,7 @@ export default function Header() {
             }`}
           >
             <Icon name="user" className={style.header_nav_item_icon} />
-            <span className={style.header_nav_item_text}>About</span>
+            <span className={style.header_nav_item_text}>{t('about')}</span>
           </Link>
         </div>
         <div className={style.actions}>

@@ -6,9 +6,15 @@
   height: 48px;
   width: 48px;
   padding: 6px;
-  background-color: var(--background-color-secondary);
   @include radius(30px);
   overflow: hidden;
+  @include glass-border-actions;
+
+  &:hover {
+    z-index: 10;
+    background-color: var(--background-color-quaternary);
+    @include transform(scale(1.1));
+  }
 
   > .theme_toggle_container {
     @include flexbox(row, space-between, center);

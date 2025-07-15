@@ -20,6 +20,7 @@ export default function LanguageSwitch() {
 
   const handleLanguageChange = (newLocale: string) => {
     let parsedPathname = pathname
+
     if (pathname.startsWith(`/${locale}`)) {
       parsedPathname = pathname.replace(`/${locale}`, `/${newLocale}`)
     }
@@ -38,6 +39,8 @@ export default function LanguageSwitch() {
         </div>
 
         <select
+          name="language"
+          id="language"
           value={locale}
           onChange={(e) => handleLanguageChange(e.target.value)}
           disabled={isPending}
