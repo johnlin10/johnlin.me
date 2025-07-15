@@ -25,6 +25,13 @@
   align-items: $align;
 }
 
+@mixin gridbox($direction: row, $repeat: repeat(4, 1fr), $gap: 1rem) {
+  display: grid;
+  grid-template-columns: $repeat;
+  grid-template-rows: $repeat;
+  gap: $gap;
+}
+
 @mixin radius($radius: 12px) {
   border-radius: $radius;
   -webkit-border-radius: $radius;
@@ -77,4 +84,20 @@
   -moz-transform: $transform;
   -ms-transform: $transform;
   -o-transform: $transform;
+}
+
+// components
+@mixin button($radius: 24px) {
+  @include flexbox(row, center, center);
+  padding: 0.5rem 1rem;
+  width: fit-content;
+  background-color: var(--background-color-secondary);
+  font-size: 0.9rem;
+  @include radius($radius);
+  @include glass-border;
+}
+@mixin button-link-hover($color: var(--link-hover-color)) {
+  &:hover {
+    background-color: $color;
+  }
 }

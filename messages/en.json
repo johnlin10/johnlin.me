@@ -2,7 +2,40 @@
   "HomePage": {
     "title": "John Lin | Web Developer",
     "description": "Welcome to my new personal website.",
-    "page_title": "John Lin"
+    "page_title": "John Lin",
+    "section_hero": {
+      "title": "John Lin",
+      "intros": [
+        "I don't want this website to 'look impressive'.",
+        "I just want it to grow slowly, like me—into something I truly like."
+      ]
+    },
+    "section_live_life": {
+      "contents": [
+        "Currently, I'm a creator who values freedom—building things that matter to me through code.",
+        "These days, I'm learning English, writing reflections on education and life, and documenting everyday moments through photography.",
+        "I'm not sure what this site will become, but like me, it's always exploring, and never stopping."
+      ]
+    },
+    "section_features": {
+      "title": "Features",
+      "blog": {
+        "title": "Blog",
+        "description": "Reflections on education, life, and self-awareness."
+      },
+      "gallery": {
+        "title": "Gallery",
+        "description": "Capturing moments that feel worth pausing for."
+      },
+      "shorten": {
+        "title": "URL Shortener",
+        "description": "A minimalist shortlink tool I built for myself."
+      },
+      "about": {
+        "title": "About Me",
+        "description": "If you'd like to know me better, this is a good place to start."
+      }
+    }
   },
   "BlogPage": {
     "title": "Blog | John Lin",

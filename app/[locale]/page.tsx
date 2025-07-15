@@ -1,6 +1,8 @@
 import { getTranslations } from 'next-intl/server'
 import style from './page.module.scss'
 import PageContainer from '@/app/components/PageContainer/PageContainer'
+import Link from 'next/link'
+import Icon from '../components/Icon/Icon'
 // import ThemeToggle from '@/app/components/ThemeToggle/ThemeToggle'
 // import LanguageSwitch from '../components/LanguageSwitch/LanguageSwitch'
 
@@ -35,9 +37,47 @@ export default async function Home({ params }: Props) {
   return (
     <PageContainer className={style.home}>
       <main>
-        <section>
-          <h1>{t('title')}</h1>
-          <p>{t('description')}</p>
+        <section className={style.section_hero}>
+          <h1>{t('section_hero.title')}</h1>
+          <p>{t('section_hero.intros.0')}</p>
+          <p>{t('section_hero.intros.1')}</p>
+          <div className={style.buttons}>
+            <Link href="/about" className={style.button}>
+              <span>關於我</span>
+              <Icon name="arrow-right" className={style.icon} />
+            </Link>
+            <Link href="/blog" className={style.button}>
+              <span>閱讀文章</span>
+              <Icon name="arrow-right" className={style.icon} />
+            </Link>
+          </div>
+        </section>
+        <section className={style.section_live_life}>
+          <p>{t('section_live_life.contents.0')}</p>
+          <p>{t('section_live_life.contents.1')}</p>
+          <p>{t('section_live_life.contents.2')}</p>
+        </section>
+        {/* 功能卡片 */}
+        <section className={style.section_features}>
+          <h1>{t('section_features.title')}</h1>
+          <div className={style.feature_card_container}>
+            <Link href="/blog" className={style.feature_card}>
+              <h2>{t('section_features.blog.title')}</h2>
+              <p>{t('section_features.blog.description')}</p>
+            </Link>
+            <Link href="/gallery" className={style.feature_card}>
+              <h2>{t('section_features.gallery.title')}</h2>
+              <p>{t('section_features.gallery.description')}</p>
+            </Link>
+            <Link href="/shorten" className={style.feature_card}>
+              <h2>{t('section_features.shorten.title')}</h2>
+              <p>{t('section_features.shorten.description')}</p>
+            </Link>
+            <Link href="/about" className={style.feature_card}>
+              <h2>{t('section_features.about.title')}</h2>
+              <p>{t('section_features.about.description')}</p>
+            </Link>
+          </div>
         </section>
       </main>
       <footer></footer>

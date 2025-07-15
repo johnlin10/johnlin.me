@@ -2,7 +2,40 @@
   "HomePage": {
     "title": "林昌龍",
     "description": "歡迎來到我全新的個人網站。",
-    "page_title": "首頁"
+    "page_title": "首頁",
+    "section_hero": {
+      "title": "林昌龍",
+      "intros": [
+        "我不想讓這個網站「看起來很厲害」",
+        "我只想讓它像我一樣，慢慢長成自己喜歡的樣子。"
+      ]
+    },
+    "section_live_life": {
+      "contents": [
+        "目前是一位熱愛自由的創作者，喜歡用程式做出對自己有意義的東西。",
+        "最近正在學英文、寫一些對教育、生活觀察的文字，還有紀錄生活的攝影。",
+        "我不太確定網站最後會變成什麼，但它會像我一樣：總是在探索，也從不停止。"
+      ]
+    },
+    "section_features": {
+      "title": "Features",
+      "blog": {
+        "title": "Blog",
+        "description": "分享我對教育、人生、自我覺察的反思與觀察。"
+      },
+      "gallery": {
+        "title": "攝影作品集",
+        "description": "捕捉我覺得值得停留一秒的時刻。"
+      },
+      "shorten": {
+        "title": "短網址工具",
+        "description": "為自己打造的一個簡潔短網址工具。"
+      },
+      "about": {
+        "title": "關於我",
+        "description": "如果你想更認識我，可以從這裡開始。"
+      }
+    }
   },
   "BlogPage": {
     "title": "部落格｜林昌龍",

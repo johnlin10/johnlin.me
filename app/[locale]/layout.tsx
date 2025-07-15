@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
-import { Geist, Geist_Mono, Noto_Sans_TC } from 'next/font/google'
+import { Noto_Sans_TC } from 'next/font/google'
 import { ThemeProvider } from '../contexts/ThemeContext'
 import Header from '@/app/components/Header/Header'
 
