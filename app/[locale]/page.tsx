@@ -42,11 +42,11 @@ export default async function Home({ params }: Props) {
           <p>{t('section_hero.intros.1')}</p>
           <div className={style.buttons}>
             <Link href="/about" className={style.button}>
-              <span>關於我</span>
+              <span>{t('section_hero.buttons.about')}</span>
               <Icon name="arrow-right" className={style.icon} />
             </Link>
             <Link href="/blog" className={style.button}>
-              <span>閱讀文章</span>
+              <span>{t('section_hero.buttons.blog')}</span>
               <Icon name="arrow-right" className={style.icon} />
             </Link>
           </div>
@@ -68,10 +68,10 @@ export default async function Home({ params }: Props) {
               <h2>{t('section_features.gallery.title')}</h2>
               <p>{t('section_features.gallery.description')}</p>
             </Link>
-            <Link href="/shorten" className={style.feature_card}>
+            {/* <Link href="/shorten" className={style.feature_card}>
               <h2>{t('section_features.shorten.title')}</h2>
               <p>{t('section_features.shorten.description')}</p>
-            </Link>
+            </Link> */}
             <Link href="/about" className={style.feature_card}>
               <h2>{t('section_features.about.title')}</h2>
               <p>{t('section_features.about.description')}</p>

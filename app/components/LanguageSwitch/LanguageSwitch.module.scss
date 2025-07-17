@@ -5,10 +5,10 @@
   height: 100%;
   @include radius(24px);
   @include glass-border-actions;
+  @include hover-scale;
 
   &:hover {
     background-color: var(--background-color-quaternary);
-    @include transform(scale(1.1));
   }
 
   > .language_switch_item {

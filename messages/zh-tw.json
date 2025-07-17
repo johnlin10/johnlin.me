@@ -8,23 +8,27 @@
       "intros": [
         "我不想讓這個網站「看起來很厲害」",
         "我只想讓它像我一樣，慢慢長成自己喜歡的樣子。"
-      ]
+      ],
+      "buttons": {
+        "about": "關於我",
+        "blog": "閱讀文章"
+      }
     },
     "section_live_life": {
       "contents": [
-        "目前是一位熱愛自由的創作者，喜歡用程式做出對自己有意義的東西。",
+        "一位熱愛自由的創作者，喜歡用程式做出對自己有意義的東西。",
         "最近正在學英文、寫一些對教育、生活觀察的文字，還有紀錄生活的攝影。",
         "我不太確定網站最後會變成什麼，但它會像我一樣：總是在探索，也從不停止。"
       ]
     },
     "section_features": {
-      "title": "Features",
+      "title": "功能",
       "blog": {
-        "title": "Blog",
+        "title": "部落格",
         "description": "分享我對教育、人生、自我覺察的反思與觀察。"
       },
       "gallery": {
-        "title": "攝影作品集",
+        "title": "攝影集",
         "description": "捕捉我覺得值得停留一秒的時刻。"
       },
       "shorten": {
@@ -42,6 +46,11 @@
     "description": "歡迎來到我的部落格。",
     "page_title": "部落格"
   },
+  "GalleryPage": {
+    "title": "攝影集｜林昌龍",
+    "description": "歡迎來到我的攝影集。",
+    "page_title": "攝影集"
+  },
   "AboutPage": {
     "title": "關於我｜林昌龍",
     "description": "這是關於我的頁面。",
@@ -50,7 +59,13 @@
   "Header": {
     "home": "首頁",
     "blog": "部落格",
-    "about": "關於我"
+    "about": "關於我",
+    "gallery": "攝影集",
+    "path_title": {
+      "/": "首頁",
+      "/blog": "部落格",
+      "/about": "關於我"
+    }
   },
   "ThemeToggle": {
     "light": "淺色",

@@ -12,6 +12,7 @@ import {
   faCircleHalfStroke,
   faChevronDown,
   faArrowRight,
+  faImage,
 } from '@fortawesome/free-solid-svg-icons'
 
 //* 定義可用的圖標名稱類型
@@ -25,6 +26,7 @@ export type IconName =
   | 'circle-half-stroke'
   | 'chevron-down'
   | 'arrow-right'
+  | 'image'
 
 //* 圖標映射表
 const iconMap: Record<IconName, IconProp> = {
@@ -37,6 +39,7 @@ const iconMap: Record<IconName, IconProp> = {
   'circle-half-stroke': faCircleHalfStroke,
   'chevron-down': faChevronDown,
   'arrow-right': faArrowRight,
+  image: faImage,
 }
 
 interface IconProps {

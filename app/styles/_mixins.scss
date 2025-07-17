@@ -46,6 +46,19 @@
   -moz-backdrop-filter: blur($blur) !important;
 }
 
+@mixin hover-scale($level: 'm') {
+  &:hover {
+    z-index: 10;
+    @if $level == 'm' {
+      @include transform(scale(1.15));
+    } @else if $level == 'l' {
+      @include transform(scale(1.25));
+    } @else if $level == 's' {
+      @include transform(scale(1.05));
+    }
+  }
+}
+
 @mixin empty-border($border: var(--glass-border-width)) {
   border-top: $border solid var(--empty-color) !important;
   border-left: $border solid var(--empty-color) !important;
@@ -99,5 +112,6 @@
 @mixin button-link-hover($color: var(--link-hover-color)) {
   &:hover {
     background-color: $color;
+    @include hover-scale;
   }
 }

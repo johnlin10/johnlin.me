@@ -18,53 +18,58 @@
     > .header_nav {
       position: relative;
       @include flexbox(row, space-between, center);
+      gap: 12px;
       width: fit-content;
       height: 100%;
-      background-color: var(--background-color-secondary);
-      @include radius(24px);
-      @include glass-border;
 
-      > .nav_focus_indicator {
-        position: absolute;
-        top: 12px;
-        left: 12px;
-        width: 96px;
-        height: 48px;
-        background-color: var(--glass-color);
-        @include radius(24px);
+      > .header_title {
+        padding: 0 12px;
+
+        > h1 {
+          margin: 0;
+          font-size: 1.5rem;
+        }
       }
 
-      > .header_nav_item {
-        position: relative;
+      > .header_links {
         @include flexbox(row, center, center);
-        gap: 6px;
-        padding: 0 18px;
+        width: fit-content;
         height: 100%;
-        cursor: pointer;
+        background-color: var(--background-color-secondary);
         @include radius(24px);
-        @include glass-border-actions;
+        @include glass-border;
 
-        &.active {
-          background-color: var(--background-color-tertiary);
-        }
-        &:hover {
-          z-index: 10;
-          background-color: var(--background-color-quaternary);
-          @include transform(scale(1.1));
-        }
-        @include respond-to('phone') {
-          width: 48px;
-          padding: 0;
-        }
+        > .header_nav_item {
+          position: relative;
+          @include flexbox(row, center, center);
+          gap: 6px;
+          padding: 0 18px;
+          height: 100%;
+          cursor: pointer;
+          @include radius(24px);
+          @include glass-border-actions;
+          @include hover-scale;
 
-        > .header_nav_item_icon {
-          width: 20px;
-          height: 20px;
-        }
-
-        > .header_nav_item_text {
+          &.active {
+            background-color: var(--background-color-tertiary);
+          }
+          &:hover {
+            background-color: var(--background-color-quaternary);
+          }
           @include respond-to('phone') {
-            display: none;
+            width: 48px;
+            padding: 0;
+          }
+
+          > .header_nav_item_icon {
+            width: 20px;
+            height: 20px;
+          }
+
+          > .header_nav_item_text {
+            @include respond-to('phone') {
+              display: none;
+            }
           }
         }
       }
