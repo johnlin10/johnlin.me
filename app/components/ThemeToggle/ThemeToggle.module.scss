@@ -39,7 +39,7 @@
       );
 
       &:global(.light) {
-        background-color: var(--color-orange);
+        background-color: var(--color-orange-500); // 修復色彩
       }
 
       &:global(.system) {
@@ -87,7 +87,7 @@
         left: 0;
 
         &.active {
-          background-color: var(--color-orange);
+          background-color: var(--color-orange-500); // 修復色彩
         }
       }
 
