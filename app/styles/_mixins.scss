@@ -18,6 +18,17 @@
   }
 }
 
+@mixin respond-by-max-width($width) {
+  @media (max-width: $width) {
+    @content;
+  }
+}
+@mixin respond-by-min-width($width) {
+  @media (min-width: $width) {
+    @content;
+  }
+}
+
 @mixin flexbox($direction: row, $justify: center, $align: center) {
   display: flex;
   flex-direction: $direction;
@@ -49,6 +60,7 @@
 @mixin hover-scale($level: 'm') {
   &:hover {
     z-index: 10;
+    box-shadow: 0 0 24px 6px rgba(0, 0, 0, 0.1);
     @if $level == 'm' {
       @include transform(scale(1.15));
     } @else if $level == 'l' {

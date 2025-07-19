@@ -56,11 +56,27 @@
     "description": "這是關於我的頁面。",
     "page_title": "關於我"
   },
+  "LabPage": {
+    "title": "實驗室｜林昌龍",
+    "description": "歡迎來到我的實驗室。",
+    "page_title": "實驗室",
+    "PalettePage": {
+      "title": "調色盤",
+      "description": "此網站所使用的顏色",
+      "color_display": {
+        "click-to-copy": "點擊複製",
+        "color_value": "顏色值",
+        "loading": "載入中...",
+        "error": "無法取得"
+      }
+    }
+  },
   "Header": {
     "home": "首頁",
     "blog": "部落格",
     "about": "關於我",
     "gallery": "攝影集",
+    "lab": "實驗室",
     "path_title": {
       "/": "首頁",
       "/blog": "部落格",

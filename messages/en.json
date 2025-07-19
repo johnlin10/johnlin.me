@@ -56,11 +56,27 @@
     "description": "This is the about page.",
     "page_title": "About"
   },
+  "LabPage": {
+    "title": "Lab | John Lin",
+    "description": "Welcome to my lab.",
+    "page_title": "Lab",
+    "PalettePage": {
+      "title": "Palette",
+      "description": "The colors used on this website.",
+      "color_display": {
+        "click-to-copy": "Click to copy",
+        "color_value": "color value",
+        "loading": "Loading...",
+        "error": "Error"
+      }
+    }
+  },
   "Header": {
     "home": "Home",
     "blog": "Blog",
     "about": "About",
     "gallery": "Gallery",
+    "lab": "Lab",
     "path_title": {
       "/": "Home",
       "/blog": "Blog",

@@ -46,9 +46,19 @@ export default function Header() {
                 currentPath === '/gallery' ? style.active : ''
               }`}
             >
-              <Icon name="image" className={style.header_nav_item_icon} />
+              <Icon name="camera" className={style.header_nav_item_icon} />
               <span className={style.header_nav_item_text}>{t('gallery')}</span>
             </Link>
+            {/* <Link
+              href="/lab"
+              className={`${style.header_nav_item} ${
+                currentPath === '/lab' ? style.active : ''
+              }`}
+            >
+              <Icon name="flask" className={style.header_nav_item_icon} />
+              <span className={style.header_nav_item_text}>{t('lab')}</span>
+            </Link> */}
+
             <Link
               href="/about"
               className={`${style.header_nav_item} ${

@@ -13,6 +13,8 @@ import {
   faChevronDown,
   faArrowRight,
   faImage,
+  faCamera,
+  faFlask,
 } from '@fortawesome/free-solid-svg-icons'
 
 //* 定義可用的圖標名稱類型
@@ -27,6 +29,8 @@ export type IconName =
   | 'chevron-down'
   | 'arrow-right'
   | 'image'
+  | 'camera'
+  | 'flask'
 
 //* 圖標映射表
 const iconMap: Record<IconName, IconProp> = {
@@ -40,6 +44,8 @@ const iconMap: Record<IconName, IconProp> = {
   'chevron-down': faChevronDown,
   'arrow-right': faArrowRight,
   image: faImage,
+  camera: faCamera,
+  flask: faFlask,
 }
 
 interface IconProps {

@@ -1,0 +1,8 @@
+@import '@/app/styles/_mixins.scss';
+
+.lab {
+  > .link {
+    @include button;
+    @include button-link-hover;
+  }
+}
