@@ -7,8 +7,28 @@
 
   > .page_container {
     margin: 0 auto;
-    width: calc(100% - 38px);
+    width: calc(100% - 48px);
     max-width: 720px;
     height: fit-content;
+
+    &.small {
+      max-width: 720px;
+    }
+
+    &.medium {
+      max-width: 1024px;
+    }
+
+    &.large {
+      max-width: 1280px;
+    }
+
+    &.full {
+      max-width: none;
+    }
+
+    &.max-content {
+      max-width: max-content;
+    }
   }
 }

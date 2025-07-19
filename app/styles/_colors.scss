@@ -1,5 +1,5 @@
 :root {
-  --primary-color: var(--color-orange);
+  --primary-color: var(--color-orange-500);
   --background-color: #ffffff;
   --background-color-rgb: 255, 255, 255;
   --background-color-secondary: #f0f0f0;
@@ -12,6 +12,7 @@
 
   --empty-color: #00000000;
 
+  /* Glass */
   --glass-color: rgba(255, 255, 255, 0.1);
   --glass-background-color: rgba(255, 255, 255, 0.667);
 
@@ -22,13 +23,76 @@
   --glass-border-bottom-color: rgba(0, 0, 0, 0.05);
 
   /* Colors */
-  --color-red: oklch(0.71 0.16 24.58);
-  --color-green: oklch(0.71 0.16 143.42);
-  --color-blue: oklch(0.71 0.16 256.17);
-  --color-purple: oklch(0.71 0.16 303.79);
-  --color-orange: oklch(0.71 0.16 60.54);
-  --color-pink: oklch(0.71 0.16 353.13);
-  --color-yellow: oklch(0.71 0.16 98);
+  --color-red-100: oklch(0.91 0.09 28.8);
+  --color-red-200: oklch(0.82 0.14 28.8);
+  --color-red-300: oklch(0.74 0.18 28.8);
+  --color-red-400: oklch(0.67 0.21 28.8);
+  --color-red-500: oklch(0.61 0.23 28.8);
+  --color-red-600: oklch(0.51 0.2 28.8);
+  --color-red-700: oklch(0.41 0.17 28.8);
+  --color-red-800: oklch(0.31 0.14 28.8);
+  --color-red-900: oklch(0.21 0.11 28.8);
+
+  --color-green-100: oklch(0.91 0.09 142);
+  --color-green-200: oklch(0.82 0.14 142);
+  --color-green-300: oklch(0.74 0.18 143);
+  --color-green-400: oklch(0.67 0.21 142);
+  --color-green-500: oklch(0.61 0.23 142);
+  --color-green-600: oklch(0.51 0.2 142);
+  --color-green-700: oklch(0.41 0.17 142);
+  --color-green-800: oklch(0.31 0.14 142);
+  --color-green-900: oklch(0.21 0.11 142);
+
+  --color-blue-100: oklch(0.91 0.09 257);
+  --color-blue-200: oklch(0.82 0.14 257);
+  --color-blue-300: oklch(0.74 0.18 257);
+  --color-blue-400: oklch(0.67 0.21 257);
+  --color-blue-500: oklch(0.61 0.23 257);
+  --color-blue-600: oklch(0.51 0.2 257);
+  --color-blue-700: oklch(0.41 0.17 257);
+  --color-blue-800: oklch(0.31 0.14 257);
+  --color-blue-900: oklch(0.21 0.11 257);
+
+  --color-purple-100: oklch(0.91 0.09 303.8);
+  --color-purple-200: oklch(0.82 0.14 303.8);
+  --color-purple-300: oklch(0.74 0.18 303.8);
+  --color-purple-400: oklch(0.67 0.21 303.8);
+  --color-purple-500: oklch(0.61 0.23 303.8);
+  --color-purple-600: oklch(0.51 0.2 303.8);
+  --color-purple-700: oklch(0.41 0.17 303.8);
+  --color-purple-800: oklch(0.31 0.14 303.8);
+  --color-purple-900: oklch(0.21 0.11 303.8);
+
+  --color-orange-100: oklch(0.91 0.09 60);
+  --color-orange-200: oklch(0.82 0.14 60);
+  --color-orange-300: oklch(0.74 0.18 60);
+  --color-orange-400: oklch(0.67 0.21 60);
+  --color-orange-500: oklch(0.61 0.23 60);
+  --color-orange-600: oklch(0.51 0.2 60);
+  --color-orange-700: oklch(0.41 0.17 60);
+  --color-orange-800: oklch(0.31 0.14 60);
+  --color-orange-900: oklch(0.21 0.11 60);
+
+  --color-pink-100: oklch(0.91 0.09 353);
+  --color-pink-200: oklch(0.82 0.14 353);
+  --color-pink-300: oklch(0.74 0.18 353);
+  --color-pink-400: oklch(0.67 0.21 353);
+  --color-pink-500: oklch(0.61 0.23 353);
+  --color-pink-600: oklch(0.51 0.2 353);
+  --color-pink-700: oklch(0.41 0.17 353);
+  --color-pink-800: oklch(0.31 0.14 353);
+  --color-pink-900: oklch(0.21 0.11 353);
+
+  --color-yellow-100: oklch(0.91 0.08 91.6);
+  --color-yellow-200: oklch(0.86 0.12 91.6);
+  --color-yellow-300: oklch(0.81 0.16 91.6);
+  --color-yellow-400: oklch(0.76 0.18 91.6);
+  --color-yellow-500: oklch(0.72 0.19 91.6);
+  --color-yellow-600: oklch(0.6 0.17 91.6);
+  --color-yellow-700: oklch(0.48 0.15 91.6);
+  --color-yellow-800: oklch(0.36 0.13 91.6);
+  --color-yellow-900: oklch(0.24 0.11 91.6);
+
   --color-black: oklch(0 0 0);
   --color-white: oklch(1 0 0);
 
@@ -36,7 +100,7 @@
 }
 
 .dark {
-  --primary-color: var(--color-orange);
+  --primary-color: var(--color-orange-500);
   --background-color: #131313;
   --background-color-rgb: 19, 19, 19;
   --background-color-secondary: #1f1f1f;
@@ -49,25 +113,26 @@
 
   --empty-color: #00000000;
 
+  /* Glass */
   --glass-color: rgba(255, 255, 255, 0.1);
   --glass-background-color: rgba(19, 19, 19, 0.667);
 
-  --glass-border-width: 0.5px;
-  --glass-border-top-color: rgba(255, 255, 255, 0.1);
-  --glass-border-left-color: rgba(255, 255, 255, 0.1);
-  --glass-border-right-color: rgba(0, 0, 0, 0.1);
-  --glass-border-bottom-color: rgba(0, 0, 0, 0.2);
+  --glass-border-width: 1px;
+  --glass-border-top-color: rgba(255, 255, 255, 0.07);
+  --glass-border-left-color: rgba(255, 255, 255, 0.07);
+  --glass-border-right-color: rgba(255, 255, 255, 0.02);
+  --glass-border-bottom-color: rgba(255, 255, 255, 0.02);
 
   /* Colors */
-  --color-red: oklch(0.66 0.15 24.58);
-  --color-green: oklch(0.66 0.15 143.42);
-  --color-blue: oklch(0.66 0.15 256.17);
-  --color-purple: oklch(0.66 0.15 303.79);
-  --color-orange: oklch(0.66 0.15 60.54);
-  --color-pink: oklch(0.66 0.15 353.13);
-  --color-yellow: oklch(0.66 0.15 98);
-  --color-black: oklch(0 0 0);
-  --color-white: oklch(1 0 0);
+  // --color-red: oklch(0.66 0.15 24.58);
+  // --color-green: oklch(0.66 0.15 143.42);
+  // --color-blue: oklch(0.55 0.1368 256.1);
+  // --color-purple: oklch(0.66 0.15 303.79);
+  // --color-orange: oklch(0.66 0.15 60.54);
+  // --color-pink: oklch(0.66 0.15 353.13);
+  // --color-yellow: oklch(0.66 0.15 98);
+  // --color-black: oklch(0 0 0);
+  // --color-white: oklch(1 0 0);
 
   --link-hover-color: var(--color-blue);
 }

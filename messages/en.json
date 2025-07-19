@@ -8,11 +8,15 @@
       "intros": [
         "I don't want this website to 'look impressive'.",
         "I just want it to grow slowly, like me—into something I truly like."
-      ]
+      ],
+      "buttons": {
+        "about": "About Me",
+        "blog": "Read Articles"
+      }
     },
     "section_live_life": {
       "contents": [
-        "Currently, I'm a creator who values freedom—building things that matter to me through code.",
+        "I'm a creator who values freedom—building things that matter to me through code.",
         "These days, I'm learning English, writing reflections on education and life, and documenting everyday moments through photography.",
         "I'm not sure what this site will become, but like me, it's always exploring, and never stopping."
       ]
@@ -42,15 +46,42 @@
     "description": "Welcome to my blog.",
     "page_title": "Blog"
   },
+  "GalleryPage": {
+    "title": "Gallery | John Lin",
+    "description": "Welcome to my gallery.",
+    "page_title": "Gallery"
+  },
   "AboutPage": {
     "title": "About | John Lin",
     "description": "This is the about page.",
     "page_title": "About"
   },
+  "LabPage": {
+    "title": "Lab | John Lin",
+    "description": "Welcome to my lab.",
+    "page_title": "Lab",
+    "PalettePage": {
+      "title": "Palette",
+      "description": "The colors used on this website.",
+      "color_display": {
+        "click-to-copy": "Click to copy",
+        "color_value": "color value",
+        "loading": "Loading...",
+        "error": "Error"
+      }
+    }
+  },
   "Header": {
     "home": "Home",
     "blog": "Blog",
-    "about": "About"
+    "about": "About",
+    "gallery": "Gallery",
+    "lab": "Lab",
+    "path_title": {
+      "/": "Home",
+      "/blog": "Blog",
+      "/about": "About"
+    }
   },
   "ThemeToggle": {
     "light": "Light",

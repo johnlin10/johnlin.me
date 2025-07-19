@@ -1,0 +1,15 @@
+@import '@/app/styles/_mixins.scss';
+
+.color_display {
+  > .color_name {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--foreground-color);
+  }
+
+  > .color_value {
+    font-size: 0.5rem;
+    white-space: nowrap;
+    color: var(--foreground-color);
+  }
+}

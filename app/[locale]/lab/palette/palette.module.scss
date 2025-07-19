@@ -1,0 +1,88 @@
+@import '@/app/styles/_mixins.scss';
+
+.palette {
+  @include respond-by-max-width(1128px) {
+    max-width: 100% !important;
+  }
+
+  > .palette_container {
+    @include flexbox(column, flex-start, flex-start);
+    gap: 12px;
+    width: 100%;
+    min-width: 100%;
+
+    @include respond-by-min-width(1128px) {
+      min-width: calc(120px * 9);
+    }
+
+    > .palette_item {
+      @include flexbox(column, flex-start, flex-start);
+      gap: 3px;
+      width: 100%;
+      max-width: 100%;
+
+      > .palette_item_name {
+        margin-left: 12px;
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--foreground-color);
+      }
+
+      > .palette_colors {
+        @include flexbox(column, flex-start, flex-start);
+        width: 100%;
+
+        @include respond-by-min-width(1128px) {
+          @include flexbox(row, flex-start, flex-start);
+        }
+
+        > .palette_color {
+          @include flexbox(column, flex-start, flex-start);
+          padding: 15px 18px;
+          width: 100%;
+          cursor: pointer;
+          @include hover-scale('s');
+          @include empty-border;
+
+          @include respond-by-min-width(1128px) {
+            width: 120px;
+            @include hover-scale;
+          }
+
+          &:hover {
+            @include radius(12px);
+            @include glass-border;
+          }
+
+          &:first-child {
+            @include radius(12px 12px 0 0);
+            @include respond-by-min-width(1128px) {
+              @include radius(18px 0 0 18px);
+            }
+
+            &:hover {
+              @include radius(18px 18px 12px 12px);
+              @include respond-by-min-width(1128px) {
+                @include radius(18px 12px 12px 18px);
+              }
+            }
+          }
+
+          &:last-child {
+            @include radius(0 0 18px 18px);
+            @include respond-by-min-width(1128px) {
+              @include radius(0 18px 18px 0);
+            }
+
+            &:hover {
+              @include radius(12px 12px 18px 18px);
+              @include respond-by-min-width(1128px) {
+                @include radius(12px 18px 18px 12px);
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

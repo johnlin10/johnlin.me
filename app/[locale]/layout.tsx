@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { notFound } from 'next/navigation'
 import { Noto_Sans_TC } from 'next/font/google'
 import { ThemeProvider } from '../contexts/ThemeContext'
@@ -8,29 +8,26 @@ import Header from '@/app/components/Header/Header'
 import { routing } from '@/i18n/routing'
 import { NextIntlClientProvider, hasLocale } from 'next-intl'
 
-// const geistSans = Geist({
-//   variable: '--font-geist-sans',
-//   subsets: ['latin'],
-// })
-
-// const geistMono = Geist_Mono({
-//   variable: '--font-geist-mono',
-//   subsets: ['latin'],
-// })
+import { GoogleAnalytics } from '@next/third-parties/google'
 
 const notoSansTC = Noto_Sans_TC({
   variable: '--font-noto-sans-tc',
   subsets: ['latin'],
 })
 
-const locales = ['zh-tw', 'en']
-
 export const metadata: Metadata = {
   title: 'John Lin | 林昌龍',
-  description: 'Web designer and developer.',
+  description: 'A web developer, photographer, and thinker.',
   icons: {
     icon: '/johnlin-logo-128-nb.png',
   },
+}
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  viewportFit: 'cover',
+  userScalable: false,
 }
 
 export default async function RootLayout({
@@ -49,6 +46,7 @@ export default async function RootLayout({
   return (
     <html lang={locale} suppressHydrationWarning>
       <body className={`${notoSansTC.variable} antialiased`}>
+        <GoogleAnalytics gaId="G-X5EXGR4ERD" />
         <NextIntlClientProvider locale={locale}>
           <ThemeProvider>
             <Header />

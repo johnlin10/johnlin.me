@@ -18,6 +18,17 @@
   }
 }
 
+@mixin respond-by-max-width($width) {
+  @media (max-width: $width) {
+    @content;
+  }
+}
+@mixin respond-by-min-width($width) {
+  @media (min-width: $width) {
+    @content;
+  }
+}
+
 @mixin flexbox($direction: row, $justify: center, $align: center) {
   display: flex;
   flex-direction: $direction;
@@ -44,6 +55,20 @@
   backdrop-filter: blur($blur) !important;
   -webkit-backdrop-filter: blur($blur) !important;
   -moz-backdrop-filter: blur($blur) !important;
+}
+
+@mixin hover-scale($level: 'm') {
+  &:hover {
+    z-index: 10;
+    box-shadow: 0 0 24px 6px rgba(0, 0, 0, 0.1);
+    @if $level == 'm' {
+      @include transform(scale(1.15));
+    } @else if $level == 'l' {
+      @include transform(scale(1.25));
+    } @else if $level == 's' {
+      @include transform(scale(1.05));
+    }
+  }
 }
 
 @mixin empty-border($border: var(--glass-border-width)) {
@@ -99,5 +124,6 @@
 @mixin button-link-hover($color: var(--link-hover-color)) {
   &:hover {
     background-color: $color;
+    @include hover-scale;
   }
 }
