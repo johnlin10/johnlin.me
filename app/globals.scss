@@ -69,7 +69,8 @@ main {
 
 :root {
   --header-height: 72px;
-  /* 間距變數 */
+
+  //* Space
   --space-0-25x: 3px;
   --space-0-5x: 6px;
   --space-0-75x: 9px;
@@ -80,6 +81,19 @@ main {
   --space-4x: 48px;
   --space-5x: 60px;
   --space-6x: 72px;
+  --space-7x: 84px;
+  --space-8x: 96px;
+  --space-9x: 108px;
+  --space-10x: 120px;
+
+  //* Radius
+  --radius-0-25x: 6px;
+  --radius-0-5x: 12px;
+  --radius-0-75x: 18px;
+  --radius: 24px;
+
+  //* Glass
+  --glass-border-width: 1px;
 
   --transition-bezier: cubic-bezier(0.23, 1, 0.32, 1);
 }

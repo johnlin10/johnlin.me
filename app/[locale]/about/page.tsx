@@ -2,16 +2,24 @@ import { getTranslations } from 'next-intl/server'
 import style from './about.module.scss'
 import PageContainer from '@/app/components/PageContainer/PageContainer'
 
-export async function generateMetadata() {
-  const t = await getTranslations('AboutPage')
+type Props = {
+  params: Promise<{
+    locale: string
+  }>
+}
+
+export async function generateMetadata({ params }: Props) {
+  const { locale } = await params
+  const t = await getTranslations({ locale, namespace: 'AboutPage' })
 
   return {
     title: t('title'),
   }
 }
 
-async function AboutPage() {
-  const t = await getTranslations('AboutPage')
+async function AboutPage({ params }: Props) {
+  const { locale } = await params
+  const t = await getTranslations({ locale, namespace: 'AboutPage' })
 
   return (
     <PageContainer className={style.about}>

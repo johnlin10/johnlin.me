@@ -1,0 +1,516 @@
+
+> nextjs@0.1.0 build
+> next build
+
+   ▲ Next.js 15.4.2
+   - Environments: .env
+
+   Creating an optimized production build ...
+ ⚠ Compiled with warnings in 2000ms
+
+./app/globals.scss.webpack[javascript/auto]!=!./node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[13].oneOf[11].use[2]!./node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[13].oneOf[11].use[3]!./node_modules/next/dist/build/webpack/loaders/resolve-url-loader/index.js??ruleSet[1].rules[13].oneOf[11].use[4]!./node_modules/next/dist/compiled/sass-loader/cjs.js??ruleSet[1].rules[13].oneOf[11].use[5]!./app/globals.scss
+Deprecation Warning on line 0, column 8 of file:///Users/johnlin/johnlin.me/app/globals.scss:0:8:
+Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+0 | @import 'tailwindcss';
+
+app/globals.scss 1:9  root stylesheet
+
+Import trace for requested module:
+./app/globals.scss.webpack[javascript/auto]!=!./node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[13].oneOf[11].use[2]!./node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[13].oneOf[11].use[3]!./node_modules/next/dist/build/webpack/loaders/resolve-url-loader/index.js??ruleSet[1].rules[13].oneOf[11].use[4]!./node_modules/next/dist/compiled/sass-loader/cjs.js??ruleSet[1].rules[13].oneOf[11].use[5]!./app/globals.scss
+./app/globals.scss
+
+./app/globals.scss.webpack[javascript/auto]!=!./node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[13].oneOf[11].use[2]!./node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[13].oneOf[11].use[3]!./node_modules/next/dist/build/webpack/loaders/resolve-url-loader/index.js??ruleSet[1].rules[13].oneOf[11].use[4]!./node_modules/next/dist/compiled/sass-loader/cjs.js??ruleSet[1].rules[13].oneOf[11].use[5]!./app/globals.scss
+Deprecation Warning on line 1, column 8 of file:///Users/johnlin/johnlin.me/app/globals.scss:1:8:
+Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+1 | @import '@/app/styles/_mixins.scss';
+
+app/globals.scss 2:9  root stylesheet
+
+Import trace for requested module:
+./app/globals.scss.webpack[javascript/auto]!=!./node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[13].oneOf[11].use[2]!./node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[13].oneOf[11].use[3]!./node_modules/next/dist/build/webpack/loaders/resolve-url-loader/index.js??ruleSet[1].rules[13].oneOf[11].use[4]!./node_modules/next/dist/compiled/sass-loader/cjs.js??ruleSet[1].rules[13].oneOf[11].use[5]!./app/globals.scss
+./app/globals.scss
+
+./app/[locale]/admin/admin.module.scss
+Deprecation Warning on line 0, column 8 of file:///Users/johnlin/johnlin.me/app/%5Blocale%5D/admin/admin.module.scss:0:8:
+Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+0 | @import '@/app/styles/_mixins';
+
+app/[locale]/admin/admin.module.scss 1:9  root stylesheet
+
+Import trace for requested module:
+./app/[locale]/admin/admin.module.scss
+./app/[locale]/admin/page.tsx
+
+./app/[locale]/admin/categories/categories.module.scss
+Deprecation Warning on line 0, column 8 of file:///Users/johnlin/johnlin.me/app/%5Blocale%5D/admin/categories/categories.module.scss:0:8:
+Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+0 | @import '@/app/styles/mixins';
+
+app/[locale]/admin/categories/categories.module.scss 1:9  root stylesheet
+
+Import trace for requested module:
+./app/[locale]/admin/categories/categories.module.scss
+./app/[locale]/admin/categories/page.tsx
+
+./app/[locale]/admin/login/login.module.scss
+Deprecation Warning on line 0, column 8 of file:///Users/johnlin/johnlin.me/app/%5Blocale%5D/admin/login/login.module.scss:0:8:
+Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+0 | @import '@/app/styles/mixins';
+
+app/[locale]/admin/login/login.module.scss 1:9  root stylesheet
+
+Import trace for requested module:
+./app/[locale]/admin/login/login.module.scss
+./app/[locale]/admin/login/page.tsx
+
+./app/[locale]/admin/posts/[id]/edit/edit.module.scss
+Deprecation Warning on line 0, column 8 of file:///Users/johnlin/johnlin.me/app/%5Blocale%5D/admin/posts/%5Bid%5D/edit/edit.module.scss:0:8:
+Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+0 | @import '@/app/styles/mixins';
+
+app/[locale]/admin/posts/[id]/edit/edit.module.scss 1:9  root stylesheet
+
+Import trace for requested module:
+./app/[locale]/admin/posts/[id]/edit/edit.module.scss
+./app/[locale]/admin/posts/[id]/edit/page.tsx
+
+./app/[locale]/admin/posts/posts.module.scss
+Deprecation Warning on line 0, column 8 of file:///Users/johnlin/johnlin.me/app/%5Blocale%5D/admin/posts/posts.module.scss:0:8:
+Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+0 | @import '@/app/styles/_mixins';
+
+app/[locale]/admin/posts/posts.module.scss 1:9  root stylesheet
+
+Import trace for requested module:
+./app/[locale]/admin/posts/posts.module.scss
+./app/[locale]/admin/posts/page.tsx
+
+./app/[locale]/admin/series/series.module.scss
+Deprecation Warning on line 0, column 8 of file:///Users/johnlin/johnlin.me/app/%5Blocale%5D/admin/series/series.module.scss:0:8:
+Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+0 | @import '@/app/styles/mixins';
+
+app/[locale]/admin/series/series.module.scss 1:9  root stylesheet
+
+Import trace for requested module:
+./app/[locale]/admin/series/series.module.scss
+./app/[locale]/admin/series/page.tsx
+
+./app/[locale]/admin/tags/tags.module.scss
+Deprecation Warning on line 0, column 8 of file:///Users/johnlin/johnlin.me/app/%5Blocale%5D/admin/tags/tags.module.scss:0:8:
+Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+0 | @import '@/app/styles/mixins';
+
+app/[locale]/admin/tags/tags.module.scss 1:9  root stylesheet
+
+Import trace for requested module:
+./app/[locale]/admin/tags/tags.module.scss
+./app/[locale]/admin/tags/page.tsx
+
+./app/[locale]/admin/test-editor/test-editor.module.scss
+Deprecation Warning on line 0, column 8 of file:///Users/johnlin/johnlin.me/app/%5Blocale%5D/admin/test-editor/test-editor.module.scss:0:8:
+Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+0 | @import '@/app/styles/mixins';
+
+app/[locale]/admin/test-editor/test-editor.module.scss 1:9  root stylesheet
+
+Import trace for requested module:
+./app/[locale]/admin/test-editor/test-editor.module.scss
+./app/[locale]/admin/test-editor/page.tsx
+
+./app/[locale]/blog/[slug]/post.module.scss
+Deprecation Warning on line 0, column 8 of file:///Users/johnlin/johnlin.me/app/%5Blocale%5D/blog/%5Bslug%5D/post.module.scss:0:8:
+Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+0 | @import '@/app/styles/_mixins';
+
+app/[locale]/blog/[slug]/post.module.scss 1:9  root stylesheet
+
+Import trace for requested module:
+./app/[locale]/blog/[slug]/post.module.scss
+./app/[locale]/blog/[slug]/page.tsx
+
+./app/[locale]/blog/blog.module.scss
+Deprecation Warning on line 0, column 8 of file:///Users/johnlin/johnlin.me/app/%5Blocale%5D/blog/blog.module.scss:0:8:
+Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+0 | @import '@/app/styles/_mixins';
+
+app/[locale]/blog/blog.module.scss 1:9  root stylesheet
+
+Import trace for requested module:
+./app/[locale]/blog/blog.module.scss
+./app/[locale]/blog/page.tsx
+
+./app/[locale]/lab/lab.module.scss
+Deprecation Warning on line 0, column 8 of file:///Users/johnlin/johnlin.me/app/%5Blocale%5D/lab/lab.module.scss:0:8:
+Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+0 | @import '@/app/styles/_mixins.scss';
+
+app/[locale]/lab/lab.module.scss 1:9  root stylesheet
+
+Import trace for requested module:
+./app/[locale]/lab/lab.module.scss
+./app/[locale]/lab/page.tsx
+
+./app/[locale]/lab/palette/palette.module.scss
+Deprecation Warning on line 0, column 8 of file:///Users/johnlin/johnlin.me/app/%5Blocale%5D/lab/palette/palette.module.scss:0:8:
+Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+0 | @import '@/app/styles/_mixins.scss';
+
+app/[locale]/lab/palette/palette.module.scss 1:9  root stylesheet
+
+Import trace for requested module:
+./app/[locale]/lab/palette/palette.module.scss
+./app/[locale]/lab/palette/page.tsx
+
+./app/[locale]/page.module.scss
+Deprecation Warning on line 0, column 8 of file:///Users/johnlin/johnlin.me/app/%5Blocale%5D/page.module.scss:0:8:
+Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+0 | @import '@/app/styles/_mixins.scss';
+
+app/[locale]/page.module.scss 1:9  root stylesheet
+
+Import trace for requested module:
+./app/[locale]/page.module.scss
+./app/[locale]/page.tsx
+
+./app/[locale]/piano/piano.module.scss
+Deprecation Warning on line 0, column 8 of file:///Users/johnlin/johnlin.me/app/%5Blocale%5D/piano/piano.module.scss:0:8:
+Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+0 | @import '../../styles/mixins';
+
+app/[locale]/piano/piano.module.scss 1:9  root stylesheet
+
+Import trace for requested module:
+./app/[locale]/piano/piano.module.scss
+./app/[locale]/piano/page.tsx
+
+./app/components/ColorDisplay/ColorDisplay.module.scss
+Deprecation Warning on line 0, column 8 of file:///Users/johnlin/johnlin.me/app/components/ColorDisplay/ColorDisplay.module.scss:0:8:
+Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+0 | @import '@/app/styles/_mixins.scss';
+
+app/components/ColorDisplay/ColorDisplay.module.scss 1:9  root stylesheet
+
+Import trace for requested module:
+./app/components/ColorDisplay/ColorDisplay.module.scss
+./app/components/ColorDisplay/ColorDisplay.tsx
+
+./app/components/Header/Header.module.scss
+Deprecation Warning on line 0, column 8 of file:///Users/johnlin/johnlin.me/app/components/Header/Header.module.scss:0:8:
+Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+0 | @import '@/app/styles/_mixins.scss';
+
+app/components/Header/Header.module.scss 1:9  root stylesheet
+
+Import trace for requested module:
+./app/components/Header/Header.module.scss
+./app/components/Header/Header.tsx
+
+./app/components/LanguageSwitch/LanguageSwitch.module.scss
+Deprecation Warning on line 0, column 8 of file:///Users/johnlin/johnlin.me/app/components/LanguageSwitch/LanguageSwitch.module.scss:0:8:
+Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+0 | @import '@/app/styles/_mixins.scss';
+
+app/components/LanguageSwitch/LanguageSwitch.module.scss 1:9  root stylesheet
+
+Import trace for requested module:
+./app/components/LanguageSwitch/LanguageSwitch.module.scss
+./app/components/LanguageSwitch/LanguageSwitch.tsx
+./app/components/Header/Header.tsx
+
+./app/components/ThemeToggle/ThemeToggle.module.scss
+Deprecation Warning on line 0, column 8 of file:///Users/johnlin/johnlin.me/app/components/ThemeToggle/ThemeToggle.module.scss:0:8:
+Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+0 | @import '@/app/styles/_mixins.scss';
+
+app/components/ThemeToggle/ThemeToggle.module.scss 1:9  root stylesheet
+
+Import trace for requested module:
+./app/components/ThemeToggle/ThemeToggle.module.scss
+./app/components/ThemeToggle/ThemeToggle.tsx
+./app/components/Header/Header.tsx
+
+./app/components/admin/Button/Button.module.scss
+Deprecation Warning on line 0, column 8 of file:///Users/johnlin/johnlin.me/app/components/admin/Button/Button.module.scss:0:8:
+Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+0 | @import '@/app/styles/mixins';
+
+app/components/admin/Button/Button.module.scss 1:9  root stylesheet
+
+Import trace for requested module:
+./app/components/admin/Button/Button.module.scss
+./app/components/admin/Button/Button.tsx
+./app/[locale]/admin/series/page.tsx
+
+./app/components/admin/Input/Input.module.scss
+Deprecation Warning on line 0, column 8 of file:///Users/johnlin/johnlin.me/app/components/admin/Input/Input.module.scss:0:8:
+Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+0 | @import '@/app/styles/mixins';
+
+app/components/admin/Input/Input.module.scss 1:9  root stylesheet
+
+Import trace for requested module:
+./app/components/admin/Input/Input.module.scss
+./app/components/admin/Input/Input.tsx
+./app/[locale]/admin/series/page.tsx
+
+./app/components/admin/Modal/Modal.module.scss
+Deprecation Warning on line 0, column 8 of file:///Users/johnlin/johnlin.me/app/components/admin/Modal/Modal.module.scss:0:8:
+Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+0 | @import '@/app/styles/mixins';
+
+app/components/admin/Modal/Modal.module.scss 1:9  root stylesheet
+
+Import trace for requested module:
+./app/components/admin/Modal/Modal.module.scss
+./app/components/admin/Modal/Modal.tsx
+./app/[locale]/admin/series/page.tsx
+
+./app/components/admin/PostEditor/PostEditor.module.scss
+Deprecation Warning on line 0, column 8 of file:///Users/johnlin/johnlin.me/app/components/admin/PostEditor/PostEditor.module.scss:0:8:
+Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+0 | @import '@/app/styles/_mixins';
+
+app/components/admin/PostEditor/PostEditor.module.scss 1:9  root stylesheet
+
+Import trace for requested module:
+./app/components/admin/PostEditor/PostEditor.module.scss
+./app/components/admin/PostEditor/PostEditor.tsx
+./app/[locale]/admin/posts/[id]/edit/page.tsx
+
+./app/components/admin/ProtectedRoute/ProtectedRoute.module.scss
+Deprecation Warning on line 0, column 8 of file:///Users/johnlin/johnlin.me/app/components/admin/ProtectedRoute/ProtectedRoute.module.scss:0:8:
+Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+0 | @import '@/app/styles/mixins';
+
+app/components/admin/ProtectedRoute/ProtectedRoute.module.scss 1:9  root stylesheet
+
+Import trace for requested module:
+./app/components/admin/ProtectedRoute/ProtectedRoute.module.scss
+./app/components/admin/ProtectedRoute/ProtectedRoute.tsx
+
+./app/components/admin/RichTextEditor/MenuBar/MenuBar.module.scss
+Deprecation Warning on line 0, column 8 of file:///Users/johnlin/johnlin.me/app/components/admin/RichTextEditor/MenuBar/MenuBar.module.scss:0:8:
+Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+0 | @import '@/app/styles/mixins';
+
+app/components/admin/RichTextEditor/MenuBar/MenuBar.module.scss 1:9  root stylesheet
+
+Import trace for requested module:
+./app/components/admin/RichTextEditor/MenuBar/MenuBar.module.scss
+./app/components/admin/RichTextEditor/MenuBar/MenuBar.tsx
+./app/components/admin/RichTextEditor/RichTextEditor.tsx
+./app/[locale]/admin/test-editor/page.tsx
+
+./app/components/admin/RichTextEditor/RichTextEditor.module.scss
+Deprecation Warning on line 0, column 8 of file:///Users/johnlin/johnlin.me/app/components/admin/RichTextEditor/RichTextEditor.module.scss:0:8:
+Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+0 | @import '@/app/styles/_mixins';
+
+app/components/admin/RichTextEditor/RichTextEditor.module.scss 1:9  root stylesheet
+
+Import trace for requested module:
+./app/components/admin/RichTextEditor/RichTextEditor.module.scss
+./app/components/admin/RichTextEditor/RichTextEditor.tsx
+./app/[locale]/admin/test-editor/page.tsx
+
+./app/components/admin/Selector/Selector.module.scss
+Deprecation Warning on line 0, column 8 of file:///Users/johnlin/johnlin.me/app/components/admin/Selector/Selector.module.scss:0:8:
+Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+0 | @import '@/app/styles/mixins';
+
+app/components/admin/Selector/Selector.module.scss 1:9  root stylesheet
+
+Import trace for requested module:
+./app/components/admin/Selector/Selector.module.scss
+./app/components/admin/Selector/CategorySelector.tsx
+./app/components/admin/PostEditor/PostEditor.tsx
+./app/[locale]/admin/posts/[id]/edit/page.tsx
+
+./app/components/admin/Textarea/Textarea.module.scss
+Deprecation Warning on line 0, column 8 of file:///Users/johnlin/johnlin.me/app/components/admin/Textarea/Textarea.module.scss:0:8:
+Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+0 | @import '@/app/styles/mixins';
+
+app/components/admin/Textarea/Textarea.module.scss 1:9  root stylesheet
+
+Import trace for requested module:
+./app/components/admin/Textarea/Textarea.module.scss
+./app/components/admin/Textarea/Textarea.tsx
+./app/[locale]/admin/series/page.tsx
+
+./app/components/blog/PostCard/PostCard.module.scss
+Deprecation Warning on line 0, column 8 of file:///Users/johnlin/johnlin.me/app/components/blog/PostCard/PostCard.module.scss:0:8:
+Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+0 | @import '@/app/styles/_mixins';
+
+app/components/blog/PostCard/PostCard.module.scss 1:9  root stylesheet
+
+Import trace for requested module:
+./app/components/blog/PostCard/PostCard.module.scss
+./app/components/blog/PostCard/PostCard.tsx
+./app/[locale]/blog/page.tsx
+
+./app/components/blog/PostContent/PostContent.module.scss
+Deprecation Warning on line 0, column 8 of file:///Users/johnlin/johnlin.me/app/components/blog/PostContent/PostContent.module.scss:0:8:
+Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+0 | @import '@/app/styles/_mixins';
+
+app/components/blog/PostContent/PostContent.module.scss 1:9  root stylesheet
+
+Import trace for requested module:
+./app/components/blog/PostContent/PostContent.module.scss
+./app/components/blog/PostContent/PostContent.tsx
+
+./app/components/blog/TableOfContents/TableOfContents.module.scss
+Deprecation Warning on line 0, column 8 of file:///Users/johnlin/johnlin.me/app/components/blog/TableOfContents/TableOfContents.module.scss:0:8:
+Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+0 | @import '@/app/styles/mixins';
+
+app/components/blog/TableOfContents/TableOfContents.module.scss 1:9  root stylesheet
+
+Import trace for requested module:
+./app/components/blog/TableOfContents/TableOfContents.module.scss
+./app/components/blog/TableOfContents/TableOfContents.tsx
+
+   Linting and checking validity of types ...
+   Collecting page data ...
+   Generating static pages (0/5) ...
+   Generating static pages (1/5) 
+   Generating static pages (2/5) 
+   Generating static pages (3/5) 
+ ✓ Generating static pages (5/5)
+   Finalizing page optimization ...
+   Collecting build traces ...
+
+Route (app)                                 Size  First Load JS
+┌ ○ /_not-found                            999 B         101 kB
+├ ƒ /[locale]                            2.56 kB         143 kB
+├ ƒ /[locale]/about                        453 B         115 kB
+├ ƒ /[locale]/admin                      1.91 kB         222 kB
+├ ƒ /[locale]/admin/categories           3.91 kB         224 kB
+├ ƒ /[locale]/admin/login                1.87 kB         222 kB
+├ ƒ /[locale]/admin/posts                3.72 kB         238 kB
+├ ƒ /[locale]/admin/posts/[id]/edit        747 B         409 kB
+├ ƒ /[locale]/admin/posts/new              300 B         409 kB
+├ ƒ /[locale]/admin/series               4.01 kB         224 kB
+├ ƒ /[locale]/admin/tags                 3.63 kB         224 kB
+├ ƒ /[locale]/admin/test-editor          3.05 kB         283 kB
+├ ƒ /[locale]/blog                       5.76 kB         124 kB
+├ ƒ /[locale]/blog/[slug]                 440 kB         543 kB
+├ ƒ /[locale]/gallery                      449 B         115 kB
+├ ƒ /[locale]/lab                          432 B         118 kB
+├ ƒ /[locale]/lab/palette                 1.2 kB         116 kB
+├ ƒ /[locale]/piano                        59 kB         159 kB
+└ ○ /manifest.webmanifest                  144 B         100 kB
++ First Load JS shared by all             100 kB
+  ├ chunks/4bd1b696-cc729d47eba2cee4.js  54.1 kB
+  ├ chunks/5964-67e3ecdee45ba4a9.js      43.9 kB
+  └ other shared chunks (total)          2.05 kB
+
+
+ƒ Middleware                             44.4 kB
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+
+
+> nextjs@0.1.0 postbuild
+> next-sitemap
+

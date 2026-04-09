@@ -1,0 +1,122 @@
+@import '@/app/styles/mixins';
+
+.toc {
+  position: sticky;
+  top: 100px;
+  max-height: calc(100vh - 120px);
+  overflow-y: auto;
+  padding: 1.5rem;
+  background: var(--background-color-secondary);
+  @include glass-border;
+  @include radius(12px);
+
+  @include respond-to('tablet') {
+    position: static;
+    max-height: none;
+    margin-bottom: 2rem;
+  }
+
+  @include respond-to('phone') {
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-color);
+    margin: 0 0 1rem 0;
+
+    @include respond-to('phone') {
+      font-size: 1rem;
+      margin-bottom: 0.875rem;
+    }
+  }
+
+  .list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+
+    .item {
+      margin: 0;
+
+      button {
+        width: 100%;
+        padding: 0.5rem 0.75rem;
+        text-align: left;
+        background: transparent;
+        color: var(--text-color-secondary);
+        font-size: 0.9rem;
+        border: none;
+        border-left: 2px solid transparent;
+        cursor: pointer;
+        @include transition(all 0.2s ease);
+
+        @include respond-to('phone') {
+          padding: 0.45rem 0.625rem;
+          font-size: 0.85rem;
+        }
+
+        &:hover {
+          color: var(--text-color);
+          background: var(--background-color);
+        }
+      }
+
+      &.active {
+        button {
+          color: var(--primary-color);
+          border-left-color: var(--primary-color);
+          background: var(--background-color);
+        }
+      }
+
+      &.level_1 {
+        button {
+          padding-left: 0.75rem;
+          font-weight: 600;
+
+          @include respond-to('phone') {
+            padding-left: 0.625rem;
+          }
+        }
+      }
+
+      &.level_2 {
+        button {
+          padding-left: 1.25rem;
+          font-weight: 500;
+
+          @include respond-to('phone') {
+            padding-left: 1rem;
+          }
+        }
+      }
+
+      &.level_3 {
+        button {
+          padding-left: 1.75rem;
+
+          @include respond-to('phone') {
+            padding-left: 1.5rem;
+          }
+        }
+      }
+
+      &.level_4,
+      &.level_5,
+      &.level_6 {
+        button {
+          padding-left: 2.25rem;
+          font-size: 0.85rem;
+
+          @include respond-to('phone') {
+            padding-left: 2rem;
+            font-size: 0.8rem;
+          }
+        }
+      }
+    }
+  }
+}

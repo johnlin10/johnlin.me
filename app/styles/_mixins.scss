@@ -1,6 +1,6 @@
 @mixin respond-to($breakpoint) {
   @if $breakpoint == 'phone' {
-    @media (max-width: 600px) and (min-height: 600px) {
+    @media (max-width: 600px) and (min-height: 300px) {
       @content;
     }
   } @else if $breakpoint == 'phone-landscape' {
@@ -85,6 +85,7 @@
   border-bottom: $border solid var(--glass-border-bottom-color) !important;
 }
 
+//
 @mixin glass-border-actions($border: var(--glass-border-width)) {
   @include empty-border($border);
   &:hover {
@@ -124,6 +125,18 @@
 @mixin button-link-hover($color: var(--link-hover-color)) {
   &:hover {
     background-color: $color;
-    @include hover-scale;
+    @include hover-scale('s');
   }
+}
+
+@mixin center-absolute-x() {
+  position: absolute;
+  left: 50%;
+  @include transform(translateX(-50%));
+}
+
+@mixin center-absolute-y() {
+  position: absolute;
+  top: 50%;
+  @include transform(translateY(-50%));
 }

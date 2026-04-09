@@ -1,26 +1,5 @@
 :root {
-  --primary-color: var(--color-orange-500);
-  --background-color: #ffffff;
-  --background-color-rgb: 255, 255, 255;
-  --background-color-secondary: #f0f0f0;
-  --background-color-secondary-rgb: 240, 240, 240;
-  --background-color-tertiary: #e0e0e0;
-  --background-color-tertiary-rgb: 224, 224, 224;
-  --background-color-quaternary: #d0d0d0;
-  --background-color-quaternary-rgb: 208, 208, 208;
-  --foreground-color: #131313;
-
   --empty-color: #00000000;
-
-  /* Glass */
-  --glass-color: rgba(255, 255, 255, 0.1);
-  --glass-background-color: rgba(255, 255, 255, 0.667);
-
-  --glass-border-width: 1px;
-  --glass-border-top-color: rgba(255, 255, 255, 0.3);
-  --glass-border-left-color: rgba(255, 255, 255, 0.3);
-  --glass-border-right-color: rgba(0, 0, 0, 0.05);
-  --glass-border-bottom-color: rgba(0, 0, 0, 0.05);
 
   /* Colors */
   --color-red-100: oklch(0.91 0.09 28.8);
@@ -71,7 +50,7 @@
   --color-orange-600: oklch(0.51 0.2 60);
   --color-orange-700: oklch(0.41 0.17 60);
   --color-orange-800: oklch(0.31 0.14 60);
-  --color-orange-900: oklch(0.21 0.11 60);
+  --color-orange-900: oklch(0.21 0.11 80);
 
   --color-pink-100: oklch(0.91 0.09 353);
   --color-pink-200: oklch(0.82 0.14 353);
@@ -93,46 +72,130 @@
   --color-yellow-800: oklch(0.36 0.13 91.6);
   --color-yellow-900: oklch(0.24 0.11 91.6);
 
+  //* foreground
+  // black
+  --foreground-black-999: #000000ff;
+  --foreground-black-900: #000000ed;
+  --foreground-black-800: #000000d3;
+  --foreground-black-700: #000000b9;
+  --foreground-black-600: #00000098;
+  --foreground-black-500: #00000080;
+  --foreground-black-400: #0000006c;
+  --foreground-black-300: #00000055;
+  --foreground-black-200: #0000003c;
+  --foreground-black-100: #00000026;
+  --foreground-black-050: #00000014;
+  // white
+  --foreground-white-999: #ffffffff;
+  --foreground-white-900: #ffffffed;
+  --foreground-white-800: #ffffffd3;
+  --foreground-white-700: #ffffffb9;
+  --foreground-white-600: #ffffff98;
+  --foreground-white-500: #ffffff80;
+  --foreground-white-400: #ffffff6c;
+  --foreground-white-300: #ffffff55;
+  --foreground-white-200: #ffffff3c;
+  --foreground-white-100: #ffffff26;
+  --foreground-white-050: #ffffff14;
+
   --color-black: oklch(0 0 0);
   --color-white: oklch(1 0 0);
 
-  --link-hover-color: var(--color-blue);
+  --link-hover-color: var(--color-blue-500);
 }
 
-.dark {
+:root.light {
+  //* Main Colors
   --primary-color: var(--color-orange-500);
+
+  //* Background Colors
+  --background-color: #ffffff;
+  --background-color-rgb: 255, 255, 255;
+
+  --background-color-secondary: #f0f0f0;
+  --background-color-secondary-rgb: 240, 240, 240;
+
+  --background-color-tertiary: #e0e0e0;
+  --background-color-tertiary-rgb: 224, 224, 224;
+
+  --background-color-quaternary: #d0d0d0;
+  --background-color-quaternary-rgb: 208, 208, 208;
+
+  //* Foreground Colors
+  --foreground-color: var(--foreground-black-999);
+  --foreground-color-900: var(--foreground-black-900);
+  --foreground-color-800: var(--foreground-black-800);
+  --foreground-color-700: var(--foreground-black-700);
+  --foreground-color-600: var(--foreground-black-600);
+  --foreground-color-500: var(--foreground-black-500);
+  --foreground-color-400: var(--foreground-black-400);
+  --foreground-color-300: var(--foreground-black-300);
+  --foreground-color-200: var(--foreground-black-200);
+  --foreground-color-100: var(--foreground-black-100);
+  --foreground-color-050: var(--foreground-black-050);
+
+  //* Glass
+  --glass-color: rgba(255, 255, 255, 0.1);
+  --glass-background-color: rgba(255, 255, 255, 0.667);
+
+  --glass-border-top-color: rgba(255, 255, 255, 0.3);
+  --glass-border-left-color: rgba(255, 255, 255, 0.3);
+  --glass-border-right-color: rgba(0, 0, 0, 0.05);
+  --glass-border-bottom-color: rgba(0, 0, 0, 0.05);
+
+  //* Border
+  --border-color: var(--halftone-gray-black-050);
+  --border-color-hover: var(--halftone-gray-black-100);
+  --border-color-secondary: var(--halftone-gray-black-200);
+  --border-color-secondary-hover: var(--halftone-gray-black-300);
+  --border-color-tertiary: var(--halftone-gray-black-300);
+  --border-color-tertiary-hover: var(--halftone-gray-black-400);
+}
+
+:root.dark {
+  //* Main Colors
+  --primary-color: var(--color-orange-500);
+
+  //* Background Colors
   --background-color: #131313;
   --background-color-rgb: 19, 19, 19;
+
   --background-color-secondary: #1f1f1f;
   --background-color-secondary-rgb: 31, 31, 31;
+
   --background-color-tertiary: #2f2f2f;
   --background-color-tertiary-rgb: 47, 47, 47;
+
   --background-color-quaternary: #3f3f3f;
   --background-color-quaternary-rgb: 63, 63, 63;
-  --foreground-color: #ffffff;
 
-  --empty-color: #00000000;
+  //* Foreground Colors
+  --foreground-color: var(--foreground-white-999);
+  --foreground-color-900: var(--foreground-white-900);
+  --foreground-color-800: var(--foreground-white-800);
+  --foreground-color-700: var(--foreground-white-700);
+  --foreground-color-600: var(--foreground-white-600);
+  --foreground-color-500: var(--foreground-white-500);
+  --foreground-color-400: var(--foreground-white-400);
+  --foreground-color-300: var(--foreground-white-300);
+  --foreground-color-200: var(--foreground-white-200);
+  --foreground-color-100: var(--foreground-white-100);
+  --foreground-color-050: var(--foreground-white-050);
 
-  /* Glass */
+  //* Glass
   --glass-color: rgba(255, 255, 255, 0.1);
   --glass-background-color: rgba(19, 19, 19, 0.667);
 
-  --glass-border-width: 1px;
   --glass-border-top-color: rgba(255, 255, 255, 0.07);
   --glass-border-left-color: rgba(255, 255, 255, 0.07);
   --glass-border-right-color: rgba(255, 255, 255, 0.02);
   --glass-border-bottom-color: rgba(255, 255, 255, 0.02);
 
-  /* Colors */
-  // --color-red: oklch(0.66 0.15 24.58);
-  // --color-green: oklch(0.66 0.15 143.42);
-  // --color-blue: oklch(0.55 0.1368 256.1);
-  // --color-purple: oklch(0.66 0.15 303.79);
-  // --color-orange: oklch(0.66 0.15 60.54);
-  // --color-pink: oklch(0.66 0.15 353.13);
-  // --color-yellow: oklch(0.66 0.15 98);
-  // --color-black: oklch(0 0 0);
-  // --color-white: oklch(1 0 0);
-
-  --link-hover-color: var(--color-blue);
+  //* Border
+  --border-color: var(--halftone-gray-white-050);
+  --border-color-hover: var(--halftone-gray-white-100);
+  --border-color-secondary: var(--halftone-gray-white-200);
+  --border-color-secondary-hover: var(--halftone-gray-white-300);
+  --border-color-tertiary: var(--halftone-gray-white-300);
+  --border-color-tertiary-hover: var(--halftone-gray-white-400);
 }

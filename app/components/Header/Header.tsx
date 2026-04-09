@@ -49,25 +49,6 @@ export default function Header() {
               <Icon name="camera" className={style.header_nav_item_icon} />
               <span className={style.header_nav_item_text}>{t('gallery')}</span>
             </Link>
-            {/* <Link
-              href="/lab"
-              className={`${style.header_nav_item} ${
-                currentPath === '/lab' ? style.active : ''
-              }`}
-            >
-              <Icon name="flask" className={style.header_nav_item_icon} />
-              <span className={style.header_nav_item_text}>{t('lab')}</span>
-            </Link> */}
-
-            <Link
-              href="/about"
-              className={`${style.header_nav_item} ${
-                currentPath === '/about' ? style.active : ''
-              }`}
-            >
-              <Icon name="user" className={style.header_nav_item_icon} />
-              <span className={style.header_nav_item_text}>{t('about')}</span>
-            </Link>
           </div>
         </div>
         <div className={style.actions}>

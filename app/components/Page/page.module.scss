@@ -1,0 +1,69 @@
+@use '../../styles/mixins' as mixins;
+
+.page {
+  height: 100%;
+  width: 100%;
+  min-width: 300px;
+  min-height: 100vh;
+  padding-top: 72px;
+
+  @include mixins.respond-to('phone') {
+    padding-top: 48px;
+  }
+
+  > .pageContainer {
+    @include mixins.flexbox(row, center, start);
+    gap: var(--space-2x);
+    padding-bottom: var(--space);
+    width: calc(100% - 36px);
+    height: 100%;
+    min-height: 100%;
+    margin: 0 auto;
+
+    @include mixins.respond-to('phone') {
+      @include mixins.flexbox(column, start, center);
+      gap: 0;
+      padding-bottom: 108px;
+      height: fit-content;
+    }
+
+    > .pageHeader {
+      width: 50%;
+      max-width: 240px;
+      margin: var(--space) 0;
+      padding: var(--space-2x) var(--space);
+      border: 1px solid var(--border-color);
+      @include mixins.radius(var(--radius));
+
+      @include mixins.respond-to('phone') {
+        min-width: 100%;
+        width: 100%;
+        padding: 0 0 var(--space-3x) 0;
+        border: none;
+        @include mixins.radius(0);
+      }
+
+      h1 {
+        margin-top: 1.5rem;
+        margin-bottom: 1rem;
+        font-size: 2rem;
+        font-weight: bold;
+        letter-spacing: 0.1rem;
+        color: var(--foreground);
+      }
+
+      p {
+        font-size: 0.9rem;
+        font-weight: normal;
+        letter-spacing: 0.05rem;
+        color: var(--foreground-secondary);
+      }
+    }
+
+    > .pageContent {
+      width: 100%;
+      max-width: 720px;
+      padding: var(--space) 0;
+    }
+  }
+}

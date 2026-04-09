@@ -1,0 +1,252 @@
+@import '@/app/styles/_mixins';
+
+.posts_page {
+  width: 100%;
+  min-height: 100vh;
+  background: var(--background-color);
+
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    @include flexbox(column, flex-start, stretch);
+    gap: 2rem;
+
+    @include respond-to('phone') {
+      gap: 1.5rem;
+    }
+
+    .header {
+      @include flexbox(row, space-between, flex-start);
+      flex-wrap: wrap;
+      gap: 1rem;
+
+      @include respond-to('phone') {
+        @include flexbox(column, flex-start, stretch);
+      }
+
+      .title_section {
+        @include flexbox(column, flex-start, flex-start);
+        gap: 0.25rem;
+
+        .title {
+          font-size: 2rem;
+          font-weight: 600;
+          color: var(--text-color);
+          margin: 0;
+
+          @include respond-to('phone') {
+            font-size: 1.5rem;
+          }
+        }
+
+        .subtitle {
+          font-size: 0.95rem;
+          color: var(--text-color-secondary);
+          margin: 0;
+
+          @include respond-to('phone') {
+            font-size: 0.9rem;
+          }
+        }
+      }
+    }
+
+    .filters {
+      @include flexbox(row, space-between, center);
+      flex-wrap: wrap;
+      gap: 1rem;
+      padding: var(--space);
+      background: var(--background-color-secondary);
+      @include glass-border;
+      @include radius(var(--radius));
+
+      @include respond-to('phone') {
+        padding: var(--space-0-5x);
+        gap: 0.75rem;
+      }
+
+      .filter_group {
+        @include flexbox(row, flex-start, center);
+        gap: 0.5rem;
+
+        @include respond-to('phone') {
+          flex: 1;
+          gap: 0.375rem;
+        }
+
+        .filter_button {
+          padding: 0.5rem 1rem;
+          background: var(--background-color);
+          color: var(--text-color-secondary);
+          font-size: 0.9rem;
+          font-weight: 500;
+          border: 1px solid var(--border-color);
+          @include radius(var(--radius-0-5x));
+          cursor: pointer;
+          @include transition(all 0.2s ease);
+
+          @include respond-to('phone') {
+            flex: 1;
+            padding: 0.45rem 0.875rem;
+            font-size: 0.85rem;
+          }
+
+          &:hover {
+            border-color: var(--primary-color);
+            color: var(--text-color);
+          }
+
+          &.active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+          }
+        }
+      }
+    }
+
+    .loading,
+    .empty {
+      @include flexbox(column, center, center);
+      gap: 1rem;
+      padding: 4rem 2rem;
+      background: var(--background-color-secondary);
+      @include glass-border;
+      @include radius(12px);
+
+      @include respond-to('phone') {
+        padding: 3rem 1.5rem;
+      }
+
+      p {
+        font-size: 1rem;
+        color: var(--text-color-secondary);
+        margin: 0;
+
+        @include respond-to('phone') {
+          font-size: 0.95rem;
+        }
+      }
+    }
+
+    .table_wrapper {
+      width: 100%;
+      overflow-x: auto;
+      background: var(--background-color-secondary);
+      @include glass-border;
+      @include radius(var(--radius));
+
+      @include respond-to('phone') {
+        @include radius(8px);
+      }
+
+      .table {
+        width: 100%;
+        border-collapse: collapse;
+
+        thead {
+          background: var(--background-color);
+
+          tr {
+            th {
+              padding: 1rem 1.25rem;
+              text-align: left;
+              font-size: 0.9rem;
+              font-weight: 600;
+              color: var(--text-color);
+              border-bottom: 1px solid var(--border-color);
+              white-space: nowrap;
+
+              @include respond-to('phone') {
+                padding: 0.75rem 1rem;
+                font-size: 0.85rem;
+              }
+
+              &.title_column {
+                min-width: 240px;
+              }
+            }
+          }
+        }
+
+        tbody {
+          tr {
+            &:hover {
+              background: var(--background-color);
+            }
+
+            &:not(:last-child) {
+              border-bottom: 1px solid var(--border-color);
+            }
+
+            td {
+              padding: 1rem 1.25rem;
+              font-size: 0.95rem;
+              color: var(--text-color);
+
+              @include respond-to('phone') {
+                padding: 0.75rem 1rem;
+                font-size: 0.9rem;
+              }
+
+              .post_title {
+                @include flexbox(column, flex-start, flex-start);
+                gap: 0.25rem;
+
+                span {
+                  font-weight: 500;
+                }
+
+                .slug {
+                  padding: 0.2rem 0.4rem;
+                  background: var(--background-color);
+                  color: var(--text-color-secondary);
+                  font-size: 0.8rem;
+                  font-family: monospace;
+                  @include radius(4px);
+
+                  @include respond-to('phone') {
+                    font-size: 0.75rem;
+                  }
+                }
+              }
+
+              .status_badge {
+                display: inline-block;
+                padding: 0.25rem 0.75rem;
+                font-size: 0.85rem;
+                font-weight: 500;
+                @include radius(12px);
+
+                @include respond-to('phone') {
+                  padding: 0.2rem 0.625rem;
+                  font-size: 0.8rem;
+                }
+
+                &.published {
+                  background: rgba(16, 185, 129, 0.1);
+                  color: #10b981;
+                }
+
+                &.draft {
+                  background: rgba(251, 191, 36, 0.1);
+                  color: #f59e0b;
+                }
+              }
+
+              .actions {
+                @include flexbox(row, flex-start, center);
+                gap: 0.5rem;
+
+                @include respond-to('phone') {
+                  @include flexbox(column, flex-start, stretch);
+                  gap: 0.375rem;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

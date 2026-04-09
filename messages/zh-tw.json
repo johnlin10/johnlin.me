@@ -1,4 +1,53 @@
 {
+  "site_config": {
+    "name": "林昌龍",
+    "shortName": "林昌龍",
+    "description": "歡迎來到我全新的個人網站。"
+  },
+  "AdminPage": {
+    "title": "後台管理系統｜林昌龍",
+    "description": "",
+    "page_title": "後台管理系統",
+    "posts": {
+      "title": "文章管理",
+      "description": "新增、編輯、刪除文章",
+      "post_count": { "total": "共 ", "unit": " 篇文章" },
+      "new_post": "新增文章",
+      "filter": {
+        "all": "全部",
+        "published": "已發布",
+        "draft": "草稿"
+      },
+      "table": {
+        "title": "標題",
+        "status": {
+          "title": "狀態",
+          "classes": {
+            "published": "已發布",
+            "draft": "草稿"
+          }
+        },
+        "category": {
+          "title": "分類",
+          "classes": {
+            "set": "已設定",
+            "not_set": "未設定"
+          }
+        },
+        "tag": {
+          "title": "標籤數"
+        },
+        "created_at": "建立日期",
+        "actions": {
+          "title": "操作",
+          "classes": {
+            "edit": "編輯",
+            "delete": "刪除"
+          }
+        }
+      }
+    }
+  },
   "HomePage": {
     "title": "林昌龍",
     "description": "歡迎來到我全新的個人網站。",
@@ -6,7 +55,7 @@
     "section_hero": {
       "title": "林昌龍",
       "intros": [
-        "我不想讓這個網站「看起來很厲害」",
+        "網頁設計｜攝影｜思考者",
         "我只想讓它像我一樣，慢慢長成自己喜歡的樣子。"
       ],
       "buttons": {
@@ -44,7 +93,8 @@
   "BlogPage": {
     "title": "部落格｜林昌龍",
     "description": "歡迎來到我的部落格。",
-    "page_title": "部落格"
+    "page_title": "部落格",
+    "noPosts": "尚無文章"
   },
   "GalleryPage": {
     "title": "攝影集｜林昌龍",
@@ -58,7 +108,7 @@
   },
   "LabPage": {
     "title": "實驗室｜林昌龍",
-    "description": "歡迎來到我的實驗室。",
+    "description": "這裡會有許多實驗性的頁面。",
     "page_title": "實驗室",
     "PalettePage": {
       "title": "調色盤",

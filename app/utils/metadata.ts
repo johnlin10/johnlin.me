@@ -1,0 +1,231 @@
+import { Metadata } from 'next'
+
+//* 網站基本資訊常數
+const getSiteConfig = (t?: (key: string) => string) => ({
+  name: t ? t('name') : 'John Lin | 林昌龍',
+  shortName: t ? t('shortName') : 'John Lin',
+  url: process.env.NEXT_PUBLIC_SITE_URL || 'https://johnlin.me/',
+  locale: 'zh-TW',
+  creator: t ? t('name') : 'John Lin | 林昌龍',
+  publisher: t ? t('name') : 'John Lin | 林昌龍',
+  keywords: [
+    '林昌龍',
+    'John Lin',
+    '個人網站',
+    'Personal Website',
+    'Web Developer',
+    '網頁設計師',
+    'Photographer',
+    '攝影師',
+    'Thinker',
+    '思考者',
+    'Developer',
+    '開發者',
+    'Web Developer',
+    '網頁開發者',
+  ],
+})
+
+//* metadata 函數選項介面
+export interface MetadataOptions {
+  title: string
+  description: string
+  keywords?: string[]
+  image?: string
+  url?: string
+  type?: 'website' | 'article' | 'profile'
+  publishedTime?: string
+  modifiedTime?: string
+  authors?: Array<{ name: string; url?: string }>
+  category?: string
+  noIndex?: boolean
+}
+
+/**
+ * 生成完整的頁面 metadata
+ * @param options - metadata 選項物件
+ * @param t - 翻譯函數 (可選)
+ * @returns 完整的 Next.js Metadata 物件
+ */
+export function metadata(options: MetadataOptions, t?: (key: string) => string): Metadata {
+  const SITE_CONFIG = getSiteConfig(t)
+  const {
+    title,
+    description,
+    keywords = [],
+    image = '/assets/image/metadata-backgrounds/global.webp',
+    url,
+    type = 'website',
+    publishedTime,
+    modifiedTime,
+    authors,
+    category,
+    noIndex = false,
+  } = options
+
+  const fullUrl = url ? `${SITE_CONFIG.url}${url}` : SITE_CONFIG.url
+  const imageUrl = image.startsWith('http')
+    ? image
+    : `${SITE_CONFIG.url}${image}`
+  const allKeywords = [...SITE_CONFIG.keywords, ...keywords]
+
+  return {
+    //* 基本頁面資訊
+    title,
+    description,
+    applicationName: SITE_CONFIG.name,
+
+    //* SEO 相關
+    keywords: allKeywords,
+    authors: authors || [{ name: SITE_CONFIG.creator }],
+    creator: SITE_CONFIG.creator,
+    publisher: SITE_CONFIG.publisher,
+    generator: 'Next.js',
+    category,
+
+    //* 搜尋引擎設定
+    robots: noIndex
+      ? { index: false, follow: false, nocache: true }
+      : { index: true, follow: true, googleBot: { index: true, follow: true } },
+
+    //* 網站驗證 (可依需求添加)
+    verification: {
+      // google: 'your-google-verification-code',
+      // yandex: 'your-yandex-verification-code',
+    },
+
+    //* 規範化 URL 和替代語言
+    alternates: {
+      canonical: fullUrl,
+      languages: {
+        'zh-TW': fullUrl,
+        'x-default': fullUrl,
+      },
+    },
+
+    //* Open Graph metadata
+    openGraph: {
+      title,
+      description,
+      url: fullUrl,
+      siteName: SITE_CONFIG.name,
+      locale: SITE_CONFIG.locale,
+      type,
+      images: [
+        {
+          url: imageUrl,
+          width: 1920,
+          height: 1080,
+          alt: title,
+        },
+      ],
+      ...(publishedTime && { publishedTime }),
+      ...(modifiedTime && { modifiedTime }),
+      ...(authors && { authors: authors.map((author) => author.name) }),
+    },
+
+    //* Twitter metadata
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: [imageUrl],
+      creator: '@robotctust', // 可依實際 Twitter 帳號調整
+      site: '@robotctust',
+    },
+
+    //* 其他 metadata
+    formatDetection: {
+      telephone: false,
+      email: false,
+      address: false,
+      date: false,
+    },
+
+    //* Apple Web App 設定
+    appleWebApp: {
+      capable: true,
+      title: SITE_CONFIG.shortName,
+      statusBarStyle: 'default',
+    },
+
+    //* 其他自訂 metadata
+    other: {
+      'mobile-web-app-capable': 'yes',
+      'apple-mobile-web-app-capable': 'yes',
+      'apple-mobile-web-app-status-bar-style': 'default',
+    },
+  }
+}
+
+/**
+ * 將 CompetitionDateTime 轉換為 ISO 8601 格式
+ */
+export function formatDateTimeToISO(dateTime?: {
+  date: string | null
+  time: string | null
+}): string | undefined {
+  if (!dateTime?.date) return undefined
+
+  const timeStr = dateTime.time || '00:00'
+  const isoString = `${dateTime.date}T${timeStr}:00+08:00`
+
+  try {
+    new Date(isoString)
+    return isoString
+  } catch {
+    return undefined
+  }
+}
+
+/**
+ * 將 Firebase Timestamp 轉換為 ISO 8601 格式
+ */
+export function formatFirebaseTimestampToISO(timestamp?: {
+  toDate?: () => Date
+}): string | undefined {
+  if (!timestamp?.toDate) return undefined
+
+  try {
+    return timestamp.toDate().toISOString()
+  } catch {
+    return undefined
+  }
+}
+
+/**
+ * 從 Markdown 內容生成 SEO 友善的描述
+ */
+export function generateDescriptionFromMarkdown(
+  markdown: string,
+  maxLength: number = 160
+): string {
+  if (!markdown) return ''
+
+  return (
+    markdown
+      .replace(/#{1,6}\s+/g, '') // 移除標題
+      .replace(/\*\*(.+?)\*\*/g, '$1') // 移除粗體
+      .replace(/\*(.+?)\*/g, '$1') // 移除斜體
+      .replace(/`(.+?)`/g, '$1') // 移除行內程式碼
+      .replace(/```[\s\S]*?```/g, '') // 移除程式碼區塊
+      .replace(/\[(.+?)\]\(.+?\)/g, '$1') // 移除連結，保留文字
+      .replace(/!\[.*?\]\(.+?\)/g, '') // 移除圖片
+      .replace(/^\s*[-*+]\s+/gm, '') // 移除清單符號
+      .replace(/^\s*\d+\.\s+/gm, '') // 移除有序清單
+      .replace(/^\s*>\s+/gm, '') // 移除引用
+      .replace(/---+/g, '') // 移除分隔線
+      .replace(/\n+/g, ' ') // 將換行替換為空格
+      .replace(/\s+/g, ' ') // 合併多個空格
+      .trim()
+      .substring(0, maxLength) + (markdown.length > maxLength ? '...' : '')
+  )
+}
+
+/**
+ * 簡化版 metadata 函數 (向後相容)
+ * @deprecated 建議使用完整版的 metadata 函數
+ */
+export function basicMetadata(title: string, description: string): Metadata {
+  return metadata({ title, description })
+}

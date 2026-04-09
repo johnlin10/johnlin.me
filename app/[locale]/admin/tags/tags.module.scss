@@ -1,0 +1,231 @@
+@import '@/app/styles/mixins';
+
+.tags_page {
+  width: 100%;
+  min-height: 100vh;
+  background: var(--background-color);
+  padding: 2rem;
+
+  @include respond-to('phone') {
+    padding: 1rem;
+  }
+
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    @include flexbox(column, flex-start, stretch);
+    gap: 2rem;
+
+    @include respond-to('phone') {
+      gap: 1.5rem;
+    }
+
+    .header {
+      @include flexbox(row, space-between, flex-start);
+      flex-wrap: wrap;
+      gap: 1rem;
+
+      @include respond-to('phone') {
+        @include flexbox(column, flex-start, stretch);
+      }
+
+      .title_section {
+        @include flexbox(column, flex-start, flex-start);
+        gap: 0.25rem;
+
+        .title {
+          font-size: 2rem;
+          font-weight: 600;
+          color: var(--text-color);
+          margin: 0;
+
+          @include respond-to('phone') {
+            font-size: 1.5rem;
+          }
+        }
+
+        .subtitle {
+          font-size: 0.95rem;
+          color: var(--text-color-secondary);
+          margin: 0;
+
+          @include respond-to('phone') {
+            font-size: 0.9rem;
+          }
+        }
+      }
+    }
+
+    .loading,
+    .empty {
+      @include flexbox(column, center, center);
+      gap: 1rem;
+      padding: 4rem 2rem;
+      background: var(--background-color-secondary);
+      @include glass-border;
+      @include radius(12px);
+
+      @include respond-to('phone') {
+        padding: 3rem 1.5rem;
+      }
+
+      p {
+        font-size: 1rem;
+        color: var(--text-color-secondary);
+        margin: 0;
+
+        @include respond-to('phone') {
+          font-size: 0.95rem;
+        }
+      }
+    }
+
+    .table_wrapper {
+      width: 100%;
+      overflow-x: auto;
+      background: var(--background-color-secondary);
+      @include glass-border;
+      @include radius(12px);
+
+      @include respond-to('phone') {
+        @include radius(8px);
+      }
+
+      .table {
+        width: 100%;
+        border-collapse: collapse;
+
+        thead {
+          background: var(--background-color);
+
+          tr {
+            th {
+              padding: 1rem 1.25rem;
+              text-align: left;
+              font-size: 0.9rem;
+              font-weight: 600;
+              color: var(--text-color);
+              border-bottom: 1px solid var(--border-color);
+
+              @include respond-to('phone') {
+                padding: 0.75rem 1rem;
+                font-size: 0.85rem;
+              }
+            }
+          }
+        }
+
+        tbody {
+          tr {
+            @include transition(background 0.2s ease);
+
+            &:hover {
+              background: var(--background-color);
+            }
+
+            &:not(:last-child) {
+              border-bottom: 1px solid var(--border-color);
+            }
+
+            td {
+              padding: 1rem 1.25rem;
+              font-size: 0.95rem;
+              color: var(--text-color);
+
+              @include respond-to('phone') {
+                padding: 0.75rem 1rem;
+                font-size: 0.9rem;
+              }
+
+              .slug {
+                padding: 0.25rem 0.5rem;
+                background: var(--background-color);
+                color: var(--primary-color);
+                font-size: 0.85rem;
+                font-family: monospace;
+                @include radius(4px);
+
+                @include respond-to('phone') {
+                  font-size: 0.8rem;
+                }
+              }
+
+              .actions {
+                @include flexbox(row, flex-start, center);
+                gap: 0.5rem;
+
+                @include respond-to('phone') {
+                  @include flexbox(column, flex-start, stretch);
+                  gap: 0.375rem;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+//* 表單樣式
+.form {
+  @include flexbox(column, flex-start, stretch);
+  gap: 1.5rem;
+
+  @include respond-to('phone') {
+    gap: 1.25rem;
+  }
+
+  .locale_tabs {
+    @include flexbox(row, flex-start, center);
+    gap: 0.5rem;
+    border-bottom: 1px solid var(--border-color);
+
+    .locale_tab {
+      padding: 0.75rem 1.25rem;
+      background: transparent;
+      color: var(--text-color-secondary);
+      font-size: 0.95rem;
+      font-weight: 500;
+      border: none;
+      border-bottom: 2px solid transparent;
+      cursor: pointer;
+      @include transition(all 0.2s ease);
+
+      @include respond-to('phone') {
+        padding: 0.625rem 1rem;
+        font-size: 0.9rem;
+      }
+
+      &:hover {
+        color: var(--text-color);
+      }
+
+      &.active {
+        color: var(--primary-color);
+        border-bottom-color: var(--primary-color);
+      }
+    }
+  }
+
+  .locale_content {
+    @include flexbox(column, flex-start, stretch);
+    gap: 1.25rem;
+
+    @include respond-to('phone') {
+      gap: 1rem;
+    }
+  }
+
+  .form_actions {
+    @include flexbox(row, flex-end, center);
+    gap: 0.75rem;
+    padding-top: 0.5rem;
+
+    @include respond-to('phone') {
+      @include flexbox(column-reverse, stretch, stretch);
+      gap: 0.5rem;
+    }
+  }
+}
+

@@ -11,7 +11,7 @@
   @include respond-to('phone') {
     top: auto;
     bottom: 0;
-    height: calc(72px + 24px);
+    height: calc(60px + 48px);
   }
 
   > .header_container {
@@ -50,6 +50,10 @@
         @include radius(24px);
         @include glass-border;
 
+        @include respond-to('phone') {
+          @include radius(30px);
+        }
+
         > .header_nav_item {
           position: relative;
           @include flexbox(row, center, center);
@@ -69,8 +73,9 @@
             background-color: var(--background-color-quaternary);
           }
           @include respond-to('phone') {
-            width: 48px;
+            width: 60px;
             padding: 0;
+            @include radius(30px);
           }
 
           > .header_nav_item_icon {
@@ -89,10 +94,14 @@
 
     > .actions {
       @include flexbox(row, center, center);
-      height: 48px;
+      height: 100%;
       background-color: var(--background-color-secondary);
       @include radius(24px);
       @include glass-border;
+
+      @include respond-to('phone') {
+        @include radius(30px);
+      }
     }
   }
 }

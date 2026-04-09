@@ -1,0 +1,15 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+  
+    function isSuperAdmin() {
+      return request.auth != null &&
+        request.auth.token.email == 'johno1001741060168@gmail.com';
+    }
+    
+    match /{document=**} {
+      allow read, write, update, delete: if isSuperAdmin();
+    }
+  }
+}

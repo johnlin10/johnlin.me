@@ -1,4 +1,52 @@
 {
+  "site_config": {
+    "name": "John Lin",
+    "description": "Welcome to my new personal website."
+  },
+  "AdminPage": {
+    "title": "Admin | John Lin",
+    "description": "",
+    "page_title": "Admin",
+    "posts": {
+      "title": "Posts",
+      "description": "Create, edit, and delete posts",
+      "post_count": { "total": "Total ", "unit": " posts" },
+      "new_post": "New Post",
+      "filter": {
+        "all": "All",
+        "published": "Published",
+        "draft": "Draft"
+      },
+      "table": {
+        "title": "Title",
+        "status": {
+          "title": "Status",
+          "classes": {
+            "published": "Published",
+            "draft": "Draft"
+          }
+        },
+        "category": {
+          "title": "Category",
+          "classes": {
+            "set": "Set",
+            "not_set": "Not Set"
+          }
+        },
+        "tag": {
+          "title": "Tag"
+        },
+        "created_at": "Created At",
+        "actions": {
+          "title": "Actions",
+          "classes": {
+            "edit": "Edit",
+            "delete": "Delete"
+          }
+        }
+      }
+    }
+  },
   "HomePage": {
     "title": "John Lin | Web Developer",
     "description": "Welcome to my new personal website.",
@@ -44,7 +92,8 @@
   "BlogPage": {
     "title": "Blog | John Lin",
     "description": "Welcome to my blog.",
-    "page_title": "Blog"
+    "page_title": "Blog",
+    "noPosts": "No posts yet"
   },
   "GalleryPage": {
     "title": "Gallery | John Lin",
@@ -58,7 +107,7 @@
   },
   "LabPage": {
     "title": "Lab | John Lin",
-    "description": "Welcome to my lab.",
+    "description": "There will be many experimental pages here.",
     "page_title": "Lab",
     "PalettePage": {
       "title": "Palette",

@@ -16,10 +16,16 @@
     background-color: var(--background-color-quaternary);
   }
 
+  @include respond-to('phone') {
+    height: 60px;
+    width: 60px;
+    @include radius(30px);
+  }
+
   > .theme_toggle_container {
     @include flexbox(row, space-between, center);
     position: relative;
-    width: fit-content;
+    width: 100%;
     height: 100%;
 
     > .current_theme {
@@ -57,8 +63,14 @@
 
     > .theme_toggle_icons {
       z-index: 10;
-      @include flexbox(row, space-between, center);
+      position: relative;
+      @include flexbox(row, center, center);
       height: 100%;
+      width: 48px;
+
+      @include respond-to('phone') {
+        width: 60px;
+      }
 
       > .light,
       .system,
@@ -68,6 +80,11 @@
         width: 36px;
         height: 100%;
         @include radius(30px);
+        @include center-absolute-x;
+
+        @include respond-to('phone') {
+          width: 100%;
+        }
 
         > svg {
           opacity: 0;
@@ -84,23 +101,18 @@
       }
 
       > .light {
-        left: 0;
-
         &.active {
           background-color: var(--color-orange-500); // 修復色彩
         }
       }
 
       > .dark {
-        left: 0;
-
         &.active {
           background-color: var(--color-black);
         }
       }
 
       > .system {
-        left: 0;
         > svg {
           color: var(--foreground-color);
         }
