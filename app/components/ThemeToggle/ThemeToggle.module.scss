@@ -1,4 +1,4 @@
-@import '@/app/styles/_mixins.scss';
+@use '@/app/styles/mixins' as *;
 
 .theme_toggle {
   // @include flexbox(row, space-between, center);

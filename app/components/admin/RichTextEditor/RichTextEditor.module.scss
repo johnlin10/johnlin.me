@@ -1,4 +1,4 @@
-@import '@/app/styles/_mixins';
+@use '@/app/styles/mixins' as *;
 
 .rich_text_editor {
   width: 100%;

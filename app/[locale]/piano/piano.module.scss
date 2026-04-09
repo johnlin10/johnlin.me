@@ -1,4 +1,4 @@
-@import '../../styles/mixins';
+@use '@/app/styles/mixins' as *;
 
 .piano_page {
   @include flexbox(column, flex-start, center);

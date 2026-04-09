@@ -1,4 +1,4 @@
-@import '@/app/styles/_mixins.scss';
+@use '@/app/styles/mixins' as *;
 
 .color_display {
   > .color_name {

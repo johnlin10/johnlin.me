@@ -1,4 +1,4 @@
-@import '@/app/styles/_mixins.scss';
+@use '@/app/styles/mixins' as *;
 
 .header {
   z-index: 5000;

@@ -1,4 +1,4 @@
-@import '@/app/styles/_mixins';
+@use '@/app/styles/mixins' as *;
 
 .posts_page {
   width: 100%;

@@ -1,4 +1,4 @@
-@import '@/app/styles/mixins';
+@use '@/app/styles/mixins' as *;
 
 .input_wrapper {
   @include flexbox(column, flex-start, stretch);

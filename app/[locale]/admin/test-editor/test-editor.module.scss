@@ -1,4 +1,4 @@
-@import '@/app/styles/mixins';
+@use '@/app/styles/mixins' as *;
 
 .test_editor_page {
   width: 100%;

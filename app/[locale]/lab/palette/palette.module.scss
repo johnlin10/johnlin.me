@@ -1,4 +1,4 @@
-@import '@/app/styles/_mixins.scss';
+@use '@/app/styles/mixins' as *;
 
 .palette {
   @include respond-by-max-width(1128px) {
