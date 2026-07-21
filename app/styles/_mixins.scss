@@ -51,10 +51,9 @@
   -o-border-radius: $radius;
 }
 
+// 極簡改版：停用擬態玻璃模糊（保留 mixin 供既有呼叫，效果改為無）。
 @mixin glass-blur($blur: 6px) {
-  backdrop-filter: blur($blur) !important;
-  -webkit-backdrop-filter: blur($blur) !important;
-  -moz-backdrop-filter: blur($blur) !important;
+  // 擬態玻璃已於 2026-07 移除，故此處刻意留白。
 }
 
 @mixin hover-scale($level: 'm') {
@@ -78,21 +77,16 @@
   border-bottom: $border solid var(--empty-color) !important;
 }
 
-@mixin glass-border($border: var(--glass-border-width)) {
-  border-top: $border solid var(--glass-border-top-color) !important;
-  border-left: $border solid var(--glass-border-left-color) !important;
-  border-right: $border solid var(--glass-border-right-color) !important;
-  border-bottom: $border solid var(--glass-border-bottom-color) !important;
+// 極簡改版：玻璃邊框改為單一細邊框（語意 token --border）。
+@mixin glass-border($border: 1px) {
+  border: $border solid var(--border) !important;
 }
 
-//
-@mixin glass-border-actions($border: var(--glass-border-width)) {
+// 極簡改版：預設無邊框，hover 時浮現細邊框。
+@mixin glass-border-actions($border: 1px) {
   @include empty-border($border);
   &:hover {
-    border-top: $border solid var(--glass-border-top-color) !important;
-    border-left: $border solid var(--glass-border-left-color) !important;
-    border-right: $border solid var(--glass-border-right-color) !important;
-    border-bottom: $border solid var(--glass-border-bottom-color) !important;
+    border: $border solid var(--border) !important;
   }
 }
 

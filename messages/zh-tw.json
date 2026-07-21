@@ -50,8 +50,11 @@
   },
   "HomePage": {
     "title": "林昌龍",
-    "description": "歡迎來到我全新的個人網站。",
+    "description": "用影像捕捉瞬間，用文字刻畫思考。",
     "page_title": "首頁",
+    "tagline": "用影像捕捉瞬間，\n用文字刻畫思考。",
+    "role": "網頁設計 · 攝影 · 寫作",
+    "hint": "新版網站正在逐步展開",
     "section_hero": {
       "title": "林昌龍",
       "intros": [
@@ -123,15 +126,21 @@
   },
   "Header": {
     "home": "首頁",
-    "blog": "部落格",
-    "about": "關於我",
-    "gallery": "攝影集",
+    "blog": "文章",
+    "about": "關於",
+    "gallery": "攝影",
     "lab": "實驗室",
     "path_title": {
       "/": "首頁",
-      "/blog": "部落格",
-      "/about": "關於我"
+      "/blog": "文章",
+      "/about": "關於"
     }
+  },
+  "Footer": {
+    "tagline": "用影像捕捉瞬間，用文字刻畫思考。",
+    "explore": "探索",
+    "connect": "聯絡",
+    "rights": "保留部分權利"
   },
   "ThemeToggle": {
     "light": "淺色",

@@ -1,0 +1,89 @@
+@use '@/app/styles/mixins' as *;
+
+.footer {
+  width: 100%;
+  margin-top: auto;
+  padding: 64px 24px 32px;
+  background: var(--surface-2);
+  border-top: 1px solid var(--border);
+  color: var(--text-secondary);
+
+  @include respond-to('phone') {
+    padding: 48px 16px 96px; // 底部留白避開手機底欄
+  }
+}
+
+.inner {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr 1fr;
+  gap: 40px;
+  width: 100%;
+  max-width: 1080px;
+  margin: 0 auto;
+
+  @include respond-to('phone') {
+    grid-template-columns: 1fr 1fr;
+    gap: 32px 24px;
+  }
+}
+
+.brandCol {
+  @include respond-to('phone') {
+    grid-column: 1 / -1;
+  }
+}
+
+.brand {
+  font-family: var(--font-serif);
+  font-size: 1.15rem;
+  color: var(--text);
+  letter-spacing: 0.04em;
+}
+
+.tagline {
+  margin-top: 10px;
+  max-width: 30ch;
+  font-size: 0.9rem;
+  line-height: 1.7;
+  letter-spacing: 0.02em;
+  color: var(--text-muted);
+}
+
+.col {
+  @include flexbox(column, flex-start, flex-start);
+  gap: 12px;
+}
+
+.colTitle {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--text-muted);
+}
+
+.link {
+  font-size: 0.92rem;
+  letter-spacing: 0.02em;
+  color: var(--text-secondary);
+
+  &:hover {
+    color: var(--accent);
+  }
+}
+
+.bottom {
+  @include flexbox(row, space-between, center);
+  gap: 12px;
+  flex-wrap: wrap;
+  max-width: 1080px;
+  margin: 48px auto 0;
+  padding-top: 24px;
+  border-top: 1px solid var(--border);
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  letter-spacing: 0.03em;
+}
+
+.builtWith {
+  opacity: 0.8;
+}

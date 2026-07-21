@@ -7,11 +7,32 @@
   padding: 0;
   outline: none;
   border: 0 solid #00000000;
-  transition: 0.5s var(--transition-bezier);
-  -webkit-transition: 0.5s var(--transition-bezier);
-  -moz-transition: 0.5s var(--transition-bezier);
-  -ms-transition: 0.5s var(--transition-bezier);
-  -o-transition: 0.5s var(--transition-bezier);
+}
+
+// 針對性過場（取代先前套在所有元素上的全域 transition，改善效能與手感）
+a,
+button,
+input,
+textarea,
+select,
+[role='button'] {
+  transition: color 0.2s var(--transition-bezier),
+    background-color 0.2s var(--transition-bezier),
+    border-color 0.2s var(--transition-bezier),
+    opacity 0.2s var(--transition-bezier),
+    transform 0.2s var(--transition-bezier);
+}
+
+// 尊重使用者的減少動態偏好
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 html {
@@ -25,36 +46,55 @@ html {
 
 body {
   top: 0;
+  display: flex;
+  flex-direction: column;
   width: 100vw;
-  height: fit-content;
   min-height: 100vh;
   background: var(--background-color);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  color: var(--text);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+// 讓內容區撐開、Footer 貼底（sticky footer）
+.site-main {
+  flex: 1 0 auto;
+  width: 100%;
 }
 
 a {
+  color: inherit;
   text-decoration: none;
 }
 
-/* title */
+/* 標題採用襯線字（源起明體 / 文青感），內文維持無襯線 */
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-serif);
+  color: var(--text);
+  font-weight: 600;
+  // 只自架 SemiBold 一個字重；停用合成避免 CJK 假粗/假斜
+  font-synthesis: none;
+}
+
 h1 {
   margin-top: 2rem;
   margin-bottom: 1rem;
   font-size: 2rem;
-  font-weight: bold;
-  letter-spacing: 0.15rem;
+  letter-spacing: 0.04em;
+  line-height: 1.3;
 }
 h2 {
   font-size: 1.5rem;
-  font-weight: bold;
-  letter-spacing: 0.15rem;
+  letter-spacing: 0.04em;
   margin-top: 2rem;
 }
 h3 {
   font-size: 1.25rem;
-  font-weight: bold;
-  letter-spacing: 0.15rem;
+  letter-spacing: 0.04em;
 }
 
 p {

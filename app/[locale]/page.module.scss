@@ -1,74 +1,45 @@
 @use '@/app/styles/mixins' as *;
 
 .home {
-  > main {
-    > section {
-      @include flexbox(column, center, flex-start);
-      min-height: calc(100vh - var(--header-height) * 2);
-      height: fit-content;
+  width: 100%;
+}
 
-      > h1 {
-        font-size: 2.5rem;
-        font-weight: 700;
-        line-height: 1.2;
-      }
-      > p {
-        margin: 0.3rem 0;
-        font-size: 1.2rem;
+.hero {
+  @include flexbox(column, center, center);
+  gap: 18px;
+  min-height: calc(100vh - var(--header-height));
+  padding: var(--header-height) 24px 48px;
+  text-align: center;
+}
 
-        @include respond-to('phone') {
-          font-size: 1rem;
-        }
-      }
+.avatar {
+  border-radius: 999px;
+  object-fit: cover;
+  opacity: 0.92;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12);
+}
 
-      > div.buttons {
-        @include flexbox(row, flex-start, center);
-        gap: 6px;
-        margin-top: 1rem;
+.tagline {
+  margin: 8px 0 0;
+  max-width: 20ch;
+  font-family: var(--font-serif);
+  font-size: clamp(1.9rem, 5vw, 3rem);
+  font-weight: 600;
+  line-height: 1.5;
+  letter-spacing: 0.06em;
+  white-space: pre-line;
+  color: var(--text);
+}
 
-        > .button {
-          @include button;
-          @include button-link-hover;
+.role {
+  font-size: 0.95rem;
+  letter-spacing: 0.14em;
+  color: var(--text-secondary);
+}
 
-          &:hover {
-            > .icon {
-              @include transform(translateX(5px));
-            }
-          }
-
-          > .icon {
-            margin-left: 0.3rem;
-          }
-        }
-      }
-
-      &.section_features {
-        > .feature_card_container {
-          @include gridbox(row, repeat(2, 2fr), 12px);
-          height: fit-content;
-
-          @include respond-to('phone') {
-            @include gridbox(row, repeat(1, 1fr), 12px);
-          }
-
-          > .feature_card {
-            @include flexbox(column, flex-start, flex-start);
-            gap: 6px;
-            padding: 1.5rem 1.2rem;
-            background-color: var(--background-color-secondary);
-            @include glass-border;
-            @include radius(24px);
-
-            &:hover {
-              background-color: var(--background-color-tertiary);
-            }
-
-            > h2 {
-              margin: 0;
-            }
-          }
-        }
-      }
-    }
-  }
+.hint {
+  margin-top: 12px;
+  font-size: 0.82rem;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
 }

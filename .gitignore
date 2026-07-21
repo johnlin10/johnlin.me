@@ -39,3 +39,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# 生成字型分片（由 scripts/generate-fonts.mjs 於 predev / prebuild 產生，見來源 fonts/src）
+/public/fonts/genkimin/
+/public/fonts/.genkimin-tmp/

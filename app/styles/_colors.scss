@@ -104,6 +104,95 @@
   --link-hover-color: var(--color-blue-500);
 }
 
+/* ============================================================
+ * 暖色文青設計系統（橘 / 卡其）— 2026-07 改版
+ * 語意化 token；新元件請優先使用這些語意變數，而非直接用色階。
+ * 這幾個區塊置於檔案尾端，會覆蓋上方的舊主題值。
+ * ============================================================ */
+:root {
+  --font-serif: 'GenKiMinTW', 'Noto Serif TC', 'Songti TC', serif;
+  --font-sans: var(--font-noto-sans-tc), 'PingFang TC', 'Noto Sans TC',
+    system-ui, sans-serif;
+
+  //* 基礎預設（淺色）— 供 SSR / 無 JS / hydration 前使用，
+  //  .light / .dark 具較高優先權會覆蓋這裡。
+  --background-color: #faf6ee;
+  --background-color-rgb: 250, 246, 238;
+  --surface: #faf6ee;
+  --surface-2: #f2ece0;
+  --surface-3: #e8dfce;
+  --text: #201b13;
+  --text-secondary: #5c5344;
+  --text-muted: #8a7f6c;
+  --border: rgba(61, 49, 30, 0.14);
+  --border-strong: rgba(61, 49, 30, 0.24);
+  --accent: oklch(0.62 0.15 52);
+  --accent-hover: oklch(0.56 0.16 50);
+  --accent-soft: oklch(0.62 0.15 52 / 0.12);
+  --accent-contrast: #fffaf3;
+  --primary-color: var(--accent);
+}
+
+:root.light {
+  //* 暖色背景（卡其暖白）
+  --background-color: #faf6ee;
+  --background-color-rgb: 250, 246, 238;
+  --background-color-secondary: #f2ece0;
+  --background-color-secondary-rgb: 242, 236, 224;
+  --background-color-tertiary: #e8dfce;
+  --background-color-tertiary-rgb: 232, 223, 206;
+  --background-color-quaternary: #dbcfb9;
+  --background-color-quaternary-rgb: 219, 207, 185;
+
+  //* 語意
+  --surface: var(--background-color);
+  --surface-2: var(--background-color-secondary);
+  --surface-3: var(--background-color-tertiary);
+  --text: #201b13;
+  --text-secondary: #5c5344;
+  --text-muted: #8a7f6c;
+  --border: rgba(61, 49, 30, 0.14);
+  --border-strong: rgba(61, 49, 30, 0.24);
+
+  //* 主色（陶土橘）
+  --accent: oklch(0.62 0.15 52);
+  --accent-hover: oklch(0.56 0.16 50);
+  --accent-soft: oklch(0.62 0.15 52 / 0.12);
+  --accent-contrast: #fffaf3;
+  --primary-color: var(--accent);
+  --link-hover-color: var(--accent);
+}
+
+:root.dark {
+  //* 暖色背景（暖黑）
+  --background-color: #14110d;
+  --background-color-rgb: 20, 17, 13;
+  --background-color-secondary: #1e1a14;
+  --background-color-secondary-rgb: 30, 26, 20;
+  --background-color-tertiary: #29241c;
+  --background-color-tertiary-rgb: 41, 36, 28;
+  --background-color-quaternary: #372f24;
+  --background-color-quaternary-rgb: 55, 47, 36;
+
+  //* 語意
+  --surface: var(--background-color);
+  --surface-2: var(--background-color-secondary);
+  --surface-3: var(--background-color-tertiary);
+  --text: #f2ece1;
+  --text-secondary: #c3b8a5;
+  --text-muted: #8f8471;
+  --border: rgba(245, 235, 216, 0.1);
+  --border-strong: rgba(245, 235, 216, 0.18);
+
+  //* 主色（陶土橘，暗色下提亮）
+  --accent: oklch(0.72 0.15 58);
+  --accent-hover: oklch(0.78 0.14 60);
+  --accent-soft: oklch(0.72 0.15 58 / 0.16);
+  --accent-contrast: #14110d;
+  --primary-color: var(--accent);
+  --link-hover-color: var(--accent);
+}
+
 :root.light {
   //* Main Colors
   --primary-color: var(--color-orange-500);

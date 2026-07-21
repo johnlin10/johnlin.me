@@ -49,8 +49,11 @@
   },
   "HomePage": {
     "title": "John Lin | Web Developer",
-    "description": "Welcome to my new personal website.",
+    "description": "Capturing moments in images, tracing thought in words.",
     "page_title": "John Lin",
+    "tagline": "Capturing moments in images,\ntracing thought in words.",
+    "role": "Web Design · Photography · Writing",
+    "hint": "The new site is unfolding, piece by piece",
     "section_hero": {
       "title": "John Lin",
       "intros": [
@@ -122,15 +125,21 @@
   },
   "Header": {
     "home": "Home",
-    "blog": "Blog",
+    "blog": "Writing",
     "about": "About",
-    "gallery": "Gallery",
+    "gallery": "Photography",
     "lab": "Lab",
     "path_title": {
       "/": "Home",
-      "/blog": "Blog",
+      "/blog": "Writing",
       "/about": "About"
     }
+  },
+  "Footer": {
+    "tagline": "Capturing moments in images, tracing thought in words.",
+    "explore": "Explore",
+    "connect": "Connect",
+    "rights": "Some rights reserved"
   },
   "ThemeToggle": {
     "light": "Light",
