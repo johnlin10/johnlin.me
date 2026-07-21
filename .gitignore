@@ -29,6 +29,10 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
+*.log
+
+# 開發過程的臨時筆記（保留於本機，不入版控）
+/BLOG_SETUP.md
 
 # env files (can opt-in for committing if needed)
 .env*
