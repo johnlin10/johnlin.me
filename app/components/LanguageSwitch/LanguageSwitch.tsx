@@ -30,8 +30,15 @@ export default function LanguageSwitch() {
     <div className={style.language_switch}>
       <div className={style.language_switch_item}>
         <div className={style.language_display}>
+          {/* 手機：只顯示地球圖示（節省空間、維持好按的目標） */}
+          <Icon name="globe" size="sm" className={style.language_globe} />
+          {/* 桌機：顯示語言縮寫 + 下拉箭頭 */}
           <span className={style.language_current}>{currentShortName}</span>
-          <Icon name="chevron-down" size="sm" />
+          <Icon
+            name="chevron-down"
+            size="sm"
+            className={style.language_chevron}
+          />
         </div>
 
         <select

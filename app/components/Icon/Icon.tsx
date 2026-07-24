@@ -15,6 +15,8 @@ import {
   faImage,
   faCamera,
   faFlask,
+  faGlobe,
+  faCode,
 } from '@fortawesome/free-solid-svg-icons'
 
 //* 定義可用的圖標名稱類型
@@ -31,6 +33,8 @@ export type IconName =
   | 'image'
   | 'camera'
   | 'flask'
+  | 'globe'
+  | 'code'
 
 //* 圖標映射表
 const iconMap: Record<IconName, IconProp> = {
@@ -46,6 +50,8 @@ const iconMap: Record<IconName, IconProp> = {
   image: faImage,
   camera: faCamera,
   flask: faFlask,
+  globe: faGlobe,
+  code: faCode,
 }
 
 interface IconProps {

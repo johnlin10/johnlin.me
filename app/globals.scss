@@ -16,7 +16,8 @@ input,
 textarea,
 select,
 [role='button'] {
-  transition: color 0.2s var(--transition-bezier),
+  transition:
+    color 0.2s var(--transition-bezier),
     background-color 0.2s var(--transition-bezier),
     border-color 0.2s var(--transition-bezier),
     opacity 0.2s var(--transition-bezier),
@@ -41,7 +42,8 @@ html {
   width: 100vw;
   overflow-x: hidden;
   overflow-y: auto;
-  background: var(--background-color);
+  background-color: var(--background-color);
+  background-image: var(--background-texture);
 }
 
 body {
@@ -50,7 +52,8 @@ body {
   flex-direction: column;
   width: 100vw;
   min-height: 100vh;
-  background: var(--background-color);
+  background-color: var(--background-color);
+  background-image: var(--background-texture);
   color: var(--text);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;

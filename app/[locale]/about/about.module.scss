@@ -1,0 +1,182 @@
+@use '@/app/styles/mixins' as *;
+
+/* ============================================================
+ * 關於我（Phase 1b · 簡潔版）
+ * 左：個人資訊（桌機 sticky 固定；手機置頂、內容不佔太高，
+ *     讓「我的故事」標題在第一屏底部露出，暗示往下還有內容）。
+ * 右：內文，像一篇文章從上往下讀，標題與內文字級差距不大。
+ * ============================================================ */
+
+.about {
+  width: 100%;
+}
+
+.layout {
+  display: flex;
+  flex-direction: column;
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: calc(var(--header-height) + 20px) 20px 96px;
+
+  @include respond-to('desktop') {
+    display: grid;
+    grid-template-columns: minmax(200px, 240px) 1fr;
+    grid-template-rows: auto 1fr;
+    column-gap: clamp(32px, 5vw, 64px);
+    align-items: start;
+    padding: calc(var(--header-height) + 56px) 24px 120px;
+  }
+}
+
+/* ---------- 個人資訊 ---------- */
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 12px;
+  padding-bottom: 24px;
+  margin-bottom: 24px;
+  border-bottom: 1px solid var(--border);
+
+  @include respond-to('desktop') {
+    grid-column: 1;
+    grid-row: 1 / -1;
+    position: sticky;
+    top: calc(var(--header-height) + 40px);
+    align-items: flex-start;
+    text-align: left;
+    padding-bottom: 0;
+    margin-bottom: 0;
+    border-bottom: none;
+  }
+}
+
+.avatar {
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid var(--border);
+}
+
+.name {
+  font-family: var(--font-serif);
+  font-size: 1.05rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  color: var(--text);
+}
+
+.tagline {
+  margin-top: -6px;
+  font-size: 0.86rem;
+  letter-spacing: 0.03em;
+  color: var(--text-secondary);
+}
+
+.contacts {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px 16px;
+  margin-top: 6px;
+
+  @include respond-to('desktop') {
+    justify-content: flex-start;
+  }
+}
+
+.contactLink {
+  font-size: 0.86rem;
+  letter-spacing: 0.02em;
+  color: var(--text-secondary);
+  transition: color 0.2s var(--transition-bezier);
+
+  &:hover {
+    color: var(--accent);
+  }
+}
+
+/* ---------- 內文 ---------- */
+.storyTitle {
+  margin: 40px 0 8px;
+  font-family: var(--font-serif);
+  font-size: clamp(1.5rem, 2.8vw, 1.85rem);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--text);
+
+  @include respond-to('phone') {
+    margin-top: 0;
+  }
+
+  @include respond-to('desktop') {
+    grid-column: 2;
+    grid-row: 1;
+    margin: 0 0 8px;
+  }
+}
+
+.prose {
+  max-width: 66ch;
+
+  @include respond-to('desktop') {
+    grid-column: 2;
+    grid-row: 2;
+  }
+}
+
+.block {
+  margin-top: 36px;
+}
+
+.heading {
+  margin: 0 0 12px;
+  font-family: var(--font-serif);
+  font-size: 1.2rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: var(--text);
+}
+
+.paragraph {
+  margin: 0 0 20px;
+  font-size: 1.02rem;
+  line-height: 1.95;
+  letter-spacing: 0.02em;
+  color: var(--text-secondary);
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.pullQuote {
+  margin: 4px 0 20px;
+  padding-left: 18px;
+  border-left: 3px solid var(--accent);
+  font-style: italic;
+  font-size: 1.02rem;
+  line-height: 1.9;
+  letter-spacing: 0.02em;
+  color: var(--text);
+}
+
+.carriers {
+  margin: 0 0 20px;
+  padding-left: 20px;
+  list-style: disc;
+
+  li {
+    margin-bottom: 8px;
+    font-size: 1.02rem;
+    line-height: 1.8;
+    letter-spacing: 0.02em;
+    color: var(--text-secondary);
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+}

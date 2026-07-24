@@ -51,45 +51,98 @@
     "title": "John Lin | Web Developer",
     "description": "Capturing moments in images, tracing thought in words.",
     "page_title": "John Lin",
-    "tagline": "Capturing moments in images,\ntracing thought in words.",
-    "role": "Web Design · Photography · Writing",
-    "hint": "The new site is unfolding, piece by piece",
-    "section_hero": {
-      "title": "John Lin",
-      "intros": [
-        "I don't want this website to 'look impressive'.",
-        "I just want it to grow slowly, like me—into something I truly like."
-      ],
-      "buttons": {
-        "about": "About Me",
-        "blog": "Read Articles"
-      }
-    },
-    "section_live_life": {
-      "contents": [
-        "I'm a creator who values freedom—building things that matter to me through code.",
-        "These days, I'm learning English, writing reflections on education and life, and documenting everyday moments through photography.",
-        "I'm not sure what this site will become, but like me, it's always exploring, and never stopping."
+    "tagline": "Capturing moments in images,\ntracing thought in words,\nbuilding order in code.",
+    "role": "Observing the world, recording life, thinking independently, chasing freedom — exploring my own story of growth.",
+    "hero": {
+      "scrollHint": "Scroll to explore",
+      "tabs": {
+        "photos": "Show photography",
+        "writing": "Show writing",
+        "code": "Show code"
+      },
+      "papers": [
+        {
+          "title": "Redesigning this site, and rethinking a few things along the way",
+          "excerpt": "Rebuilding the homepage this week ended up clarifying more than just the layout. Design is as much about what you leave out as what you keep.",
+          "date": "3 days ago"
+        },
+        {
+          "title": "Three things I've learned from teaching myself",
+          "excerpt": "Without anyone tracking your progress, you're forced to figure out what actually matters. A few thoughts from the past few years.",
+          "date": "1 week ago"
+        },
+        {
+          "title": "An afternoon out with the Nikon",
+          "excerpt": "Some moments you just know you'll remember the second you press the shutter. This one's about that afternoon.",
+          "date": "2 weeks ago"
+        }
       ]
     },
-    "section_features": {
-      "title": "Features",
-      "blog": {
-        "title": "Blog",
-        "description": "Reflections on education, life, and self-awareness."
-      },
-      "gallery": {
-        "title": "Gallery",
-        "description": "Capturing moments that feel worth pausing for."
-      },
-      "shorten": {
-        "title": "URL Shortener",
-        "description": "A minimalist shortlink tool I built for myself."
-      },
-      "about": {
-        "title": "About Me",
-        "description": "If you'd like to know me better, this is a good place to start."
+    "who": {
+      "label": "Who I Am",
+      "heading": "I like turning my ideas into real things, by hand.",
+      "paragraphs": [
+        "I'm John Lin, a self-taught web developer who also takes photos and writes a bit. These look like separate things, but to me they're really the same: I use them to make sense of the world, and of myself.",
+        "I believe in honesty and resilience. I'm not rushing to finish this site; I want it to grow at its own pace, into something I genuinely like. Gentle is fine, as long as it knows where it's going.",
+        "This site is a place I made for myself. I run the content myself, I don't chase traffic, and I don't let the algorithm pull me around. I want to let it slowly grow into a corner that's only mine."
+      ]
+    },
+    "things": {
+      "label": "Three things I do",
+      "intro": "These three look like separate things, but to me they're one and the same.",
+      "items": {
+        "web": {
+          "title": "Web",
+          "description": "From a single line of CSS to a whole product — I like turning ideas into things people can actually use."
+        },
+        "photography": {
+          "title": "Photography",
+          "description": "With my Nikon, I keep the moments that feel worth pausing a second for."
+        },
+        "writing": {
+          "title": "Writing",
+          "description": "Somewhere between reason and feeling, I write about education, life, and the self."
+        }
       }
+    },
+    "works": {
+      "label": "Selected Work",
+      "heading": "Things I've built.",
+      "visit": "Visit",
+      "items": {
+        "robotctust": {
+          "title": "robotctust.com",
+          "description": "The official site for the Robotics Club at CTUST."
+        },
+        "calens": {
+          "title": "calens.app",
+          "description": "A platform that turns text or images into calendar events — manage them online, or download an .ics for your calendar of choice. A hands-on experiment for now."
+        },
+        "stally": {
+          "title": "Stally",
+          "description": "A multi-tenant business system — POS and inventory — that started as a way to help my mom run her fruit shop. (In planning)"
+        },
+        "ytdlp": {
+          "title": "ytdlp-server-rpi",
+          "description": "A yt-dlp download server running on a Raspberry Pi."
+        },
+        "practions": {
+          "title": "practions",
+          "description": "A question-bank practice platform I built for friends and classmates — I can update the banks and set up different quiz formats, so anyone who needs it can practice more easily."
+        }
+      }
+    },
+    "articles": {
+      "label": "Latest Writing",
+      "heading": "Recent thoughts.",
+      "empty": "The first piece is still taking shape. It'll be here soon.",
+      "cta": "Go to the blog"
+    },
+    "photographyGlimpse": {
+      "label": "A Glimpse",
+      "heading": "Through the lens.",
+      "empty": "The photography space is being put together. Stay tuned.",
+      "cta": "Go to the gallery"
     }
   },
   "BlogPage": {
@@ -105,8 +158,74 @@
   },
   "AboutPage": {
     "title": "About | John Lin",
-    "description": "This is the about page.",
-    "page_title": "About"
+    "description": "John Lin, a self-taught web developer. Writing code, taking photos, writing words, at my own pace.",
+    "page_title": "About",
+    "storyTitle": "My Story",
+    "sidebar": {
+      "tagline": "Web Developer · Photography · Writing"
+    },
+    "intro": [
+      "I'm John Lin. Writing code, taking photos, writing words — that's pretty much what my life looks like right now.",
+      "I made this site myself, and I run the content myself. Everyone's chasing speed and traffic these days; I just wanted a place that could grow at its own pace."
+    ],
+    "sections": {
+      "origin": {
+        "heading": "It began with a certificate I never passed",
+        "paragraphs": [
+          "All of this actually started with a certificate I never passed.",
+          "In my second year of high school I was preparing for the Level C web design exam. But what it tested had little to do with what the industry actually uses; the techniques were over a decade old. I followed the reference book, working in software I found clumsy and unfamiliar, until I couldn't stand it and gave up. Of course I didn't pass. I just felt that exam couldn't really prove anything.",
+          "To prove that, I walked into web design on my own. Back then I knew almost nothing about CSS or JavaScript, but I was clear about what I wanted: to make something genuinely useful, and show that piece of paper was pointless."
+        ]
+      },
+      "firstWork": {
+        "heading": "It wasn't pretty, but people actually used it",
+        "paragraphs": [
+          "I went after the most real problem in my class. Everyone was always digging through group chats and the school website to find schedule changes and exam timetables. So I built a class information platform, starting from the plainest static page, all the way to a live database, so the moment something updated, everyone's screen updated too."
+        ],
+        "pullQuote": "It wasn't pretty, but my classmates actually used it, and it genuinely made a few things easier for them. That feeling was something I'd never had in all my years of school. For the first time I knew: teaching myself, I could actually make something worth making."
+      },
+      "darkMonths": {
+        "heading": "At my lowest, I wrote myself back together",
+        "paragraphs": [
+          "Around the same time, a procedural mistake in the school's admissions pushed me into a department I had no interest in. I already had my doubts about the system, and after this, what little trust I had left was gone.",
+          "That half year was dark. I let go of most of my schoolwork and threw myself into teaching myself, and I started writing. Not for anyone to read, just to work out who I actually was, what I cared about, where my limits were. It started as complaining, and slowly turned into asking myself, over and over, why."
+        ],
+        "pullQuote": "Writing and writing, I put that nearly-broken version of myself back together, piece by piece, and wrote out a set of values that were my own."
+      },
+      "anchor": {
+        "heading": "A place no one can take from me",
+        "paragraphs": [
+          "Looking back, those two things were really the same thing. Walking into web design, or standing back up at my lowest, both times I first found a steady place inside myself before I could move outward. A goal, a belief, a spot I built for myself that could hold my weight.",
+          "I call it my origin. It isn't a box someone drew for me. It's mine: no one can take it, and I don't have to wait for anyone to hand me a certificate to validate it."
+        ]
+      },
+      "throughline": {
+        "heading": "Code, writing, photography — to me they're one thing",
+        "paragraphs": [
+          "So code, writing, and photography are really one thing to me. I see a lot of messy, unsorted stuff, and I want to get my hands on it, make it clear, and keep it."
+        ],
+        "carriers": [
+          "Code: turning ideas into systems that work.",
+          "Writing: sorting out the thoughts in my head.",
+          "Photography: keeping the moments worth pausing for."
+        ],
+        "carriersOutro": "The work looks different, but underneath it's the same origin at work."
+      },
+      "values": {
+        "heading": "Honesty, and my own pace",
+        "paragraphs": [
+          "I care a lot about honesty. The kind of thing people say just to be seen, that they don't even believe themselves, I can't really bring myself to say. I'm also wary of passing off AI-generated things as human creation. I use AI myself; it's a great tool. But I won't use it to pretend something was made by my own hands, my own eyes.",
+          "And I don't want to run at the whole world's pace. Everything's in such a hurry these days; I just want to work at my own. I'm not saying these for everyone; they're more like a filter. The people they suit will stay, and we'll probably get along. The ones they don't, that's okay too."
+        ]
+      },
+      "now": {
+        "heading": "Where I am now, still moving forward",
+        "paragraphs": [
+          "Right now I'm in university. A few friends and I started a club, and I built its official site on my own, then grew it into a whole learning platform, with courses, progress tracking, and an achievement system, everything from the database to the interface built by me. I've got a few other projects running, and I'm slowly writing my long-form pieces on Substack.",
+          "Further out, I've set my sights on the Netherlands. As for why, that's another story still being written. All I know is that this time, I'm clear about where I'm setting out from."
+        ]
+      }
+    }
   },
   "LabPage": {
     "title": "Lab | John Lin",

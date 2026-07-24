@@ -41,6 +41,7 @@
     "firebase": "^12.3.0",
     "katex": "^0.16.23",
     "lowlight": "^3.3.0",
+    "motion": "^12.42.2",
     "next": "^15.4.10",
     "next-intl": "^4.3.4",
     "next-sitemap": "^1.6.228",

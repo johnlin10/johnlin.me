@@ -111,8 +111,9 @@
  * ============================================================ */
 :root {
   --font-serif: 'GenKiMinTW', 'Noto Serif TC', 'Songti TC', serif;
-  --font-sans: var(--font-noto-sans-tc), 'PingFang TC', 'Noto Sans TC',
-    system-ui, sans-serif;
+  --font-sans:
+    var(--font-noto-sans-tc), 'PingFang TC', 'Noto Sans TC', system-ui,
+    sans-serif;
 
   //* 基礎預設（淺色）— 供 SSR / 無 JS / hydration 前使用，
   //  .light / .dark 具較高優先權會覆蓋這裡。
@@ -131,6 +132,7 @@
   --accent-soft: oklch(0.62 0.15 52 / 0.12);
   --accent-contrast: #fffaf3;
   --primary-color: var(--accent);
+  --background-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.15'/%3E%3C/svg%3E");
 }
 
 :root.light {
@@ -148,6 +150,7 @@
   --surface: var(--background-color);
   --surface-2: var(--background-color-secondary);
   --surface-3: var(--background-color-tertiary);
+  --background-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.15'/%3E%3C/svg%3E");
   --text: #201b13;
   --text-secondary: #5c5344;
   --text-muted: #8a7f6c;
@@ -178,6 +181,7 @@
   --surface: var(--background-color);
   --surface-2: var(--background-color-secondary);
   --surface-3: var(--background-color-tertiary);
+  --background-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
   --text: #f2ece1;
   --text-secondary: #c3b8a5;
   --text-muted: #8f8471;
@@ -194,21 +198,9 @@
 }
 
 :root.light {
-  //* Main Colors
-  --primary-color: var(--color-orange-500);
-
-  //* Background Colors
-  --background-color: #ffffff;
-  --background-color-rgb: 255, 255, 255;
-
-  --background-color-secondary: #f0f0f0;
-  --background-color-secondary-rgb: 240, 240, 240;
-
-  --background-color-tertiary: #e0e0e0;
-  --background-color-tertiary-rgb: 224, 224, 224;
-
-  --background-color-quaternary: #d0d0d0;
-  --background-color-quaternary-rgb: 208, 208, 208;
+  //* 舊主題殘留區塊：背景色、主色已由上方「暖色文青」區塊接管，
+  //  這裡不再覆蓋（先前覆蓋成冷白 #ffffff 是整站失去暖色的主因）。
+  //  僅保留其他元件仍在引用的前景 / 玻璃 / 邊框色階。
 
   //* Foreground Colors
   --foreground-color: var(--foreground-black-999);
@@ -242,21 +234,9 @@
 }
 
 :root.dark {
-  //* Main Colors
-  --primary-color: var(--color-orange-500);
-
-  //* Background Colors
-  --background-color: #131313;
-  --background-color-rgb: 19, 19, 19;
-
-  --background-color-secondary: #1f1f1f;
-  --background-color-secondary-rgb: 31, 31, 31;
-
-  --background-color-tertiary: #2f2f2f;
-  --background-color-tertiary-rgb: 47, 47, 47;
-
-  --background-color-quaternary: #3f3f3f;
-  --background-color-quaternary-rgb: 63, 63, 63;
+  //* 舊主題殘留區塊：背景色、主色已由上方「暖色文青」區塊接管，
+  //  這裡不再覆蓋（先前覆蓋成冷黑 #131313 是整站失去暖色的主因）。
+  //  僅保留其他元件仍在引用的前景 / 玻璃 / 邊框色階。
 
   //* Foreground Colors
   --foreground-color: var(--foreground-white-999);

@@ -2,15 +2,28 @@
 
 import { useTheme } from '@/app/contexts/ThemeContext'
 import styles from './ThemeToggle.module.scss'
-import Icon from '../Icon/Icon'
+import Icon, { type IconName } from '../Icon/Icon'
+import { useTranslations } from 'next-intl'
 import { useEffect, useState } from 'react'
 
 /**
- * 主題切換元件
- * 支援亮色、暗色和系統主題三種模式
+ * 主題切換元件（極簡：單一圖示按鈕，點擊循環 亮 → 系統 → 暗）
  */
+const NEXT_THEME: Record<string, string> = {
+  light: 'system',
+  system: 'dark',
+  dark: 'light',
+}
+
+const THEME_ICON: Record<string, IconName> = {
+  light: 'sun',
+  system: 'circle-half-stroke',
+  dark: 'moon',
+}
+
 export default function ThemeToggle() {
   const { theme, setTheme } = useTheme()
+  const t = useTranslations('ThemeToggle')
 
   const [mounted, setMounted] = useState(false)
   //* 等待客戶端 hydration 完成
@@ -18,61 +31,23 @@ export default function ThemeToggle() {
     setMounted(true)
   }, [])
 
-  const handleThemeToggle = () => {
-    let nextTheme: string
-    if (theme === 'light') {
-      nextTheme = 'system'
-    } else if (theme === 'system') {
-      nextTheme = 'dark'
-    } else if (theme === 'dark') {
-      nextTheme = 'light'
-    } else {
-      nextTheme = 'light'
-    }
+  const current = (mounted ? theme : 'system') ?? 'system'
+  const iconName = THEME_ICON[current] ?? 'circle-half-stroke'
+  const label = t(`${current}_action_label` as 'light_action_label')
 
-    setTheme(nextTheme)
-  }
-  if (!mounted) {
-    return (
-      <div className={styles.theme_toggle}>
-        <div className={styles.theme_toggle_container}>
-          <div className={styles.theme_toggle_icons}>
-            <div className={styles.system}>
-              <Icon name="circle-half-stroke" size="lg" />
-            </div>
-          </div>
-        </div>
-      </div>
-    )
+  const handleThemeToggle = () => {
+    setTheme(NEXT_THEME[current] ?? 'light')
   }
 
   return (
-    <div className={styles.theme_toggle} onClick={handleThemeToggle}>
-      <div className={styles.theme_toggle_container}>
-        <div className={styles.theme_toggle_icons}>
-          <div
-            className={`${styles.light} ${
-              theme === 'light' ? styles.active : ''
-            }`}
-          >
-            <Icon name="sun" size="lg" />
-          </div>
-          <div
-            className={`${styles.system} ${
-              theme === 'system' ? styles.active : ''
-            }`}
-          >
-            <Icon name="circle-half-stroke" size="lg" />
-          </div>
-          <div
-            className={`${styles.dark} ${
-              theme === 'dark' ? styles.active : ''
-            }`}
-          >
-            <Icon name="moon" size="lg" />
-          </div>
-        </div>
-      </div>
-    </div>
+    <button
+      type="button"
+      className={styles.themeToggle}
+      onClick={handleThemeToggle}
+      aria-label={label}
+      title={label}
+    >
+      <Icon name={iconName} size="sm" />
+    </button>
   )
 }
