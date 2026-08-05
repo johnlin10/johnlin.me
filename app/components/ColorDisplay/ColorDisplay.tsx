@@ -26,7 +26,7 @@ const ColorDisplay: React.FC<ColorDisplayProps> = ({
 }) => {
   const [colorValue, setColorValue] = useState<string>('')
   const [isLoading, setIsLoading] = useState<boolean>(true)
-  const t = useTranslations('LabPage.PalettePage.color_display')
+  const t = useTranslations('LabPage.DesignPage.color_display')
 
   useEffect(() => {
     //* 元件掛載後讀取顏色值

@@ -1,93 +1,12 @@
-@mixin respond-to($breakpoint) {
-  @if $breakpoint == 'phone' {
-    @media (max-width: 600px) and (min-height: 300px) {
-      @content;
-    }
-  } @else if $breakpoint == 'phone-landscape' {
-    @media (min-width: 600px) and (max-height: 600px) and (orientation: landscape) {
-      @content;
-    }
-  } @else if $breakpoint == 'tablet' {
-    @media ((min-width: 600px) and (max-width: 1024px)) {
-      @content;
-    }
-  } @else if $breakpoint == 'desktop' {
-    @media (min-width: 1025px) {
-      @content;
-    }
-  }
-}
-
-@mixin respond-by-max-width($width) {
-  @media (max-width: $width) {
-    @content;
-  }
-}
-@mixin respond-by-min-width($width) {
-  @media (min-width: $width) {
-    @content;
-  }
-}
+// 斷點本體搬去 _breakpoints.scss 了，這裡照舊 forward 出去，
+// 舊的 `@use '.../mixins' as *` 呼叫端不用改。
+@forward 'breakpoints';
 
 @mixin flexbox($direction: row, $justify: center, $align: center) {
   display: flex;
   flex-direction: $direction;
   justify-content: $justify;
   align-items: $align;
-}
-
-@mixin gridbox($direction: row, $repeat: repeat(4, 1fr), $gap: 1rem) {
-  display: grid;
-  grid-template-columns: $repeat;
-  grid-template-rows: $repeat;
-  gap: $gap;
-}
-
-@mixin radius($radius: 12px) {
-  border-radius: $radius;
-  -webkit-border-radius: $radius;
-  -moz-border-radius: $radius;
-  -ms-border-radius: $radius;
-  -o-border-radius: $radius;
-}
-
-// 極簡改版：停用擬態玻璃模糊（保留 mixin 供既有呼叫，效果改為無）。
-@mixin glass-blur($blur: 6px) {
-  // 擬態玻璃已於 2026-07 移除，故此處刻意留白。
-}
-
-@mixin hover-scale($level: 'm') {
-  &:hover {
-    z-index: 10;
-    box-shadow: 0 0 24px 6px rgba(0, 0, 0, 0.1);
-    @if $level == 'm' {
-      @include transform(scale(1.15));
-    } @else if $level == 'l' {
-      @include transform(scale(1.25));
-    } @else if $level == 's' {
-      @include transform(scale(1.05));
-    }
-  }
-}
-
-@mixin empty-border($border: var(--glass-border-width)) {
-  border-top: $border solid var(--empty-color) !important;
-  border-left: $border solid var(--empty-color) !important;
-  border-right: $border solid var(--empty-color) !important;
-  border-bottom: $border solid var(--empty-color) !important;
-}
-
-// 極簡改版：玻璃邊框改為單一細邊框（語意 token --border）。
-@mixin glass-border($border: 1px) {
-  border: $border solid var(--border) !important;
-}
-
-// 極簡改版：預設無邊框，hover 時浮現細邊框。
-@mixin glass-border-actions($border: 1px) {
-  @include empty-border($border);
-  &:hover {
-    border: $border solid var(--border) !important;
-  }
 }
 
 @mixin transition($transition...) {
@@ -98,39 +17,73 @@
   -o-transition: $transition;
 }
 
-@mixin transform($transform: none) {
-  transform: $transform;
-  -webkit-transform: $transform;
-  -moz-transform: $transform;
-  -ms-transform: $transform;
-  -o-transform: $transform;
-}
+// ------------------------------------------------------------
+// 版面節奏 mixin：新頁面/新元件從這裡挑，別自己重寫邊距與字級。
+// ------------------------------------------------------------
 
-// components
-@mixin button($radius: 24px) {
-  @include flexbox(row, center, center);
-  padding: 0.5rem 1rem;
-  width: fit-content;
-  background-color: var(--background-color-secondary);
-  font-size: 0.9rem;
-  @include radius($radius);
-  @include glass-border;
-}
-@mixin button-link-hover($color: var(--link-hover-color)) {
-  &:hover {
-    background-color: $color;
-    @include hover-scale('s');
+// 頁面容器：置中 + 左右邊距（--page-gutter）+ 版寬上限。
+@mixin container($width: 'content') {
+  width: 100%;
+  margin: 0 auto;
+  padding-left: var(--page-gutter);
+  padding-right: var(--page-gutter);
+
+  @if $width == 'feed' {
+    max-width: var(--width-feed);
+  } @else if $width == 'content' {
+    max-width: var(--width-content);
+  } @else if $width == 'wide' {
+    max-width: var(--width-wide);
+  } @else if $width == 'max' {
+    max-width: var(--width-max);
+  } @else if $width == 'full' {
+    max-width: none;
+    padding-left: 0;
+    padding-right: 0;
   }
 }
 
-@mixin center-absolute-x() {
-  position: absolute;
-  left: 50%;
-  @include transform(translateX(-50%));
+// 整頁區塊：上下用 --section-py 的節奏，左右用 --page-gutter。
+// 裡面如果還要再置中一個更窄的欄，用 container() 但別再疊一次左右 padding。
+@mixin section() {
+  width: 100%;
+  padding: var(--section-py) var(--page-gutter);
 }
 
-@mixin center-absolute-y() {
-  position: absolute;
-  top: 50%;
-  @include transform(translateY(-50%));
+// 段落小標：accent 色、寬字距、大寫。
+@mixin eyebrow() {
+  display: block;
+  font-size: var(--text-2xs);
+  font-weight: 500;
+  letter-spacing: var(--tracking-widest);
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+// meta 資訊列（日期、分類、字數這類次要文字）。
+@mixin meta() {
+  font-family: var(--font-sans);
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+}
+
+// 卡片底：surface-2 + 細邊框，hover 時邊框加深；陰影/位移交給呼叫端疊加。
+@mixin card() {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--card-radius);
+  padding: var(--card-padding);
+  transition: border-color var(--duration) var(--ease);
+
+  &:hover {
+    border-color: var(--border-strong);
+  }
+}
+
+// 鍵盤聚焦環，取代瀏覽器預設藍框，跟 accent 一致。
+@mixin focus-ring() {
+  &:focus-visible {
+    outline: none;
+    box-shadow: var(--shadow-focus);
+  }
 }

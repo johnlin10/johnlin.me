@@ -2,6 +2,7 @@
 
 import { Editor } from '@tiptap/react'
 import { useCallback, useState } from 'react'
+import { useTranslations } from 'next-intl'
 import style from './MenuBar.module.scss'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
@@ -10,6 +11,7 @@ import {
   faCircle,
   faCode,
   faHeading,
+  faHighlighter,
   faImage,
   faItalic,
   faLink,
@@ -19,7 +21,12 @@ import {
   faListUl,
   faQuoteLeft,
   faRedo,
+  faSquareRootVariable,
   faStrikethrough,
+  faSubscript,
+  faSuperscript,
+  faTable,
+  faTrash,
   faUnderline,
   faUndo,
   faXmark,
@@ -34,8 +41,11 @@ interface MenuBarProps {
  * 編輯器工具列
  */
 export default function MenuBar({ editor, onImageUpload }: MenuBarProps) {
+  const t = useTranslations('AdminPage.richTextEditor.menuBar')
   const [showLinkInput, setShowLinkInput] = useState(false)
   const [linkUrl, setLinkUrl] = useState('')
+  const [showMathInput, setShowMathInput] = useState(false)
+  const [mathLatex, setMathLatex] = useState('')
 
   //* 插入連結
   const handleSetLink = useCallback(() => {
@@ -51,6 +61,47 @@ export default function MenuBar({ editor, onImageUpload }: MenuBarProps) {
     if (editor) {
       editor.chain().focus().unsetLink().run()
     }
+  }, [editor])
+
+  //* 開啟公式輸入框——游標在既有公式上時預填內容，走「編輯」而非「插入」
+  const openMathInput = useCallback(() => {
+    if (!editor) return
+    setShowLinkInput(false)
+    if (editor.isActive('math')) {
+      setMathLatex(editor.getAttributes('math').latex || '')
+    } else {
+      setMathLatex('')
+    }
+    setShowMathInput(true)
+  }, [editor])
+
+  //* 送出公式（新增或更新既有節點的 latex）
+  const handleConfirmMath = useCallback(() => {
+    if (!editor) return
+    const latex = mathLatex.trim()
+    if (!latex) {
+      setShowMathInput(false)
+      return
+    }
+    if (editor.isActive('math')) {
+      editor.chain().focus().updateAttributes('math', { latex }).run()
+    } else {
+      editor
+        .chain()
+        .focus()
+        .insertContent({ type: 'math', attrs: { latex } })
+        .run()
+    }
+    setShowMathInput(false)
+  }, [editor, mathLatex])
+
+  //* 插入表格 / 刪除表格
+  const handleInsertTable = useCallback(() => {
+    editor?.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()
+  }, [editor])
+
+  const handleDeleteTable = useCallback(() => {
+    editor?.chain().focus().deleteTable().run()
   }, [editor])
 
   //* 圖片上傳
@@ -85,7 +136,7 @@ export default function MenuBar({ editor, onImageUpload }: MenuBarProps) {
         <button
           onClick={() => editor.chain().focus().toggleBold().run()}
           className={editor.isActive('bold') ? style.active : ''}
-          title="粗體 (Ctrl+B)"
+          title={t('bold')}
         >
           <FontAwesomeIcon icon={faBold} />
         </button>
@@ -93,7 +144,7 @@ export default function MenuBar({ editor, onImageUpload }: MenuBarProps) {
         <button
           onClick={() => editor.chain().focus().toggleItalic().run()}
           className={editor.isActive('italic') ? style.active : ''}
-          title="斜體 (Ctrl+I)"
+          title={t('italic')}
         >
           <FontAwesomeIcon icon={faItalic} />{' '}
         </button>
@@ -101,7 +152,7 @@ export default function MenuBar({ editor, onImageUpload }: MenuBarProps) {
         <button
           onClick={() => editor.chain().focus().toggleUnderline().run()}
           className={editor.isActive('underline') ? style.active : ''}
-          title="底線 (Ctrl+U)"
+          title={t('underline')}
         >
           <FontAwesomeIcon icon={faUnderline} />
         </button>
@@ -109,9 +160,33 @@ export default function MenuBar({ editor, onImageUpload }: MenuBarProps) {
         <button
           onClick={() => editor.chain().focus().toggleStrike().run()}
           className={editor.isActive('strike') ? style.active : ''}
-          title="刪除線"
+          title={t('strike')}
         >
           <FontAwesomeIcon icon={faStrikethrough} />
+        </button>
+
+        <button
+          onClick={() => editor.chain().focus().toggleHighlight().run()}
+          className={editor.isActive('highlight') ? style.active : ''}
+          title={t('highlight')}
+        >
+          <FontAwesomeIcon icon={faHighlighter} />
+        </button>
+
+        <button
+          onClick={() => editor.chain().focus().toggleSubscript().run()}
+          className={editor.isActive('subscript') ? style.active : ''}
+          title={t('subscript')}
+        >
+          <FontAwesomeIcon icon={faSubscript} />
+        </button>
+
+        <button
+          onClick={() => editor.chain().focus().toggleSuperscript().run()}
+          className={editor.isActive('superscript') ? style.active : ''}
+          title={t('superscript')}
+        >
+          <FontAwesomeIcon icon={faSuperscript} />
         </button>
       </div>
 
@@ -126,7 +201,7 @@ export default function MenuBar({ editor, onImageUpload }: MenuBarProps) {
           className={
             editor.isActive('heading', { level: 1 }) ? style.active : ''
           }
-          title="標題 1"
+          title={t('heading1')}
         >
           <FontAwesomeIcon icon={faHeading} />
           <code>1</code>
@@ -139,7 +214,7 @@ export default function MenuBar({ editor, onImageUpload }: MenuBarProps) {
           className={
             editor.isActive('heading', { level: 2 }) ? style.active : ''
           }
-          title="標題 2"
+          title={t('heading2')}
         >
           <FontAwesomeIcon icon={faHeading} />
           <code>2</code>
@@ -152,7 +227,7 @@ export default function MenuBar({ editor, onImageUpload }: MenuBarProps) {
           className={
             editor.isActive('heading', { level: 3 }) ? style.active : ''
           }
-          title="標題 3"
+          title={t('heading3')}
         >
           <FontAwesomeIcon icon={faHeading} />
           <code>3</code>
@@ -166,7 +241,7 @@ export default function MenuBar({ editor, onImageUpload }: MenuBarProps) {
         <button
           onClick={() => editor.chain().focus().toggleBulletList().run()}
           className={editor.isActive('bulletList') ? style.active : ''}
-          title="無序列表"
+          title={t('bulletList')}
         >
           <FontAwesomeIcon icon={faListUl} />
         </button>
@@ -174,7 +249,7 @@ export default function MenuBar({ editor, onImageUpload }: MenuBarProps) {
         <button
           onClick={() => editor.chain().focus().toggleOrderedList().run()}
           className={editor.isActive('orderedList') ? style.active : ''}
-          title="有序列表"
+          title={t('orderedList')}
         >
           <FontAwesomeIcon icon={faListOl} />
         </button>
@@ -182,7 +257,7 @@ export default function MenuBar({ editor, onImageUpload }: MenuBarProps) {
         <button
           onClick={() => editor.chain().focus().toggleBlockquote().run()}
           className={editor.isActive('blockquote') ? style.active : ''}
-          title="引用"
+          title={t('blockquote')}
         >
           <FontAwesomeIcon icon={faQuoteLeft} />
         </button>
@@ -198,15 +273,16 @@ export default function MenuBar({ editor, onImageUpload }: MenuBarProps) {
               onClick={() => {
                 const previousUrl = editor.getAttributes('link').href
                 setLinkUrl(previousUrl || '')
+                setShowMathInput(false)
                 setShowLinkInput(true)
               }}
               className={editor.isActive('link') ? style.active : ''}
-              title="插入連結"
+              title={t('insertLink')}
             >
               <FontAwesomeIcon icon={faLink} />
             </button>
             {editor.isActive('link') && (
-              <button onClick={handleUnsetLink} title="移除連結">
+              <button onClick={handleUnsetLink} title={t('removeLink')}>
                 <FontAwesomeIcon icon={faLinkSlash} />
               </button>
             )}
@@ -217,7 +293,7 @@ export default function MenuBar({ editor, onImageUpload }: MenuBarProps) {
               type="url"
               value={linkUrl}
               onChange={(e) => setLinkUrl(e.target.value)}
-              placeholder="https://example.com"
+              placeholder={t('linkPlaceholder')}
               className={style.link_input}
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
@@ -244,14 +320,14 @@ export default function MenuBar({ editor, onImageUpload }: MenuBarProps) {
 
       {/* 媒體與程式碼 */}
       <div className={style.button_group}>
-        <button onClick={handleImageClick} title="插入圖片">
+        <button onClick={handleImageClick} title={t('insertImage')}>
           <FontAwesomeIcon icon={faImage} />
         </button>
 
         <button
           onClick={handleCodeBlock}
           className={editor.isActive('codeBlock') ? style.active : ''}
-          title="程式碼區塊"
+          title={t('codeBlock')}
         >
           <FontAwesomeIcon icon={faCode} />
         </button>
@@ -259,10 +335,65 @@ export default function MenuBar({ editor, onImageUpload }: MenuBarProps) {
         <button
           onClick={() => editor.chain().focus().toggleCode().run()}
           className={editor.isActive('code') ? style.active : ''}
-          title="行內程式碼"
+          title={t('inlineCode')}
         >
           `
         </button>
+      </div>
+
+      <div className={style.divider}></div>
+
+      {/* 表格 */}
+      <div className={style.button_group}>
+        <button onClick={handleInsertTable} title={t('insertTable')}>
+          <FontAwesomeIcon icon={faTable} />
+        </button>
+        {editor.isActive('table') && (
+          <button onClick={handleDeleteTable} title={t('deleteTable')}>
+            <FontAwesomeIcon icon={faTrash} />
+          </button>
+        )}
+      </div>
+
+      <div className={style.divider}></div>
+
+      {/* 數學公式 */}
+      <div className={style.button_group}>
+        {!showMathInput ? (
+          <button
+            onClick={openMathInput}
+            className={editor.isActive('math') ? style.active : ''}
+            title={editor.isActive('math') ? t('editFormula') : t('insertFormula')}
+          >
+            <FontAwesomeIcon icon={faSquareRootVariable} />
+          </button>
+        ) : (
+          <div className={style.link_input_wrapper}>
+            <input
+              type="text"
+              value={mathLatex}
+              onChange={(e) => setMathLatex(e.target.value)}
+              placeholder={t('formulaPlaceholder')}
+              className={style.link_input}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  handleConfirmMath()
+                } else if (e.key === 'Escape') {
+                  setShowMathInput(false)
+                }
+              }}
+            />
+            <button onClick={handleConfirmMath} className={style.link_confirm}>
+              <FontAwesomeIcon icon={faCheck} />
+            </button>
+            <button
+              onClick={() => setShowMathInput(false)}
+              className={style.link_cancel}
+            >
+              <FontAwesomeIcon icon={faXmark} />
+            </button>
+          </div>
+        )}
       </div>
 
       <div className={style.divider}></div>
@@ -271,7 +402,7 @@ export default function MenuBar({ editor, onImageUpload }: MenuBarProps) {
       <div className={style.button_group}>
         <button
           onClick={() => editor.chain().focus().setHorizontalRule().run()}
-          title="分隔線"
+          title={t('horizontalRule')}
         >
           ―
         </button>
@@ -279,7 +410,7 @@ export default function MenuBar({ editor, onImageUpload }: MenuBarProps) {
         <button
           onClick={() => editor.chain().focus().undo().run()}
           disabled={!editor.can().undo()}
-          title="復原 (Ctrl+Z)"
+          title={t('undo')}
         >
           <FontAwesomeIcon icon={faUndo} />
         </button>
@@ -287,7 +418,7 @@ export default function MenuBar({ editor, onImageUpload }: MenuBarProps) {
         <button
           onClick={() => editor.chain().focus().redo().run()}
           disabled={!editor.can().redo()}
-          title="重做 (Ctrl+Y)"
+          title={t('redo')}
         >
           <FontAwesomeIcon icon={faRedo} />
         </button>

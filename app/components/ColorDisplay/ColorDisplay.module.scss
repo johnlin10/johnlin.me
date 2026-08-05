@@ -1,15 +1,34 @@
-@use '@/app/styles/mixins' as *;
-
 .color_display {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: var(--space-1);
+  min-height: 84px;
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+
+  // 這裡顯示的是任意 CSS 顏色（包含拿它自己當背景的情況，例如展示 --text
+  // 這個 token 時，背景就是 --text 本身）。標籤色不能用主題色，不然遇到
+  // 背景剛好等於文字色會直接讀不到字——用 mix-blend-mode: difference
+  // 讓文字永遠跟背景反相，不管背景是什麼顏色都看得清楚。
+  > .color_name,
+  > .color_value {
+    color: #fff;
+    mix-blend-mode: difference;
+  }
+
   > .color_name {
-    font-size: 1rem;
+    font-size: var(--text-sm);
     font-weight: 700;
-    color: var(--foreground-color);
+    font-family: monospace;
+    word-break: break-all;
   }
 
   > .color_value {
-    font-size: 0.5rem;
+    font-size: 0.65rem;
     white-space: nowrap;
-    color: var(--foreground-color);
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 }

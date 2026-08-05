@@ -2,22 +2,76 @@
 
 /* ============================================================
  * 懸浮式分離頁首（Phase 1b 改版）
- * dock 本體滿版但不吃指標事件；只有左右兩座「島」可互動、可懸浮。
+ * shell 是固定在頂端的外殼（滿版但不吃指標事件），裡面兩層：
+ *   .dock       ── 品牌／導覽／設定，只有兩座「島」可互動、可懸浮。
+ *   .subNavHost ── 頁面自帶次導覽的掛載點（見 HeaderSubNav），沒內容時
+ *                  完全不佔版面；有內容時 shell 才會整塊帶上背景，
+ *                  讓 dock 與次導覽共用同一塊視覺矩形，不必用負 margin 互借背景。
  * ============================================================ */
-.dock {
+.shell {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
-  z-index: 5000;
-  @include flexbox(row, space-between, flex-start);
-  gap: 12px;
-  padding: clamp(12px, 2vw, 18px) clamp(16px, 3vw, 28px);
+  z-index: var(--z-header);
   pointer-events: none; // 中間空隙讓內容可被點擊 / 捲動
+  transition:
+    background-color var(--duration) var(--ease),
+    backdrop-filter var(--duration) var(--ease),
+    -webkit-backdrop-filter var(--duration) var(--ease),
+    border-color var(--duration) var(--ease);
+}
+
+// 只有手機/平板會有頁面 portal 進來的次導覽（桌機走頁面自己的 sidebar），
+// 所以背景也只在這個範圍內、且掛載點真的有內容時才出現。
+@media (max-width: 1024px) {
+  .shell:has(.subNavHost:not(:empty)) {
+    background: rgba(var(--background-color-rgb), 0.85);
+    backdrop-filter: saturate(1.3) blur(14px);
+    -webkit-backdrop-filter: saturate(1.3) blur(14px);
+    border-bottom: 1px solid var(--border);
+  }
+}
+
+// 漸層背景
+.gradientBackground {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(180deg, var(--background-color), #00000000);
+  z-index: -1;
+  transition: all var(--duration) var(--ease);
+}
+
+.dock {
+  @include flexbox(row, space-between, flex-start);
+  gap: var(--space-3);
+  padding: clamp(var(--space-3), 2vw, var(--space-5))
+    clamp(var(--space-4), 3vw, var(--space-6));
+  pointer-events: none;
 
   @include respond-to('phone') {
-    padding: 12px 10px; // 手機收窄邊距，讓兩座島有足夠空間
-    gap: 8px;
+    padding: var(--space-3) var(--space-2); // 手機收窄邊距，讓兩座島有足夠空間
+    gap: var(--space-2);
+  }
+}
+
+.subNavHost {
+  display: none;
+  pointer-events: auto;
+  padding: 0 0 var(--space-2);
+  transform-origin: top;
+  transition: all var(--duration) var(--ease);
+
+  &:not(:empty) {
+    display: block;
+  }
+
+  @include respond-to('desktop') {
+    display: none !important;
   }
 }
 
@@ -27,17 +81,11 @@
   height: 52px;
   background: transparent;
   border: 1px solid transparent;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   box-shadow: none;
   backdrop-filter: blur(0px);
   -webkit-backdrop-filter: blur(0px);
-  transition: background-color 0.3s var(--transition-bezier),
-    border-color 0.3s var(--transition-bezier),
-    box-shadow 0.3s var(--transition-bezier),
-    backdrop-filter 0.3s var(--transition-bezier),
-    -webkit-backdrop-filter 0.3s var(--transition-bezier),
-    opacity 0.4s var(--transition-bezier),
-    transform 0.4s var(--transition-bezier);
+  transition: all var(--duration) var(--ease);
 
   @include respond-to('phone') {
     height: 48px;
@@ -47,40 +95,51 @@
   &:focus-within {
     background: rgba(var(--background-color-rgb), 0.72);
     border-color: var(--border);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.02);
+    box-shadow: var(--shadow-sm);
     backdrop-filter: saturate(1.3) blur(14px);
     -webkit-backdrop-filter: saturate(1.3) blur(14px);
   }
 }
 
-.brandIsland {
-  padding: 0 14px;
-  transform-origin: left center; // 收合時往左上角縮
+.rightGroup {
+  pointer-events: none;
+  @include flexbox(column, flex-start, flex-end);
+}
 
-  @include respond-to('phone') {
-    padding: 0 12px;
-  }
+.brandIsland {
+  transform-origin: left top;
 }
 
 .navIsland {
   gap: 2px;
-  padding: 0 8px 0 12px;
-  transform-origin: right center; // 收合時往右上角縮
+  padding: 0 var(--space-3);
 
   @include respond-to('phone') {
-    padding: 0 6px 0 8px;
+    padding: 0 var(--space-2);
   }
 }
 
 /* ---------- 收合狀態：縮小 + 半透明 ---------- */
-.dock[data-collapsed='true'] .island {
+// data-collapsed 現在標在 shell 本體，dock 的兩座島跟 subNavHost（次導覽列）
+// 都是 shell 的子孫，所以捲動降噪的效果能一起套用，不會只有島縮、次導覽不縮。
+.shell[data-collapsed='true'] .island {
   opacity: 0.5;
-  transform: scale(0.88);
+  height: 40px;
 }
 
-/* 懸停 / 聚焦任一島 → 整組復原（:has 讓兩島一起喚醒） */
-.dock:has(.island:hover) .island,
-.dock:has(.island:focus-within) .island {
+.shell[data-collapsed='true'] .subNavHost {
+  opacity: 0.5;
+}
+
+/* 懸停 / 聚焦任一島 → 整組（含次導覽）一起復原（:has 讓大家一起喚醒） */
+.shell:has(.island:hover) .island,
+.shell:has(.island:focus-within) .island {
+  opacity: 1;
+  transform: none;
+}
+
+.shell:has(.island:hover) .subNavHost,
+.shell:has(.island:focus-within) .subNavHost {
   opacity: 1;
   transform: none;
 }
@@ -88,13 +147,23 @@
 /* ---------- 品牌 ---------- */
 .brand {
   @include flexbox(row, center, center);
-  transition: opacity 0.2s var(--transition-bezier),
-    transform 0.2s var(--transition-bezier);
+  width: 52px;
+  height: 52px;
+  transition: all var(--duration-fast) var(--ease);
 
   &:hover {
     opacity: 0.85;
     transform: scale(1.05);
   }
+
+  img {
+    transition: all var(--duration-fast) var(--ease);
+  }
+}
+
+.shell[data-collapsed='true'] .brand {
+  width: 40px;
+  height: 40px;
 }
 
 .logo {
@@ -113,24 +182,37 @@
   }
 }
 
-/* ---------- 導覽連結 ---------- */
-.nav {
-  @include flexbox(row, center, center);
-  gap: 2px;
+.shell[data-collapsed='true'] .logo {
+  width: 24px;
+  height: 24px;
 
   @include respond-to('phone') {
-    gap: 0;
+    width: 20px;
+    height: 20px;
   }
 }
 
+/* ---------- 導覽連結 ---------- */
+.nav {
+  @include flexbox(row, center, center);
+  gap: var(--space-3);
+}
+
 .link {
-  padding: 8px 14px;
-  font-size: 0.95rem;
-  letter-spacing: 0.04em;
+  @include flexbox(row, center, center);
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  font-size: var(--text-sm);
+  letter-spacing: var(--tracking-wide);
   color: var(--text-secondary);
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   white-space: nowrap;
-  transition: color 0.2s var(--transition-bezier);
+  transition: all var(--duration-fast) var(--ease);
+
+  svg {
+    height: 1rem;
+    transition: all var(--duration-fast) var(--ease);
+  }
 
   &:hover {
     color: var(--text);
@@ -140,45 +222,70 @@
     color: var(--accent);
   }
 
+  // 手機空間有限：導覽只留圖示，完整頁面清單/文字在 Menu 抽屜裡。
   @include respond-to('phone') {
-    padding: 7px 7px;
-    font-size: 0.85rem;
+    padding: var(--space-2);
   }
 }
 
-/* ---------- 分隔線 ---------- */
-.divider {
-  width: 1px;
-  height: 22px;
-  margin: 0 6px;
-  background: var(--border);
+.shell[data-collapsed='true'] .link {
+  font-size: var(--text-2xs);
 
-  // 手機空間吃緊：隱藏分隔線，讓連結與設定更緊湊。
-  @include respond-to('phone') {
-    display: none;
+  svg {
+    height: var(--text-xs);
   }
 }
 
-/* ---------- 設定（主題 / 語言） ---------- */
-.actions {
+.linkIcon {
+  font-size: var(--text-md);
+
+  // 手機只剩圖示、沒有文字撐場面，圖示要再大一點才不會太單薄。
+  @include respond-to('phone') {
+    font-size: var(--text-xl);
+  }
+}
+
+.linkLabel {
+  @include respond-to('phone') {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+}
+
+// 開啟 Menu 抽屜的按鈕：跟頁面導覽同一排、同一座島。不分裝置一律顯示——
+// 主題／語言等控制選項不再直接放在 Header 上，一律收進 Menu 抽屜。
+.menuTrigger {
   @include flexbox(row, center, center);
-  gap: 4px;
+  margin-left: var(--space-2);
+  padding: var(--space-3);
+  color: var(--text-secondary);
 
-  @include respond-to('phone') {
-    gap: 2px;
+  &:hover {
+    color: var(--text);
   }
 }
 
 /* ---------- 尊重減少動態：只淡不縮，過場近乎即時 ---------- */
 @media (prefers-reduced-motion: reduce) {
-  .island {
-    transition: opacity 0.2s linear;
+  .island,
+  .subNavHost {
+    transition: opacity var(--duration-fast) linear;
   }
-  .dock[data-collapsed='true'] .island {
+  .shell[data-collapsed='true'] .island,
+  .shell[data-collapsed='true'] .subNavHost {
     transform: none;
   }
-  .dock:has(.island:hover) .island,
-  .dock:has(.island:focus-within) .island {
+  .shell:has(.island:hover) .island,
+  .shell:has(.island:focus-within) .island,
+  .shell:has(.island:hover) .subNavHost,
+  .shell:has(.island:focus-within) .subNavHost {
     transform: none;
   }
 }

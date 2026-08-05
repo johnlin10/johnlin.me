@@ -1,0 +1,72 @@
+@use '@/app/styles/design' as *;
+
+// position: fixed 而非 100dvh——globals.scss 的 html/body/.site-main 那條
+// flex 祖先鏈讓子層算 viewport 單位不可靠（iOS 尤其），fixed 直接跳過整條鏈。
+// 不設 z-index：Modal(1000)/Toast(1100) 都是 position:fixed 且掛在更外層，
+// 保持 auto 就會自然疊在我們之下，不需要跟著硬編數字。
+.shell {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+}
+
+.body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.measure {
+  @include container('content');
+  padding-top: var(--space-10);
+  padding-bottom: var(--space-20);
+
+  @include respond-to('phone') {
+    padding-top: var(--space-6);
+    padding-bottom: var(--space-12);
+  }
+}
+
+.loading_container,
+.error_container {
+  flex: 1;
+  @include flexbox(column, center, center);
+  gap: var(--space-4);
+  padding: var(--space-10);
+  text-align: center;
+}
+
+.error_message {
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+  max-width: 40ch;
+}
+
+.error_actions {
+  @include flexbox(row, center, center);
+  gap: var(--space-3);
+}
+
+.spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

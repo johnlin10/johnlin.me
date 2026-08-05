@@ -1,6 +1,8 @@
-import { Timestamp } from 'firebase/firestore'
-
 //* ==================== 文章相關型別 ====================
+//
+// 時間欄位一律為 ISO 8601 字串（Supabase timestamptz 的 JSON 表示），
+// 而非 Firestore Timestamp。渲染時以 new Date(...) 轉換。
+// 雙語內容存於 JSONB `locales`；資料層負責 snake_case ↔ camelCase 映射。
 
 /**
  * 文章狀態
@@ -34,7 +36,7 @@ export interface SeoConfig {
  * 封面圖片
  */
 export interface CoverImage {
-  url: string // Firebase Storage URL
+  url: string // Supabase Storage 公開 URL
   alt: string // 圖片描述
 }
 
@@ -44,7 +46,7 @@ export interface CoverImage {
 export interface PostLocaleContent {
   title: string
   description: string
-  content: string // 富文本 HTML
+  content: string // 富文本 HTML（TipTap 輸出）
   seo: SeoConfig
   toc?: TocItem[] // 自動生成的目錄
 }
@@ -66,17 +68,17 @@ export interface Post {
   seriesOrder?: number
 
   // 封面圖
-  coverImage?: CoverImage
+  coverImage?: CoverImage | null
 
   // 多語言內容
   locales: {
     [key in SupportedLocale]: PostLocaleContent
   }
 
-  // 時間戳
-  createdAt: Timestamp
-  updatedAt: Timestamp
-  publishedAt?: Timestamp
+  // 時間（ISO 字串）
+  createdAt: string
+  updatedAt: string
+  publishedAt?: string
 
   // 擴展欄位
   viewCount?: number
@@ -92,12 +94,10 @@ export interface CreatePostInput {
   tagIds: string[]
   seriesId?: string
   seriesOrder?: number
-  coverImage?: CoverImage
+  coverImage?: CoverImage | null
   locales: {
     [key in SupportedLocale]: PostLocaleContent
   }
-  publishedAt?: Timestamp | null
-  updatedAt?: Timestamp
 }
 
 /**
@@ -126,8 +126,8 @@ export interface Category {
   locales: {
     [key in SupportedLocale]: CategoryLocaleContent
   }
-  postCount: number
-  createdAt: Timestamp
+  postCount?: number // 選填；需要時由查詢帶入，不做 denormalized 儲存
+  createdAt: string
 }
 
 /**
@@ -158,8 +158,8 @@ export interface Tag {
   locales: {
     [key in SupportedLocale]: TagLocaleContent
   }
-  postCount: number
-  createdAt: Timestamp
+  postCount?: number
+  createdAt: string
 }
 
 /**
@@ -172,7 +172,7 @@ export interface CreateTagInput {
   }
 }
 
-//* ==================== 系列相關型別 ====================
+//* ==================== 系列相關型別（schema 預留，UI 延後）====================
 
 /**
  * 系列多語言內容
@@ -191,9 +191,9 @@ export interface Series {
   locales: {
     [key in SupportedLocale]: SeriesLocaleContent
   }
-  postCount: number
+  postCount?: number
   coverImage?: string
-  createdAt: Timestamp
+  createdAt: string
 }
 
 /**

@@ -1,0 +1,42 @@
+@use '@/app/styles/design' as *;
+
+.button {
+  @include flexbox(row, center, center);
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease);
+
+  &:hover:not(:disabled) {
+    background: var(--accent-soft);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+}
+
+.pending {
+  color: var(--accent);
+  animation: ai-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes ai-pulse {
+  0%,
+  100% {
+    opacity: 0.4;
+    filter: drop-shadow(0 0 0 transparent);
+  }
+  50% {
+    opacity: 1;
+    filter: drop-shadow(0 0 5px var(--accent-soft));
+  }
+}

@@ -1,0 +1,81 @@
+@use '@/app/styles/design' as *;
+
+.toolbar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: var(--space-6);
+}
+
+.switch {
+  display: inline-flex;
+  gap: var(--space-1);
+  padding: var(--space-1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  background: var(--surface-2);
+}
+
+.option {
+  @include flexbox(row, center, center);
+  width: 34px;
+  height: 34px;
+  border: none;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition:
+    color var(--duration-fast) var(--ease),
+    background-color var(--duration-fast) var(--ease);
+
+  &:hover {
+    color: var(--accent);
+  }
+
+  &[aria-pressed='true'] {
+    background: var(--surface);
+    color: var(--text);
+  }
+
+  @include focus-ring;
+}
+
+.list {
+  // 卡片模式：多欄網格。列表模式：單純往下堆疊，列與列之間靠各自的
+  // padding + border-bottom 撐開，不用 gap（gap 會讓分隔線離內容太遠）。
+  &[data-view='card'] {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: var(--space-6);
+  }
+
+  &[data-view='list'] {
+    display: block;
+
+    .yearDivider {
+      margin-bottom: var(--space-3);
+    }
+  }
+}
+
+.yearDivider {
+  @include eyebrow;
+  grid-column: 1 / -1; // 卡片模式跨滿整排；列表模式是 block，本來就滿寬
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  margin: 0;
+  // 這是重複出現的分組標記，用 accent 會太吵，降成 muted。
+  color: var(--text-muted);
+
+  &::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  &:not(:first-child) {
+    margin-top: var(--space-10);
+  }
+}

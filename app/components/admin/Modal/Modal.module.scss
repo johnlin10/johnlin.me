@@ -1,4 +1,4 @@
-@use '@/app/styles/mixins' as *;
+@use '@/app/styles/design' as *;
 
 .modal_overlay {
   position: fixed;
@@ -8,29 +8,30 @@
   bottom: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.45);
   @include flexbox(column, center, center);
-  z-index: 1000;
-  padding: 1rem;
-  animation: fadeIn 0.2s ease;
+  z-index: var(--z-modal);
+  padding: var(--space-4);
+  animation: fadeIn var(--duration-fast) ease;
 
   @include respond-to('phone') {
-    padding: 0.5rem;
+    padding: var(--space-2);
   }
 
   .modal_content {
     width: 100%;
     max-height: 90vh;
-    background: var(--background-color);
-    @include radius(16px);
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-xl);
     @include flexbox(column, flex-start, stretch);
     overflow: hidden;
-    animation: slideUp 0.3s ease;
+    animation: slideUp var(--duration) var(--ease);
 
     @include respond-to('phone') {
       max-height: 95vh;
-      @include radius(12px);
+      border-radius: var(--radius-md);
     }
 
     &.small {
@@ -59,21 +60,22 @@
 
     .modal_header {
       @include flexbox(row, space-between, center);
-      padding: 1.5rem 2rem;
-      border-bottom: 1px solid var(--border-color);
+      padding: var(--space-6) var(--space-8);
+      border-bottom: 1px solid var(--border);
 
       @include respond-to('phone') {
-        padding: 1rem 1.25rem;
+        padding: var(--space-4) var(--space-5);
       }
 
       .modal_title {
-        font-size: 1.5rem;
+        font-family: var(--font-serif);
+        font-size: var(--text-xl);
         font-weight: 600;
-        color: var(--text-color);
+        color: var(--text);
         margin: 0;
 
         @include respond-to('phone') {
-          font-size: 1.25rem;
+          font-size: var(--text-lg);
         }
       }
 
@@ -82,11 +84,11 @@
         width: 36px;
         height: 36px;
         background: transparent;
-        color: var(--text-color-secondary);
+        color: var(--text-secondary);
         border: none;
-        @include radius(8px);
+        border-radius: var(--radius-md);
         cursor: pointer;
-        @include transition(all 0.2s ease);
+        transition: all var(--duration-fast) var(--ease);
 
         @include respond-to('phone') {
           width: 32px;
@@ -94,8 +96,8 @@
         }
 
         &:hover {
-          background: var(--background-color-secondary);
-          color: var(--text-color);
+          background: var(--surface-2);
+          color: var(--text);
         }
 
         svg {
@@ -111,12 +113,12 @@
     }
 
     .modal_body {
-      padding: 2rem;
+      padding: var(--space-8);
       overflow-y: auto;
       flex: 1;
 
       @include respond-to('phone') {
-        padding: 1.25rem;
+        padding: var(--space-5);
       }
     }
   }
@@ -134,11 +136,10 @@
 @keyframes slideUp {
   from {
     opacity: 0;
-    @include transform(translateY(20px));
+    transform: translateY(20px);
   }
   to {
     opacity: 1;
-    @include transform(translateY(0));
+    transform: translateY(0);
   }
 }
-

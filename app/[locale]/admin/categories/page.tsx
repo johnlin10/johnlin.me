@@ -1,28 +1,36 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
+import { useTranslations } from 'next-intl'
 import {
-  getAllCategories,
+  getCategories,
   createCategory,
   updateCategory,
   deleteCategory,
-} from '@/app/lib/firebase/categories'
+} from '@/app/lib/supabase/categories'
+import { createClient } from '@/app/lib/supabase/client'
 import type { Category, CreateCategoryInput } from '@/app/types/blog'
 import Modal from '@/app/components/admin/Modal/Modal'
 import Button from '@/app/components/admin/Button/Button'
 import Input from '@/app/components/admin/Input/Input'
 import Textarea from '@/app/components/admin/Textarea/Textarea'
+import { useToast } from '@/app/components/admin/Toast/ToastProvider'
+import { useConfirm } from '@/app/components/admin/ConfirmDialog/ConfirmDialog'
 import style from './categories.module.scss'
 
 /**
  * 分類管理頁面
  */
 export default function CategoriesPage() {
+  const t = useTranslations('AdminPage.categories')
+  const toast = useToast()
+  const confirm = useConfirm()
   const [categories, setCategories] = useState<Category[]>([])
   const [loading, setLoading] = useState(true)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingCategory, setEditingCategory] = useState<Category | null>(null)
   const [currentLocale, setCurrentLocale] = useState<'zh-tw' | 'en'>('zh-tw')
+  const supabase = useMemo(() => createClient(), [])
 
   //* 表單狀態
   const [formData, setFormData] = useState({
@@ -39,10 +47,10 @@ export default function CategoriesPage() {
   const loadCategories = async () => {
     try {
       setLoading(true)
-      const data = await getAllCategories()
+      const data = await getCategories(supabase)
       setCategories(data)
     } catch (error) {
-      alert('載入分類失敗')
+      toast.error(t('loadError'))
     } finally {
       setLoading(false)
     }
@@ -77,11 +85,11 @@ export default function CategoriesPage() {
     try {
       // 驗證
       if (!formData.slug) {
-        alert('請輸入 Slug')
+        toast.error(t('slugRequired'))
         return
       }
       if (!formData['zh-tw'].name || !formData.en.name) {
-        alert('請填寫所有語言的名稱')
+        toast.error(t('nameRequired'))
         return
       }
 
@@ -95,33 +103,36 @@ export default function CategoriesPage() {
 
       if (editingCategory) {
         // 更新
-        await updateCategory(editingCategory.id, input)
-        alert('更新成功')
+        await updateCategory(supabase, editingCategory.id, input)
+        toast.success(t('updateSuccess'))
       } else {
         // 新增
-        await createCategory(input)
-        alert('新增成功')
+        await createCategory(supabase, input)
+        toast.success(t('createSuccess'))
       }
 
       setIsModalOpen(false)
       loadCategories()
     } catch (error) {
-      alert('儲存失敗')
+      toast.error(t('saveError'))
     }
   }
 
   //* 刪除分類
   const handleDelete = async (category: Category) => {
-    if (!confirm(`確定要刪除「${category.locales['zh-tw'].name}」嗎？`)) {
-      return
-    }
+    const ok = await confirm({
+      title: t('deleteConfirmTitle'),
+      message: t('deleteConfirmMessage', { name: category.locales['zh-tw'].name }),
+      danger: true,
+    })
+    if (!ok) return
 
     try {
-      await deleteCategory(category.id)
-      alert('刪除成功')
+      await deleteCategory(supabase, category.id)
+      toast.success(t('deleteSuccess'))
       loadCategories()
     } catch (error: any) {
-      alert(error.message || '刪除失敗')
+      toast.error(error.message || t('deleteError'))
     }
   }
 
@@ -131,30 +142,34 @@ export default function CategoriesPage() {
         {/* 標題列 */}
         <div className={style.header}>
           <div className={style.title_section}>
-            <h1 className={style.title}>分類管理</h1>
-            <p className={style.subtitle}>共 {categories.length} 個分類</p>
+            <h1 className={style.title}>{t('heading')}</h1>
+            <p className={style.subtitle}>
+              {t('count.total')}
+              {categories.length}
+              {t('count.unit')}
+            </p>
           </div>
-          <Button onClick={handleCreate}>新增分類</Button>
+          <Button onClick={handleCreate}>{t('newCategory')}</Button>
         </div>
 
         {/* 分類列表 */}
         {loading ? (
-          <div className={style.loading}>載入中...</div>
+          <div className={style.loading}>{t('loading')}</div>
         ) : categories.length === 0 ? (
           <div className={style.empty}>
-            <p>尚無分類</p>
-            <Button onClick={handleCreate}>建立第一個分類</Button>
+            <p>{t('empty')}</p>
+            <Button onClick={handleCreate}>{t('createFirst')}</Button>
           </div>
         ) : (
           <div className={style.table_wrapper}>
             <table className={style.table}>
               <thead>
                 <tr>
-                  <th>Slug</th>
-                  <th>名稱（中文）</th>
-                  <th>名稱（英文）</th>
-                  <th>文章數</th>
-                  <th>操作</th>
+                  <th>{t('table.slug')}</th>
+                  <th>{t('table.nameZh')}</th>
+                  <th>{t('table.nameEn')}</th>
+                  <th>{t('table.postCount')}</th>
+                  <th>{t('table.actions')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -165,7 +180,7 @@ export default function CategoriesPage() {
                     </td>
                     <td>{category.locales['zh-tw'].name}</td>
                     <td>{category.locales.en.name}</td>
-                    <td>{category.postCount}</td>
+                    <td>{category.postCount ?? t('none')}</td>
                     <td>
                       <div className={style.actions}>
                         <Button
@@ -173,15 +188,15 @@ export default function CategoriesPage() {
                           size="small"
                           onClick={() => handleEdit(category)}
                         >
-                          編輯
+                          {t('edit')}
                         </Button>
                         <Button
                           variant="danger"
                           size="small"
                           onClick={() => handleDelete(category)}
-                          disabled={category.postCount > 0}
+                          disabled={(category.postCount ?? 0) > 0}
                         >
-                          刪除
+                          {t('delete')}
                         </Button>
                       </div>
                     </td>
@@ -196,17 +211,17 @@ export default function CategoriesPage() {
         <Modal
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
-          title={editingCategory ? '編輯分類' : '新增分類'}
+          title={editingCategory ? t('modal.editTitle') : t('modal.newTitle')}
         >
           <div className={style.form}>
             {/* Slug */}
             <Input
-              label="Slug"
+              label={t('modal.slugLabel')}
               value={formData.slug}
               onChange={(value) => setFormData({ ...formData, slug: value })}
-              placeholder="例如：technology"
+              placeholder={t('modal.slugPlaceholder')}
               required
-              helper="URL 友善的識別碼，建議使用英文小寫"
+              helper={t('modal.slugHelper')}
             />
 
             {/* 語言切換 */}
@@ -217,7 +232,7 @@ export default function CategoriesPage() {
                 }`}
                 onClick={() => setCurrentLocale('zh-tw')}
               >
-                繁體中文
+                {t('modal.localeZh')}
               </button>
               <button
                 className={`${style.locale_tab} ${
@@ -225,14 +240,14 @@ export default function CategoriesPage() {
                 }`}
                 onClick={() => setCurrentLocale('en')}
               >
-                English
+                {t('modal.localeEn')}
               </button>
             </div>
 
             {/* 語言內容 */}
             <div className={style.locale_content}>
               <Input
-                label="名稱"
+                label={t('modal.nameLabel')}
                 value={formData[currentLocale].name}
                 onChange={(value) =>
                   setFormData({
@@ -243,12 +258,12 @@ export default function CategoriesPage() {
                     },
                   })
                 }
-                placeholder="分類名稱"
+                placeholder={t('modal.namePlaceholder')}
                 required
               />
 
               <Textarea
-                label="描述"
+                label={t('modal.descriptionLabel')}
                 value={formData[currentLocale].description}
                 onChange={(value) =>
                   setFormData({
@@ -259,7 +274,7 @@ export default function CategoriesPage() {
                     },
                   })
                 }
-                placeholder="分類描述"
+                placeholder={t('modal.descriptionPlaceholder')}
                 rows={3}
               />
             </div>
@@ -267,9 +282,9 @@ export default function CategoriesPage() {
             {/* 按鈕 */}
             <div className={style.form_actions}>
               <Button variant="secondary" onClick={() => setIsModalOpen(false)}>
-                取消
+                {t('modal.cancel')}
               </Button>
-              <Button onClick={handleSave}>儲存</Button>
+              <Button onClick={handleSave}>{t('modal.save')}</Button>
             </div>
           </div>
         </Modal>

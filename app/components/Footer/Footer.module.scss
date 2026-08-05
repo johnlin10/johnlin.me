@@ -3,27 +3,28 @@
 .footer {
   width: 100%;
   margin-top: auto;
-  padding: 64px 24px 32px;
+  // 左右邊距用 --page-gutter：跟其他每個頁面同一個真相來源，別自己另開一個。
+  padding: var(--space-16) var(--page-gutter) var(--space-8);
   background: var(--surface-2);
   border-top: 1px solid var(--border);
   color: var(--text-secondary);
 
   @include respond-to('phone') {
-    padding: 48px 16px 96px; // 底部留白避開手機底欄
+    padding: var(--space-12) var(--page-gutter) var(--space-24); // 底部留白避開手機底欄
   }
 }
 
 .inner {
   display: grid;
   grid-template-columns: 1.6fr 1fr 1fr;
-  gap: 40px;
+  gap: var(--space-10);
   width: 100%;
-  max-width: 1080px;
+  max-width: var(--width-wide);
   margin: 0 auto;
 
   @include respond-to('phone') {
     grid-template-columns: 1fr 1fr;
-    gap: 32px 24px;
+    gap: var(--space-8) var(--space-6);
   }
 }
 
@@ -35,35 +36,35 @@
 
 .brand {
   font-family: var(--font-serif);
-  font-size: 1.15rem;
+  font-size: var(--text-lg);
   color: var(--text);
-  letter-spacing: 0.04em;
+  letter-spacing: var(--tracking-wide);
 }
 
 .tagline {
-  margin-top: 10px;
+  margin-top: var(--space-3);
   max-width: 30ch;
-  font-size: 0.9rem;
-  line-height: 1.7;
-  letter-spacing: 0.02em;
+  font-size: var(--text-sm);
+  line-height: var(--leading-relaxed);
+  letter-spacing: var(--tracking-normal);
   color: var(--text-muted);
 }
 
 .col {
   @include flexbox(column, flex-start, flex-start);
-  gap: 12px;
+  gap: var(--space-3);
 }
 
 .colTitle {
-  font-size: 0.78rem;
+  font-size: var(--text-3xs);
   text-transform: uppercase;
-  letter-spacing: 0.14em;
+  letter-spacing: var(--tracking-widest);
   color: var(--text-muted);
 }
 
 .link {
-  font-size: 0.92rem;
-  letter-spacing: 0.02em;
+  font-size: var(--text-sm);
+  letter-spacing: var(--tracking-normal);
   color: var(--text-secondary);
 
   &:hover {
@@ -73,15 +74,15 @@
 
 .bottom {
   @include flexbox(row, space-between, center);
-  gap: 12px;
+  gap: var(--space-3);
   flex-wrap: wrap;
-  max-width: 1080px;
-  margin: 48px auto 0;
-  padding-top: 24px;
+  max-width: var(--width-wide);
+  margin: var(--space-12) auto 0;
+  padding-top: var(--space-6);
   border-top: 1px solid var(--border);
-  font-size: 0.8rem;
+  font-size: var(--text-2xs);
   color: var(--text-muted);
-  letter-spacing: 0.03em;
+  letter-spacing: var(--tracking-wide);
 }
 
 .builtWith {

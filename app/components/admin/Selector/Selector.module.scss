@@ -1,117 +1,118 @@
-@use '@/app/styles/mixins' as *;
+@use '@/app/styles/design' as *;
 
 .selector_wrapper {
   @include flexbox(column, flex-start, stretch);
-  gap: 0.5rem;
+  gap: var(--space-2);
 
   @include respond-to('phone') {
-    gap: 0.375rem;
+    gap: var(--space-1);
   }
 
   .label {
-    font-size: 0.9rem;
+    font-family: var(--font-sans);
+    font-size: var(--text-xs);
     font-weight: 500;
-    color: var(--text-color);
+    color: var(--text);
 
     @include respond-to('phone') {
-      font-size: 0.85rem;
+      font-size: var(--text-xs);
     }
 
     .required {
-      color: #ef4444;
-      margin-left: 0.25rem;
+      color: var(--danger);
+      margin-left: var(--space-1);
     }
   }
 
   .loading {
-    padding: 0.75rem 1rem;
-    color: var(--text-color-secondary);
-    font-size: 0.9rem;
-    background: var(--background-color-secondary);
-    border: 1px solid var(--border-color);
-    @include radius(8px);
+    padding: var(--space-3) var(--space-4);
+    color: var(--text-muted);
+    font-size: var(--text-sm);
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
 
     @include respond-to('phone') {
-      padding: 0.625rem 0.875rem;
-      font-size: 0.85rem;
+      padding: var(--space-2) var(--space-4);
+      font-size: var(--text-xs);
     }
   }
 
   .select {
     width: 100%;
-    padding: 0.75rem 1rem;
-    font-size: 0.95rem;
-    color: var(--text-color);
-    background: var(--background-color);
-    border: 1px solid var(--border-color);
-    @include radius(8px);
+    padding: var(--space-3) var(--space-4);
+    font-family: var(--font-sans);
+    font-size: var(--text-sm);
+    color: var(--text);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
     cursor: pointer;
-    @include transition(all 0.2s ease);
+    transition: all var(--duration-fast) var(--ease);
 
     @include respond-to('phone') {
-      padding: 0.625rem 0.875rem;
-      font-size: 0.9rem;
+      padding: var(--space-2) var(--space-4);
+      font-size: var(--text-sm);
     }
 
     &:focus {
       outline: none;
-      border-color: var(--primary-color);
-      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+      border-color: var(--accent);
+      box-shadow: var(--shadow-focus);
     }
 
     option {
-      padding: 0.5rem;
+      padding: var(--space-2);
     }
   }
 
   .tag_list {
     @include flexbox(row, flex-start, center);
     flex-wrap: wrap;
-    gap: 0.5rem;
-    padding: var(--space-0-5x);
-    background: var(--background-color-secondary);
-    border: 1px solid var(--border-color);
-    @include radius(8px);
+    gap: var(--space-2);
+    padding: 0;
+    background: transparent;
+    border: none;
 
     @include respond-to('phone') {
-      gap: 0.375rem;
-      padding: 0.625rem;
+      gap: var(--space-1);
     }
 
     .tag_item {
-      padding: 0.5rem 1rem;
-      background: var(--background-color);
-      color: var(--text-color);
-      font-size: 0.9rem;
-      border: 1px solid var(--border-color);
-      @include radius(6px);
+      padding: var(--space-2) var(--space-4);
+      background: var(--surface);
+      color: var(--text-secondary);
+      font-size: var(--text-xs);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-pill);
       cursor: pointer;
-      @include transition(all 0.2s ease);
+      transition: all var(--duration-fast) var(--ease);
 
       @include respond-to('phone') {
-        padding: 0.4rem 0.875rem;
-        font-size: 0.85rem;
+        padding: var(--space-1) var(--space-3);
+        font-size: var(--text-xs);
       }
 
       &:hover {
-        border-color: var(--primary-color);
-        @include transform(translateY(-1px));
+        color: var(--text);
+        border-color: var(--border-strong);
       }
 
       &.active {
-        background: var(--primary-color);
-        color: white;
-        border-color: var(--primary-color);
+        background: var(--accent-soft);
+        color: var(--accent);
+        border-color: var(--accent);
+        font-weight: 500;
       }
     }
   }
 
   .series_container {
     @include flexbox(column, flex-start, stretch);
-    gap: 1rem;
+    gap: var(--space-4);
 
     @include respond-to('phone') {
-      gap: 0.875rem;
+      gap: var(--space-3);
     }
 
     .series_order {

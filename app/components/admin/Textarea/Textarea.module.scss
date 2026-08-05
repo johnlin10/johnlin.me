@@ -1,11 +1,11 @@
-@use '@/app/styles/mixins' as *;
+@use '@/app/styles/design' as *;
 
 .textarea_wrapper {
   @include flexbox(column, flex-start, stretch);
-  gap: 0.5rem;
+  gap: var(--space-2);
 
   @include respond-to('phone') {
-    gap: 0.375rem;
+    gap: var(--space-1);
   }
 
   &.full_width {
@@ -13,81 +13,82 @@
   }
 
   .label {
-    font-size: 0.9rem;
+    font-family: var(--font-sans);
+    font-size: var(--text-xs);
     font-weight: 500;
-    color: var(--text-color);
+    color: var(--text);
 
     @include respond-to('phone') {
-      font-size: 0.85rem;
+      font-size: var(--text-xs);
     }
 
     .required {
-      color: #ef4444;
-      margin-left: 0.25rem;
+      color: var(--danger);
+      margin-left: var(--space-1);
     }
   }
 
   .textarea {
     width: 100%;
-    padding: 0.75rem 1rem;
-    font-size: 0.95rem;
+    padding: var(--space-3) var(--space-4);
+    font-size: var(--text-sm);
     font-family: inherit;
-    line-height: 1.6;
-    color: var(--text-color);
-    background: var(--background-color);
-    border: 1px solid var(--border-color);
-    @include radius(8px);
-    @include transition(all 0.2s ease);
+    line-height: var(--leading-normal);
+    color: var(--text);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    transition: all var(--duration-fast) var(--ease);
     resize: vertical;
 
     @include respond-to('phone') {
-      padding: 0.625rem 0.875rem;
-      font-size: 0.9rem;
+      padding: var(--space-2) var(--space-4);
+      font-size: var(--text-sm);
     }
 
     &::placeholder {
-      color: var(--text-color-secondary);
-      opacity: 0.6;
+      color: var(--text-muted);
     }
 
     &:focus {
       outline: none;
-      border-color: var(--primary-color);
-      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+      border-color: var(--accent);
+      box-shadow: var(--shadow-focus);
     }
 
     &:disabled {
       opacity: 0.6;
       cursor: not-allowed;
-      background: var(--background-color-secondary);
+      background: var(--surface-2);
       resize: none;
     }
 
     &.error {
-      border-color: #ef4444;
+      border-color: var(--danger);
 
       &:focus {
-        box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+        box-shadow: 0 0 0 3px var(--danger-soft);
       }
     }
   }
 
   .error_text {
-    font-size: 0.85rem;
-    color: #ef4444;
+    font-family: var(--font-sans);
+    font-size: var(--text-2xs);
+    color: var(--danger);
 
     @include respond-to('phone') {
-      font-size: 0.8rem;
+      font-size: var(--text-3xs);
     }
   }
 
   .helper_text {
-    font-size: 0.85rem;
-    color: var(--text-color-secondary);
+    font-family: var(--font-sans);
+    font-size: var(--text-2xs);
+    color: var(--text-muted);
 
     @include respond-to('phone') {
-      font-size: 0.8rem;
+      font-size: var(--text-3xs);
     }
   }
 }
-

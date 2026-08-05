@@ -3,7 +3,9 @@ import { notFound } from 'next/navigation'
 import { Noto_Sans_TC } from 'next/font/google'
 import { ThemeProvider } from '../contexts/ThemeContext'
 import Header from '@/app/components/Header/Header'
+import { HeaderSubNavProvider } from '@/app/components/Header/HeaderSubNavContext'
 import Footer from '@/app/components/Footer/Footer'
+import FooterGate from '@/app/components/Footer/FooterGate'
 
 // i18n
 import { routing } from '@/i18n/routing'
@@ -16,12 +18,20 @@ const notoSansTC = Noto_Sans_TC({
   subsets: ['latin'],
 })
 
-export const metadata: Metadata = {
-  title: 'John Lin | 林昌龍',
-  description: 'A web developer, photographer, and thinker.',
-  icons: {
-    icon: '/johnlin-logo-128-nb.png',
-  },
+import { metadata as createMetadata } from '@/app/lib/metadata'
+
+export async function generateMetadata(): Promise<Metadata> {
+  const baseMetadata = await createMetadata({
+    title: 'John Lin | 林昌龍',
+    description: 'A web developer, photographer, and thinker.',
+    appendSiteName: false,
+  })
+  return {
+    ...baseMetadata,
+    icons: {
+      icon: '/johnlin-logo-128-nb.png',
+    },
+  }
 }
 export const viewport: Viewport = {
   width: 'device-width',
@@ -47,16 +57,20 @@ export default async function RootLayout({
   return (
     <html lang={locale} suppressHydrationWarning>
       <head>
-        {/* 自架源起明體（GenKiMin TW）— unicode-range 分片，只載入頁面用到的字 */}
+        {/* 自架源起明體（GenKiMin TW）。unicode-range 分片，只載入頁面用到的字 */}
         <link rel="stylesheet" href="/fonts/genkimin/genkimin.css" />
       </head>
       <body className={`${notoSansTC.variable} antialiased`}>
         <GoogleAnalytics gaId="G-X5EXGR4ERD" />
         <NextIntlClientProvider locale={locale}>
           <ThemeProvider>
-            <Header />
-            <div className="site-main">{children}</div>
-            <Footer />
+            <HeaderSubNavProvider>
+              <Header />
+              <div className="site-main">{children}</div>
+              <FooterGate>
+                <Footer />
+              </FooterGate>
+            </HeaderSubNavProvider>
           </ThemeProvider>
         </NextIntlClientProvider>
       </body>

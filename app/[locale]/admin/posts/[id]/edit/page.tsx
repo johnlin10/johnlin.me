@@ -1,63 +1,20 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { useParams } from 'next/navigation'
-import { getPostById } from '@/app/lib/firebase/posts'
-import type { Post } from '@/app/types/blog'
-import PostEditor from '@/app/components/admin/PostEditor/PostEditor'
-import style from './edit.module.scss'
+import { useRouter } from '@/i18n/navigation'
 
 /**
- * 編輯文章頁面
+ * 舊路由過渡用的 redirect stub。/edit 已被 /write + /settings 的分步流程取代。
  */
-export default function EditPostPage() {
+export default function EditPostRedirect() {
   const params = useParams()
-  const [post, setPost] = useState<Post | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const id = params.id as string
+  const router = useRouter()
 
   useEffect(() => {
-    loadPost()
-  }, [params.id])
+    router.replace(`/admin/posts/${id}/write`)
+  }, [id, router])
 
-  const loadPost = async () => {
-    try {
-      setLoading(true)
-      const id = params.id as string
-      const data = await getPostById(id)
-
-      if (data) {
-        setPost(data)
-      } else {
-        setError('文章不存在')
-      }
-    } catch (err) {
-      console.error('載入文章失敗:', err)
-      setError('載入文章失敗')
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  if (loading) {
-    return (
-      <div className={style.loading_container}>
-        <div className={style.spinner}></div>
-        <p>載入中...</p>
-      </div>
-    )
-  }
-
-  if (error || !post) {
-    return (
-      <div className={style.error_container}>
-        <h2>錯誤</h2>
-        <p>{error || '文章不存在'}</p>
-        <a href="/admin/posts">返回文章列表</a>
-      </div>
-    )
-  }
-
-  return <PostEditor post={post} mode="edit" />
+  return null
 }
-

@@ -1,8 +1,21 @@
-@use '@/app/styles/mixins' as *;
+@use '@/app/styles/design' as *;
 
 .lab {
   > .link {
-    @include button;
-    @include button-link-hover;
+    @include flexbox(row, center, center);
+    padding: var(--space-2) var(--space-4);
+    width: fit-content;
+    background-color: var(--surface-2);
+    color: var(--text);
+    font-size: var(--text-sm);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-xl);
+    transition: all var(--duration-fast) var(--ease);
+
+    &:hover {
+      background-color: var(--accent);
+      border-color: var(--accent);
+      color: var(--accent-contrast);
+    }
   }
 }

@@ -1,0 +1,60 @@
+.card {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface-2);
+  transition:
+    border-color var(--duration),
+    box-shadow var(--duration);
+
+  &:hover {
+    border-color: var(--border-strong);
+  }
+}
+
+.inner {
+  position: relative;
+  padding: var(--space-5) var(--space-6) var(--space-4);
+}
+
+// 讓卡片文字/空白區可點（連到永久連結），圖片區另外浮在上層攔截點擊——
+// <a> 內不能合法包住 <button>，這是拆開點擊區的必要結構。
+.stretched {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.content {
+  position: relative;
+  font-family: var(--font-serif);
+  font-size: var(--text-lg);
+  line-height: var(--leading-loose);
+  color: var(--text);
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.media {
+  position: relative;
+  z-index: 1; // 疊在 .stretched 連結之上，圖片本身才點得到
+  margin-top: var(--space-4);
+}
+
+.time {
+  position: relative;
+  display: block;
+  margin-top: var(--space-4);
+  font-family: var(--font-sans);
+  font-size: var(--text-3xs);
+  color: var(--text-muted);
+}

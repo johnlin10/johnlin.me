@@ -1,7 +1,9 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { getAllSeries } from '@/app/lib/firebase/series'
+import { useEffect, useMemo, useState } from 'react'
+import { useTranslations } from 'next-intl'
+import { getSeries } from '@/app/lib/supabase/series'
+import { createClient } from '@/app/lib/supabase/client'
 import type { Series } from '@/app/types/blog'
 import Input from '@/app/components/admin/Input/Input'
 import style from './Selector.module.scss'
@@ -24,10 +26,13 @@ export default function SeriesSelector({
   onSeriesChange,
   onOrderChange,
   locale = 'zh-tw',
-  label = '連載系列',
+  label,
 }: SeriesSelectorProps) {
+  const t = useTranslations('AdminPage.selectors.series')
+  const resolvedLabel = label ?? t('label')
   const [seriesList, setSeriesList] = useState<Series[]>([])
   const [loading, setLoading] = useState(true)
+  const supabase = useMemo(() => createClient(), [])
 
   useEffect(() => {
     loadSeries()
@@ -35,7 +40,7 @@ export default function SeriesSelector({
 
   const loadSeries = async () => {
     try {
-      const data = await getAllSeries()
+      const data = await getSeries(supabase)
       setSeriesList(data)
     } catch (error) {
       console.error('載入系列失敗:', error)
@@ -47,22 +52,22 @@ export default function SeriesSelector({
   if (loading) {
     return (
       <div className={style.selector_wrapper}>
-        {label && <label className={style.label}>{label}</label>}
-        <div className={style.loading}>載入中...</div>
+        {resolvedLabel && <label className={style.label}>{resolvedLabel}</label>}
+        <div className={style.loading}>{t('loading')}</div>
       </div>
     )
   }
 
   return (
     <div className={style.selector_wrapper}>
-      {label && <label className={style.label}>{label}</label>}
+      {resolvedLabel && <label className={style.label}>{resolvedLabel}</label>}
       <div className={style.series_container}>
         <select
           value={seriesId}
           onChange={(e) => onSeriesChange(e.target.value)}
           className={style.select}
         >
-          <option value="">無（不屬於任何系列）</option>
+          <option value="">{t('none')}</option>
           {seriesList.map((series) => (
             <option key={series.id} value={series.id}>
               {series.locales[locale].name}
@@ -73,12 +78,12 @@ export default function SeriesSelector({
         {seriesId && (
           <div className={style.series_order}>
             <Input
-              label="在系列中的順序"
+              label={t('orderLabel')}
               value={seriesOrder.toString()}
               onChange={(value) => onOrderChange(parseInt(value) || 1)}
               type="number"
-              placeholder="1"
-              helper="此文章在系列中的順序（從 1 開始）"
+              placeholder={t('orderPlaceholder')}
+              helper={t('orderHelper')}
             />
           </div>
         )}

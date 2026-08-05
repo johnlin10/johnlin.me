@@ -4,9 +4,62 @@
     "description": "Welcome to my new personal website."
   },
   "AdminPage": {
-    "title": "Admin | John Lin",
+    "title": "Admin",
     "description": "",
     "page_title": "Admin",
+    "nav": {
+      "dashboard": "Dashboard",
+      "posts": "Posts",
+      "notes": "Notes",
+      "categories": "Categories",
+      "tags": "Tags",
+      "series": "Series"
+    },
+    "shell": {
+      "backToHome": "Back to site",
+      "brandSubtitle": "Admin",
+      "navAriaLabel": "Admin navigation",
+      "menuOpen": "Open menu",
+      "menuClose": "Close menu",
+      "topbarFallback": "Admin",
+      "userAvatarAlt": "User avatar",
+      "defaultUserName": "Admin",
+      "signOut": "Sign out",
+      "signOutConfirm": {
+        "title": "Sign out",
+        "message": "Are you sure you want to sign out?"
+      }
+    },
+    "confirmDialog": {
+      "defaultTitle": "Please confirm",
+      "cancel": "Cancel",
+      "confirm": "Confirm"
+    },
+    "aiSuggestion": {
+      "label": "AI suggestion",
+      "cancel": "Cancel",
+      "apply": "Apply"
+    },
+    "dashboard": {
+      "title": "Overview",
+      "subtitle": "Content management system",
+      "quickActions": "Quick actions",
+      "newPost": "New Post",
+      "newNote": "New Note",
+      "stats": {
+        "totalPosts": "Total Posts",
+        "published": "Published",
+        "draft": "Draft",
+        "totalNotes": "Total Notes"
+      }
+    },
+    "login": {
+      "title": "Admin",
+      "description": "Sign in with your Google account",
+      "loginButton": "Sign in with Google",
+      "redirecting": "Redirecting…",
+      "error": "Login failed, please try again later"
+    },
     "posts": {
       "title": "Posts",
       "description": "Create, edit, and delete posts",
@@ -37,6 +90,7 @@
           "title": "Tag"
         },
         "created_at": "Created At",
+        "views": "Views",
         "actions": {
           "title": "Actions",
           "classes": {
@@ -44,6 +98,361 @@
             "delete": "Delete"
           }
         }
+      },
+      "loadError": "Failed to load posts",
+      "loading": "Loading...",
+      "createDraftError": "Failed to create draft",
+      "deleteConfirmTitle": "Delete post",
+      "deleteConfirmMessage": "Are you sure you want to delete \"{title}\"?",
+      "deleteSuccess": "Deleted",
+      "deleteError": "Failed to delete",
+      "empty": "No posts yet",
+      "createFirst": "Create your first post",
+      "untitledDraft": "(Untitled draft)",
+      "dateFallback": "-",
+      "new": {
+        "errorMessage": "Failed to create draft, please try again later.",
+        "backToList": "Back to posts",
+        "retry": "Retry"
+      },
+      "detail": {
+        "notFound": "This post could not be found — it may have been deleted.",
+        "loadError": "Something went wrong loading this post, please try again later.",
+        "backToList": "Back to posts",
+        "retry": "Retry"
+      }
+    },
+    "categories": {
+      "loadError": "Failed to load categories",
+      "slugRequired": "Please enter a slug",
+      "nameRequired": "Please fill in the name for every language",
+      "updateSuccess": "Updated",
+      "createSuccess": "Created",
+      "saveError": "Failed to save",
+      "deleteConfirmTitle": "Delete category",
+      "deleteConfirmMessage": "Are you sure you want to delete \"{name}\"?",
+      "deleteSuccess": "Deleted",
+      "deleteError": "Failed to delete",
+      "heading": "Categories",
+      "count": { "total": "Total ", "unit": " categories" },
+      "newCategory": "New Category",
+      "loading": "Loading...",
+      "empty": "No categories yet",
+      "createFirst": "Create your first category",
+      "table": {
+        "slug": "Slug",
+        "nameZh": "Name (Chinese)",
+        "nameEn": "Name (English)",
+        "postCount": "Posts",
+        "actions": "Actions"
+      },
+      "none": "—",
+      "edit": "Edit",
+      "delete": "Delete",
+      "modal": {
+        "editTitle": "Edit Category",
+        "newTitle": "New Category",
+        "slugLabel": "Slug",
+        "slugPlaceholder": "e.g. technology",
+        "slugHelper": "URL-friendly identifier, lowercase English recommended",
+        "localeZh": "Chinese",
+        "localeEn": "English",
+        "nameLabel": "Name",
+        "namePlaceholder": "Category name",
+        "descriptionLabel": "Description",
+        "descriptionPlaceholder": "Category description",
+        "cancel": "Cancel",
+        "save": "Save"
+      }
+    },
+    "series": {
+      "loadError": "Failed to load series",
+      "slugRequired": "Please enter a slug",
+      "nameRequired": "Please fill in the name for every language",
+      "updateSuccess": "Updated",
+      "createSuccess": "Created",
+      "saveError": "Failed to save",
+      "deleteConfirmTitle": "Delete series",
+      "deleteConfirmMessage": "Are you sure you want to delete \"{name}\"?",
+      "deleteSuccess": "Deleted",
+      "deleteError": "Failed to delete",
+      "heading": "Series",
+      "count": { "total": "Total ", "unit": " series" },
+      "newSeries": "New Series",
+      "loading": "Loading...",
+      "empty": "No series yet",
+      "createFirst": "Create your first series",
+      "table": {
+        "slug": "Slug",
+        "nameZh": "Name (Chinese)",
+        "nameEn": "Name (English)",
+        "postCount": "Posts",
+        "actions": "Actions"
+      },
+      "none": "—",
+      "edit": "Edit",
+      "delete": "Delete",
+      "modal": {
+        "editTitle": "Edit Series",
+        "newTitle": "New Series",
+        "slugLabel": "Slug",
+        "slugPlaceholder": "e.g. react-tutorial",
+        "slugHelper": "URL-friendly identifier, lowercase English recommended",
+        "coverImageLabel": "Cover Image URL",
+        "coverImagePlaceholder": "https://example.com/image.jpg",
+        "coverImageHelper": "Optional — URL of the series cover image",
+        "localeZh": "Chinese",
+        "localeEn": "English",
+        "nameLabel": "Name",
+        "namePlaceholder": "Series name",
+        "descriptionLabel": "Description",
+        "descriptionPlaceholder": "Series description",
+        "cancel": "Cancel",
+        "save": "Save"
+      }
+    },
+    "tags": {
+      "loadError": "Failed to load tags",
+      "slugRequired": "Please enter a slug",
+      "nameRequired": "Please fill in the name for every language",
+      "updateSuccess": "Updated",
+      "createSuccess": "Created",
+      "saveError": "Failed to save",
+      "deleteConfirmTitle": "Delete tag",
+      "deleteConfirmMessage": "Are you sure you want to delete \"{name}\"?",
+      "deleteSuccess": "Deleted",
+      "deleteError": "Failed to delete",
+      "heading": "Tags",
+      "count": { "total": "Total ", "unit": " tags" },
+      "newTag": "New Tag",
+      "loading": "Loading...",
+      "empty": "No tags yet",
+      "createFirst": "Create your first tag",
+      "table": {
+        "slug": "Slug",
+        "nameZh": "Name (Chinese)",
+        "nameEn": "Name (English)",
+        "postCount": "Posts",
+        "actions": "Actions"
+      },
+      "none": "—",
+      "edit": "Edit",
+      "delete": "Delete",
+      "modal": {
+        "editTitle": "Edit Tag",
+        "newTitle": "New Tag",
+        "slugLabel": "Slug",
+        "slugPlaceholder": "e.g. javascript",
+        "slugHelper": "URL-friendly identifier, lowercase English recommended",
+        "localeZh": "Chinese",
+        "localeEn": "English",
+        "nameLabel": "Name",
+        "namePlaceholder": "Tag name",
+        "cancel": "Cancel",
+        "save": "Save"
+      }
+    },
+    "notes": {
+      "loadError": "Failed to load notes",
+      "uploadImageError": "Failed to upload image",
+      "contentRequired": "Please enter content or add an image",
+      "publishSuccess": "Note published",
+      "publishError": "Failed to publish",
+      "deleteConfirmTitle": "Delete note",
+      "deleteConfirmMessage": "Are you sure you want to delete this note?",
+      "deleteSuccess": "Deleted",
+      "deleteError": "Failed to delete",
+      "heading": "Notes",
+      "count": { "total": "Total ", "unit": " notes" },
+      "placeholder": "What's on your mind right now?",
+      "removeImageAriaLabel": "Remove image",
+      "uploading": "Uploading…",
+      "addImage": "Add image",
+      "publishing": "Publishing…",
+      "publish": "Publish",
+      "loading": "Loading…",
+      "empty": "No notes yet",
+      "delete": "Delete",
+      "edit": "Edit",
+      "cancel": "Cancel",
+      "save": "Update",
+      "saving": "Updating…",
+      "saveSuccess": "Note updated",
+      "saveError": "Failed to update",
+      "saveDraft": "Save draft",
+      "unpublish": "Move to draft",
+      "statusDraft": "Draft",
+      "statusPublished": "Published",
+      "altLabel": "Alt text",
+      "altPlaceholder": "Describe what's in this image",
+      "aiAltLabel": "Generate alt text with AI",
+      "aiAltError": "AI generation failed",
+      "dragHandle": "Drag to reorder",
+      "moveLeft": "Move earlier",
+      "moveRight": "Move later",
+      "uploadPartialError": "{count} image(s) failed to upload",
+      "imageCount": "{count} image(s)",
+      "backfillDims": "Backfill image sizes",
+      "backfillDone": "Fixed image sizes on {count} note(s)",
+      "backfillError": "Backfill failed",
+      "removeImageConfirm": "Remove this image? The file is deleted when you save."
+    },
+    "postEditor": {
+      "topBar": {
+        "backToWrite": "Write",
+        "backToList": "Posts",
+        "writeTab": "Write",
+        "infoTab": "Post info",
+        "next": "Next",
+        "saveDraft": "Save draft",
+        "publish": "Publish",
+        "update": "Update"
+      },
+      "localeToggle": {
+        "zh": "Traditional Chinese",
+        "en": "English",
+        "ariaLabel": "Content language"
+      },
+      "saveIndicator": {
+        "unsaved": "Unsaved",
+        "saving": "Saving…",
+        "errorRetry": "Save failed, retry",
+        "saved": "Saved"
+      },
+      "settingsStep": {
+        "urlStatus": "URL & Status",
+        "categoryTag": "Category & Tags",
+        "coverImage": "Cover Image",
+        "seo": "SEO",
+        "dangerZone": "Danger Zone",
+        "discardText": "Discard this draft — this action cannot be undone.",
+        "discardButton": "Discard draft",
+        "unpublishText": "Unpublishing will turn this post back into a draft; readers will no longer be able to see it.",
+        "unpublishButton": "Unpublish"
+      },
+      "coverImageField": {
+        "uploadError": "Failed to upload cover image",
+        "uploading": "Uploading…",
+        "change": "Change",
+        "remove": "Remove",
+        "uploadCta": "Click to upload cover image",
+        "altLabel": "Alt text",
+        "altPlaceholder": "Image description",
+        "aiAltLabel": "AI-generate alt text",
+        "urlPlaceholder": "https://example.com/image.jpg",
+        "apply": "Apply",
+        "orPasteUrl": "Or paste an image URL"
+      },
+      "seoFields": {
+        "titleLabel": "SEO Title",
+        "titlePlaceholderWithFallback": "Defaults to: {title}",
+        "titlePlaceholderNoFallback": "Defaults to the post title",
+        "titleHelper": "{count} characters · 50–60 recommended",
+        "descriptionLabel": "SEO Description",
+        "descriptionPlaceholderWithFallback": "Defaults to: {description}",
+        "descriptionPlaceholderNoFallback": "Defaults to the post description",
+        "descriptionHelper": "{count} characters · 150–160 recommended",
+        "keywordsLabel": "Keywords",
+        "keywordsPlaceholder": "keyword1, keyword2, keyword3",
+        "keywordsHelper": "Separate multiple keywords with commas",
+        "aiKeywordsLabel": "AI-suggest keywords"
+      },
+      "slugField": {
+        "slugTaken": "This slug is already in use",
+        "publishedAtWithDate": "Published on {date}",
+        "publishedAtNoDate": "Published",
+        "draftCreatedAt": "Draft · created {date}",
+        "label": "Slug",
+        "placeholder": "my-first-post",
+        "autoSlugHelper": "This is an auto-generated slug — set a memorable one before publishing",
+        "checking": "Checking…",
+        "aiLabel": "AI-generate slug"
+      },
+      "writeStep": {
+        "imageUploadError": "Failed to upload image",
+        "characterCount": "{count} characters",
+        "titlePlaceholder": "Title",
+        "descriptionPlaceholder": "Add a short description",
+        "addDescription": "Add a short description",
+        "aiDescriptionLabel": "AI-generate description",
+        "contentPlaceholder": "Start writing your post..."
+      },
+      "aiAssist": {
+        "genericError": "AI generation failed, please try again later"
+      },
+      "validation": {
+        "titleRequired": "Please enter a Chinese title",
+        "slugRequired": "Please set a slug before publishing",
+        "slugInvalid": "Slug can only contain lowercase letters, numbers, and hyphens"
+      },
+      "provider": {
+        "slugConflictSave": "This slug is already in use, please change it",
+        "leaveConfirmTitle": "Unsaved changes",
+        "leaveConfirmMessage": "Leaving will discard unsaved changes. Are you sure you want to leave?",
+        "discardConfirmTitle": "Discard draft",
+        "discardConfirmMessage": "Are you sure you want to discard this draft? This action cannot be undone.",
+        "discardSuccess": "Draft discarded",
+        "slugTakenError": "This slug is already in use, please change it",
+        "publishSuccess": "Post published",
+        "publishGenericError": "Failed to publish, please try again later",
+        "draftSaveSuccess": "Draft saved",
+        "draftSaveError": "Failed to save, please try again later",
+        "updateSuccess": "Updated",
+        "updateGenericError": "Failed to update, please try again later",
+        "unpublishConfirmTitle": "Unpublish",
+        "unpublishConfirmMessage": "This post will become a draft again; readers will no longer be able to see it.",
+        "unpublishSuccess": "Unpublished"
+      }
+    },
+    "richTextEditor": {
+      "defaultPlaceholder": "Start writing...",
+      "menuBar": {
+        "bold": "Bold (Ctrl+B)",
+        "italic": "Italic (Ctrl+I)",
+        "underline": "Underline (Ctrl+U)",
+        "strike": "Strikethrough",
+        "highlight": "Highlight",
+        "subscript": "Subscript",
+        "superscript": "Superscript",
+        "heading1": "Heading 1",
+        "heading2": "Heading 2",
+        "heading3": "Heading 3",
+        "bulletList": "Bullet list",
+        "orderedList": "Numbered list",
+        "blockquote": "Quote",
+        "insertLink": "Insert link",
+        "removeLink": "Remove link",
+        "linkPlaceholder": "https://example.com",
+        "insertImage": "Insert image",
+        "codeBlock": "Code block",
+        "inlineCode": "Inline code",
+        "insertTable": "Insert table",
+        "deleteTable": "Delete table",
+        "editFormula": "Edit formula",
+        "insertFormula": "Insert formula",
+        "formulaPlaceholder": "LaTeX, e.g. E = mc^2",
+        "horizontalRule": "Horizontal rule",
+        "undo": "Undo (Ctrl+Z)",
+        "redo": "Redo (Ctrl+Y)"
+      }
+    },
+    "selectors": {
+      "category": {
+        "label": "Category",
+        "loading": "Loading...",
+        "placeholder": "Select a category"
+      },
+      "series": {
+        "label": "Series",
+        "loading": "Loading...",
+        "none": "None (not part of a series)",
+        "orderLabel": "Order in series",
+        "orderPlaceholder": "1",
+        "orderHelper": "This post's position within the series (starting at 1)"
+      },
+      "tag": {
+        "label": "Tags",
+        "loading": "Loading..."
       }
     }
   },
@@ -80,11 +489,11 @@
     },
     "who": {
       "label": "Who I Am",
-      "heading": "I like turning my ideas into real things, by hand.",
+      "heading": "Made by hand,\nturning ideas into reality.",
       "paragraphs": [
-        "I'm John Lin, a self-taught web developer who also takes photos and writes a bit. These look like separate things, but to me they're really the same: I use them to make sense of the world, and of myself.",
-        "I believe in honesty and resilience. I'm not rushing to finish this site; I want it to grow at its own pace, into something I genuinely like. Gentle is fine, as long as it knows where it's going.",
-        "This site is a place I made for myself. I run the content myself, I don't chase traffic, and I don't let the algorithm pull me around. I want to let it slowly grow into a corner that's only mine."
+        "I'm John Lin, a self-taught web developer. Beyond code, I use my camera to capture life and writing to organize my thoughts. To me, these are simply different ways of understanding the world and expressing myself.",
+        "I enjoy building things by hand and moving at my own pace. Free of pretense, I want this site to grow naturally alongside me, reflecting what I learn and create.",
+        "This is a space completely my own. No chasing trends, no algorithms — just focused on keeping what feels meaningful and worth sharing."
       ]
     },
     "things": {
@@ -93,48 +502,48 @@
       "items": {
         "web": {
           "title": "Web",
-          "description": "From a single line of CSS to a whole product — I like turning ideas into things people can actually use."
+          "description": "From the first line of code to a finished product, built by hand."
         },
         "photography": {
           "title": "Photography",
-          "description": "With my Nikon, I keep the moments that feel worth pausing a second for."
+          "description": "With camera in hand, keeping the moments worth holding onto."
         },
         "writing": {
           "title": "Writing",
-          "description": "Somewhere between reason and feeling, I write about education, life, and the self."
+          "description": "Between reason and feeling, turning my thoughts into clear words."
         }
       }
     },
     "works": {
       "label": "Selected Work",
-      "heading": "Things I've built.",
+      "heading": "Built, not bought.",
       "visit": "Visit",
       "items": {
         "robotctust": {
           "title": "robotctust.com",
-          "description": "The official site for the Robotics Club at CTUST."
+          "description": "Official site for the CTUST Robotics Club, designed and built from scratch."
         },
         "calens": {
           "title": "calens.app",
-          "description": "A platform that turns text or images into calendar events — manage them online, or download an .ics for your calendar of choice. A hands-on experiment for now."
+          "description": "Turns text or images into calendar events, managed online or easily saved to your calendar."
         },
         "stally": {
           "title": "Stally",
-          "description": "A multi-tenant business system — POS and inventory — that started as a way to help my mom run her fruit shop. (In planning)"
+          "description": "Started for my mom's fruit shop, evolving into an all-in-one POS and inventory system. (In planning)"
         },
         "ytdlp": {
           "title": "ytdlp-server-rpi",
-          "description": "A yt-dlp download server running on a Raspberry Pi."
+          "description": "A download server running on Raspberry Pi, making media fetching effortless."
         },
         "practions": {
           "title": "practions",
-          "description": "A question-bank practice platform I built for friends and classmates — I can update the banks and set up different quiz formats, so anyone who needs it can practice more easily."
+          "description": "A practice platform built for classmates, making self-study simpler."
         }
       }
     },
     "articles": {
       "label": "Latest Writing",
-      "heading": "Recent thoughts.",
+      "heading": "What's been on my mind.",
       "empty": "The first piece is still taking shape. It'll be here soon.",
       "cta": "Go to the blog"
     },
@@ -146,94 +555,84 @@
     }
   },
   "BlogPage": {
-    "title": "Blog | John Lin",
+    "title": "Blog",
     "description": "Welcome to my blog.",
     "page_title": "Blog",
-    "noPosts": "No posts yet"
+    "noPosts": "No posts yet",
+    "readingTime": "{minutes} min read",
+    "yearDivider": "{year}",
+    "fallbackNote": "This article is not yet available in English — showing the original Chinese.",
+    "backToList": "← Back to all posts",
+    "viewMode": {
+      "label": "Switch post layout",
+      "card": "Card view",
+      "list": "List view"
+    }
   },
   "GalleryPage": {
-    "title": "Gallery | John Lin",
+    "title": "Gallery",
     "description": "Welcome to my gallery.",
     "page_title": "Gallery"
   },
+  "NotesPage": {
+    "title": "Notes",
+    "description": "Fragments and quick notes from daily life.",
+    "page_title": "Notes",
+    "lead": "Fragments and quick notes from daily life.",
+    "empty": "No notes yet.",
+    "back": "← Back to notes",
+    "openNote": "Open this note",
+    "lightbox": {
+      "label": "Image viewer",
+      "open": "View image {n} full screen",
+      "close": "Close",
+      "previous": "Previous image",
+      "next": "Next image",
+      "counter": "{current} / {total}",
+      "thumbnails": "Image thumbnails",
+      "goTo": "Go to image {n}"
+    }
+  },
   "AboutPage": {
-    "title": "About | John Lin",
+    "title": "About",
     "description": "John Lin, a self-taught web developer. Writing code, taking photos, writing words, at my own pace.",
     "page_title": "About",
-    "storyTitle": "My Story",
     "sidebar": {
       "tagline": "Web Developer · Photography · Writing"
     },
-    "intro": [
-      "I'm John Lin. Writing code, taking photos, writing words — that's pretty much what my life looks like right now.",
-      "I made this site myself, and I run the content myself. Everyone's chasing speed and traffic these days; I just wanted a place that could grow at its own pace."
-    ],
-    "sections": {
-      "origin": {
-        "heading": "It began with a certificate I never passed",
-        "paragraphs": [
-          "All of this actually started with a certificate I never passed.",
-          "In my second year of high school I was preparing for the Level C web design exam. But what it tested had little to do with what the industry actually uses; the techniques were over a decade old. I followed the reference book, working in software I found clumsy and unfamiliar, until I couldn't stand it and gave up. Of course I didn't pass. I just felt that exam couldn't really prove anything.",
-          "To prove that, I walked into web design on my own. Back then I knew almost nothing about CSS or JavaScript, but I was clear about what I wanted: to make something genuinely useful, and show that piece of paper was pointless."
-        ]
-      },
-      "firstWork": {
-        "heading": "It wasn't pretty, but people actually used it",
-        "paragraphs": [
-          "I went after the most real problem in my class. Everyone was always digging through group chats and the school website to find schedule changes and exam timetables. So I built a class information platform, starting from the plainest static page, all the way to a live database, so the moment something updated, everyone's screen updated too."
-        ],
-        "pullQuote": "It wasn't pretty, but my classmates actually used it, and it genuinely made a few things easier for them. That feeling was something I'd never had in all my years of school. For the first time I knew: teaching myself, I could actually make something worth making."
-      },
-      "darkMonths": {
-        "heading": "At my lowest, I wrote myself back together",
-        "paragraphs": [
-          "Around the same time, a procedural mistake in the school's admissions pushed me into a department I had no interest in. I already had my doubts about the system, and after this, what little trust I had left was gone.",
-          "That half year was dark. I let go of most of my schoolwork and threw myself into teaching myself, and I started writing. Not for anyone to read, just to work out who I actually was, what I cared about, where my limits were. It started as complaining, and slowly turned into asking myself, over and over, why."
-        ],
-        "pullQuote": "Writing and writing, I put that nearly-broken version of myself back together, piece by piece, and wrote out a set of values that were my own."
-      },
-      "anchor": {
-        "heading": "A place no one can take from me",
-        "paragraphs": [
-          "Looking back, those two things were really the same thing. Walking into web design, or standing back up at my lowest, both times I first found a steady place inside myself before I could move outward. A goal, a belief, a spot I built for myself that could hold my weight.",
-          "I call it my origin. It isn't a box someone drew for me. It's mine: no one can take it, and I don't have to wait for anyone to hand me a certificate to validate it."
-        ]
-      },
-      "throughline": {
-        "heading": "Code, writing, photography — to me they're one thing",
-        "paragraphs": [
-          "So code, writing, and photography are really one thing to me. I see a lot of messy, unsorted stuff, and I want to get my hands on it, make it clear, and keep it."
-        ],
-        "carriers": [
-          "Code: turning ideas into systems that work.",
-          "Writing: sorting out the thoughts in my head.",
-          "Photography: keeping the moments worth pausing for."
-        ],
-        "carriersOutro": "The work looks different, but underneath it's the same origin at work."
-      },
-      "values": {
-        "heading": "Honesty, and my own pace",
-        "paragraphs": [
-          "I care a lot about honesty. The kind of thing people say just to be seen, that they don't even believe themselves, I can't really bring myself to say. I'm also wary of passing off AI-generated things as human creation. I use AI myself; it's a great tool. But I won't use it to pretend something was made by my own hands, my own eyes.",
-          "And I don't want to run at the whole world's pace. Everything's in such a hurry these days; I just want to work at my own. I'm not saying these for everyone; they're more like a filter. The people they suit will stay, and we'll probably get along. The ones they don't, that's okay too."
-        ]
-      },
-      "now": {
-        "heading": "Where I am now, still moving forward",
-        "paragraphs": [
-          "Right now I'm in university. A few friends and I started a club, and I built its official site on my own, then grew it into a whole learning platform, with courses, progress tracking, and an achievement system, everything from the database to the interface built by me. I've got a few other projects running, and I'm slowly writing my long-form pieces on Substack.",
-          "Further out, I've set my sights on the Netherlands. As for why, that's another story still being written. All I know is that this time, I'm clear about where I'm setting out from."
-        ]
-      }
-    }
+    "chapterNavLabel": "Chapters",
+    "fallbackNotice": "This chapter isn't available in English yet — showing the original Chinese."
   },
   "LabPage": {
-    "title": "Lab | John Lin",
+    "title": "Lab",
     "description": "There will be many experimental pages here.",
     "page_title": "Lab",
-    "PalettePage": {
-      "title": "Palette",
-      "description": "The colors used on this website.",
+    "DesignPage": {
+      "title": "Design System",
+      "description": "The colors, spacing, type scale, radius, shadow, and components used on this site.",
+      "sections": {
+        "colors": "Colors",
+        "colorsDesc": "Semantic roles, not arbitrary swatches; switches with light/dark automatically.",
+        "spacing": "Spacing",
+        "spacingDesc": "A 4px-based scale — the single source of truth for spacing sitewide.",
+        "typography": "Typography",
+        "typographyDesc": "Anchored to values actually used on the site, not an arbitrary 16px multiple table.",
+        "radius": "Radius",
+        "shadow": "Shadow",
+        "motion": "Motion",
+        "motionDesc": "Three duration tiers — hover a swatch to feel the difference.",
+        "zIndex": "Z-index",
+        "components": "Component examples"
+      },
+      "zIndexDesc": {
+        "base": "Regular content",
+        "raised": "Locally raised (hover cards, dropdown carets)",
+        "sticky": "Sticky-positioned elements",
+        "header": "Header",
+        "drawer": "Menu drawer",
+        "modal": "Modal",
+        "toast": "Toast notifications"
+      },
       "color_display": {
         "click-to-copy": "Click to copy",
         "color_value": "color value",
@@ -245,9 +644,13 @@
   "Header": {
     "home": "Home",
     "blog": "Writing",
+    "notes": "Notes",
     "about": "About",
     "gallery": "Photography",
     "lab": "Lab",
+    "menu": "Menu",
+    "closeMenu": "Close menu",
+    "preferences": "Preferences",
     "path_title": {
       "/": "Home",
       "/blog": "Writing",

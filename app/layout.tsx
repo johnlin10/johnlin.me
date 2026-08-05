@@ -1,6 +1,8 @@
 import { type ReactNode } from 'react'
 import '@/app/globals.scss'
-import '@/app/styles/_colors.scss'
+import '@/app/styles/_tokens.scss'
+import '@/app/styles/_theme.scss'
+import 'katex/dist/katex.min.css'
 
 import { Analytics } from '@vercel/analytics/next'
 

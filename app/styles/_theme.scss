@@ -1,0 +1,152 @@
+// ============================================================
+// Layer 2（語意角色）— 暖色文青設計系統，橘 / 卡其。
+// 這裡定義「這個顏色代表什麼角色」，不定義「橘色到底是哪個 oklch」
+// 以外的隨意色階；新增色彩需求先想能不能用現有角色。
+// :root 是 SSR / 無 JS / hydration 前的基礎預設（給淺色）；
+// .light / .dark 選擇器優先權較高，掛上後才是真正生效的主題。
+// ============================================================
+
+:root {
+  --font-serif: 'GenKiMinTW', 'Noto Serif TC', 'Songti TC', serif;
+  --font-sans:
+    var(--font-noto-sans-tc), 'PingFang TC', 'Noto Sans TC', system-ui,
+    sans-serif;
+
+  --background-color: #faf6ee;
+  --background-color-rgb: 250, 246, 238;
+  --surface: #faf6ee;
+  --surface-2: #f2ece0;
+  --surface-3: #e8dfce;
+  --surface-raised: var(--surface-2);
+  --surface-sunken: var(--surface-3);
+  --text: #201b13;
+  --text-secondary: #5c5344;
+  --text-muted: #8a7f6c;
+  --border: rgba(61, 49, 30, 0.14);
+  --border-strong: rgba(61, 49, 30, 0.24);
+  --accent: oklch(0.62 0.15 52);
+  --accent-hover: oklch(0.56 0.16 50);
+  --accent-soft: oklch(0.62 0.15 52 / 0.12);
+  --accent-contrast: #fffaf3;
+  --text-on-accent: var(--accent-contrast);
+  --border-focus: var(--accent);
+  --primary-color: var(--accent);
+  --link-hover-color: var(--accent);
+
+  // 回饋色：陶土橘旁邊放太飽和的紅/綠會很跳，色相刻意跟 accent(52°) 錯開但降飽和。
+  --danger: oklch(0.58 0.19 25);
+  --danger-soft: oklch(0.58 0.19 25 / 0.12);
+  --success: oklch(0.6 0.13 145);
+  --success-soft: oklch(0.6 0.13 145 / 0.12);
+  --warning: oklch(0.75 0.14 80);
+  --warning-soft: oklch(0.75 0.14 80 / 0.14);
+  --info: oklch(0.62 0.11 240);
+  --info-soft: oklch(0.62 0.11 240 / 0.12);
+
+  // 陰影：暖褐色而非純黑，純黑陰影蓋在卡其底上會顯得發灰髒污。
+  --shadow-sm: 0 1px 4px rgba(61, 49, 30, 0.08);
+  --shadow-md: 0 8px 24px rgba(61, 49, 30, 0.1);
+  --shadow-lg: 0 16px 40px rgba(61, 49, 30, 0.12);
+  --shadow-xl: 0 24px 64px rgba(61, 49, 30, 0.16);
+  --shadow-focus: 0 0 0 3px var(--accent-soft);
+
+  --background-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.15'/%3E%3C/svg%3E");
+}
+
+:root.light {
+  --background-color: #faf6ee;
+  --background-color-rgb: 250, 246, 238;
+  --background-color-secondary: #f2ece0;
+  --background-color-secondary-rgb: 242, 236, 224;
+  --background-color-tertiary: #e8dfce;
+  --background-color-tertiary-rgb: 232, 223, 206;
+  --background-color-quaternary: #dbcfb9;
+  --background-color-quaternary-rgb: 219, 207, 185;
+
+  --surface: var(--background-color);
+  --surface-2: var(--background-color-secondary);
+  --surface-3: var(--background-color-tertiary);
+  // raised 疊在 surface 之上（如選單/彈窗）；sunken 是內凹感（如輸入框底）。
+  --surface-raised: var(--background-color-secondary);
+  --surface-sunken: var(--background-color-quaternary);
+  --background-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.15'/%3E%3C/svg%3E");
+  --text: #201b13;
+  --text-secondary: #5c5344;
+  --text-muted: #8a7f6c;
+  --border: rgba(61, 49, 30, 0.14);
+  --border-strong: rgba(61, 49, 30, 0.24);
+
+  --accent: oklch(0.62 0.15 52);
+  --accent-hover: oklch(0.56 0.16 50);
+  --accent-soft: oklch(0.62 0.15 52 / 0.12);
+  --accent-contrast: #fffaf3;
+  --text-on-accent: var(--accent-contrast);
+  --border-focus: var(--accent);
+  --primary-color: var(--accent);
+  --link-hover-color: var(--accent);
+
+  --danger: oklch(0.58 0.19 25);
+  --danger-soft: oklch(0.58 0.19 25 / 0.12);
+  --success: oklch(0.6 0.13 145);
+  --success-soft: oklch(0.6 0.13 145 / 0.12);
+  --warning: oklch(0.75 0.14 80);
+  --warning-soft: oklch(0.75 0.14 80 / 0.14);
+  --info: oklch(0.62 0.11 240);
+  --info-soft: oklch(0.62 0.11 240 / 0.12);
+
+  --shadow-sm: 0 1px 4px rgba(61, 49, 30, 0.08);
+  --shadow-md: 0 8px 24px rgba(61, 49, 30, 0.1);
+  --shadow-lg: 0 16px 40px rgba(61, 49, 30, 0.12);
+  --shadow-xl: 0 24px 64px rgba(61, 49, 30, 0.16);
+  --shadow-focus: 0 0 0 3px var(--accent-soft);
+}
+
+:root.dark {
+  --background-color: #14110d;
+  --background-color-rgb: 20, 17, 13;
+  --background-color-secondary: #1e1a14;
+  --background-color-secondary-rgb: 30, 26, 20;
+  --background-color-tertiary: #29241c;
+  --background-color-tertiary-rgb: 41, 36, 28;
+  --background-color-quaternary: #372f24;
+  --background-color-quaternary-rgb: 55, 47, 36;
+
+  --surface: var(--background-color);
+  --surface-2: var(--background-color-secondary);
+  --surface-3: var(--background-color-tertiary);
+  // 深色下「浮起」的東西要更亮才顯得靠近視角，用 tertiary；
+  // 「凹陷」的東西比周圍稍亮一點點即可，不必真的比 base 暗（已經是最暗）。
+  --surface-raised: var(--background-color-tertiary);
+  --surface-sunken: var(--background-color-secondary);
+  --background-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
+  --text: #f2ece1;
+  --text-secondary: #c3b8a5;
+  --text-muted: #8f8471;
+  --border: rgba(245, 235, 216, 0.1);
+  --border-strong: rgba(245, 235, 216, 0.18);
+
+  --accent: oklch(0.72 0.15 58);
+  --accent-hover: oklch(0.78 0.14 60);
+  --accent-soft: oklch(0.72 0.15 58 / 0.16);
+  --accent-contrast: #14110d;
+  --text-on-accent: var(--accent-contrast);
+  --border-focus: var(--accent);
+  --primary-color: var(--accent);
+  --link-hover-color: var(--accent);
+
+  --danger: oklch(0.68 0.18 25);
+  --danger-soft: oklch(0.68 0.18 25 / 0.16);
+  --success: oklch(0.7 0.13 145);
+  --success-soft: oklch(0.7 0.13 145 / 0.16);
+  --warning: oklch(0.8 0.14 80);
+  --warning-soft: oklch(0.8 0.14 80 / 0.18);
+  --info: oklch(0.72 0.11 240);
+  --info-soft: oklch(0.72 0.11 240 / 0.16);
+
+  // 深色底暖褐陰影看不出層次，改回黑，靠透明度控制深淺。
+  --shadow-sm: 0 1px 4px rgba(0, 0, 0, 0.24);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.32);
+  --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.36);
+  --shadow-xl: 0 24px 64px rgba(0, 0, 0, 0.42);
+  --shadow-focus: 0 0 0 3px var(--accent-soft);
+}

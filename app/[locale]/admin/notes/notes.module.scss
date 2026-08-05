@@ -1,0 +1,114 @@
+@use '@/app/styles/design' as *;
+
+.container {
+  max-width: var(--width-content);
+}
+
+.header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
+}
+
+.title {
+  font-family: var(--font-serif);
+  font-size: var(--text-2xl);
+  font-weight: 600;
+  color: var(--text);
+  margin: 0;
+}
+
+.subtitle {
+  font-family: var(--font-sans);
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+
+.item {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  padding: var(--space-4) var(--space-5);
+}
+
+.itemHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.itemMetaRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.itemMeta {
+  font-family: var(--font-sans);
+  font-size: var(--text-3xs);
+  color: var(--text-muted);
+}
+
+.statusPill {
+  font-family: var(--font-sans);
+  font-size: var(--text-3xs);
+  font-weight: 500;
+  padding: 2px var(--space-2);
+  border-radius: var(--radius-pill);
+}
+
+.statusPublished {
+  color: var(--success);
+  background: var(--success-soft);
+}
+
+.statusDraft {
+  color: var(--text-muted);
+  background: var(--surface-3);
+}
+
+.itemContent {
+  font-family: var(--font-serif);
+  font-size: var(--text-md);
+  line-height: var(--leading-relaxed);
+  color: var(--text);
+  margin: var(--space-2) 0 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.itemMedia {
+  margin-top: var(--space-3);
+  // .item 的左右內距是 --space-5，跟 NoteCard 的 --space-6 不同，
+  // 覆寫這個變數讓 NoteMedia 的出血距離對齊這裡實際的內距。
+  --note-media-bleed: var(--space-5);
+}
+
+.itemActions {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.loading,
+.empty {
+  text-align: center;
+  padding: var(--space-12) var(--space-4);
+  color: var(--text-muted);
+  font-family: var(--font-sans);
+}

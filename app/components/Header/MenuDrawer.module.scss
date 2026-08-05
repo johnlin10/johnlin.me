@@ -1,0 +1,118 @@
+@use '@/app/styles/mixins' as *;
+
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-drawer);
+  pointer-events: auto; // Header 的 .shell 祖先是 pointer-events:none，這裡要拿回來
+  background: rgba(0, 0, 0, 0.32);
+}
+
+.panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  // 面板要蓋在 backdrop 之上，兩者才不會靠 DOM 順序碰運氣疊對。
+  z-index: calc(var(--z-drawer) + 1);
+  pointer-events: auto; // 同上
+  width: min(320px, 84vw);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: calc(env(safe-area-inset-top, 0px) + var(--space-5)) var(--space-5)
+    var(--space-6);
+  background: var(--background-color);
+  background-image: var(--background-texture);
+  border-left: 1px solid var(--border);
+  box-shadow: var(--shadow-lg);
+  overflow-y: auto;
+}
+
+.panelHeader {
+  @include flexbox(row, space-between, center);
+  margin-bottom: var(--space-3);
+}
+
+.panelTitle {
+  font-family: var(--font-serif);
+  font-size: var(--text-lg);
+  font-weight: 600;
+  letter-spacing: var(--tracking-normal);
+  color: var(--text);
+}
+
+.closeButton {
+  @include flexbox(row, center, center);
+  width: 36px;
+  height: 36px;
+  font-size: var(--text-xl);
+  border-radius: var(--radius-pill);
+  color: var(--text-secondary);
+  transition:
+    color var(--duration-fast) var(--ease),
+    background-color var(--duration-fast) var(--ease);
+
+  &:hover {
+    color: var(--text);
+    background: var(--surface-2);
+  }
+}
+
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.navLink {
+  @include flexbox(row, flex-start, center);
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-md);
+  letter-spacing: var(--tracking-normal);
+  color: var(--text-secondary);
+  transition:
+    color var(--duration-fast) var(--ease),
+    background-color var(--duration-fast) var(--ease);
+
+  &:hover {
+    color: var(--text);
+    background: var(--surface-2);
+  }
+
+  &.active {
+    color: var(--accent);
+    background: var(--accent-soft);
+  }
+}
+
+.navIcon {
+  font-size: var(--text-lg);
+}
+
+.divider {
+  height: 1px;
+  margin: var(--space-4) 0;
+  background: var(--border);
+}
+
+.controls {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.controlsLabel {
+  padding: 0 var(--space-4);
+  font-size: var(--text-2xs);
+  letter-spacing: var(--tracking-wide);
+  color: var(--text-muted);
+}
+
+.controlsRow {
+  @include flexbox(row, flex-start, center);
+  gap: var(--space-2);
+  padding: 0 var(--space-3);
+}

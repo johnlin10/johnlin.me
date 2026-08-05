@@ -7,11 +7,22 @@ const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: false,
   },
+  // About 頁章節內容在執行期用 readdir/readFile 讀取，@vercel/nft 無法追蹤
+  // 動態組出的路徑；沒有這行，正式站會安靜地讀不到檔案（About 頁變空白）。
+  outputFileTracingIncludes: {
+    '/[locale]/about': ['./content/about/**'],
+  },
   images: {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'firebasestorage.googleapis.com', // Firebase Storage
+        hostname: 'myxssceptrkyjsibghjr.supabase.co', // Supabase Storage
+        port: '',
+        pathname: '/storage/v1/object/public/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'firebasestorage.googleapis.com', // Firebase Storage（退役後可移除）
         port: '',
         pathname: '/v0/b/**',
       },

@@ -1,7 +1,9 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { getAllTags } from '@/app/lib/firebase/tags'
+import { useEffect, useMemo, useState } from 'react'
+import { useTranslations } from 'next-intl'
+import { getTags } from '@/app/lib/supabase/tags'
+import { createClient } from '@/app/lib/supabase/client'
 import type { Tag } from '@/app/types/blog'
 import style from './Selector.module.scss'
 
@@ -19,10 +21,13 @@ export default function TagSelector({
   value,
   onChange,
   locale = 'zh-tw',
-  label = '標籤',
+  label,
 }: TagSelectorProps) {
+  const t = useTranslations('AdminPage.selectors.tag')
+  const resolvedLabel = label ?? t('label')
   const [tags, setTags] = useState<Tag[]>([])
   const [loading, setLoading] = useState(true)
+  const supabase = useMemo(() => createClient(), [])
 
   useEffect(() => {
     loadTags()
@@ -30,7 +35,7 @@ export default function TagSelector({
 
   const loadTags = async () => {
     try {
-      const data = await getAllTags()
+      const data = await getTags(supabase)
       setTags(data)
     } catch (error) {
       console.error('載入標籤失敗:', error)
@@ -50,15 +55,15 @@ export default function TagSelector({
   if (loading) {
     return (
       <div className={style.selector_wrapper}>
-        {label && <label className={style.label}>{label}</label>}
-        <div className={style.loading}>載入中...</div>
+        {resolvedLabel && <label className={style.label}>{resolvedLabel}</label>}
+        <div className={style.loading}>{t('loading')}</div>
       </div>
     )
   }
 
   return (
     <div className={style.selector_wrapper}>
-      {label && <label className={style.label}>{label}</label>}
+      {resolvedLabel && <label className={style.label}>{resolvedLabel}</label>}
       <div className={style.tag_list}>
         {tags.map((tag) => (
           <button

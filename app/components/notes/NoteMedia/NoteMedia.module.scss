@@ -1,0 +1,87 @@
+@use '@/app/styles/design' as *;
+
+//* ==================== 單張圖片：全寬，最直 clamp 在 2:3 ====================
+
+.single {
+  display: block;
+  width: 100%;
+}
+
+.singleTrigger {
+  display: block;
+  position: relative;
+  width: 100%;
+  aspect-ratio: var(--note-ratio, 3 / 2); // 沒有 w/h 的舊圖用 3:2 fallback
+  overflow: hidden;
+  border-radius: var(--radius-md);
+  background: var(--surface-3); // 圖片解碼前的佔位色
+  padding: 0;
+  border: 0;
+  margin: 0;
+  cursor: zoom-in;
+  appearance: none;
+  @include focus-ring;
+}
+
+//* ==================== 多張圖片：等高橫向滑動 ====================
+
+.strip {
+  // 圖片顯示高度屬視覺尺寸而非版面間距，設計系統允許跳出 --space-N 階梯。
+  // 刻意壓低：卡片寬度有限，太高的話一兩張圖就會撐滿整個寬度，看不到下一張的邊。
+  --note-strip-height: 190px;
+
+  // 出血距離＝所在容器的左右內距，預設對齊 NoteCard 的 --space-6；
+  // 其他情境（例如後台列表 padding 不同）由外層容器覆寫這個變數即可。
+  --note-media-bleed: var(--space-6);
+
+  display: flex;
+  gap: var(--space-2);
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+
+  margin-inline: calc(var(--note-media-bleed) * -1);
+  padding-inline: var(--note-media-bleed);
+  scroll-padding-inline: var(--note-media-bleed);
+
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  // 兩側淡出提示可橫向捲動；#000 只定義遮罩透明度，非主題色，屬裝飾性例外
+  mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    #000 var(--note-media-bleed),
+    #000 calc(100% - var(--space-8)),
+    transparent 100%
+  );
+
+  @include respond-to('phone') {
+    --note-strip-height: 160px;
+  }
+}
+
+.slide {
+  display: block;
+  position: relative;
+  flex: 0 0 auto;
+  width: auto; // 由 height × aspect-ratio 推導
+  height: var(--note-strip-height);
+  aspect-ratio: var(--note-ratio, 3 / 2);
+  scroll-snap-align: start;
+  overflow: hidden;
+  border-radius: var(--radius-md);
+  background: var(--surface-3);
+  padding: 0;
+  border: 0;
+  margin: 0;
+  cursor: zoom-in;
+  appearance: none;
+  @include focus-ring;
+}
+
+.img {
+  object-fit: cover;
+}

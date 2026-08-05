@@ -1,0 +1,37 @@
+// 斷點集中在這裡管理，新增斷點前先想想能不能用現有的。
+$bp-sm: 600px; // 手機／平板分界
+$bp-md: 900px; // 內文側欄（TOC、about sidebar）收合點
+$bp-lg: 1024px; // 平板／桌機分界
+$bp-wide: 1128px; // 寬版桌機版面（原 respond-by-min-width(1128px)）
+$bp-xl: 1280px; // 最寬容器
+
+@mixin respond-to($breakpoint) {
+  @if $breakpoint == 'phone' {
+    @media (max-width: $bp-sm) and (min-height: 300px) {
+      @content;
+    }
+  } @else if $breakpoint == 'phone-landscape' {
+    @media (min-width: $bp-sm) and (max-height: 600px) and (orientation: landscape) {
+      @content;
+    }
+  } @else if $breakpoint == 'tablet' {
+    @media (min-width: $bp-sm) and (max-width: $bp-lg) {
+      @content;
+    }
+  } @else if $breakpoint == 'desktop' {
+    @media (min-width: #{$bp-lg + 1}) {
+      @content;
+    }
+  }
+}
+
+@mixin respond-by-max-width($width) {
+  @media (max-width: $width) {
+    @content;
+  }
+}
+@mixin respond-by-min-width($width) {
+  @media (min-width: $width) {
+    @content;
+  }
+}

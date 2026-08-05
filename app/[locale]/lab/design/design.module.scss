@@ -1,0 +1,254 @@
+@use '@/app/styles/design' as *;
+
+.section {
+  margin-bottom: var(--space-16);
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.sectionTitle {
+  font-family: var(--font-serif);
+  font-size: var(--text-xl);
+  font-weight: 600;
+  color: var(--text);
+  margin: 0 0 var(--space-2);
+}
+
+.sectionDesc {
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  margin: 0 0 var(--space-6);
+  max-width: 60ch;
+}
+
+.groupTitle {
+  @include eyebrow;
+  margin: var(--space-6) 0 var(--space-3);
+
+  &:first-child {
+    margin-top: 0;
+  }
+}
+
+// -------- 色彩 --------
+.colorGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: var(--space-3);
+}
+
+// -------- 間距 --------
+.spaceList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.spaceRow {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.spaceLabel {
+  @include meta;
+  font-family: monospace;
+}
+
+.spaceBar {
+  height: var(--space-4);
+  background: var(--accent);
+  border-radius: var(--radius-xs);
+}
+
+// -------- 字級 --------
+.typeList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.typeRow {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: var(--space-3);
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.typeLabel {
+  @include meta;
+  font-family: monospace;
+  width: 140px;
+  flex-shrink: 0;
+}
+
+.typeSample {
+  font-family: var(--font-serif);
+  color: var(--text);
+}
+
+// -------- 圓角 / 陰影 --------
+.swatchGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: var(--space-5);
+}
+
+.swatchBox {
+  @include flexbox(column, center, center);
+  height: 96px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  font-family: monospace;
+  font-size: var(--text-2xs);
+}
+
+.shadowBox {
+  @include flexbox(column, center, center);
+  height: 96px;
+  background: var(--surface);
+  border-radius: var(--radius-md);
+  color: var(--text-muted);
+  font-family: monospace;
+  font-size: var(--text-2xs);
+}
+
+// -------- 動效 --------
+.motionGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: var(--space-5);
+}
+
+.motionCard {
+  @include card;
+  cursor: pointer;
+  text-align: center;
+
+  .motionSwatch {
+    width: 100%;
+    height: var(--space-8);
+    border-radius: var(--radius-sm);
+    background: var(--accent);
+    transition: transform var(--duration) var(--ease);
+  }
+
+  &:hover .motionSwatch {
+    transform: scaleX(1.08);
+  }
+
+  &[data-speed='fast']:hover .motionSwatch {
+    transition-duration: var(--duration-fast);
+  }
+  &[data-speed='slow']:hover .motionSwatch {
+    transition-duration: var(--duration-slow);
+  }
+
+  .motionLabel {
+    @include meta;
+    font-family: monospace;
+    margin-top: var(--space-3);
+  }
+}
+
+// -------- 層級 --------
+.zList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  font-family: monospace;
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+}
+
+.zRow {
+  display: flex;
+  justify-content: space-between;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-xs);
+
+  &:nth-child(odd) {
+    background: var(--surface-2);
+  }
+}
+
+// -------- 元件範例 --------
+.componentGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-6);
+  align-items: flex-start;
+}
+
+.demoCard {
+  @include card;
+  width: 240px;
+
+  .demoEyebrow {
+    @include eyebrow;
+  }
+
+  .demoTitle {
+    font-family: var(--font-serif);
+    font-size: var(--text-lg);
+    font-weight: 600;
+    color: var(--text);
+    margin: var(--space-2) 0 var(--space-1);
+  }
+
+  .demoMeta {
+    @include meta;
+  }
+}
+
+.demoButton {
+  @include flexbox(row, center, center);
+  padding: var(--space-3) var(--space-6);
+  background: var(--accent);
+  color: var(--accent-contrast);
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  border-radius: var(--radius-pill);
+  transition: all var(--duration-fast) var(--ease);
+  cursor: pointer;
+
+  &:hover {
+    background: var(--accent-hover);
+  }
+}
+
+.demoTagRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.demoTag {
+  font-family: var(--font-sans);
+  font-size: var(--text-2xs);
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-pill);
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.demoTagDanger {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+.demoTagSuccess {
+  background: var(--success-soft);
+  color: var(--success);
+}

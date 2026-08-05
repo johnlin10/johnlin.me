@@ -13,6 +13,8 @@ interface InputProps {
   error?: string
   helper?: string
   fullWidth?: boolean
+  /** label 列右側的附加元件（例如 AI 輔助按鈕）。 */
+  action?: React.ReactNode
 }
 
 /**
@@ -29,16 +31,22 @@ export default function Input({
   error,
   helper,
   fullWidth = true,
+  action,
 }: InputProps) {
   return (
     <div
       className={`${style.input_wrapper} ${fullWidth ? style.full_width : ''}`}
     >
-      {label && (
-        <label className={style.label}>
-          {label}
-          {required && <span className={style.required}>*</span>}
-        </label>
+      {(label || action) && (
+        <div className={style.label_row}>
+          {label && (
+            <label className={style.label}>
+              {label}
+              {required && <span className={style.required}>*</span>}
+            </label>
+          )}
+          {action}
+        </div>
       )}
 
       <input

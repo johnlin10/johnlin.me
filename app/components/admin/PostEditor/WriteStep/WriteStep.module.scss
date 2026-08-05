@@ -1,0 +1,101 @@
+@use '@/app/styles/design' as *;
+
+.root {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.toolbarRow {
+  flex-shrink: 0;
+  position: relative;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface-2);
+  padding-inline: var(--page-gutter);
+  overflow-x: auto;
+
+  @include respond-to('phone') {
+    padding-inline: var(--space-3);
+  }
+}
+
+// 字數統計釘在工具列右側；工具列在一般桌機寬度下遠遠塞不滿，用絕對定位
+// 疊上去最單純，不用去動 MenuBar 自己的內距／捲動邏輯。
+.charCount {
+  position: absolute;
+  right: var(--page-gutter);
+  top: 50%;
+  transform: translateY(-50%);
+  font-family: var(--font-sans);
+  font-size: var(--text-2xs);
+  color: var(--text-muted);
+  white-space: nowrap;
+  pointer-events: none;
+
+  @include respond-to('phone') {
+    display: none;
+  }
+}
+
+// 底部留 40vh：讓最後一段能捲到螢幕中段舒服的位置，而不是貼著底緣打字。
+.column {
+  @include container('content');
+  padding-top: var(--space-10);
+  padding-bottom: 40vh;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+
+  @include respond-to('phone') {
+    padding-top: var(--space-6);
+    padding-bottom: 30vh;
+  }
+}
+
+.localeRow {
+  @include flexbox(row, flex-end, center);
+  margin-bottom: var(--space-6);
+}
+
+.subtitleButton {
+  display: block;
+  width: fit-content;
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--text-muted);
+  font-family: var(--font-sans);
+  font-size: var(--text-lg);
+  cursor: text;
+
+  &:hover {
+    color: var(--text-secondary);
+  }
+}
+
+// 掛在需要浮出 AiSuggestion 卡片的區塊外層——卡片以 absolute 貼在下方。
+.fieldWrap {
+  position: relative;
+  margin-top: var(--space-2);
+}
+
+.descriptionRow {
+  @include flexbox(row, space-between, flex-start);
+  gap: var(--space-2);
+
+  // TitleField 的 textarea 沒有暴露 className 覆寫入口，用型別選擇器讓它
+  // 在 flex row 裡吃滿剩餘寬度。
+  textarea {
+    flex: 1;
+    min-width: 0;
+  }
+}
+
+.editorArea {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  margin-top: var(--space-6);
+}

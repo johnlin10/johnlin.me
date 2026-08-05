@@ -1,25 +1,23 @@
 import Link from 'next/link'
 import styles from './lab.module.scss'
 import { getTranslations } from 'next-intl/server'
-import Page from '@/app/components/Page/Page'
-import { metadata } from '@/app/utils/metadata'
+import PageContainer from '@/app/components/PageContainer/PageContainer'
+import PageHeader from '@/app/components/PageHeader/PageHeader'
+import { metadata } from '@/app/lib/metadata'
 
 async function LabPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params
   const t = await getTranslations({ locale, namespace: 'LabPage' })
 
   return (
-    <Page
-      style={styles.lab}
-      header={{
-        title: t('page_title'),
-        descriptions: [t('description')],
-      }}
-    >
-      <Link href="/lab/palette" className={styles.link}>
-        Palette
-      </Link>
-    </Page>
+    <PageContainer>
+      <PageHeader size="md" title={t('page_title')} lead={t('description')} />
+      <div className={styles.lab}>
+        <Link href="/lab/design" className={styles.link}>
+          Design System
+        </Link>
+      </div>
+    </PageContainer>
   )
 }
 
@@ -35,6 +33,7 @@ export async function generateMetadata({
   return metadata({
     title: t('title'),
     description: t('description'),
+    url: '/lab',
   })
 }
 

@@ -5,14 +5,14 @@
   @include flexbox(row, center, center);
   width: 38px;
   height: 38px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: transparent;
   border: 1px solid transparent;
   color: var(--text-secondary);
   cursor: pointer;
-  transition: color 0.2s var(--transition-bezier),
-    background-color 0.2s var(--transition-bezier),
-    border-color 0.2s var(--transition-bezier);
+  transition: color var(--duration-fast) var(--ease),
+    background-color var(--duration-fast) var(--ease),
+    border-color var(--duration-fast) var(--ease);
 
   &:hover {
     color: var(--accent);

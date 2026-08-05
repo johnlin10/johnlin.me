@@ -1,55 +1,51 @@
 'use client'
 
-import { useEffect } from 'react'
-import { useRouter } from 'next/navigation'
-import { useAuth } from '@/app/lib/hooks/useAuth'
+import { useState } from 'react'
+import { useTranslations } from 'next-intl'
+import { createClient } from '@/app/lib/supabase/client'
+import { useToast } from '@/app/components/admin/Toast/ToastProvider'
 import style from './login.module.scss'
 
 /**
- * 後台登入頁面
+ * 後台登入頁面 — Supabase Google OAuth。
+ * 成功後瀏覽器導向 Google → /auth/callback → /admin。
  */
 export default function AdminLoginPage() {
-  const { user, loading, signInWithGoogle } = useAuth()
-  const router = useRouter()
+  const t = useTranslations('AdminPage.login')
+  const toast = useToast()
+  const [loading, setLoading] = useState(false)
 
-  //* 如果已登入，導向後台首頁
-  useEffect(() => {
-    if (user) {
-      router.push('/admin')
-    }
-  }, [user, router])
-
-  //* 處理登入
   const handleLogin = async () => {
     try {
-      await signInWithGoogle()
-    } catch (error) {
-      alert('登入失敗，請稍後再試')
+      setLoading(true)
+      const supabase = createClient()
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback?next=/admin`,
+          queryParams: { prompt: 'select_account' },
+        },
+      })
+      if (error) throw error
+      // 成功時會被導向 Google，不會回到這裡。
+    } catch {
+      setLoading(false)
+      toast.error(t('error'))
     }
-  }
-
-  //* Loading 狀態
-  if (loading) {
-    return (
-      <div className={style.login_page}>
-        <div className={style.login_container}>
-          <div className={style.loading}>
-            <div className={style.spinner}></div>
-            <p>載入中...</p>
-          </div>
-        </div>
-      </div>
-    )
   }
 
   return (
     <div className={style.login_page}>
       <div className={style.login_container}>
         <div className={style.login_card}>
-          <h1 className={style.title}>後台管理系統</h1>
-          <p className={style.description}>請使用 Google 帳號登入</p>
+          <h1 className={style.title}>{t('title')}</h1>
+          <p className={style.description}>{t('description')}</p>
 
-          <button className={style.login_button} onClick={handleLogin}>
+          <button
+            className={style.login_button}
+            onClick={handleLogin}
+            disabled={loading}
+          >
             <svg
               className={style.google_icon}
               viewBox="0 0 24 24"
@@ -72,7 +68,7 @@ export default function AdminLoginPage() {
                 fill="#EA4335"
               />
             </svg>
-            使用 Google 登入
+            {loading ? t('redirecting') : t('loginButton')}
           </button>
         </div>
       </div>

@@ -1,0 +1,28 @@
+// 頁首（eyebrow/標題/引言）搬去共用的 PageHeader 元件了。
+// max-width 也不用再各自寫 600px：外層 PageContainer 已經用 maxWidth="feed" 統一撐開。
+
+.feed {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.back {
+  display: inline-block;
+  margin-top: var(--space-6);
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  color: var(--accent);
+  text-decoration: none;
+  &:hover {
+    color: var(--accent-hover);
+  }
+}
+
+.empty {
+  text-align: center;
+  padding: var(--space-20) var(--space-4);
+  color: var(--text-muted);
+  font-family: var(--font-serif);
+  font-size: var(--text-lg);
+}

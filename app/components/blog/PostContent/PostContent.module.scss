@@ -1,303 +1,181 @@
-@use '@/app/styles/mixins' as *;
+@use '@/app/styles/design' as *;
 
+// 文章內文排版（襯線、暖色）。內容為 TipTap 原生 HTML，
+// 以標籤選擇器對應（CSS Module 只 hash class，標籤選擇器維持全域）。
+// 段落內部間距用 em（跟隨各自字級），不用 px 間距階——這是內文排版的慣例，
+// 不是本設計系統要統一的「版面留白」。
 .post_content {
-  width: 100%;
-  color: var(--text-color);
-  font-size: 1.05rem;
-  line-height: 1.8;
+  font-family: var(--font-serif);
+  font-size: var(--text-lg);
+  line-height: var(--leading-loose);
+  color: var(--text);
+  word-break: break-word;
+  overflow-wrap: break-word;
 
   @include respond-to('phone') {
-    font-size: 1rem;
-    line-height: 1.75;
+    font-size: var(--text-md);
+    line-height: var(--leading-relaxed);
   }
 
-  //* 標題
-  :global(h1) {
-    font-size: 2.25rem;
-    font-weight: 700;
-    margin: 2rem 0 1.25rem;
-    line-height: 1.25;
-    color: var(--text-color);
-
-    @include respond-to('phone') {
-      font-size: 1.875rem;
-      margin: 1.75rem 0 1rem;
-    }
-
-    &:first-child {
-      margin-top: 0;
-    }
-  }
-
-  :global(h2) {
-    font-size: 1.875rem;
-    font-weight: 700;
-    margin: 1.75rem 0 1rem;
-    line-height: 1.3;
-    color: var(--text-color);
-    padding-bottom: 0.5rem;
-    border-bottom: 2px solid var(--border-color);
-
-    @include respond-to('phone') {
-      font-size: 1.5rem;
-      margin: 1.5rem 0 0.875rem;
-      padding-bottom: 0.375rem;
-    }
-
-    &:first-child {
-      margin-top: 0;
-    }
-  }
-
-  :global(h3) {
-    font-size: 1.5rem;
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-serif);
+    color: var(--text);
     font-weight: 600;
-    margin: 1.5rem 0 0.875rem;
-    line-height: 1.4;
-    color: var(--text-color);
-
-    @include respond-to('phone') {
-      font-size: 1.25rem;
-      margin: 1.25rem 0 0.75rem;
-    }
-
-    &:first-child {
-      margin-top: 0;
-    }
+    line-height: var(--leading-snug);
+    margin: 2.2em 0 0.7em;
+    scroll-margin-top: calc(var(--header-height) + var(--space-4));
+  }
+  h1 {
+    font-size: var(--text-3xl);
+  }
+  h2 {
+    font-size: var(--text-2xl);
+  }
+  h3 {
+    font-size: var(--text-xl);
+  }
+  h4 {
+    font-size: var(--text-lg);
   }
 
-  :global(h4) {
-    font-size: 1.25rem;
-    font-weight: 600;
-    margin: 1.25rem 0 0.75rem;
-    line-height: 1.5;
-    color: var(--text-color);
-
-    @include respond-to('phone') {
-      font-size: 1.1rem;
-      margin: 1rem 0 0.625rem;
-    }
+  p {
+    margin: 0 0 1.35em;
   }
 
-  :global(h5),
-  :global(h6) {
-    font-size: 1.125rem;
-    font-weight: 600;
-    margin: 1rem 0 0.625rem;
-    line-height: 1.5;
-    color: var(--text-color);
-
-    @include respond-to('phone') {
-      font-size: 1rem;
-      margin: 0.875rem 0 0.5rem;
-    }
-  }
-
-  //* 段落
-  :global(p) {
-    margin: 1.25rem 0;
-
-    @include respond-to('phone') {
-      margin: 1rem 0;
-    }
-
-    &:first-child {
-      margin-top: 0;
-    }
-
-    &:last-child {
-      margin-bottom: 0;
-    }
-  }
-
-  //* 連結
-  :global(a) {
-    color: var(--primary-color);
+  a {
+    color: var(--accent);
     text-decoration: underline;
-    @include transition(opacity 0.2s ease);
-
+    text-underline-offset: 3px;
+    text-decoration-thickness: 1px;
+    transition: color var(--duration-fast) var(--ease);
     &:hover {
-      opacity: 0.8;
+      color: var(--accent-hover);
     }
   }
 
-  //* 列表
-  :global(ul),
-  :global(ol) {
-    margin: 1.5rem 0;
-    padding-left: 2rem;
-
-    @include respond-to('phone') {
-      margin: 1.25rem 0;
-      padding-left: 1.5rem;
-    }
-
-    :global(li) {
-      margin: 0.75rem 0;
-
-      @include respond-to('phone') {
-        margin: 0.625rem 0;
-      }
-
-      :global(p) {
-        margin: 0.5rem 0;
-      }
-
-      :global(ul),
-      :global(ol) {
-        margin: 0.5rem 0;
-      }
-    }
+  strong {
+    font-weight: 700;
   }
 
-  //* 引用
-  :global(blockquote) {
-    margin: 2rem 0;
-    padding: 1.25rem 1.5rem;
-    background: var(--background-color-secondary);
-    border-left: 4px solid var(--primary-color);
-    color: var(--text-color-secondary);
+  // Tailwind preflight 會把 ul/ol 的 list-style 重置為 none，這裡要補回來
+  // 圓點/數字才會顯示。
+  ul {
+    list-style: disc;
+  }
+
+  ol {
+    list-style: decimal;
+  }
+
+  ul,
+  ol {
+    margin: 0 0 1.35em;
+    padding-left: 1.5em;
+  }
+  li {
+    margin: 0.35em 0;
+  }
+
+  blockquote {
+    margin: 1.6em 0;
+    padding: 0.4em 1.2em;
+    border-left: 3px solid var(--accent);
+    background: var(--surface-2);
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    color: var(--text-secondary);
     font-style: italic;
-    @include radius(0 8px 8px 0);
-
-    @include respond-to('phone') {
-      margin: 1.5rem 0;
-      padding: 1rem 1.25rem;
-      border-left-width: 3px;
-    }
-
-    :global(p) {
-      margin: 0.75rem 0;
-
-      &:first-child {
-        margin-top: 0;
-      }
-
-      &:last-child {
-        margin-bottom: 0;
-      }
-    }
   }
 
-  //* 行內程式碼
-  .inline_code {
-    padding: 0.2rem 0.5rem;
-    background: rgba(135, 131, 120, 0.15);
-    color: #eb5757;
-    font-size: 0.925em;
-    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-    @include radius(4px);
-
-    @include respond-to('phone') {
-      padding: 0.15rem 0.4rem;
-      font-size: 0.9em;
-    }
-  }
-
-  //* 程式碼區塊
-  .code_block {
-    margin: 2rem 0 !important;
-    @include radius(8px);
-    font-size: 0.925rem !important;
-
-    @include respond-to('phone') {
-      margin: 1.5rem 0 !important;
-      @include radius(6px);
-      font-size: 0.875rem !important;
-    }
-
-    :global(code) {
-      font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace !important;
-    }
-  }
-
-  //* 圖片
-  :global(img) {
+  img {
     max-width: 100%;
     height: auto;
-    margin: 2rem auto;
+    border-radius: var(--radius-md);
+    margin: 1.6em 0;
     display: block;
-    @include radius(8px);
-
-    @include respond-to('phone') {
-      margin: 1.5rem auto;
-      @include radius(6px);
-    }
   }
 
-  //* 分隔線
-  :global(hr) {
-    margin: 3rem 0;
+  hr {
     border: none;
-    border-top: 2px solid var(--border-color);
+    border-top: 1px solid var(--border);
+    margin: 2.4em 0;
+  }
 
-    @include respond-to('phone') {
-      margin: 2rem 0;
+  // 行內程式碼
+  code {
+    font-family: 'SF Mono', ui-monospace, 'Cascadia Code', monospace;
+    font-size: 0.88em;
+    background: var(--surface-3);
+    padding: 0.15em 0.4em;
+    border-radius: var(--radius-xs);
+  }
+
+  // 程式碼區塊
+  pre {
+    font-family: 'SF Mono', ui-monospace, 'Cascadia Code', monospace;
+    background: var(--surface-3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 1.1em 1.3em;
+    overflow-x: auto;
+    margin: 1.6em 0;
+    line-height: var(--leading-normal);
+    font-size: var(--text-sm);
+
+    code {
+      background: none;
+      padding: 0;
+      font-size: inherit;
     }
   }
 
-  //* 表格
-  :global(table) {
+  table {
     width: 100%;
-    margin: 2rem 0;
     border-collapse: collapse;
-    overflow-x: auto;
+    margin: 1.6em 0;
+    font-size: var(--text-sm);
+    font-family: var(--font-sans);
     display: block;
-
-    @include respond-to('phone') {
-      margin: 1.5rem 0;
-      font-size: 0.9rem;
-    }
-
-    :global(thead) {
-      background: var(--background-color-secondary);
-
-      :global(th) {
-        padding: 0.875rem 1rem;
-        text-align: left;
-        font-weight: 600;
-        border: 1px solid var(--border-color);
-
-        @include respond-to('phone') {
-          padding: 0.75rem 0.875rem;
-        }
-      }
-    }
-
-    :global(tbody) {
-      :global(td) {
-        padding: 0.875rem 1rem;
-        border: 1px solid var(--border-color);
-
-        @include respond-to('phone') {
-          padding: 0.75rem 0.875rem;
-        }
-      }
-
-      :global(tr) {
-        &:hover {
-          background: var(--background-color-secondary);
-        }
-      }
-    }
-  }
-
-  //* 數學公式
-  :global(.katex) {
-    font-size: 1.1em;
-
-    @include respond-to('phone') {
-      font-size: 1em;
-    }
-  }
-
-  :global(.katex-display) {
-    margin: 2rem 0;
     overflow-x: auto;
-    overflow-y: hidden;
+    max-width: 100%;
 
-    @include respond-to('phone') {
-      margin: 1.5rem 0;
+    th,
+    td {
+      border: 1px solid var(--border);
+      padding: 0.55em 0.85em;
+      text-align: left;
     }
+    th {
+      background: var(--surface-2);
+      font-weight: 600;
+    }
+  }
+
+  mark {
+    background: var(--accent-soft);
+    color: inherit;
+    padding: 0.05em 0.15em;
+    border-radius: var(--radius-xs);
+  }
+
+  sub,
+  sup {
+    font-size: 0.75em;
+  }
+
+  // KaTeX 區塊公式。data-math 節點在編輯器裡由 NodeView 即時渲染，
+  // 但存到 DB 的 HTML 只有空殼，這裡的樣式配合 PostContent.tsx 的
+  // client 端 katex.render() 強化一起生效。.math-block 是 class 選擇器，
+  // CSS Module 預設會 hash 掉，用 :global() 保持跟輸出 HTML 一致（見檔頭註解）。
+  :global(.math-block) {
+    margin: 1.6em 0;
+    padding: 0.7em 1em;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    overflow-x: auto;
+    text-align: center;
   }
 }

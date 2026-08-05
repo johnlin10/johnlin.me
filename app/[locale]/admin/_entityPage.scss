@@ -1,0 +1,231 @@
+// 共用樣式：分類／標籤／系列三頁結構幾乎相同（列表 + Modal 表單），
+// 抽出成 mixin 供三頁 .module.scss 各自 @include，避免重複維護。
+@use '@/app/styles/design' as *;
+
+@mixin entity-page {
+  width: 100%;
+  min-height: 100%;
+
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+    @include flexbox(column, flex-start, stretch);
+    gap: var(--space-8);
+
+    @include respond-to('phone') {
+      gap: var(--space-6);
+    }
+  }
+
+  .header {
+    @include flexbox(row, space-between, flex-start);
+    flex-wrap: wrap;
+    gap: var(--space-4);
+
+    @include respond-to('phone') {
+      @include flexbox(column, flex-start, stretch);
+    }
+  }
+
+  .title_section {
+    @include flexbox(column, flex-start, flex-start);
+    gap: var(--space-1);
+  }
+
+  .title {
+    font-family: var(--font-serif);
+    font-size: var(--text-2xl);
+    font-weight: 600;
+    color: var(--text);
+    margin: 0;
+
+    @include respond-to('phone') {
+      font-size: var(--text-xl);
+    }
+  }
+
+  .subtitle {
+    font-family: var(--font-sans);
+    font-size: var(--text-xs);
+    color: var(--text-muted);
+    margin: 0;
+  }
+
+  .loading,
+  .empty {
+    @include flexbox(column, center, center);
+    gap: var(--space-4);
+    padding: var(--space-16) var(--space-8);
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+
+    @include respond-to('phone') {
+      padding: var(--space-10) var(--space-6);
+    }
+
+    p {
+      font-size: var(--text-md);
+      color: var(--text-muted);
+      margin: 0;
+    }
+  }
+
+  .table_wrapper {
+    width: 100%;
+    overflow-x: auto;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+
+    @include respond-to('phone') {
+      border-radius: var(--radius-md);
+    }
+  }
+
+  .table {
+    width: 100%;
+    border-collapse: collapse;
+
+    thead {
+      background: var(--surface-2);
+
+      th {
+        padding: var(--space-4) var(--space-5);
+        text-align: left;
+        font-family: var(--font-sans);
+        font-size: var(--text-xs);
+        font-weight: 600;
+        color: var(--text);
+        border-bottom: 1px solid var(--border);
+        white-space: nowrap;
+
+        @include respond-to('phone') {
+          padding: var(--space-3) var(--space-4);
+          font-size: var(--text-2xs);
+        }
+      }
+    }
+
+    tbody tr {
+      transition: background var(--duration-fast) var(--ease);
+
+      &:hover {
+        background: var(--surface-2);
+      }
+
+      &:not(:last-child) {
+        border-bottom: 1px solid var(--border);
+      }
+    }
+
+    td {
+      padding: var(--space-4) var(--space-5);
+      font-size: var(--text-sm);
+      color: var(--text);
+
+      @include respond-to('phone') {
+        padding: var(--space-3) var(--space-4);
+        font-size: var(--text-xs);
+      }
+    }
+  }
+
+  .slug {
+    padding: var(--space-1) var(--space-2);
+    background: var(--surface-2);
+    color: var(--accent);
+    font-size: var(--text-2xs);
+    font-family: monospace;
+    border-radius: var(--radius-xs);
+  }
+
+  .actions {
+    @include flexbox(row, flex-start, center);
+    gap: var(--space-2);
+
+    @include respond-to('phone') {
+      @include flexbox(column, flex-start, stretch);
+      gap: var(--space-1);
+    }
+  }
+}
+
+@mixin entity-form {
+  .form {
+    @include flexbox(column, flex-start, stretch);
+    gap: var(--space-6);
+
+    @include respond-to('phone') {
+      gap: var(--space-5);
+    }
+  }
+
+  .locale_tabs {
+    @include flexbox(row, flex-start, center);
+    gap: var(--space-6);
+    border-bottom: 1px solid var(--border);
+
+    @include respond-to('phone') {
+      gap: var(--space-4);
+    }
+  }
+
+  .locale_tab {
+    position: relative;
+    padding: var(--space-2) var(--space-1) var(--space-3);
+    background: transparent;
+    color: var(--text-muted);
+    font-family: var(--font-sans);
+    font-size: var(--text-xs);
+    font-weight: 500;
+    border: none;
+    cursor: pointer;
+    transition: color var(--duration-fast) var(--ease);
+
+    @include respond-to('phone') {
+      padding: var(--space-2) var(--space-1) var(--space-2);
+      font-size: var(--text-xs);
+    }
+
+    &:hover {
+      color: var(--text);
+    }
+
+    &.active {
+      color: var(--accent);
+      font-weight: 600;
+
+      &::after {
+        content: '';
+        position: absolute;
+        bottom: -1px;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: var(--accent);
+        border-radius: 2px 2px 0 0;
+      }
+    }
+  }
+
+  .locale_content {
+    @include flexbox(column, flex-start, stretch);
+    gap: var(--space-5);
+
+    @include respond-to('phone') {
+      gap: var(--space-4);
+    }
+  }
+
+  .form_actions {
+    @include flexbox(row, flex-end, center);
+    gap: var(--space-3);
+    padding-top: var(--space-2);
+
+    @include respond-to('phone') {
+      @include flexbox(column-reverse, stretch, stretch);
+      gap: var(--space-2);
+    }
+  }
+}

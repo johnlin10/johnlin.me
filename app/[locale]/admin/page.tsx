@@ -1,64 +1,90 @@
 'use client'
 
-import { useRouter } from 'next/navigation'
-import { useAuth } from '@/app/lib/hooks/useAuth'
+import { useEffect, useMemo, useState } from 'react'
+import { useTranslations } from 'next-intl'
+import { createClient } from '@/app/lib/supabase/client'
+import { getPostsForAdmin } from '@/app/lib/supabase/posts'
+import { getNotesForAdmin } from '@/app/lib/supabase/notes'
+import Button from '@/app/components/admin/Button/Button'
+import Icon from '@/app/components/Icon/Icon'
+import { Link } from '@/i18n/navigation'
 import style from './admin.module.scss'
 
-import Page from '@/app/components/Page/Page'
-
 /**
- * 後台首頁
+ * 後台總覽：內容統計 + 快速動作。導覽已移至側邊欄。
  */
 export default function AdminPage() {
-  const { user, signOut } = useAuth()
-  const router = useRouter()
+  const t = useTranslations('AdminPage.dashboard')
+  const supabase = useMemo(() => createClient(), [])
+  const [loading, setLoading] = useState(true)
+  const [stats, setStats] = useState({
+    postsTotal: 0,
+    postsPublished: 0,
+    postsDraft: 0,
+    notesTotal: 0,
+  })
 
-  //* 處理登出
-  const handleSignOut = async () => {
-    try {
-      await signOut()
-      router.push('/admin/login')
-    } catch (error) {
-      alert('登出失敗')
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const [posts, notes] = await Promise.all([
+          getPostsForAdmin(supabase, {}),
+          getNotesForAdmin(supabase),
+        ])
+        setStats({
+          postsTotal: posts.length,
+          postsPublished: posts.filter((p) => p.status === 'published').length,
+          postsDraft: posts.filter((p) => p.status === 'draft').length,
+          notesTotal: notes.length,
+        })
+      } finally {
+        setLoading(false)
+      }
     }
-  }
+    load()
+  }, [supabase])
+
+  const cards = [
+    { label: t('stats.totalPosts'), value: stats.postsTotal, icon: 'newspaper' as const },
+    {
+      label: t('stats.published'),
+      value: stats.postsPublished,
+      icon: 'gauge-high' as const,
+    },
+    { label: t('stats.draft'), value: stats.postsDraft, icon: 'folder' as const },
+    { label: t('stats.totalNotes'), value: stats.notesTotal, icon: 'comment' as const },
+  ]
 
   return (
-    <Page style={style.admin_container}>
+    <div className={style.dashboard}>
       <header className={style.header}>
-        <h1 className={style.title}>後台管理系統</h1>
-        <div className={style.user_info}>
-          <span className={style.email}>{user?.email}</span>
-          <button className={style.sign_out_button} onClick={handleSignOut}>
-            登出
-          </button>
-        </div>
+        <h1 className={style.title}>{t('title')}</h1>
+        <p className={style.subtitle}>{t('subtitle')}</p>
       </header>
 
-      <div className={style.dashboard}>
-        <h2 className={style.section_title}>內容管理</h2>
-
-        <div className={style.cards_container}>
-          <a href="/admin/posts" className={style.card}>
-            <h3 className={style.card_title}>文章管理</h3>
-            <p className={style.card_description}>新增、編輯、刪除文章</p>
-          </a>
-
-          <div className={style.other_cards_container}>
-            <a href="/admin/categories" className={style.card}>
-              <span className={style.card_title}>分類管理</span>
-            </a>
-
-            <a href="/admin/tags" className={style.card}>
-              <span className={style.card_title}>標籤管理</span>
-            </a>
-
-            <a href="/admin/series" className={style.card}>
-              <span className={style.card_title}>系列管理</span>
-            </a>
+      <div className={style.stats}>
+        {cards.map(({ label, value, icon }) => (
+          <div key={label} className={style.statCard}>
+            <div className={style.statIcon}>
+              <Icon name={icon} size="sm" />
+            </div>
+            <div className={style.statValue}>{loading ? '—' : value}</div>
+            <div className={style.statLabel}>{label}</div>
           </div>
-        </div>
+        ))}
       </div>
-    </Page>
+
+      <section className={style.quickActions}>
+        <h2 className={style.sectionTitle}>{t('quickActions')}</h2>
+        <div className={style.actionRow}>
+          <Link href="/admin/posts/new">
+            <Button>{t('newPost')}</Button>
+          </Link>
+          <Link href="/admin/notes">
+            <Button variant="secondary">{t('newNote')}</Button>
+          </Link>
+        </div>
+      </section>
+    </div>
   )
 }

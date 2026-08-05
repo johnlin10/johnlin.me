@@ -5,9 +5,62 @@
     "description": "歡迎來到我全新的個人網站。"
   },
   "AdminPage": {
-    "title": "後台管理系統｜林昌龍",
+    "title": "後台管理系統",
     "description": "",
     "page_title": "後台管理系統",
+    "nav": {
+      "dashboard": "儀表板",
+      "posts": "文章",
+      "notes": "短文",
+      "categories": "分類",
+      "tags": "標籤",
+      "series": "系列"
+    },
+    "shell": {
+      "backToHome": "返回首頁",
+      "brandSubtitle": "內容後台",
+      "navAriaLabel": "後台導覽",
+      "menuOpen": "開啟選單",
+      "menuClose": "關閉選單",
+      "topbarFallback": "後台",
+      "userAvatarAlt": "用戶頭像",
+      "defaultUserName": "管理員",
+      "signOut": "登出",
+      "signOutConfirm": {
+        "title": "登出後台",
+        "message": "確定要登出嗎？"
+      }
+    },
+    "confirmDialog": {
+      "defaultTitle": "請確認",
+      "cancel": "取消",
+      "confirm": "確定"
+    },
+    "aiSuggestion": {
+      "label": "AI 建議",
+      "cancel": "取消",
+      "apply": "取代"
+    },
+    "dashboard": {
+      "title": "後台總覽",
+      "subtitle": "內容管理系統",
+      "quickActions": "快速動作",
+      "newPost": "新增文章",
+      "newNote": "發表短文",
+      "stats": {
+        "totalPosts": "文章總數",
+        "published": "已發布",
+        "draft": "草稿",
+        "totalNotes": "短文總數"
+      }
+    },
+    "login": {
+      "title": "後台管理系統",
+      "description": "請使用 Google 帳號登入",
+      "loginButton": "使用 Google 登入",
+      "redirecting": "導向中…",
+      "error": "登入失敗，請稍後再試"
+    },
     "posts": {
       "title": "文章管理",
       "description": "新增、編輯、刪除文章",
@@ -38,6 +91,7 @@
           "title": "標籤數"
         },
         "created_at": "建立日期",
+        "views": "瀏覽",
         "actions": {
           "title": "操作",
           "classes": {
@@ -45,6 +99,361 @@
             "delete": "刪除"
           }
         }
+      },
+      "loadError": "載入文章失敗",
+      "loading": "載入中...",
+      "createDraftError": "建立草稿失敗",
+      "deleteConfirmTitle": "刪除文章",
+      "deleteConfirmMessage": "確定要刪除「{title}」嗎？",
+      "deleteSuccess": "刪除成功",
+      "deleteError": "刪除失敗",
+      "empty": "尚無文章",
+      "createFirst": "建立第一篇文章",
+      "untitledDraft": "（未命名草稿）",
+      "dateFallback": "-",
+      "new": {
+        "errorMessage": "建立草稿失敗，請稍後再試。",
+        "backToList": "返回文章列表",
+        "retry": "重試"
+      },
+      "detail": {
+        "notFound": "找不到這篇文章，可能已被刪除。",
+        "loadError": "載入文章時發生錯誤，請稍後再試。",
+        "backToList": "返回文章列表",
+        "retry": "重試"
+      }
+    },
+    "categories": {
+      "loadError": "載入分類失敗",
+      "slugRequired": "請輸入 Slug",
+      "nameRequired": "請填寫所有語言的名稱",
+      "updateSuccess": "更新成功",
+      "createSuccess": "新增成功",
+      "saveError": "儲存失敗",
+      "deleteConfirmTitle": "刪除分類",
+      "deleteConfirmMessage": "確定要刪除「{name}」嗎？",
+      "deleteSuccess": "刪除成功",
+      "deleteError": "刪除失敗",
+      "heading": "分類管理",
+      "count": { "total": "共 ", "unit": " 個分類" },
+      "newCategory": "新增分類",
+      "loading": "載入中...",
+      "empty": "尚無分類",
+      "createFirst": "建立第一個分類",
+      "table": {
+        "slug": "Slug",
+        "nameZh": "名稱（中文）",
+        "nameEn": "名稱（英文）",
+        "postCount": "文章數",
+        "actions": "操作"
+      },
+      "none": "—",
+      "edit": "編輯",
+      "delete": "刪除",
+      "modal": {
+        "editTitle": "編輯分類",
+        "newTitle": "新增分類",
+        "slugLabel": "Slug",
+        "slugPlaceholder": "例如：technology",
+        "slugHelper": "URL 友善的識別碼，建議使用英文小寫",
+        "localeZh": "繁體中文",
+        "localeEn": "English",
+        "nameLabel": "名稱",
+        "namePlaceholder": "分類名稱",
+        "descriptionLabel": "描述",
+        "descriptionPlaceholder": "分類描述",
+        "cancel": "取消",
+        "save": "儲存"
+      }
+    },
+    "series": {
+      "loadError": "載入系列失敗",
+      "slugRequired": "請輸入 Slug",
+      "nameRequired": "請填寫所有語言的名稱",
+      "updateSuccess": "更新成功",
+      "createSuccess": "新增成功",
+      "saveError": "儲存失敗",
+      "deleteConfirmTitle": "刪除系列",
+      "deleteConfirmMessage": "確定要刪除「{name}」嗎？",
+      "deleteSuccess": "刪除成功",
+      "deleteError": "刪除失敗",
+      "heading": "系列管理",
+      "count": { "total": "共 ", "unit": " 個系列" },
+      "newSeries": "新增系列",
+      "loading": "載入中...",
+      "empty": "尚無系列",
+      "createFirst": "建立第一個系列",
+      "table": {
+        "slug": "Slug",
+        "nameZh": "名稱（中文）",
+        "nameEn": "名稱（英文）",
+        "postCount": "文章數",
+        "actions": "操作"
+      },
+      "none": "—",
+      "edit": "編輯",
+      "delete": "刪除",
+      "modal": {
+        "editTitle": "編輯系列",
+        "newTitle": "新增系列",
+        "slugLabel": "Slug",
+        "slugPlaceholder": "例如：react-tutorial",
+        "slugHelper": "URL 友善的識別碼，建議使用英文小寫",
+        "coverImageLabel": "封面圖片 URL",
+        "coverImagePlaceholder": "https://example.com/image.jpg",
+        "coverImageHelper": "選填，系列封面圖片的 URL",
+        "localeZh": "繁體中文",
+        "localeEn": "English",
+        "nameLabel": "名稱",
+        "namePlaceholder": "系列名稱",
+        "descriptionLabel": "描述",
+        "descriptionPlaceholder": "系列描述",
+        "cancel": "取消",
+        "save": "儲存"
+      }
+    },
+    "tags": {
+      "loadError": "載入標籤失敗",
+      "slugRequired": "請輸入 Slug",
+      "nameRequired": "請填寫所有語言的名稱",
+      "updateSuccess": "更新成功",
+      "createSuccess": "新增成功",
+      "saveError": "儲存失敗",
+      "deleteConfirmTitle": "刪除標籤",
+      "deleteConfirmMessage": "確定要刪除「{name}」嗎？",
+      "deleteSuccess": "刪除成功",
+      "deleteError": "刪除失敗",
+      "heading": "標籤管理",
+      "count": { "total": "共 ", "unit": " 個標籤" },
+      "newTag": "新增標籤",
+      "loading": "載入中...",
+      "empty": "尚無標籤",
+      "createFirst": "建立第一個標籤",
+      "table": {
+        "slug": "Slug",
+        "nameZh": "名稱（中文）",
+        "nameEn": "名稱（英文）",
+        "postCount": "文章數",
+        "actions": "操作"
+      },
+      "none": "—",
+      "edit": "編輯",
+      "delete": "刪除",
+      "modal": {
+        "editTitle": "編輯標籤",
+        "newTitle": "新增標籤",
+        "slugLabel": "Slug",
+        "slugPlaceholder": "例如：javascript",
+        "slugHelper": "URL 友善的識別碼，建議使用英文小寫",
+        "localeZh": "繁體中文",
+        "localeEn": "English",
+        "nameLabel": "名稱",
+        "namePlaceholder": "標籤名稱",
+        "cancel": "取消",
+        "save": "儲存"
+      }
+    },
+    "notes": {
+      "loadError": "載入短文失敗",
+      "uploadImageError": "圖片上傳失敗",
+      "contentRequired": "請輸入內容或加入圖片",
+      "publishSuccess": "已發布短文",
+      "publishError": "發布失敗",
+      "deleteConfirmTitle": "刪除短文",
+      "deleteConfirmMessage": "確定刪除這則短文？",
+      "deleteSuccess": "已刪除",
+      "deleteError": "刪除失敗",
+      "heading": "短文管理",
+      "count": { "total": "共 ", "unit": " 則" },
+      "placeholder": "此刻在想些什麼？",
+      "removeImageAriaLabel": "移除圖片",
+      "uploading": "上傳中…",
+      "addImage": "加入圖片",
+      "publishing": "發布中…",
+      "publish": "發布",
+      "loading": "載入中…",
+      "empty": "尚無短文",
+      "delete": "刪除",
+      "edit": "編輯",
+      "cancel": "取消",
+      "save": "更新",
+      "saving": "更新中…",
+      "saveSuccess": "已更新",
+      "saveError": "更新失敗",
+      "saveDraft": "存成草稿",
+      "unpublish": "轉為草稿",
+      "statusDraft": "草稿",
+      "statusPublished": "已發布",
+      "altLabel": "圖片描述",
+      "altPlaceholder": "描述這張圖片的內容",
+      "aiAltLabel": "用 AI 產生圖片描述",
+      "aiAltError": "AI 產生失敗",
+      "dragHandle": "拖曳排序",
+      "moveLeft": "往前移",
+      "moveRight": "往後移",
+      "uploadPartialError": "有 {count} 張圖片上傳失敗",
+      "imageCount": "{count} 張圖片",
+      "backfillDims": "修補圖片尺寸",
+      "backfillDone": "已修補 {count} 則短文的圖片尺寸",
+      "backfillError": "修補失敗",
+      "removeImageConfirm": "移除這張圖片？儲存後會一併刪除檔案。"
+    },
+    "postEditor": {
+      "topBar": {
+        "backToWrite": "寫作",
+        "backToList": "文章列表",
+        "writeTab": "寫作",
+        "infoTab": "文章資訊",
+        "next": "下一步",
+        "saveDraft": "儲存草稿",
+        "publish": "發表",
+        "update": "更新"
+      },
+      "localeToggle": {
+        "zh": "繁體中文",
+        "en": "English",
+        "ariaLabel": "內容語言"
+      },
+      "saveIndicator": {
+        "unsaved": "未儲存",
+        "saving": "儲存中…",
+        "errorRetry": "儲存失敗，重試",
+        "saved": "已儲存"
+      },
+      "settingsStep": {
+        "urlStatus": "網址與狀態",
+        "categoryTag": "分類與標籤",
+        "coverImage": "封面圖片",
+        "seo": "SEO",
+        "dangerZone": "危險操作",
+        "discardText": "捨棄這篇草稿，這個動作無法復原。",
+        "discardButton": "捨棄草稿",
+        "unpublishText": "取消發布後文章將變回草稿，讀者將無法再看到它。",
+        "unpublishButton": "取消發布"
+      },
+      "coverImageField": {
+        "uploadError": "封面圖片上傳失敗",
+        "uploading": "上傳中…",
+        "change": "更換",
+        "remove": "移除",
+        "uploadCta": "點擊上傳封面圖片",
+        "altLabel": "圖片描述 (Alt)",
+        "altPlaceholder": "圖片描述",
+        "aiAltLabel": "AI 生成圖片描述",
+        "urlPlaceholder": "https://example.com/image.jpg",
+        "apply": "套用",
+        "orPasteUrl": "或貼上圖片網址"
+      },
+      "seoFields": {
+        "titleLabel": "SEO 標題",
+        "titlePlaceholderWithFallback": "留空則使用：{title}",
+        "titlePlaceholderNoFallback": "留空則使用文章標題",
+        "titleHelper": "{count} 字元・建議 50–60 字元",
+        "descriptionLabel": "SEO 描述",
+        "descriptionPlaceholderWithFallback": "留空則使用：{description}",
+        "descriptionPlaceholderNoFallback": "留空則使用文章描述",
+        "descriptionHelper": "{count} 字元・建議 150–160 字元",
+        "keywordsLabel": "關鍵字",
+        "keywordsPlaceholder": "關鍵字1, 關鍵字2, 關鍵字3",
+        "keywordsHelper": "用逗點分隔多個關鍵字",
+        "aiKeywordsLabel": "AI 建議關鍵字"
+      },
+      "slugField": {
+        "slugTaken": "此網址代稱已被使用",
+        "publishedAtWithDate": "已發布於 {date}",
+        "publishedAtNoDate": "已發布",
+        "draftCreatedAt": "草稿・建立於 {date}",
+        "label": "網址代稱",
+        "placeholder": "my-first-post",
+        "autoSlugHelper": "目前是自動代稱，發表前請先設定一個好記的網址",
+        "checking": "檢查中…",
+        "aiLabel": "AI 生成網址代稱"
+      },
+      "writeStep": {
+        "imageUploadError": "圖片上傳失敗",
+        "characterCount": "{count} 字",
+        "titlePlaceholder": "標題",
+        "descriptionPlaceholder": "加入簡短描述",
+        "addDescription": "加入簡短描述",
+        "aiDescriptionLabel": "AI 生成簡短描述",
+        "contentPlaceholder": "開始撰寫你的文章..."
+      },
+      "aiAssist": {
+        "genericError": "AI 產生失敗，請稍後再試"
+      },
+      "validation": {
+        "titleRequired": "請填寫中文標題",
+        "slugRequired": "發表前請先設定網址代稱",
+        "slugInvalid": "網址代稱只能包含小寫英文字母、數字與連字號"
+      },
+      "provider": {
+        "slugConflictSave": "網址代稱重複，請更換",
+        "leaveConfirmTitle": "尚未儲存",
+        "leaveConfirmMessage": "離開將捨棄未儲存的變更，確定要離開嗎？",
+        "discardConfirmTitle": "捨棄草稿",
+        "discardConfirmMessage": "確定要捨棄這篇草稿嗎？這個動作無法復原。",
+        "discardSuccess": "草稿已捨棄",
+        "slugTakenError": "此網址代稱已被使用，請更換",
+        "publishSuccess": "文章已發表",
+        "publishGenericError": "發表失敗，請稍後再試",
+        "draftSaveSuccess": "草稿已儲存",
+        "draftSaveError": "儲存失敗，請稍後再試",
+        "updateSuccess": "已更新",
+        "updateGenericError": "更新失敗，請稍後再試",
+        "unpublishConfirmTitle": "取消發布",
+        "unpublishConfirmMessage": "文章將變回草稿，讀者將無法再看到這篇文章。",
+        "unpublishSuccess": "已取消發布"
+      }
+    },
+    "richTextEditor": {
+      "defaultPlaceholder": "開始撰寫...",
+      "menuBar": {
+        "bold": "粗體 (Ctrl+B)",
+        "italic": "斜體 (Ctrl+I)",
+        "underline": "底線 (Ctrl+U)",
+        "strike": "刪除線",
+        "highlight": "螢光標記",
+        "subscript": "下標",
+        "superscript": "上標",
+        "heading1": "標題 1",
+        "heading2": "標題 2",
+        "heading3": "標題 3",
+        "bulletList": "無序列表",
+        "orderedList": "有序列表",
+        "blockquote": "引用",
+        "insertLink": "插入連結",
+        "removeLink": "移除連結",
+        "linkPlaceholder": "https://example.com",
+        "insertImage": "插入圖片",
+        "codeBlock": "程式碼區塊",
+        "inlineCode": "行內程式碼",
+        "insertTable": "插入表格",
+        "deleteTable": "刪除表格",
+        "editFormula": "編輯公式",
+        "insertFormula": "插入公式",
+        "formulaPlaceholder": "LaTeX，例如 E = mc^2",
+        "horizontalRule": "分隔線",
+        "undo": "復原 (Ctrl+Z)",
+        "redo": "重做 (Ctrl+Y)"
+      }
+    },
+    "selectors": {
+      "category": {
+        "label": "分類",
+        "loading": "載入中...",
+        "placeholder": "請選擇分類"
+      },
+      "series": {
+        "label": "連載系列",
+        "loading": "載入中...",
+        "none": "無（不屬於任何系列）",
+        "orderLabel": "在系列中的順序",
+        "orderPlaceholder": "1",
+        "orderHelper": "此文章在系列中的順序（從 1 開始）"
+      },
+      "tag": {
+        "label": "標籤",
+        "loading": "載入中..."
       }
     }
   },
@@ -81,11 +490,11 @@
     },
     "who": {
       "label": "我是誰",
-      "heading": "我喜歡自己動手，把想法變成真的東西。",
+      "heading": "親手做，\n把想法變成真的東西。",
       "paragraphs": [
-        "我是林昌龍，一個自學的網頁工程師，平常也拍照、寫點字。這幾件事看起來各做各的，但對我來說都是同一回事：我用它們搞懂這個世界，也搞懂我自己。",
-        "我相信誠實，也相信韌性。我不急著把這個網站做完，想讓它照自己的步調，慢慢長成我真正喜歡的樣子。溫柔一點沒關係，只要它清楚自己要去哪。",
-        "這個網站是我給自己的地方。內容自己管，不追流量，也不被演算法牽著走。我想慢慢把它長成一個只屬於我的角落。"
+        "我是林昌龍，一名自學的網頁工程師。除了寫程式，我也習慣用相機記錄生活、用文字整理思考。對我來說，這些都是我理解世界與表達自己的方式。",
+        "我喜歡自己動手做東西，也習慣照自己的步調前進。這個網站沒有複雜的包裝，我希望讓它跟著我的節奏，真實記錄我的學習與成長。",
+        "這裡是完全屬於我的個人空間。不追浪潮、沒有演算法，只專注留下我覺得有價值、值得被記錄的事。"
       ]
     },
     "things": {
@@ -94,48 +503,48 @@
       "items": {
         "web": {
           "title": "網頁",
-          "description": "從一行 CSS 到一個完整的產品，我喜歡把想法親手做成能被使用的東西。"
+          "description": "從第一行程式到完整的產品，我喜歡把想法親手做成能用的東西。"
         },
         "photography": {
           "title": "攝影",
-          "description": "用手上的 Nikon，留下那些值得停留一秒的瞬間。"
+          "description": "用手上的相機，把那些值得停留的瞬間好好留下來。"
         },
         "writing": {
           "title": "寫作",
-          "description": "在理性與感性之間，寫下對教育、生活與自己的思考。"
+          "description": "在理性與感性之間，把對生活與自己的思考梳理成字。"
         }
       }
     },
     "works": {
       "label": "精選作品",
-      "heading": "我做過的一些東西。",
+      "heading": "親手打造的。",
       "visit": "前往",
       "items": {
         "robotctust": {
           "title": "robotctust.com",
-          "description": "中臺科技大學機器人研究社的官方網站。"
+          "description": "中臺科大機器人社官方網站，從介面設計到網站開發一手包辦。"
         },
         "calens": {
           "title": "calens.app",
-          "description": "把文字或圖片轉換成日程的平台，能在線上管理，也能下載 .ics 匯入你態用的行事曆。目前是我的實驗性練手作品。"
+          "description": "把文字或圖片轉成行事曆行程，能在線上管理，也能輕鬆儲存到自己的行事曆。"
         },
         "stally": {
           "title": "Stally",
-          "description": "多租戶商家系統，整合 POS 與進銷存——最初是為了幫媽媽管理水果店而做。（規劃中）"
+          "description": "從幫媽媽的水果店出發，打造整合 POS 與進銷存的商家系統。（規劃中）"
         },
         "ytdlp": {
           "title": "ytdlp-server-rpi",
-          "description": "跑在樹莓派上的 yt-dlp 下載伺服器。"
+          "description": "架設在樹莓派上的下載伺服器，讓影片下載變得更簡單。"
         },
         "practions": {
           "title": "practions",
-          "description": "為朋友與系上同學打造的題庫練習平台，我可以更新題庫、設定不同題型的測驗，讓需要的人用更方便的方式主動練習。"
+          "description": "為同學打造的題庫練習平台，讓大家能用更方便的方式自主練習。"
         }
       }
     },
     "articles": {
       "label": "最新文章",
-      "heading": "最近的一些思考。",
+      "heading": "最近想了什麼。",
       "empty": "第一篇還在醞釀中，很快就會出現在這裡。",
       "cta": "前往部落格"
     },
@@ -147,94 +556,84 @@
     }
   },
   "BlogPage": {
-    "title": "部落格｜林昌龍",
+    "title": "部落格",
     "description": "歡迎來到我的部落格。",
     "page_title": "部落格",
-    "noPosts": "尚無文章"
+    "noPosts": "尚無文章",
+    "readingTime": "約 {minutes} 分鐘閱讀",
+    "yearDivider": "{year} 年",
+    "fallbackNote": "尚無此語言版本，顯示中文原文。",
+    "backToList": "← 回到文章列表",
+    "viewMode": {
+      "label": "切換文章顯示方式",
+      "card": "卡片模式",
+      "list": "列表模式"
+    }
   },
   "GalleryPage": {
-    "title": "攝影集｜林昌龍",
+    "title": "攝影集",
     "description": "歡迎來到我的攝影集。",
     "page_title": "攝影集"
   },
+  "NotesPage": {
+    "title": "短文",
+    "description": "生活裡的碎念與隨手記錄。",
+    "page_title": "短文",
+    "lead": "生活裡的碎念與隨手記錄。",
+    "empty": "還沒有短文。",
+    "back": "← 回到短文",
+    "openNote": "開啟這則短文",
+    "lightbox": {
+      "label": "圖片檢視",
+      "open": "放大檢視第 {n} 張圖片",
+      "close": "關閉",
+      "previous": "上一張",
+      "next": "下一張",
+      "counter": "{current} / {total}",
+      "thumbnails": "圖片縮圖",
+      "goTo": "跳到第 {n} 張"
+    }
+  },
   "AboutPage": {
-    "title": "關於我｜林昌龍",
+    "title": "關於我",
     "description": "林昌龍，一個自學的網頁工程師。寫程式、拍照、寫字，照自己的節奏。",
     "page_title": "關於我",
-    "storyTitle": "我的故事",
     "sidebar": {
       "tagline": "網頁工程師 · 攝影 · 寫作"
     },
-    "intro": [
-      "我是林昌龍。寫程式、拍照、寫字，大概就是我現在生活的樣子。",
-      "這個網站是我自己做的，內容也自己管。這年頭大家都在追快、追流量，我只是想有一塊地方，能照自己的節奏慢慢長。"
-    ],
-    "sections": {
-      "origin": {
-        "heading": "從一張沒考過的證照開始",
-        "paragraphs": [
-          "這一切其實是從一張我沒考過的證照開始的。",
-          "高二那年我準備考網頁設計丙級。可是那張考卷考的東西，跟業界真正在用的差很多，用的還是十幾年前的技術。我照著參考書、用著又陌生又難用的軟體練，練到後來實在受不了，就放棄了。最後當然沒考過。我只是覺得，這個考試根本證明不了什麼。",
-          "為了證明這件事，我乾脆自己走進了網頁設計。那時候我對 CSS、JavaScript 這些幾乎一竅不通，但我很清楚我要幹嘛：做出一個真的有用的東西，來證明那張紙沒用。"
-        ]
-      },
-      "firstWork": {
-        "heading": "它不漂亮，但有人真的在用",
-        "paragraphs": [
-          "我挑了班上最實際的痛點下手。那時候大家老是要在群組訊息和學校網站之間翻來翻去，找調課、找考程。我就做了一個班級資訊平台，從最陽春的靜態頁面，一路做到接上即時資料庫，內容一更新，大家的畫面就跟著更新。"
-        ],
-        "pullQuote": "它不漂亮，但同學是真的在用，真的有人因為它方便了一點。那種成就感，是我上高中以來從來沒有過的。我第一次知道，原來我靠自學，也能做出一件有價值的東西。"
-      },
-      "darkMonths": {
-        "heading": "在最低的時候，把自己寫回來",
-        "paragraphs": [
-          "差不多同一段時間，學校招生時的一個程序疏失，把我推去了一個我完全沒興趣的科系。我對這個體制本來就有點意見，這件事之後，剩下的一點信任也沒了。",
-          "那半年很黑。我幾乎放掉了學業，一頭栽進自學，也開始寫東西。不是寫給誰看，就是想搞清楚我到底是誰、在乎什麼、底線在哪。一開始只是抱怨，後來慢慢變成一直問自己「為什麼」。"
-        ],
-        "pullQuote": "寫著寫著，我把那個快要垮掉的自己，一點一點寫了回來，也寫出了一套自己的價值觀。"
-      },
-      "anchor": {
-        "heading": "一個別人拿不走的地方",
-        "paragraphs": [
-          "後來回頭看，這兩件事其實是同一回事。走進網頁設計也好，在最低潮的時候重新站起來也好，我都是先在心裡找到一個站得穩的地方，才有辦法往外走。一個目標，一個信念，一個我自己弄出來、踩得住的地方。",
-          "我把它叫做原點。它不是別人劃給我的框，是我自己的，別人拿不走，也不用再等誰發一張證照來認可。"
-        ]
-      },
-      "throughline": {
-        "heading": "程式、寫作、攝影，對我是同一件事",
-        "paragraphs": [
-          "所以程式、寫作、攝影，對我來說其實是同一件事。我看到很多還沒整理好、亂亂的東西，就會想動手把它們弄清楚、留下來。"
-        ],
-        "carriers": [
-          "寫程式，把想法整理成能用的系統。",
-          "寫字，把腦子裡的念頭理順。",
-          "拍照，把那些值得停一秒的瞬間留住。"
-        ],
-        "carriersOutro": "做的事不一樣，底下都是同一個原點在動。"
-      },
-      "values": {
-        "heading": "誠實，還有自己的節奏",
-        "paragraphs": [
-          "我很在乎誠實。那種為了被看見才說、自己其實也不信的話，我不太說得出口。我也對「拿 AI 生成的東西，假裝是人做出來的創作」這件事很警惕。我自己會用 AI，它是很好用的工具，可是我不會拿它冒充那是我的手、我的眼睛做出來的。",
-          "我也不想跟著全世界的節奏跑。這年頭什麼都在趕，我只是想照自己的步調做事。這些想法不是要說給每個人聽，比較像一道篩子：合得來的人會留下來，我們大概能好好聊；合不來，也沒關係。"
-        ]
-      },
-      "now": {
-        "heading": "現在的我，還在往前走",
-        "paragraphs": [
-          "現在我在念大學，跟幾個夥伴一起創了一個社團。社團的官網是我一個人做的，而且我把它一路長成了一整套學習平台，有課程、有進度追蹤、有成就系統，從資料庫到畫面都是自己弄的。手邊還有幾個專案在跑，也在 Substack 上慢慢寫我的長文。",
-          "再遠一點，我把目標放在荷蘭。為什麼，那是另一個還在寫的故事了。我只知道，這一次我很清楚自己是從哪裡出發的。"
-        ]
-      }
-    }
+    "chapterNavLabel": "章節",
+    "fallbackNotice": "這一章還沒有英文版，先顯示中文原文。"
   },
   "LabPage": {
-    "title": "實驗室｜林昌龍",
+    "title": "實驗室",
     "description": "這裡會有許多實驗性的頁面。",
     "page_title": "實驗室",
-    "PalettePage": {
-      "title": "調色盤",
-      "description": "此網站所使用的顏色",
+    "DesignPage": {
+      "title": "設計系統",
+      "description": "這個網站所用的顏色、間距、字級、圓角、陰影與元件。",
+      "sections": {
+        "colors": "色彩",
+        "colorsDesc": "語意化角色，不是隨意色階；深淺主題會自動切換。",
+        "spacing": "間距",
+        "spacingDesc": "4px 基準階梯，全站間距唯一真相來源。",
+        "typography": "字級",
+        "typographyDesc": "錨在站上實際慣用值，不是憑空的 16px 倍數表。",
+        "radius": "圓角",
+        "shadow": "陰影",
+        "motion": "動效",
+        "motionDesc": "三階時長，滑過方塊感受差異。",
+        "zIndex": "層級",
+        "components": "元件範例"
+      },
+      "zIndexDesc": {
+        "base": "一般內容",
+        "raised": "局部浮起（懸停卡片、下拉箭頭）",
+        "sticky": "黏性定位元素",
+        "header": "Header",
+        "drawer": "Menu 抽屜",
+        "modal": "Modal",
+        "toast": "Toast 通知"
+      },
       "color_display": {
         "click-to-copy": "點擊複製",
         "color_value": "顏色值",
@@ -246,9 +645,13 @@
   "Header": {
     "home": "首頁",
     "blog": "文章",
+    "notes": "短文",
     "about": "關於",
     "gallery": "攝影",
     "lab": "實驗室",
+    "menu": "選單",
+    "closeMenu": "關閉選單",
+    "preferences": "偏好設定",
     "path_title": {
       "/": "首頁",
       "/blog": "文章",

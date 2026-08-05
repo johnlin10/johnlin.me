@@ -1,27 +1,35 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
+import { useTranslations } from 'next-intl'
 import {
-  getAllTags,
+  getTags,
   createTag,
   updateTag,
   deleteTag,
-} from '@/app/lib/firebase/tags'
+} from '@/app/lib/supabase/tags'
+import { createClient } from '@/app/lib/supabase/client'
 import type { Tag, CreateTagInput } from '@/app/types/blog'
 import Modal from '@/app/components/admin/Modal/Modal'
 import Button from '@/app/components/admin/Button/Button'
 import Input from '@/app/components/admin/Input/Input'
+import { useToast } from '@/app/components/admin/Toast/ToastProvider'
+import { useConfirm } from '@/app/components/admin/ConfirmDialog/ConfirmDialog'
 import style from './tags.module.scss'
 
 /**
  * 標籤管理頁面
  */
 export default function TagsPage() {
+  const t = useTranslations('AdminPage.tags')
+  const toast = useToast()
+  const confirm = useConfirm()
   const [tags, setTags] = useState<Tag[]>([])
   const [loading, setLoading] = useState(true)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingTag, setEditingTag] = useState<Tag | null>(null)
   const [currentLocale, setCurrentLocale] = useState<'zh-tw' | 'en'>('zh-tw')
+  const supabase = useMemo(() => createClient(), [])
 
   //* 表單狀態
   const [formData, setFormData] = useState({
@@ -38,10 +46,10 @@ export default function TagsPage() {
   const loadTags = async () => {
     try {
       setLoading(true)
-      const data = await getAllTags()
+      const data = await getTags(supabase)
       setTags(data)
     } catch (error) {
-      alert('載入標籤失敗')
+      toast.error(t('loadError'))
     } finally {
       setLoading(false)
     }
@@ -76,11 +84,11 @@ export default function TagsPage() {
     try {
       // 驗證
       if (!formData.slug) {
-        alert('請輸入 Slug')
+        toast.error(t('slugRequired'))
         return
       }
       if (!formData['zh-tw'].name || !formData.en.name) {
-        alert('請填寫所有語言的名稱')
+        toast.error(t('nameRequired'))
         return
       }
 
@@ -94,33 +102,36 @@ export default function TagsPage() {
 
       if (editingTag) {
         // 更新
-        await updateTag(editingTag.id, input)
-        alert('更新成功')
+        await updateTag(supabase, editingTag.id, input)
+        toast.success(t('updateSuccess'))
       } else {
         // 新增
-        await createTag(input)
-        alert('新增成功')
+        await createTag(supabase, input)
+        toast.success(t('createSuccess'))
       }
 
       setIsModalOpen(false)
       loadTags()
     } catch (error) {
-      alert('儲存失敗')
+      toast.error(t('saveError'))
     }
   }
 
   //* 刪除標籤
   const handleDelete = async (tag: Tag) => {
-    if (!confirm(`確定要刪除「${tag.locales['zh-tw'].name}」嗎？`)) {
-      return
-    }
+    const ok = await confirm({
+      title: t('deleteConfirmTitle'),
+      message: t('deleteConfirmMessage', { name: tag.locales['zh-tw'].name }),
+      danger: true,
+    })
+    if (!ok) return
 
     try {
-      await deleteTag(tag.id)
-      alert('刪除成功')
+      await deleteTag(supabase, tag.id)
+      toast.success(t('deleteSuccess'))
       loadTags()
     } catch (error: any) {
-      alert(error.message || '刪除失敗')
+      toast.error(error.message || t('deleteError'))
     }
   }
 
@@ -130,30 +141,34 @@ export default function TagsPage() {
         {/* 標題列 */}
         <div className={style.header}>
           <div className={style.title_section}>
-            <h1 className={style.title}>標籤管理</h1>
-            <p className={style.subtitle}>共 {tags.length} 個標籤</p>
+            <h1 className={style.title}>{t('heading')}</h1>
+            <p className={style.subtitle}>
+              {t('count.total')}
+              {tags.length}
+              {t('count.unit')}
+            </p>
           </div>
-          <Button onClick={handleCreate}>新增標籤</Button>
+          <Button onClick={handleCreate}>{t('newTag')}</Button>
         </div>
 
         {/* 標籤列表 */}
         {loading ? (
-          <div className={style.loading}>載入中...</div>
+          <div className={style.loading}>{t('loading')}</div>
         ) : tags.length === 0 ? (
           <div className={style.empty}>
-            <p>尚無標籤</p>
-            <Button onClick={handleCreate}>建立第一個標籤</Button>
+            <p>{t('empty')}</p>
+            <Button onClick={handleCreate}>{t('createFirst')}</Button>
           </div>
         ) : (
           <div className={style.table_wrapper}>
             <table className={style.table}>
               <thead>
                 <tr>
-                  <th>Slug</th>
-                  <th>名稱（中文）</th>
-                  <th>名稱（英文）</th>
-                  <th>文章數</th>
-                  <th>操作</th>
+                  <th>{t('table.slug')}</th>
+                  <th>{t('table.nameZh')}</th>
+                  <th>{t('table.nameEn')}</th>
+                  <th>{t('table.postCount')}</th>
+                  <th>{t('table.actions')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -164,7 +179,7 @@ export default function TagsPage() {
                     </td>
                     <td>{tag.locales['zh-tw'].name}</td>
                     <td>{tag.locales.en.name}</td>
-                    <td>{tag.postCount}</td>
+                    <td>{tag.postCount ?? t('none')}</td>
                     <td>
                       <div className={style.actions}>
                         <Button
@@ -172,15 +187,15 @@ export default function TagsPage() {
                           size="small"
                           onClick={() => handleEdit(tag)}
                         >
-                          編輯
+                          {t('edit')}
                         </Button>
                         <Button
                           variant="danger"
                           size="small"
                           onClick={() => handleDelete(tag)}
-                          disabled={tag.postCount > 0}
+                          disabled={(tag.postCount ?? 0) > 0}
                         >
-                          刪除
+                          {t('delete')}
                         </Button>
                       </div>
                     </td>
@@ -195,17 +210,17 @@ export default function TagsPage() {
         <Modal
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
-          title={editingTag ? '編輯標籤' : '新增標籤'}
+          title={editingTag ? t('modal.editTitle') : t('modal.newTitle')}
         >
           <div className={style.form}>
             {/* Slug */}
             <Input
-              label="Slug"
+              label={t('modal.slugLabel')}
               value={formData.slug}
               onChange={(value) => setFormData({ ...formData, slug: value })}
-              placeholder="例如：javascript"
+              placeholder={t('modal.slugPlaceholder')}
               required
-              helper="URL 友善的識別碼，建議使用英文小寫"
+              helper={t('modal.slugHelper')}
             />
 
             {/* 語言切換 */}
@@ -216,7 +231,7 @@ export default function TagsPage() {
                 }`}
                 onClick={() => setCurrentLocale('zh-tw')}
               >
-                繁體中文
+                {t('modal.localeZh')}
               </button>
               <button
                 className={`${style.locale_tab} ${
@@ -224,14 +239,14 @@ export default function TagsPage() {
                 }`}
                 onClick={() => setCurrentLocale('en')}
               >
-                English
+                {t('modal.localeEn')}
               </button>
             </div>
 
             {/* 語言內容 */}
             <div className={style.locale_content}>
               <Input
-                label="名稱"
+                label={t('modal.nameLabel')}
                 value={formData[currentLocale].name}
                 onChange={(value) =>
                   setFormData({
@@ -239,7 +254,7 @@ export default function TagsPage() {
                     [currentLocale]: { name: value },
                   })
                 }
-                placeholder="標籤名稱"
+                placeholder={t('modal.namePlaceholder')}
                 required
               />
             </div>
@@ -247,9 +262,9 @@ export default function TagsPage() {
             {/* 按鈕 */}
             <div className={style.form_actions}>
               <Button variant="secondary" onClick={() => setIsModalOpen(false)}>
-                取消
+                {t('modal.cancel')}
               </Button>
-              <Button onClick={handleSave}>儲存</Button>
+              <Button onClick={handleSave}>{t('modal.save')}</Button>
             </div>
           </div>
         </Modal>

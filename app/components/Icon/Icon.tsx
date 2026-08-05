@@ -12,12 +12,31 @@ import {
   faCircleHalfStroke,
   faChevronDown,
   faArrowRight,
+  faArrowLeft,
   faImage,
   faCamera,
   faFlask,
   faGlobe,
   faCode,
+  faGaugeHigh,
+  faComment,
+  faFolder,
+  faTag,
+  faLayerGroup,
+  faRightFromBracket,
+  faBars,
+  faXmark,
+  faCheck,
+  faTriangleExclamation,
+  faEnvelope,
+  faTrash,
+  faUpload,
+  faWandMagicSparkles,
+  faGripVertical,
+  faTableCellsLarge,
+  faList,
 } from '@fortawesome/free-solid-svg-icons'
+import { faGithub } from '@fortawesome/free-brands-svg-icons'
 
 //* 定義可用的圖標名稱類型
 export type IconName =
@@ -30,11 +49,30 @@ export type IconName =
   | 'circle-half-stroke'
   | 'chevron-down'
   | 'arrow-right'
+  | 'arrow-left'
   | 'image'
   | 'camera'
   | 'flask'
   | 'globe'
   | 'code'
+  | 'gauge-high'
+  | 'comment'
+  | 'folder'
+  | 'tag'
+  | 'layer-group'
+  | 'right-from-bracket'
+  | 'bars'
+  | 'xmark'
+  | 'check'
+  | 'triangle-exclamation'
+  | 'envelope'
+  | 'trash'
+  | 'upload'
+  | 'wand-magic-sparkles'
+  | 'grip-vertical'
+  | 'table-cells-large'
+  | 'list'
+  | 'github'
 
 //* 圖標映射表
 const iconMap: Record<IconName, IconProp> = {
@@ -47,11 +85,30 @@ const iconMap: Record<IconName, IconProp> = {
   'circle-half-stroke': faCircleHalfStroke,
   'chevron-down': faChevronDown,
   'arrow-right': faArrowRight,
+  'arrow-left': faArrowLeft,
   image: faImage,
   camera: faCamera,
   flask: faFlask,
   globe: faGlobe,
   code: faCode,
+  'gauge-high': faGaugeHigh,
+  comment: faComment,
+  folder: faFolder,
+  tag: faTag,
+  'layer-group': faLayerGroup,
+  'right-from-bracket': faRightFromBracket,
+  bars: faBars,
+  xmark: faXmark,
+  check: faCheck,
+  'triangle-exclamation': faTriangleExclamation,
+  envelope: faEnvelope,
+  trash: faTrash,
+  upload: faUpload,
+  'wand-magic-sparkles': faWandMagicSparkles,
+  'grip-vertical': faGripVertical,
+  'table-cells-large': faTableCellsLarge,
+  list: faList,
+  github: faGithub,
 }
 
 interface IconProps {

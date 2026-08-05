@@ -1,7 +1,9 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { getAllCategories } from '@/app/lib/firebase/categories'
+import { useEffect, useMemo, useState } from 'react'
+import { useTranslations } from 'next-intl'
+import { getCategories } from '@/app/lib/supabase/categories'
+import { createClient } from '@/app/lib/supabase/client'
 import type { Category } from '@/app/types/blog'
 import style from './Selector.module.scss'
 
@@ -20,11 +22,14 @@ export default function CategorySelector({
   value,
   onChange,
   locale = 'zh-tw',
-  label = '分類',
+  label,
   required = true,
 }: CategorySelectorProps) {
+  const t = useTranslations('AdminPage.selectors.category')
+  const resolvedLabel = label ?? t('label')
   const [categories, setCategories] = useState<Category[]>([])
   const [loading, setLoading] = useState(true)
+  const supabase = useMemo(() => createClient(), [])
 
   useEffect(() => {
     loadCategories()
@@ -32,7 +37,7 @@ export default function CategorySelector({
 
   const loadCategories = async () => {
     try {
-      const data = await getAllCategories()
+      const data = await getCategories(supabase)
       setCategories(data)
     } catch (error) {
       console.error('載入分類失敗:', error)
@@ -44,17 +49,17 @@ export default function CategorySelector({
   if (loading) {
     return (
       <div className={style.selector_wrapper}>
-        {label && <label className={style.label}>{label}</label>}
-        <div className={style.loading}>載入中...</div>
+        {resolvedLabel && <label className={style.label}>{resolvedLabel}</label>}
+        <div className={style.loading}>{t('loading')}</div>
       </div>
     )
   }
 
   return (
     <div className={style.selector_wrapper}>
-      {label && (
+      {resolvedLabel && (
         <label className={style.label}>
-          {label}
+          {resolvedLabel}
           {required && <span className={style.required}>*</span>}
         </label>
       )}
@@ -64,7 +69,7 @@ export default function CategorySelector({
         className={style.select}
         required={required}
       >
-        <option value="">請選擇分類</option>
+        <option value="">{t('placeholder')}</option>
         {categories.map((category) => (
           <option key={category.id} value={category.id}>
             {category.locales[locale].name}

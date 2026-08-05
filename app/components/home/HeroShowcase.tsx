@@ -7,7 +7,6 @@ import { motion, useReducedMotion } from 'motion/react'
 import { useTranslations } from 'next-intl'
 import Icon, { type IconName } from '@/app/components/Icon/Icon'
 import style from './home.module.scss'
-import { setTimeout } from 'timers/promises'
 
 const HeroCodeWindow = dynamic(() => import('./HeroCodeWindow'), {
   ssr: false,
@@ -39,56 +38,77 @@ const MOSAIC_LAYOUT: {
     xRatio: -0.354,
     yRatio: -0.285,
     rotate: -7,
-    longMobile: 'clamp(170px, 44vw, 195px)',
-    longTablet: 'clamp(175px, 26vw, 205px)',
+    longMobile: 'clamp(170px, 46vw, 225px)',
+    longTablet: 'clamp(170px, 46vw, 225px)',
     longDesktop: '260px',
   },
   {
     xRatio: 0.426,
     yRatio: -0.417,
     rotate: 6,
-    longMobile: 'clamp(150px, 39vw, 172px)',
-    longTablet: 'clamp(155px, 23vw, 180px)',
+    longMobile: 'clamp(150px, 41vw, 202px)',
+    longTablet: 'clamp(150px, 41vw, 202px)',
     longDesktop: '230px',
   },
   {
     xRatio: -0.317,
     yRatio: 0.32,
     rotate: 10,
-    longMobile: 'clamp(156px, 41vw, 180px)',
-    longTablet: 'clamp(160px, 24vw, 190px)',
+    longMobile: 'clamp(156px, 43vw, 210px)',
+    longTablet: 'clamp(156px, 43vw, 210px)',
     longDesktop: '240px',
   },
   {
     xRatio: 0.442,
     yRatio: 0.33,
     rotate: -5,
-    longMobile: 'clamp(135px, 35vw, 156px)',
-    longTablet: 'clamp(140px, 20vw, 165px)',
+    longMobile: 'clamp(135px, 37vw, 186px)',
+    longTablet: 'clamp(135px, 37vw, 186px)',
     longDesktop: '208px',
   },
 ]
 
-// 白紙靜態扇形：隻在最前面那張（index 0）渲染可讀內容，後面兩張隻露出邊角。
+// 白紙定位槽：最前（可讀）→ 中 → 後。三張紙在槽間輪替，讓最新三篇輪流來到最前完整展示。
 // xRatio / yRatio 依紙張寬度（--paper-w）按比例換算。
-const PAPER_LAYOUT: { xRatio: number; yRatio: number; rotate: number; z: number }[] = [
-  { xRatio: 0, yRatio: 0, rotate: -2, z: 30 },
-  { xRatio: 0.146, yRatio: 0.115, rotate: 7, z: 20 },
-  { xRatio: -0.123, yRatio: 0.185, rotate: -9, z: 10 },
+const PAPER_SLOTS: {
+  xRatio: number
+  yRatio: number
+  rotate: number
+  z: number
+  scale: number
+  opacity: number
+}[] = [
+  { xRatio: 0, yRatio: 0, rotate: -2, z: 30, scale: 1, opacity: 1 },
+  { xRatio: 0.25, yRatio: -0.03, rotate: 7, z: 20, scale: 0.95, opacity: 0.5 },
+  {
+    xRatio: -0.23,
+    yRatio: 0,
+    rotate: -9,
+    z: 10,
+    scale: 0.9,
+    opacity: 0.38,
+  },
 ]
 
 type Paper = { title: string; excerpt: string; date: string }
 
 type Props = {
   sourceCode: string
+  papers?: Paper[]
 }
 
-export default function HeroShowcase({ sourceCode }: Props) {
+export default function HeroShowcase({
+  sourceCode,
+  papers: papersProp,
+}: Props) {
   const reduce = useReducedMotion()
   const t = useTranslations('HomePage')
   const [active, setActive] = useState<0 | 1 | 2>(0)
   const [isPaused, setIsPaused] = useState(false)
-  const papers = t.raw('hero.papers') as Paper[]
+  // 有真實文章就用真實文章，否則回退 i18n 佔位（空資料庫 / 讀取失敗時仍好看）。
+  const fallbackPapers = t.raw('hero.papers') as Paper[]
+  const papers =
+    papersProp && papersProp.length > 0 ? papersProp : fallbackPapers
 
   useEffect(() => {
     if (reduce || isPaused) return
@@ -193,8 +213,9 @@ export default function HeroShowcase({ sourceCode }: Props) {
           style={{ pointerEvents: active === 1 ? 'auto' : 'none' }}
         >
           <div className={style.paperStack}>
-            {PAPER_LAYOUT.map((pose, i) => {
-              const paper = papers?.[i]
+            {papers.slice(0, 3).map((paper, i) => {
+              // 靜態扇形：三張紙固定於前 / 中 / 後槽，hover 哪張就把它抬到最上並放大。
+              const pose = PAPER_SLOTS[i] ?? PAPER_SLOTS[0]
               const posX = `calc(var(--paper-w) * ${pose.xRatio})`
               const posY = `calc(var(--paper-w) * ${pose.yRatio})`
               return (
@@ -204,28 +225,34 @@ export default function HeroShowcase({ sourceCode }: Props) {
                   style={{ zIndex: pose.z }}
                   initial={{ opacity: 0 }}
                   animate={{
-                    opacity: 1,
+                    opacity: pose.opacity,
                     x: posX,
                     y: posY,
                     rotate: pose.rotate,
+                    scale: pose.scale,
                   }}
                   transition={{
                     duration: reduce ? 0 : 0.6,
                     ease: [0.23, 1, 0.32, 1],
                   }}
-                  whileHover={{
-                    scale: 1.15,
-                    zIndex: 50,
-                    transition: { duration: 0.3, ease: [0.23, 1, 0.32, 1] },
-                  }}
+                  whileHover={
+                    reduce
+                      ? undefined
+                      : {
+                          opacity: 1,
+                          scale: 1.12,
+                          rotate: 0,
+                          zIndex: 50,
+                          transition: {
+                            duration: 0.3,
+                            ease: [0.23, 1, 0.32, 1],
+                          },
+                        }
+                  }
                 >
-                  {i === 0 && paper && (
-                    <>
-                      <span className={style.paperDate}>{paper.date}</span>
-                      <h3 className={style.paperTitle}>{paper.title}</h3>
-                      <p className={style.paperExcerpt}>{paper.excerpt}</p>
-                    </>
-                  )}
+                  <span className={style.paperDate}>{paper.date}</span>
+                  <h3 className={style.paperTitle}>{paper.title}</h3>
+                  <p className={style.paperExcerpt}>{paper.excerpt}</p>
                 </motion.div>
               )
             })}

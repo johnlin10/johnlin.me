@@ -8,14 +8,17 @@ type Props = {
   }>
 }
 
+import { metadata } from '@/app/lib/metadata'
+
 export async function generateMetadata({ params }: Props) {
   const { locale } = await params
   const t = await getTranslations({ locale, namespace: 'GalleryPage' })
 
-  return {
+  return metadata({
     title: t('title'),
     description: t('description'),
-  }
+    url: '/gallery',
+  })
 }
 
 async function GalleryPage({ params }: Props) {

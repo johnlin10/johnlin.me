@@ -1,27 +1,21 @@
 import { Node, mergeAttributes } from '@tiptap/core'
+import katex from 'katex'
 
 /**
- * 數學公式擴展
- * 支援行內公式 (inline) 和區塊公式 (block)
+ * 數學公式節點——區塊級 KaTeX 顯示公式。
+ * atom（不可在節點內部編輯內文）：要修改公式請透過工具列的「編輯公式」
+ * 重新輸入，不支援行內公式（inline math 需要不同的 schema group，
+ * 增加的複雜度目前不值得，先出區塊公式）。
  */
 export const Math = Node.create({
   name: 'math',
-
   group: 'block',
-
-  content: 'text*',
-
-  marks: '',
-
   atom: true,
 
   addAttributes() {
     return {
       latex: {
         default: '',
-      },
-      type: {
-        default: 'block', // 'inline' or 'block'
       },
     }
   },
@@ -30,59 +24,41 @@ export const Math = Node.create({
     return [
       {
         tag: 'div[data-math]',
-        getAttrs: (dom) => {
-          if (typeof dom === 'string') return {}
-          const element = dom as HTMLElement
-          return {
-            latex: element.getAttribute('data-latex') || '',
-            type: 'block',
-          }
-        },
-      },
-      {
-        tag: 'span[data-math]',
-        getAttrs: (dom) => {
-          if (typeof dom === 'string') return {}
-          const element = dom as HTMLElement
-          return {
-            latex: element.getAttribute('data-latex') || '',
-            type: 'inline',
-          }
-        },
+        getAttrs: (dom) => ({
+          latex: (dom as HTMLElement).getAttribute('data-latex') || '',
+        }),
       },
     ]
   },
 
   renderHTML({ node, HTMLAttributes }) {
-    const { latex, type } = node.attrs
-    const tag = type === 'inline' ? 'span' : 'div'
-
     return [
-      tag,
+      'div',
       mergeAttributes(HTMLAttributes, {
         'data-math': '',
-        'data-latex': latex,
-        class: type === 'inline' ? 'math-inline' : 'math-block',
+        'data-latex': node.attrs.latex,
+        class: 'math-block',
       }),
-      latex,
     ]
   },
 
   addNodeView() {
     return ({ node }) => {
-      const { latex, type } = node.attrs
-      const dom = document.createElement(type === 'inline' ? 'span' : 'div')
-      dom.classList.add(type === 'inline' ? 'math-inline' : 'math-block')
+      const dom = document.createElement('div')
+      dom.classList.add('math-block')
       dom.setAttribute('data-math', '')
-      dom.setAttribute('data-latex', latex)
-      dom.textContent = latex
-
-      return {
-        dom,
+      dom.setAttribute('data-latex', node.attrs.latex)
+      try {
+        katex.render(node.attrs.latex, dom, {
+          throwOnError: false,
+          displayMode: true,
+        })
+      } catch {
+        dom.textContent = node.attrs.latex
       }
+      return { dom }
     }
   },
 })
 
 export default Math
-

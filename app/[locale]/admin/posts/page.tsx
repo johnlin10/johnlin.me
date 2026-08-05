@@ -1,14 +1,15 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
-import { getPosts, deletePost } from '@/app/lib/firebase/posts'
-import { getCategoryById } from '@/app/lib/firebase/categories'
-import type { Post, PostQueryParams } from '@/app/types/blog'
+import { useState, useEffect, useMemo } from 'react'
+import { useRouter } from '@/i18n/navigation'
+import { getPostsForAdmin, deletePost, createDraftPost } from '@/app/lib/supabase/posts'
+import { createClient } from '@/app/lib/supabase/client'
+import type { Post } from '@/app/types/blog'
 import Button from '@/app/components/admin/Button/Button'
+import { useToast } from '@/app/components/admin/Toast/ToastProvider'
+import { useConfirm } from '@/app/components/admin/ConfirmDialog/ConfirmDialog'
 import style from './posts.module.scss'
 
-import Page from '@/app/components/Page/Page'
 import { useLocale, useTranslations } from 'next-intl'
 
 /**
@@ -18,11 +19,28 @@ export default function PostsPage() {
   const t = useTranslations('AdminPage.posts')
   const locale = useLocale()
   const router = useRouter()
+  const toast = useToast()
+  const confirm = useConfirm()
   const [posts, setPosts] = useState<Post[]>([])
   const [loading, setLoading] = useState(true)
+  const [creating, setCreating] = useState(false)
   const [statusFilter, setStatusFilter] = useState<
     'all' | 'draft' | 'published'
   >('all')
+  const supabase = useMemo(() => createClient(), [])
+
+  const handleCreate = async () => {
+    if (creating) return
+    setCreating(true)
+    try {
+      const id = await createDraftPost(supabase)
+      router.push(`/admin/posts/${id}/write`)
+    } catch (error) {
+      console.error('建立草稿失敗:', error)
+      toast.error(t('createDraftError'))
+      setCreating(false)
+    }
+  }
 
   useEffect(() => {
     loadPosts()
@@ -31,39 +49,42 @@ export default function PostsPage() {
   const loadPosts = async () => {
     try {
       setLoading(true)
-      const params: PostQueryParams = {
+      const result = await getPostsForAdmin(supabase, {
         status: statusFilter === 'all' ? undefined : statusFilter,
-        pageSize: 50,
-      }
-      const result = await getPosts(params)
-      setPosts(result.data)
+      })
+      setPosts(result)
     } catch (error) {
       console.error('載入文章失敗:', error)
-      alert('載入文章失敗')
+      toast.error(t('loadError'))
     } finally {
       setLoading(false)
     }
   }
 
   const handleDelete = async (post: Post) => {
-    if (!confirm(`確定要刪除「${post.locales['zh-tw'].title}」嗎？`)) {
-      return
-    }
+    const ok = await confirm({
+      title: t('deleteConfirmTitle'),
+      message: t('deleteConfirmMessage', {
+        title: post.locales['zh-tw']?.title || post.slug,
+      }),
+      danger: true,
+    })
+    if (!ok) return
 
     try {
-      await deletePost(post.id)
-      alert('刪除成功')
+      await deletePost(supabase, post.id)
+      toast.success(t('deleteSuccess'))
       loadPosts()
     } catch (error) {
       console.error('刪除失敗:', error)
-      alert('刪除失敗')
+      toast.error(t('deleteError'))
     }
   }
 
   const formatDate = (timestamp: any) => {
-    if (!timestamp) return '-'
+    if (!timestamp) return t('dateFallback')
     const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp)
-    return date.toLocaleDateString('zh-TW', {
+    return date.toLocaleDateString(locale === 'zh-tw' ? 'zh-TW' : 'en-US', {
       year: 'numeric',
       month: '2-digit',
       day: '2-digit',
@@ -71,7 +92,7 @@ export default function PostsPage() {
   }
 
   return (
-    <Page style={style.posts_page}>
+    <div className={style.posts_page}>
       <div className={style.container}>
         {/* 標題列 */}
         <div className={style.header}>
@@ -83,7 +104,7 @@ export default function PostsPage() {
               {t('post_count.unit')}
             </p>
           </div>
-          <Button onClick={() => router.push('/admin/posts/new')}>
+          <Button onClick={handleCreate} disabled={creating}>
             {t('new_post')}
           </Button>
         </div>
@@ -120,12 +141,12 @@ export default function PostsPage() {
 
         {/* 文章列表 */}
         {loading ? (
-          <div className={style.loading}>載入中...</div>
+          <div className={style.loading}>{t('loading')}</div>
         ) : posts.length === 0 ? (
           <div className={style.empty}>
-            <p>尚無文章</p>
-            <Button onClick={() => router.push('/admin/posts/new')}>
-              建立第一篇文章
+            <p>{t('empty')}</p>
+            <Button onClick={handleCreate} disabled={creating}>
+              {t('createFirst')}
             </Button>
           </div>
         ) : (
@@ -137,6 +158,7 @@ export default function PostsPage() {
                   <th>{t('table.status.title')}</th>
                   <th>{t('table.category.title')}</th>
                   <th>{t('table.tag.title')}</th>
+                  <th>{t('table.views')}</th>
                   <th>{t('table.created_at')}</th>
                   <th>{t('table.actions.title')}</th>
                 </tr>
@@ -146,10 +168,23 @@ export default function PostsPage() {
                   <tr key={post.id}>
                     <td>
                       <div className={style.post_title}>
-                        <span>
-                          {post.locales[locale as keyof typeof post.locales]
-                            ?.title ?? ''}
-                        </span>
+                        {(() => {
+                          // 目前 UI 語言沒填標題時，退而顯示另一個語言的標題——
+                          // as-needed 雙語下這很常見（例如英文標題留空），
+                          // 「空白」不等於「這是一篇未命名草稿」。
+                          const displayTitle =
+                            post.locales[locale as keyof typeof post.locales]
+                              ?.title ||
+                            post.locales['zh-tw']?.title ||
+                            post.locales.en?.title
+                          return displayTitle ? (
+                            <span>{displayTitle}</span>
+                          ) : (
+                            <span className={style.untitled}>
+                              {t('untitledDraft')}
+                            </span>
+                          )
+                        })()}
                         <code className={style.slug}>{post.slug}</code>
                       </div>
                     </td>
@@ -170,6 +205,8 @@ export default function PostsPage() {
                         : t('table.category.classes.not_set')}
                     </td>
                     <td>{post.tagIds.length}</td>
+                    {/* 瀏覽數只在後台看：前台兩處顯示已改成閱讀時間，計數照常累加。 */}
+                    <td>{post.viewCount ?? 0}</td>
                     <td>{formatDate(post.createdAt)}</td>
                     <td>
                       <div className={style.actions}>
@@ -177,7 +214,7 @@ export default function PostsPage() {
                           variant="secondary"
                           size="small"
                           onClick={() =>
-                            router.push(`/admin/posts/${post.id}/edit`)
+                            router.push(`/admin/posts/${post.id}/write`)
                           }
                         >
                           {t('table.actions.classes.edit')}
@@ -198,6 +235,6 @@ export default function PostsPage() {
           </div>
         )}
       </div>
-    </Page>
+    </div>
   )
 }

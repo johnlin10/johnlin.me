@@ -1,35 +1,35 @@
-@use '@/app/styles/mixins' as *;
+@use '@/app/styles/design' as *;
 
 .toc {
   position: sticky;
-  top: 100px;
-  max-height: calc(100vh - 120px);
+  top: calc(var(--header-height) + var(--space-8));
+  max-height: calc(100vh - var(--space-32));
   overflow-y: auto;
-  padding: 1.5rem;
-  background: var(--background-color-secondary);
-  @include glass-border;
-  @include radius(12px);
+  padding: var(--space-6);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
 
   @include respond-to('tablet') {
     position: static;
     max-height: none;
-    margin-bottom: 2rem;
+    margin-bottom: var(--space-8);
   }
 
   @include respond-to('phone') {
-    padding: 1rem;
-    margin-bottom: 1.5rem;
+    padding: var(--space-4);
+    margin-bottom: var(--space-6);
   }
 
   .title {
-    font-size: 1.1rem;
+    font-size: var(--text-lg);
     font-weight: 600;
-    color: var(--text-color);
-    margin: 0 0 1rem 0;
+    color: var(--text);
+    margin: 0 0 var(--space-4) 0;
 
     @include respond-to('phone') {
-      font-size: 1rem;
-      margin-bottom: 0.875rem;
+      font-size: var(--text-md);
+      margin-bottom: var(--space-3);
     }
   }
 
@@ -43,63 +43,63 @@
 
       button {
         width: 100%;
-        padding: 0.5rem 0.75rem;
+        padding: var(--space-2) var(--space-3);
         text-align: left;
         background: transparent;
-        color: var(--text-color-secondary);
-        font-size: 0.9rem;
+        color: var(--text-secondary);
+        font-size: var(--text-sm);
         border: none;
         border-left: 2px solid transparent;
         cursor: pointer;
-        @include transition(all 0.2s ease);
+        transition: all var(--duration-fast) ease;
 
         @include respond-to('phone') {
-          padding: 0.45rem 0.625rem;
-          font-size: 0.85rem;
+          padding: var(--space-2);
+          font-size: var(--text-xs);
         }
 
         &:hover {
-          color: var(--text-color);
-          background: var(--background-color);
+          color: var(--text);
+          background: var(--surface);
         }
       }
 
       &.active {
         button {
-          color: var(--primary-color);
-          border-left-color: var(--primary-color);
-          background: var(--background-color);
+          color: var(--accent);
+          border-left-color: var(--accent);
+          background: var(--surface);
         }
       }
 
       &.level_1 {
         button {
-          padding-left: 0.75rem;
+          padding-left: var(--space-3);
           font-weight: 600;
 
           @include respond-to('phone') {
-            padding-left: 0.625rem;
+            padding-left: var(--space-2);
           }
         }
       }
 
       &.level_2 {
         button {
-          padding-left: 1.25rem;
+          padding-left: var(--space-5);
           font-weight: 500;
 
           @include respond-to('phone') {
-            padding-left: 1rem;
+            padding-left: var(--space-4);
           }
         }
       }
 
       &.level_3 {
         button {
-          padding-left: 1.75rem;
+          padding-left: var(--space-6);
 
           @include respond-to('phone') {
-            padding-left: 1.5rem;
+            padding-left: var(--space-6);
           }
         }
       }
@@ -108,12 +108,12 @@
       &.level_5,
       &.level_6 {
         button {
-          padding-left: 2.25rem;
-          font-size: 0.85rem;
+          padding-left: var(--space-8);
+          font-size: var(--text-xs);
 
           @include respond-to('phone') {
-            padding-left: 2rem;
-            font-size: 0.8rem;
+            padding-left: var(--space-8);
+            font-size: var(--text-2xs);
           }
         }
       }

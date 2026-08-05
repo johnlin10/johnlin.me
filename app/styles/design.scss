@@ -1,0 +1,5 @@
+// 單一入口：往後新檔案 `@use '@/app/styles/design' as *;` 就好，
+// 不用知道 mixin 到底住在 _mixins 還是 _breakpoints。
+// 注意這裡只 forward Sass mixin，不碰 _tokens/_theme——那兩個是純 CSS
+// 變數，只能在 layout.tsx 當全域樣式載入一次，@use 進每個 module 會整包重複輸出。
+@forward 'mixins';

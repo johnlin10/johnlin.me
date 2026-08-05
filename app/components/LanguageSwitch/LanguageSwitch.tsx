@@ -20,9 +20,11 @@ export default function LanguageSwitch() {
   const currentShortName = languages[locale]?.shortName || locale.toUpperCase()
 
   const handleLanguageChange = (newLocale: string) => {
-    // 修正：使用 next-intl 的 router.push，會自動處理 locale 路由
+    // usePathname() 不含 query string（例如 About 頁的 ?chapter=），
+    // 這裡補回目前網址的 search，切語言才不會把使用者停留的章節重置掉。
+    const search = typeof window !== 'undefined' ? window.location.search : ''
     startTransition(() => {
-      router.push(pathname, { locale: newLocale })
+      router.push(`${pathname}${search}`, { locale: newLocale })
     })
   }
 

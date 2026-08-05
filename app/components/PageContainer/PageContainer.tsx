@@ -1,18 +1,32 @@
 import styles from './PageContainer.module.scss'
 
+type MaxWidth = 'feed' | 'content' | 'wide' | 'max' | 'full' | 'max-content'
+
+// content 是 .container 的預設寬度，不需要額外 modifier class。
+const modifierClass: Record<MaxWidth, string | undefined> = {
+  feed: styles.feed,
+  content: undefined,
+  wide: styles.wide,
+  max: styles.max,
+  full: styles.full,
+  'max-content': styles.maxContent,
+}
+
 export default function PageContainer({
   className,
-  maxWidth = 'small',
+  maxWidth = 'content',
   children,
 }: {
   className?: string
-  maxWidth?: 'small' | 'medium' | 'large' | 'full' | 'max-content'
+  maxWidth?: MaxWidth
   children: React.ReactNode
 }) {
   return (
     <div className={styles.page}>
       <div
-        className={`${styles.page_container} ${className} ${styles[maxWidth]}`}
+        className={[styles.container, modifierClass[maxWidth], className]
+          .filter(Boolean)
+          .join(' ')}
       >
         {children}
       </div>

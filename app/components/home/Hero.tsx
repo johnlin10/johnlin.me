@@ -5,16 +5,25 @@ import { motion, useReducedMotion } from 'motion/react'
 import HeroShowcase from './HeroShowcase'
 import style from './home.module.scss'
 
+type Paper = { title: string; excerpt: string; date: string }
+
 type Props = {
   tagline: string
   role: string
   scrollHint: string
   sourceCode: string
+  papers?: Paper[]
 }
 
 const AVATAR = '/assets/images/johnlin.jpeg'
 
-export default function Hero({ tagline, role, scrollHint, sourceCode }: Props) {
+export default function Hero({
+  tagline,
+  role,
+  scrollHint,
+  sourceCode,
+  papers,
+}: Props) {
   const reduce = useReducedMotion()
 
   return (
@@ -41,7 +50,7 @@ export default function Hero({ tagline, role, scrollHint, sourceCode }: Props) {
           <p className={style.heroRole}>{role}</p>
         </motion.div>
 
-        <HeroShowcase sourceCode={sourceCode} />
+        <HeroShowcase sourceCode={sourceCode} papers={papers} />
       </div>
 
       <div className={style.scrollHint} aria-hidden>
