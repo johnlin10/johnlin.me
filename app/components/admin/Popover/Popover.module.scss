@@ -15,24 +15,32 @@
   cursor: default;
 }
 
+// 箭頭是一個旋轉 45 度的正方形，一半藏在窗體底下、一半探出來，用的是
+// 跟窗體「同一份」background／border，而不是用透明邊框三角形去偽裝邊框
+// ——三角形那招兩層疊色的斜邊終究無法跟窗體的 1px 邊框完全對齊，會有
+// 疊色的縫。正方形這招沒有這個問題：探出來的兩條邊本來就是真的 1px
+// border，跟窗體邊框在交界處是同一條線，自然接上。
 .arrow {
   position: absolute;
-  width: 0;
-  height: 0;
-  border-style: solid;
+  box-sizing: border-box;
+  width: 10px;
+  height: 10px;
+  background: var(--surface);
   pointer-events: none;
-  transform: translateX(-50%);
+  transform: translateX(-50%) rotate(-45deg);
 
   &.top {
-    top: 100%;
-    border-width: 6px 6px 0 6px;
-    border-color: var(--surface) transparent transparent transparent;
+    // 中心點落在窗體下邊框線上：一半（左＋下邊）探出窗外，露出邊框；
+    // 另一半（上＋右邊，沒設邊框）藏在窗體背景色底下。
+    top: calc(100% - 4px);
+    border-left: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
   }
 
   &.bottom {
-    bottom: 100%;
-    border-width: 0 6px 6px 6px;
-    border-color: transparent transparent var(--surface) transparent;
+    bottom: calc(100% - 4px);
+    border-top: 1px solid var(--border);
+    border-right: 1px solid var(--border);
   }
 }
 

@@ -74,8 +74,8 @@ export default function Popover({
 
       // 指針箭頭對準 anchor 中心
       const arrowLeft = Math.max(
-        14,
-        Math.min(anchorCenterX - clampedLeft, pWidth - 14)
+        20,
+        Math.min(anchorCenterX - clampedLeft, pWidth - 20),
       )
 
       // 垂直夾取：預設 top，若上方空間不足自動切換為 bottom
@@ -90,6 +90,7 @@ export default function Popover({
         computedTop = anchorRect.bottom + 10
         if (computedTop + pHeight > window.innerHeight - gutter) {
           computedTop = Math.max(gutter, anchorRect.top - pHeight - 10)
+          actualPlacement = 'top'
         }
       }
 
@@ -175,6 +176,6 @@ export default function Popover({
 
       <div className={style.content}>{children}</div>
     </div>,
-    document.body
+    document.body,
   )
 }
