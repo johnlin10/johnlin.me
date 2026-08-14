@@ -6,6 +6,7 @@ import { getSeries } from '@/app/lib/supabase/series'
 import { createClient } from '@/app/lib/supabase/client'
 import type { Series } from '@/app/types/blog'
 import Input from '@/app/components/admin/Input/Input'
+import DropdownSelect from './DropdownSelect'
 import style from './Selector.module.scss'
 
 interface SeriesSelectorProps {
@@ -15,6 +16,8 @@ interface SeriesSelectorProps {
   onOrderChange: (order: number) => void
   locale?: 'zh-tw' | 'en'
   label?: string
+  /** 巢狀在 Popover／卡片這類已有圓角＋padding 的容器裡時開啟，圓角縮小一階。 */
+  compact?: boolean
 }
 
 /**
@@ -27,6 +30,7 @@ export default function SeriesSelector({
   onOrderChange,
   locale = 'zh-tw',
   label,
+  compact = false,
 }: SeriesSelectorProps) {
   const t = useTranslations('AdminPage.selectors.series')
   const resolvedLabel = label ?? t('label')
@@ -53,7 +57,9 @@ export default function SeriesSelector({
     return (
       <div className={style.selector_wrapper}>
         {resolvedLabel && <label className={style.label}>{resolvedLabel}</label>}
-        <div className={style.loading}>{t('loading')}</div>
+        <div className={`${style.loading} ${compact ? style.compact : ''}`}>
+          {t('loading')}
+        </div>
       </div>
     )
   }
@@ -62,18 +68,16 @@ export default function SeriesSelector({
     <div className={style.selector_wrapper}>
       {resolvedLabel && <label className={style.label}>{resolvedLabel}</label>}
       <div className={style.series_container}>
-        <select
+        <DropdownSelect
           value={seriesId}
-          onChange={(e) => onSeriesChange(e.target.value)}
-          className={style.select}
-        >
-          <option value="">{t('none')}</option>
-          {seriesList.map((series) => (
-            <option key={series.id} value={series.id}>
-              {series.locales[locale].name}
-            </option>
-          ))}
-        </select>
+          onChange={onSeriesChange}
+          options={seriesList.map((series) => ({
+            value: series.id,
+            label: series.locales[locale].name,
+          }))}
+          placeholder={t('none')}
+          compact={compact}
+        />
 
         {seriesId && (
           <div className={style.series_order}>

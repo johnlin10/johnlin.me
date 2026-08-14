@@ -1,16 +1,15 @@
 'use client'
 
-import style from './LanguageSwitch.module.scss'
+import { useTransition } from 'react'
 import { useLocale } from 'next-intl'
-// 修正：使用 next-intl 的 navigation hooks
 import { usePathname, useRouter } from '@/i18n/navigation'
 import { routing } from '@/i18n/routing'
-import { useTransition } from 'react'
 import { getLanguageDisplayName, languages } from '@/i18n/langueges'
-import Icon from '../Icon/Icon'
+import DropdownSelect from '@/app/components/admin/Selector/DropdownSelect'
+import style from './LanguageSwitch.module.scss'
 
 /**
- * 語言切換元件
+ * 語言切換元件：觸發按鈕顯示縮寫（TW/EN），選項清單顯示完整語言名稱。
  */
 export default function LanguageSwitch() {
   const locale = useLocale()
@@ -20,6 +19,7 @@ export default function LanguageSwitch() {
   const currentShortName = languages[locale]?.shortName || locale.toUpperCase()
 
   const handleLanguageChange = (newLocale: string) => {
+    if (!newLocale || newLocale === locale) return
     // usePathname() 不含 query string（例如 About 頁的 ?chapter=），
     // 這裡補回目前網址的 search，切語言才不會把使用者停留的章節重置掉。
     const search = typeof window !== 'undefined' ? window.location.search : ''
@@ -30,34 +30,19 @@ export default function LanguageSwitch() {
 
   return (
     <div className={style.language_switch}>
-      <div className={style.language_switch_item}>
-        <div className={style.language_display}>
-          {/* 手機：只顯示地球圖示（節省空間、維持好按的目標） */}
-          <Icon name="globe" size="sm" className={style.language_globe} />
-          {/* 桌機：顯示語言縮寫 + 下拉箭頭 */}
-          <span className={style.language_current}>{currentShortName}</span>
-          <Icon
-            name="chevron-down"
-            size="sm"
-            className={style.language_chevron}
-          />
-        </div>
-
-        <select
-          name="language"
-          id="language"
-          value={locale}
-          onChange={(e) => handleLanguageChange(e.target.value)}
-          disabled={isPending}
-          className={style.language_select}
-        >
-          {routing.locales.map((locale) => (
-            <option key={locale} value={locale}>
-              {getLanguageDisplayName(locale)}
-            </option>
-          ))}
-        </select>
-      </div>
+      <DropdownSelect
+        value={locale}
+        onChange={handleLanguageChange}
+        options={routing.locales.map((code) => ({
+          value: code,
+          label: getLanguageDisplayName(code),
+        }))}
+        placeholder={currentShortName}
+        triggerLabel={currentShortName}
+        clearable={false}
+        icon="globe"
+        disabled={isPending}
+      />
     </div>
   )
 }

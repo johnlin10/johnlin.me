@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl'
 import { getCategories } from '@/app/lib/supabase/categories'
 import { createClient } from '@/app/lib/supabase/client'
 import type { Category } from '@/app/types/blog'
+import DropdownSelect from './DropdownSelect'
 import style from './Selector.module.scss'
 
 interface CategorySelectorProps {
@@ -13,6 +14,8 @@ interface CategorySelectorProps {
   locale?: 'zh-tw' | 'en'
   label?: string
   required?: boolean
+  /** 巢狀在 Popover／卡片這類已有圓角＋padding 的容器裡時開啟，圓角縮小一階。 */
+  compact?: boolean
 }
 
 /**
@@ -24,6 +27,7 @@ export default function CategorySelector({
   locale = 'zh-tw',
   label,
   required = true,
+  compact = false,
 }: CategorySelectorProps) {
   const t = useTranslations('AdminPage.selectors.category')
   const resolvedLabel = label ?? t('label')
@@ -50,7 +54,9 @@ export default function CategorySelector({
     return (
       <div className={style.selector_wrapper}>
         {resolvedLabel && <label className={style.label}>{resolvedLabel}</label>}
-        <div className={style.loading}>{t('loading')}</div>
+        <div className={`${style.loading} ${compact ? style.compact : ''}`}>
+          {t('loading')}
+        </div>
       </div>
     )
   }
@@ -63,19 +69,16 @@ export default function CategorySelector({
           {required && <span className={style.required}>*</span>}
         </label>
       )}
-      <select
+      <DropdownSelect
         value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className={style.select}
-        required={required}
-      >
-        <option value="">{t('placeholder')}</option>
-        {categories.map((category) => (
-          <option key={category.id} value={category.id}>
-            {category.locales[locale].name}
-          </option>
-        ))}
-      </select>
+        onChange={onChange}
+        options={categories.map((category) => ({
+          value: category.id,
+          label: category.locales[locale].name,
+        }))}
+        placeholder={t('placeholder')}
+        compact={compact}
+      />
     </div>
   )
 }
