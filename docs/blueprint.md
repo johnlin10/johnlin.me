@@ -26,8 +26,8 @@
 
 ```
 請求
- └─ middleware.ts
-     ├─ next-intl 語系中介層（決定 /zh-tw or /en 前綴、寫 locale cookie）
+ └─ proxy.ts（Next 16 前稱 middleware.ts）
+     ├─ next-intl 語系處理（決定 /zh-tw or /en 前綴、寫 locale cookie）
      └─ 如果路徑是 /admin/*（且不是 /admin/login）
          └─ 用 request cookies 建一個 Supabase server client
              ├─ getUser()          → 沒登入就導回 /admin/login
@@ -36,16 +36,16 @@
  └─ 對應的 page.tsx
 ```
 
-**關鍵認知：`/api/**` 完全不經過 middleware。** `middleware.ts` 的 matcher 是
-`'/((?!api|trpc|_next|_vercel|auth|.*\\..*).*)'`，明確排除 `api`。所以任何後台 API（目前只有 `/api/admin/ai`）都得自己在 route handler 裡再呼叫一次 `requireAdmin()`（`app/lib/supabase/requireAdmin.ts`）做 401/403 檢查，不能假設 middleware 已經擋掉了。這是刻意設計，不是漏洞，但如果你以後新增 `/api/admin/*` 底下的路由，記得每一支都要自己補這個檢查。
+**關鍵認知：`/api/**` 完全不經過 proxy。** `proxy.ts` 的 matcher 是
+`'/((?!api|trpc|_next|_vercel|auth|.*\\..*).*)'`，明確排除 `api`。所以任何後台 API（目前只有 `/api/admin/ai`）都得自己在 route handler 裡再呼叫一次 `requireAdmin()`（`app/lib/supabase/requireAdmin.ts`）做 401/403 檢查，不能假設 proxy 已經擋掉了。這是刻意設計，不是漏洞，但如果你以後新增 `/api/admin/*` 底下的路由，記得每一支都要自己補這個檢查。
 
-**真正的資料安全底線是 Postgres RLS，不是 middleware。** middleware 跟後台頁面的 `AdminShell` 裡的 `getUser()` 都只是「體驗層」的守衛（提早把非管理員導走），就算繞過這些頁面，實際的讀寫權限仍然由 Supabase 的 Row Level Security 政策決定。RLS 規則本身**不在這個 repo 裡**（見第九節）。
+**真正的資料安全底線是 Postgres RLS，不是 proxy。** proxy 跟後台頁面的 `AdminShell` 裡的 `getUser()` 都只是「體驗層」的守衛（提早把非管理員導走），就算繞過這些頁面，實際的讀寫權限仍然由 Supabase 的 Row Level Security 政策決定。RLS 規則本身**不在這個 repo 裡**（見第九節）。
 
 ### Layout 巢狀
 
 - `app/layout.tsx`：空殼，只放 `<Analytics/>`，存在只是因為 Next.js 需要一個檔案系統意義上的根 layout。
 - `app/[locale]/layout.tsx`：真正的根 layout。驗證 `locale` 合法性（不合法就 404）、載入字體（`Noto Sans TC` + 自製「GenKiMin TW」serif，字型子集是 `scripts/generate-fonts.mjs` 在 build 前產生的）、包上 `NextIntlClientProvider` → `ThemeProvider`（next-themes）→ `HeaderSubNavProvider`，渲染全站共用的 `Header`/`Footer`，掛 Google Analytics。
-- `app/[locale]/admin/layout.tsx`：`ToastProvider` → `ConfirmDialogProvider` → `AdminShell`。**這一層本身不做任何登入檢查**，完全信任 middleware 已經擋過了。
+- `app/[locale]/admin/layout.tsx`：`ToastProvider` → `ConfirmDialogProvider` → `AdminShell`。**這一層本身不做任何登入檢查**，完全信任 proxy 已經擋過了。
 
 ---
 
@@ -85,7 +85,7 @@
 
 | 路徑 | 說明 |
 |---|---|
-| `POST /api/admin/ai` | 自己呼叫 `requireAdmin()` 做 401/403（因為 middleware 不管 `/api`）。用 Zod discriminated union 驗證 4 種任務：`slug`／`description`／`coverAlt`（會把圖片網址送進去給模型看）／`keywords`。用 Vercel AI SDK 的 `generateObject` 打 `google/gemini-3.5-flash-lite`，把 429/402/403 這幾種 Gateway 錯誤轉成好懂的訊息。 |
+| `POST /api/admin/ai` | 自己呼叫 `requireAdmin()` 做 401/403（因為 proxy 不管 `/api`）。用 Zod discriminated union 驗證 4 種任務：`slug`／`description`／`coverAlt`（會把圖片網址送進去給模型看）／`keywords`。用 Vercel AI SDK 的 `generateObject` 打 `google/gemini-3.5-flash-lite`，把 429/402/403 這幾種 Gateway 錯誤轉成好懂的訊息。 |
 | `POST /api/views` | 公開、無驗證。收 `{postId}`，呼叫 `increment_post_view_count` 這個 Postgres RPC（`SECURITY DEFINER`，讓匿名使用者也能加計數但不需要 UPDATE 權限）。防重複瀏覽完全靠前端 `localStorage`（30 分鐘冷卻），沒有伺服器端防灌水，個人網站這樣是夠用的但要知道這件事。 |
 
 ### 特殊路由
@@ -122,7 +122,7 @@
 
 ### RPC 函式
 
-- `is_admin()` — 無參數，回傳 boolean，`middleware.ts` 和 `requireAdmin.ts` 都靠它判斷管理員身份。
+- `is_admin()` — 無參數，回傳 boolean，`proxy.ts` 和 `requireAdmin.ts` 都靠它判斷管理員身份。
 - `increment_post_view_count(post_id)` — `SECURITY DEFINER`，讓匿名瀏覽也能加計數。
 
 兩個函式的實際 SQL 邏輯都**只存在 Supabase 後台**，這個 repo 裡沒有 migrations 資料夾、沒有任何 `.sql` 檔案（見第九節，這是要注意的落差）。
@@ -144,7 +144,7 @@
 
 1. `/admin/login` 按鈕呼叫 `supabase.auth.signInWithOAuth({provider:'google', redirectTo:'/auth/callback?next=/admin'})`。
 2. Google 導回 `/auth/callback?code=...`，`exchangeCodeForSession` 換出 session、寫入 cookie。
-3. 之後每個請求，`middleware.ts` 對 `/admin/*` 路徑重建一個 server client 讀 cookie、呼叫 `getUser()` + `rpc('is_admin')` 判斷放不放行。
+3. 之後每個請求，`proxy.ts` 對 `/admin/*` 路徑重建一個 server client 讀 cookie、呼叫 `getUser()` + `rpc('is_admin')` 判斷放不放行。
 4. `AdminShell` 裡也會呼叫一次 `getUser()`，但那只是拿來顯示大頭貼/名字，**不是安全檢查**。
 5. `is_admin()` 怎麼判斷「誰是管理員」——是 email allowlist？是 role 欄位？——**完全看不到**，因為邏輯在 Supabase 後台，這個 repo 裡沒有任何程式碼或 SQL 定義它。
 
@@ -206,7 +206,7 @@ Notes 沒有標題、沒有 slug、沒有雙語、沒有草稿流程（一律直
 
 1. **媒體儲存實際上是 Supabase Storage，不是 R2。** 整個 repo 找不到任何 R2/S3/Cloudflare 相關程式碼或環境變數（`.env` 裡也沒有）。如果你先前決定「媒體走 R2」，目前的實作並沒有照做——除非 Supabase 專案後台把 Storage 的底層接到了外部 S3 相容的 R2 bucket（Supabase 支援這種接法，但這個設定在 repo 裡看不到，得去 Supabase 後台確認）。這點建議直接去 Supabase Dashboard 的 Storage 設定確認一下，免得以為在用 R2 但其實不是。
 
-2. **短網址導向功能目前完全不存在。** commit 記錄裡有一次「復原短網址導向功能」，但更後面的地基整理把它整個刪掉了，commit 訊息明講是「未來以獨立模組實作」。目前 middleware、`next.config.ts`、路由裡都沒有任何 `/u/[slug]` 或短網址邏輯——如果你以為這功能還在，它其實只存在於 git 歷史裡。
+2. **短網址導向功能目前完全不存在。** commit 記錄裡有一次「復原短網址導向功能」，但更後面的地基整理把它整個刪掉了，commit 訊息明講是「未來以獨立模組實作」。目前 proxy、`next.config.ts`、路由裡都沒有任何 `/u/[slug]` 或短網址邏輯——如果你以為這功能還在，它其實只存在於 git 歷史裡。
 
 3. **資料庫 schema 跟 RLS 規則完全沒有版本控制。** 這個 repo 沒有 `supabase/` 目錄、沒有任何 migration 或 `.sql` 檔案。`is_admin()`、`increment_post_view_count()` 這兩個 RPC，還有所有資料表的 RLS 政策，都只存在 Supabase 專案後台，換一台電腦、或哪天要重建這個專案，這些邏輯無法從程式碼重現。這是目前最大的「單點故障」風險——建議之後找時間把現有的 schema/RLS 用 `supabase db dump` 之類的方式拉一份存進 repo。
 
@@ -224,11 +224,19 @@ Notes 沒有標題、沒有 slug、沒有雙語、沒有草稿流程（一律直
 
 8. **README.md 和 BLOG_SETUP.md 已經完全過期**，兩份都還在講 Firebase，跟現在的 Supabase 架構對不上，容易誤導之後回來看文件的自己。
 
+9. **proxy 拒絕放行時會丟掉 Supabase 剛續期的 cookie。** `proxy.ts` 的 Supabase cookie adapter 把更新後的 auth cookie 寫在 next-intl 產生的 `response` 上，但守衛判定不放行時回傳的是一個全新的 `NextResponse.redirect(...)`，那些 cookie 就沒了。實務上影響有限（不放行本來就要重新登入），但 session 只在放行路徑上會被續期。修法是把 `response.cookies.getAll()` 複製到 redirect response 上。Beta 3 升級時刻意不動它，好讓升級的 diff 保持乾淨。
+
+10. **靜態產生依賴 `setRequestLocale`，而它是 next-intl 的舊 API。** `app/[locale]/layout.tsx` 呼叫 `setRequestLocale(locale)`，少了它，`/gallery/[slug]` 那 104 頁會整批退回動態渲染（Next 16 起不再讓 `app/lib/metadata.ts` 裡 `getLocale().catch()` 把錯誤吞掉）。next-intl 官方建議改用 `next/root-params`，那是獨立的遷移工作。
+
+11. **eslint-plugin-react-hooks v6 的四條新規則被降為警告。** `refs`／`set-state-in-effect`／`immutability`／`preserve-manual-memoization` 在既有程式碼上共 31 個違規，集中在攝影牆的手勢與狀態機 hook、自動存檔與燈箱。它們指出的是真問題（例如 render 期間寫 ref），設定在 `eslint.config.mjs` 裡刻意降級以免升級 diff 被淹沒，是明確的待辦。
+
+12. **首頁的原始碼展示面板有檔案追蹤漏洞。** `app/[locale]/page.tsx` 在執行期用 `readFile` 讀 `app/components/home/HeroShowcase.tsx` 當展示內容，但 `next.config.ts` 的 `outputFileTracingIncludes` 只涵蓋 `/[locale]/about`。讀不到時 `catch` 回傳「原始碼讀取失敗」字串——跟 About 頁同一類的安靜失效。目前正式站正常，但這是靠運氣。
+
 ---
 
 ## 十、如果你想繼續探索，這裡是切入點
 
 - 想搞懂「文章怎麼從編輯器變成前台頁面」→ 從 `app/components/admin/PostEditor/` 開始跟到 `app/lib/supabase/posts.ts` 再到 `app/[locale]/blog/[slug]/page.tsx`。
-- 想搞懂「權限怎麼擋」→ `middleware.ts` → `app/lib/supabase/requireAdmin.ts` → 去 Supabase 後台找 `is_admin()` 的定義。
+- 想搞懂「權限怎麼擋」→ `proxy.ts` → `app/lib/supabase/requireAdmin.ts` → 去 Supabase 後台找 `is_admin()` 的定義。
 - 想加新功能（例如真的把 Gallery 做起來）→ 參考 `notes` 這條線（全站最簡單完整的 CRUD 範例：`app/lib/supabase/notes.ts` + `admin/notes/page.tsx` + `notes/page.tsx`），複雜度比 `posts` 低很多，適合當模板。
 - 想確認媒體儲存到底是不是 R2 → 直接去 Supabase Dashboard → Storage → 看 bucket 的底層設定。

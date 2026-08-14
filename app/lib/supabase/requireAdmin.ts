@@ -1,8 +1,8 @@
 import { createClient } from './server'
 
 /**
- * Route handler 專用的管理員檢查。middleware.ts 的 matcher 明確排除了 `api`，
- * 所以任何 `app/api/**` route 都拿不到 middleware 的保護，得自己重複同一套
+ * Route handler 專用的管理員檢查。proxy.ts 的 matcher 明確排除了 `api`，
+ * 所以任何 `app/api/**` route 都拿不到 proxy 的保護，得自己重複同一套
  * getUser() + is_admin RPC 檢查。
  */
 export async function requireAdmin(): Promise<

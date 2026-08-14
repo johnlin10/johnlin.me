@@ -6,7 +6,7 @@ import { cookies } from 'next/headers'
  * 綁定 Next.js cookie，讓 RLS 依登入者 session 運作。
  *
  * 注意：在 RSC 中呼叫 setAll 會拋錯（RSC 不能寫 cookie），已 try/catch 吞掉；
- * session 的更新由 middleware 負責，所以 RSC 只讀不寫 cookie 是安全的。
+ * session 的更新由 proxy 負責，所以 RSC 只讀不寫 cookie 是安全的。
  */
 export async function createClient() {
   const cookieStore = await cookies()
@@ -25,7 +25,7 @@ export async function createClient() {
               cookieStore.set(name, value, options)
             )
           } catch {
-            // 從 Server Component 呼叫時會落到這裡，可忽略（middleware 會刷新 session）。
+            // 從 Server Component 呼叫時會落到這裡，可忽略（proxy 會刷新 session）。
           }
         },
       },

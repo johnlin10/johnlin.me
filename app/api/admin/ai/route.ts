@@ -41,7 +41,7 @@ const requestBody = z.discriminatedUnion('task', [
 ])
 
 /**
- * 後台文章編輯器的 AI 輔助端點。middleware 保護不到 /api，權限檢查靠 requireAdmin()。
+ * 後台文章編輯器的 AI 輔助端點。proxy 保護不到 /api，權限檢查靠 requireAdmin()。
  */
 export async function POST(request: NextRequest) {
   const auth = await requireAdmin()

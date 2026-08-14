@@ -21,7 +21,7 @@ export async function generateMetadata({
 
 /**
  * 後台 Layout。
- * 權限守衛已上移至 middleware（伺服器端統一守 /admin，login 除外），
+ * 權限守衛已上移至 proxy（伺服器端統一守 /admin，login 除外），
  * 資料安全底線則由 Supabase RLS 把關，這裡負責後台版面外殼與站內提示。
  */
 export default function AdminLayout({
