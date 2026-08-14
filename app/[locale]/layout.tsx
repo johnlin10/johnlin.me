@@ -10,6 +10,7 @@ import FooterGate from '@/app/components/Footer/FooterGate'
 // i18n
 import { routing } from '@/i18n/routing'
 import { NextIntlClientProvider, hasLocale } from 'next-intl'
+import { setRequestLocale } from 'next-intl/server'
 
 import { GoogleAnalytics } from '@next/third-parties/google'
 
@@ -53,6 +54,9 @@ export default async function RootLayout({
   if (!hasLocale(routing.locales, locale)) {
     notFound()
   }
+  // 讓 next-intl 在沒有請求脈絡時（靜態產生）也知道語系。少了這行，
+  // getLocale()/getTranslations() 會把路由退回動態渲染。
+  setRequestLocale(locale)
 
   return (
     <html lang={locale} suppressHydrationWarning>
