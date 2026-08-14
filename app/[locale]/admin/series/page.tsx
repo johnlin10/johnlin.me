@@ -14,6 +14,10 @@ import Modal from '@/app/components/admin/Modal/Modal'
 import Button from '@/app/components/admin/Button/Button'
 import Input from '@/app/components/admin/Input/Input'
 import Textarea from '@/app/components/admin/Textarea/Textarea'
+import DataTable, {
+  type DataTableColumn,
+  type DataTableAction,
+} from '@/app/components/admin/DataTable/DataTable'
 import { useToast } from '@/app/components/admin/Toast/ToastProvider'
 import { useConfirm } from '@/app/components/admin/ConfirmDialog/ConfirmDialog'
 import style from './series.module.scss'
@@ -140,6 +144,43 @@ export default function SeriesPage() {
     }
   }
 
+  const seriesColumns: DataTableColumn<Series>[] = [
+    {
+      key: 'slug',
+      header: t('table.slug'),
+      render: (series) => <code className={style.slug}>{series.slug}</code>,
+    },
+    {
+      key: 'nameZh',
+      header: t('table.nameZh'),
+      render: (series) => series.locales['zh-tw'].name,
+    },
+    {
+      key: 'nameEn',
+      header: t('table.nameEn'),
+      render: (series) => series.locales.en.name,
+    },
+    {
+      key: 'postCount',
+      header: t('table.postCount'),
+      render: (series) => series.postCount ?? t('none'),
+    },
+  ]
+
+  const seriesActions: DataTableAction<Series>[] = [
+    {
+      label: t('edit'),
+      variant: 'secondary',
+      onClick: handleEdit,
+    },
+    {
+      label: t('delete'),
+      variant: 'danger',
+      onClick: handleDelete,
+      disabled: (series) => (series.postCount ?? 0) > 0,
+    },
+  ]
+
   return (
     <div className={style.series_page}>
       <div className={style.container}>
@@ -165,50 +206,13 @@ export default function SeriesPage() {
             <Button onClick={handleCreate}>{t('createFirst')}</Button>
           </div>
         ) : (
-          <div className={style.table_wrapper}>
-            <table className={style.table}>
-              <thead>
-                <tr>
-                  <th>{t('table.slug')}</th>
-                  <th>{t('table.nameZh')}</th>
-                  <th>{t('table.nameEn')}</th>
-                  <th>{t('table.postCount')}</th>
-                  <th>{t('table.actions')}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {seriesList.map((series) => (
-                  <tr key={series.id}>
-                    <td>
-                      <code className={style.slug}>{series.slug}</code>
-                    </td>
-                    <td>{series.locales['zh-tw'].name}</td>
-                    <td>{series.locales.en.name}</td>
-                    <td>{series.postCount ?? t('none')}</td>
-                    <td>
-                      <div className={style.actions}>
-                        <Button
-                          variant="secondary"
-                          size="small"
-                          onClick={() => handleEdit(series)}
-                        >
-                          {t('edit')}
-                        </Button>
-                        <Button
-                          variant="danger"
-                          size="small"
-                          onClick={() => handleDelete(series)}
-                          disabled={(series.postCount ?? 0) > 0}
-                        >
-                          {t('delete')}
-                        </Button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <DataTable
+            columns={seriesColumns}
+            data={seriesList}
+            rowKey={(series) => series.id}
+            actionsHeader={t('table.actions')}
+            actions={seriesActions}
+          />
         )}
 
         {/* 編輯彈窗 */}

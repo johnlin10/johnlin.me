@@ -257,8 +257,8 @@ $sidebarWidth: 232px;
 }
 
 .avatarWrapper {
-  width: 34px;
-  height: 34px;
+  width: 36px;
+  height: 36px;
   flex-shrink: 0;
   border-radius: 50%;
   overflow: hidden;
@@ -289,7 +289,6 @@ $sidebarWidth: 232px;
 .userInfo {
   display: flex;
   flex-direction: column;
-  gap: 2px;
   flex: 1;
   min-width: 0;
 }

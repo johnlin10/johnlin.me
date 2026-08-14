@@ -13,6 +13,10 @@ import type { Tag, CreateTagInput } from '@/app/types/blog'
 import Modal from '@/app/components/admin/Modal/Modal'
 import Button from '@/app/components/admin/Button/Button'
 import Input from '@/app/components/admin/Input/Input'
+import DataTable, {
+  type DataTableColumn,
+  type DataTableAction,
+} from '@/app/components/admin/DataTable/DataTable'
 import { useToast } from '@/app/components/admin/Toast/ToastProvider'
 import { useConfirm } from '@/app/components/admin/ConfirmDialog/ConfirmDialog'
 import style from './tags.module.scss'
@@ -135,6 +139,43 @@ export default function TagsPage() {
     }
   }
 
+  const tagColumns: DataTableColumn<Tag>[] = [
+    {
+      key: 'slug',
+      header: t('table.slug'),
+      render: (tag) => <code className={style.slug}>{tag.slug}</code>,
+    },
+    {
+      key: 'nameZh',
+      header: t('table.nameZh'),
+      render: (tag) => tag.locales['zh-tw'].name,
+    },
+    {
+      key: 'nameEn',
+      header: t('table.nameEn'),
+      render: (tag) => tag.locales.en.name,
+    },
+    {
+      key: 'postCount',
+      header: t('table.postCount'),
+      render: (tag) => tag.postCount ?? t('none'),
+    },
+  ]
+
+  const tagActions: DataTableAction<Tag>[] = [
+    {
+      label: t('edit'),
+      variant: 'secondary',
+      onClick: handleEdit,
+    },
+    {
+      label: t('delete'),
+      variant: 'danger',
+      onClick: handleDelete,
+      disabled: (tag) => (tag.postCount ?? 0) > 0,
+    },
+  ]
+
   return (
     <div className={style.tags_page}>
       <div className={style.container}>
@@ -160,50 +201,13 @@ export default function TagsPage() {
             <Button onClick={handleCreate}>{t('createFirst')}</Button>
           </div>
         ) : (
-          <div className={style.table_wrapper}>
-            <table className={style.table}>
-              <thead>
-                <tr>
-                  <th>{t('table.slug')}</th>
-                  <th>{t('table.nameZh')}</th>
-                  <th>{t('table.nameEn')}</th>
-                  <th>{t('table.postCount')}</th>
-                  <th>{t('table.actions')}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {tags.map((tag) => (
-                  <tr key={tag.id}>
-                    <td>
-                      <code className={style.slug}>{tag.slug}</code>
-                    </td>
-                    <td>{tag.locales['zh-tw'].name}</td>
-                    <td>{tag.locales.en.name}</td>
-                    <td>{tag.postCount ?? t('none')}</td>
-                    <td>
-                      <div className={style.actions}>
-                        <Button
-                          variant="secondary"
-                          size="small"
-                          onClick={() => handleEdit(tag)}
-                        >
-                          {t('edit')}
-                        </Button>
-                        <Button
-                          variant="danger"
-                          size="small"
-                          onClick={() => handleDelete(tag)}
-                          disabled={(tag.postCount ?? 0) > 0}
-                        >
-                          {t('delete')}
-                        </Button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <DataTable
+            columns={tagColumns}
+            data={tags}
+            rowKey={(tag) => tag.id}
+            actionsHeader={t('table.actions')}
+            actions={tagActions}
+          />
         )}
 
         {/* 編輯彈窗 */}
@@ -272,4 +276,3 @@ export default function TagsPage() {
     </div>
   )
 }
-
