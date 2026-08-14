@@ -1,6 +1,9 @@
 // 斷點本體搬去 _breakpoints.scss 了，這裡照舊 forward 出去，
 // 舊的 `@use '.../mixins' as *` 呼叫端不用改。
+// 同時 @use 一份給自己用：field-shell()/field-control() 內部要呼叫 respond-to()，
+// @forward 只轉發給外部呼叫端，不會讓本檔案自己拿到這個名稱。
 @forward 'breakpoints';
+@use 'breakpoints' as *;
 
 @mixin flexbox($direction: row, $justify: center, $align: center) {
   display: flex;
@@ -85,5 +88,104 @@
   &:focus-visible {
     outline: none;
     box-shadow: var(--shadow-focus);
+  }
+}
+
+// 表單欄位外殼：label（含必填星號）+ error/helper 文字，
+// Input/Textarea/Selector 這類欄位元件共用，欄位本體另外用 field-control()。
+@mixin field-shell() {
+  @include flexbox(column, flex-start, stretch);
+  gap: var(--space-2);
+
+  @include respond-to('phone') {
+    gap: var(--space-1);
+  }
+
+  &.full_width {
+    width: 100%;
+  }
+
+  .label_row {
+    @include flexbox(row, space-between, center);
+    gap: var(--space-2);
+  }
+
+  .label {
+    font-family: var(--font-sans);
+    font-size: var(--text-xs);
+    font-weight: 500;
+    color: var(--text);
+
+    @include respond-to('phone') {
+      font-size: var(--text-xs);
+    }
+
+    .required {
+      color: var(--danger);
+      margin-left: var(--space-1);
+    }
+  }
+
+  .error_text {
+    font-family: var(--font-sans);
+    font-size: var(--text-2xs);
+    color: var(--danger);
+
+    @include respond-to('phone') {
+      font-size: var(--text-3xs);
+    }
+  }
+
+  .helper_text {
+    font-family: var(--font-sans);
+    font-size: var(--text-2xs);
+    color: var(--text-muted);
+
+    @include respond-to('phone') {
+      font-size: var(--text-3xs);
+    }
+  }
+}
+
+// 表單控制項本體：input/textarea 共用的底色、邊框、focus、disabled、error 狀態。
+// 呼叫端只需再補欄位特有的差異（如 font-family、resize）。$width 預設撐滿
+// （表單欄位常態），並排的小按鈕（例如 ThemeToggle）可以傳 auto 蓋掉。
+@mixin field-control($width: 100%) {
+  width: $width;
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--text-sm);
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  transition: all var(--duration-fast) var(--ease);
+
+  @include respond-to('phone') {
+    padding: var(--space-2) var(--space-4);
+    font-size: var(--text-sm);
+  }
+
+  &::placeholder {
+    color: var(--text-muted);
+  }
+
+  &:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: var(--shadow-focus);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    background: var(--surface-2);
+  }
+
+  &.error {
+    border-color: var(--danger);
+
+    &:focus {
+      box-shadow: 0 0 0 3px var(--danger-soft);
+    }
   }
 }
