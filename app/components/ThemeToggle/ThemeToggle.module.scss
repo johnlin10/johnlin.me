@@ -1,31 +1,58 @@
 @use '@/app/styles/mixins' as *;
 
-// 極簡暖色風：無邊框圖示按鈕，hover 浮現細邊框 + 淡底，色轉 accent。
+// 跟 LanguageSwitch 的下拉觸發鈕共用同一份 field-control()（見
+// app/styles/_mixins.scss），邊框／圓角／padding／focus 全部同源，兩顆
+// 擺在一起才會是「同一組」而不是兩種不同元件亂湊。$width:auto 蓋掉
+// field-control() 預設的撐滿寬度（那是給獨占一行的表單欄位用的）。
 .themeToggle {
   @include flexbox(row, center, center);
-  width: 38px;
-  height: 38px;
-  border-radius: var(--radius-pill);
-  background: transparent;
-  border: 1px solid transparent;
-  color: var(--text-secondary);
+  gap: var(--space-2);
+  font-family: var(--font-sans);
   cursor: pointer;
-  transition: color var(--duration-fast) var(--ease),
-    background-color var(--duration-fast) var(--ease),
-    border-color var(--duration-fast) var(--ease);
+  @include field-control($width: auto);
 
   &:hover {
     color: var(--accent);
     background: var(--surface-2);
-    border-color: var(--border);
+    border-color: var(--accent);
   }
 
   &:active {
-    transform: scale(0.94);
+    transform: scale(0.96);
   }
+}
 
-  @include respond-to('phone') {
-    width: 40px;
-    height: 40px;
+// 圖示殼固定 1em 見方，進/出圖示都用 absolute 疊在裡面淡入淡出，
+// 殼的寬度不受哪個圖示正在動畫影響，按鈕才不會跟著抖動。
+.iconStack {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1em;
+  height: 1em;
+}
+
+.iconMotion {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+// 三個狀態文字疊在同一個 grid cell：grid 預設會取最寬的子項當欄寬，
+// 容器寬度固定，不會因為切到「System」比「淺色」寬就跟著撐開。可見度交給
+// Motion 的 opacity 動畫控制，這裡只負責疊放版位，不設 visibility。
+.themeLabelStack {
+  display: grid;
+
+  > * {
+    grid-area: 1 / 1;
   }
+}
+
+.themeLabel {
+  white-space: nowrap;
+  pointer-events: none;
 }
