@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, type MouseEvent } from 'react'
 import { Link } from '@/i18n/navigation'
-import type { WallCell } from '@/app/lib/photos/layout'
+import type { WallCell } from '@/app/lib/photos/wallLayout'
 import type { SupportedLocale } from '@/app/types/blog'
 import { photoAltText, photoCaption, formatTakenAt } from '@/app/lib/photos/format'
 import PhotoMeta from '@/app/components/gallery/PhotoMeta/PhotoMeta'

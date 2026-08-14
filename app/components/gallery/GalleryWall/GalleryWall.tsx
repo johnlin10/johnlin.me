@@ -15,7 +15,7 @@ import {
   useTransform,
   useMotionValueEvent,
 } from 'motion/react'
-import { COL_W, packWall } from '@/app/lib/photos/layout'
+import { COL_W, packWall } from '@/app/lib/photos/wallLayout'
 import { fitTransform, fitWallTransform, type Size } from '@/app/lib/photos/geometry'
 import { yearMarkerOpacity } from '@/app/lib/photos/lod'
 import type { Photo } from '@/app/types/photo'

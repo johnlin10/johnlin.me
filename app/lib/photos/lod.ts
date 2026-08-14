@@ -1,4 +1,4 @@
-import { COL_W } from './layout'
+import { COL_W } from './wallLayout'
 
 //* ==================== 攝影牆的細節分級（LOD）====================
 // 牆是單一 transform，next/image 的 sizes 沒辦法隨縮放自動調，這裡自己算。

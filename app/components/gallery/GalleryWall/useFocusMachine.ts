@@ -8,7 +8,7 @@ import {
   type Rect,
   type Size,
 } from '@/app/lib/photos/geometry'
-import { CARD_H, type WallCell } from '@/app/lib/photos/layout'
+import { CARD_H, type WallCell } from '@/app/lib/photos/wallLayout'
 import type { SupportedLocale } from '@/app/types/blog'
 import { useWallUrlSync } from './useWallUrlSync'
 import type { usePanZoom } from './usePanZoom'
