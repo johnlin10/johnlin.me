@@ -1,5 +1,5 @@
 import createIntlMiddleware from 'next-intl/middleware'
-import { NextResponse, type NextRequest } from 'next/server'
+import { NextResponse, NextRequest } from 'next/server'
 import { createServerClient } from '@supabase/ssr'
 import { routing } from './i18n/routing'
 
@@ -9,13 +9,46 @@ const intlMiddleware = createIntlMiddleware(routing)
 // 比對開頭的語系前綴（/en 或 /zh-tw），用來還原/組回帶前綴的路徑。
 const LOCALE_PREFIX = /^\/(en|zh-tw)(?=\/|$)/
 
+// Accept-Language 裡權重最高的語言標籤是否為中文（不分繁簡：zh、zh-TW、zh-CN、zh-Hans...）。
+function isTopLanguageChinese(acceptLanguage: string | null) {
+  if (!acceptLanguage) return false
+  const top = acceptLanguage
+    .split(',')
+    .map((part) => {
+      const [tag, qPart] = part.trim().split(';q=')
+      return { tag: tag.trim(), q: qPart ? parseFloat(qPart) : 1 }
+    })
+    .filter((entry) => entry.tag)
+    .sort((a, b) => b.q - a.q)[0]
+  return /^zh\b/i.test(top?.tag ?? '')
+}
+
+/**
+ * next-intl 只支援 en / zh-tw 兩個 locale，它內建的 Accept-Language 比對
+ * 是嚴格 BCP-47 lookup，碰到 zh-CN、fr、ja 這類不在名單裡的標籤時規則不
+ * 直覺（可能誤配到列表裡的下一個語言，或直接退回 defaultLocale），不是
+ * 我們要的「非中文一律英文」二分法。所以在沒有 NEXT_LOCALE cookie 時，
+ * 自己解析 Accept-Language 最高權重的語言，改寫成 'zh-tw' 或 'en' 這種
+ * 能被 next-intl 精準比對的值再丟進去；cookie 存在時完全不動，判斷優先
+ * 序本來就是 cookie > Accept-Language。
+ */
+function normalizeAcceptLanguage(request: NextRequest) {
+  if (request.cookies.has('NEXT_LOCALE')) return request
+  const preferred = isTopLanguageChinese(request.headers.get('accept-language'))
+    ? 'zh-tw'
+    : 'en'
+  const headers = new Headers(request.headers)
+  headers.set('accept-language', preferred)
+  return new NextRequest(request, { headers })
+}
+
 /**
  * 中介層：先跑 next-intl，再對 /admin 路徑做伺服器端守衛。
  * 公開頁完全不碰 Supabase，保持快速；只有後台會付出 getUser + is_admin 的成本。
  * 真正的資料安全底線是 RLS，這裡只是提前把未授權者導回登入頁。
  */
 export default async function middleware(request: NextRequest) {
-  const response = intlMiddleware(request)
+  const response = intlMiddleware(normalizeAcceptLanguage(request))
 
   const { pathname } = request.nextUrl
   const stripped = pathname.replace(LOCALE_PREFIX, '') || '/'
