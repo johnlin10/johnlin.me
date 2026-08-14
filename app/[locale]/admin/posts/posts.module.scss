@@ -128,76 +128,31 @@
   }
 }
 
-.table_wrapper {
-  width: 100%;
-  overflow-x: auto;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-
-  @include respond-to('phone') {
-    border-radius: var(--radius-md);
-  }
-}
-
-.table {
-  width: 100%;
-  border-collapse: collapse;
-
-  thead {
-    background: var(--surface-2);
-
-    th {
-      padding: var(--space-4) var(--space-5);
-      text-align: left;
-      font-family: var(--font-sans);
-      font-size: var(--text-xs);
-      font-weight: 600;
-      color: var(--text);
-      border-bottom: 1px solid var(--border);
-      white-space: nowrap;
-
-      @include respond-to('phone') {
-        padding: var(--space-3) var(--space-4);
-        font-size: var(--text-2xs);
-      }
-
-      &.title_column {
-        min-width: 240px;
-      }
-    }
-  }
-
-  tbody tr {
-    transition: background var(--duration-fast) var(--ease);
-
-    &:hover {
-      background: var(--surface-2);
-    }
-
-    &:not(:last-child) {
-      border-bottom: 1px solid var(--border);
-    }
-  }
-
-  td {
-    padding: var(--space-4) var(--space-5);
-    font-size: var(--text-sm);
-    color: var(--text);
-
-    @include respond-to('phone') {
-      padding: var(--space-3) var(--space-4);
-      font-size: var(--text-xs);
-    }
+// DataTable 的 tbody tr:hover 是它自己 module 裡的 class，這裡搆不到，
+// 改用標籤選擇器掛在 .posts_page 底下，照樣能在 hover 時把 slug/tag_chip 提亮。
+.posts_page tbody tr:hover {
+  .slug,
+  .tag_chip {
+    background: var(--surface);
   }
 }
 
 .post_title {
   @include flexbox(column, flex-start, flex-start);
   gap: var(--space-1);
+}
 
-  span {
-    font-weight: 500;
+.title_link {
+  font-weight: 500;
+  color: var(--text);
+  text-decoration: none;
+  transition: color var(--duration-fast) var(--ease);
+
+  &:hover,
+  &:focus-visible {
+    color: var(--accent);
+    text-decoration: underline;
+    text-underline-offset: 3px;
   }
 }
 
@@ -217,10 +172,11 @@
 
 .status_badge {
   display: inline-block;
-  padding: var(--space-1) var(--space-3);
+  padding: var(--space-1) var(--space-2);
   font-size: var(--text-2xs);
   font-weight: 500;
   border-radius: var(--radius-xs);
+  word-break: keep-all;
 
   @include respond-to('phone') {
     padding: var(--space-1) var(--space-2);
@@ -238,12 +194,46 @@
   }
 }
 
-.actions {
-  @include flexbox(row, flex-start, center);
-  gap: var(--space-2);
+.category {
+  word-break: keep-all;
+}
 
-  @include respond-to('phone') {
-    @include flexbox(column, flex-start, stretch);
-    gap: var(--space-1);
+// 分類／標籤欄位改成可點擊就地編輯，外觀上先重置成一顆無樣式按鈕，
+// 再疊加跟 .title_link 一致的 hover 提示（底線＋主色），讓使用者一眼
+// 看出這欄可以點。
+.editable_cell {
+  display: inline-block;
+  padding: var(--space-1);
+  margin: calc(var(--space-1) * -1);
+  background: none;
+  border: none;
+  border-radius: var(--radius-xs);
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    color var(--duration-fast) var(--ease),
+    background var(--duration-fast) var(--ease);
+
+  &:hover,
+  &:focus-visible {
+    background: var(--surface-2);
+    color: var(--accent);
   }
+}
+
+.tag_list {
+  @include flexbox(row, flex-start, center);
+  flex-wrap: wrap;
+  gap: var(--space-1);
+}
+
+.tag_chip {
+  padding: var(--space-1) var(--space-2);
+  background: var(--surface-2);
+  color: var(--text-muted);
+  font-size: var(--text-2xs);
+  border-radius: var(--radius-xs);
+  word-break: keep-all;
 }

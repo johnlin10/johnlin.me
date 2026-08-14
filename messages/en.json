@@ -87,14 +87,16 @@
           }
         },
         "tag": {
-          "title": "Tag"
+          "title": "Tags",
+          "classes": {
+            "not_set": "Not Set"
+          }
         },
         "created_at": "Created At",
         "views": "Views",
         "actions": {
           "title": "Actions",
           "classes": {
-            "edit": "Edit",
             "delete": "Delete"
           }
         }
@@ -102,6 +104,8 @@
       "loadError": "Failed to load posts",
       "loading": "Loading...",
       "createDraftError": "Failed to create draft",
+      "categoryUpdateError": "Failed to update category",
+      "tagsUpdateError": "Failed to update tags",
       "deleteConfirmTitle": "Delete post",
       "deleteConfirmMessage": "Are you sure you want to delete \"{title}\"?",
       "deleteSuccess": "Deleted",

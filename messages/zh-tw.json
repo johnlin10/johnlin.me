@@ -88,14 +88,16 @@
           }
         },
         "tag": {
-          "title": "標籤數"
+          "title": "標籤",
+          "classes": {
+            "not_set": "未設定"
+          }
         },
         "created_at": "建立日期",
         "views": "瀏覽",
         "actions": {
           "title": "操作",
           "classes": {
-            "edit": "編輯",
             "delete": "刪除"
           }
         }
@@ -103,6 +105,8 @@
       "loadError": "載入文章失敗",
       "loading": "載入中...",
       "createDraftError": "建立草稿失敗",
+      "categoryUpdateError": "更新分類失敗",
+      "tagsUpdateError": "更新標籤失敗",
       "deleteConfirmTitle": "刪除文章",
       "deleteConfirmMessage": "確定要刪除「{title}」嗎？",
       "deleteSuccess": "刪除成功",
