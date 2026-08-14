@@ -14,5 +14,7 @@ export default function FooterGate({
 }) {
   const pathname = usePathname()
   if (pathname.startsWith('/admin')) return null
+  // 攝影牆是滿版沉浸式（fixed），不要 footer；但單張頁 /gallery/[slug] 是一般頁面要保留。
+  if (pathname.startsWith('/gallery')) return null
   return <>{children}</>
 }

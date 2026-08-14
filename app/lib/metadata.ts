@@ -8,6 +8,9 @@ export interface MetadataOptions {
   description: string
   keywords?: string[]
   image?: string
+  /** OG 圖尺寸。省略時預設 1920×1080；非 16:9 的圖（如 gallery 的 1200×630）要明確帶入。 */
+  imageWidth?: number
+  imageHeight?: number
   url?: string
   type?: 'website' | 'article' | 'profile'
   publishedTime?: string
@@ -66,6 +69,8 @@ export async function metadata(options: MetadataOptions): Promise<Metadata> {
     description,
     keywords = [],
     image = '/assets/image/metadata-backgrounds/global.webp',
+    imageWidth = 1920,
+    imageHeight = 1080,
     url,
     type = 'website',
     publishedTime,
@@ -139,8 +144,8 @@ export async function metadata(options: MetadataOptions): Promise<Metadata> {
       images: [
         {
           url: imageUrl,
-          width: 1920,
-          height: 1080,
+          width: imageWidth,
+          height: imageHeight,
           alt: title,
         },
       ],

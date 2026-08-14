@@ -1,0 +1,82 @@
+@use '@/app/styles/design' as *;
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-12);
+}
+
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.year {
+  font-family: var(--font-serif);
+  font-size: var(--text-2xl);
+  font-weight: 600;
+  color: var(--text);
+  margin: 0;
+  padding-bottom: var(--space-2);
+  border-bottom: 1px solid var(--border);
+}
+
+.rows {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+// gap 由 JustifiedList.tsx 內聯設定（跟 computeJustifiedRows 算寬度時用的
+// gap 值同一個來源，兩邊對不齊的話列寬就沒辦法精準貼齊容器邊緣）。
+.row {
+  display: flex;
+  align-items: flex-start;
+}
+
+// 寬度由 JS 精算內聯設定；.frame 的高度也是（同一列同高，列跟列可以不同）。
+.item {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  text-decoration: none;
+  @include focus-ring;
+  border-radius: var(--radius-sm);
+}
+
+.frame {
+  display: block;
+  width: 100%;
+  overflow: hidden;
+  border-radius: var(--radius-xs);
+  background: var(--surface-2);
+  box-shadow: var(--shadow-sm);
+  transition:
+    transform var(--duration) var(--ease),
+    box-shadow var(--duration) var(--ease);
+
+  .item:hover & {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-md);
+  }
+}
+
+.img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.date {
+  @include meta;
+  font-variant-numeric: tabular-nums;
+}
+
+.empty {
+  @include meta;
+  text-align: center;
+  padding: var(--space-16) 0;
+}

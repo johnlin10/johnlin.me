@@ -575,9 +575,39 @@
     }
   },
   "GalleryPage": {
-    "title": "攝影集",
-    "description": "歡迎來到我的攝影集。",
-    "page_title": "攝影集"
+    "title": "攝影",
+    "description": "一面掛滿瞬間的牆。這些照片沒有構圖公式，只有當下的感覺 —— 看到某個角度覺得美，就按下快門。",
+    "page_title": "攝影",
+    "empty": "照片正在整理中，很快就會掛上牆。",
+    "listView": "照片列表",
+    "backToWall": "回到攝影牆",
+    "mode": {
+      "wall": "攝影牆",
+      "list": "清單",
+      "label": "檢視方式"
+    },
+    "hint": {
+      "explore": "拖曳探索 · 捏合縮放 · 點一下看大圖"
+    },
+    "controls": {
+      "zoomIn": "放大",
+      "zoomOut": "縮小",
+      "fitWall": "看整面牆",
+      "prevPhoto": "上一張",
+      "nextPhoto": "下一張"
+    },
+    "meta": {
+      "date": "拍攝時間",
+      "location": "地點"
+    },
+    "exif": {
+      "camera": "相機",
+      "lens": "鏡頭",
+      "focalLength": "焦距",
+      "aperture": "光圈",
+      "shutter": "快門",
+      "iso": "ISO 感光度"
+    }
   },
   "NotesPage": {
     "title": "短文",

@@ -2,6 +2,7 @@ import type { MetadataRoute } from 'next'
 import { createPublicClient } from '@/app/lib/supabase/public'
 import { getPublishedPosts } from '@/app/lib/supabase/posts'
 import { getPublishedNotes } from '@/app/lib/supabase/notes'
+import { getPublishedPhotos } from '@/app/lib/supabase/photos'
 import { SITE_CONFIG } from '@/app/lib/siteConfigs'
 
 // 每次爬取都直接查 DB，不快取，確保新發表的文章/短文立刻出現在 sitemap 上。
@@ -69,9 +70,11 @@ const STATIC_PAGES: Array<{
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const supabase = createPublicClient()
 
-  const [posts, notes] = await Promise.all([
+  const [posts, notes, photos] = await Promise.all([
     fetchAll((page) => getPublishedPosts(supabase, { page, pageSize: 100 })),
     fetchAll((page) => getPublishedNotes(supabase, { page, pageSize: 100 })),
+    // 攝影一次全取（版面本來就要全部照片，也沒有分頁 API）
+    getPublishedPhotos(supabase),
   ])
 
   const now = new Date()
@@ -109,6 +112,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     )
   )
 
+  const photoEntries = photos.flatMap((photo) =>
+    localizedEntry(
+      `/gallery/${photo.slug}`,
+      new Date(photo.updatedAt || photo.createdAt),
+      'monthly',
+      0.5
+    )
+  )
+
   return [
     ...homeEntry,
     ...blogListEntry,
@@ -116,5 +128,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...staticEntries,
     ...postEntries,
     ...noteEntries,
+    ...photoEntries,
   ]
 }

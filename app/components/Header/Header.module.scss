@@ -16,10 +16,23 @@
   z-index: var(--z-header);
   pointer-events: none; // 中間空隙讓內容可被點擊 / 捲動
   transition:
+    opacity var(--duration) var(--ease),
     background-color var(--duration) var(--ease),
     backdrop-filter var(--duration) var(--ease),
     -webkit-backdrop-filter var(--duration) var(--ease),
     border-color var(--duration) var(--ease);
+
+  // 攝影牆單張聚焦時，浮動 header 淡出，讓暗背景滿版、不與咖啡色 header 割裂。
+  // 子層（.island 等）自己宣告了 pointer-events:auto，父層設 none 蓋不到它們，
+  // 所以要連子孫一起關掉，否則聚焦畫面右上角的關閉鍵會被隱形的 header 島擋住。
+  :global(html[data-photo-focus]) & {
+    opacity: 0;
+    pointer-events: none;
+
+    * {
+      pointer-events: none;
+    }
+  }
 }
 
 // 只有手機/平板會有頁面 portal 進來的次導覽（桌機走頁面自己的 sidebar），

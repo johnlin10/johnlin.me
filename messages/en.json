@@ -574,9 +574,39 @@
     }
   },
   "GalleryPage": {
-    "title": "Gallery",
-    "description": "Welcome to my gallery.",
-    "page_title": "Gallery"
+    "title": "Photography",
+    "description": "A wall of captured moments. No composition formula here — just the feeling of a moment: an angle looked beautiful, so I pressed the shutter.",
+    "page_title": "Photography",
+    "empty": "Photos are being sorted — they will be on the wall soon.",
+    "listView": "Photo list",
+    "backToWall": "Back to the wall",
+    "mode": {
+      "wall": "Wall",
+      "list": "List",
+      "label": "View mode"
+    },
+    "hint": {
+      "explore": "Drag to explore · pinch to zoom · tap a photo"
+    },
+    "controls": {
+      "zoomIn": "Zoom in",
+      "zoomOut": "Zoom out",
+      "fitWall": "View whole wall",
+      "prevPhoto": "Previous photo",
+      "nextPhoto": "Next photo"
+    },
+    "meta": {
+      "date": "Date taken",
+      "location": "Location"
+    },
+    "exif": {
+      "camera": "Camera",
+      "lens": "Lens",
+      "focalLength": "Focal length",
+      "aperture": "Aperture",
+      "shutter": "Shutter",
+      "iso": "ISO"
+    }
   },
   "NotesPage": {
     "title": "Notes",
