@@ -335,6 +335,26 @@
         "size": "Size"
       },
       "none": "—",
+      "filters": {
+        "draft": "Draft",
+        "noCaption": "No caption",
+        "noEnglish": "No English",
+        "hasGps": "Has GPS",
+        "hdr": "HDR",
+        "clear": "Clear filters"
+      },
+      "sheet": {
+        "yearLabel": "Photos from {year}"
+      },
+      "inspector": {
+        "slug": "Slug",
+        "status": "Status",
+        "dimensions": "Dimensions",
+        "fileSize": "File size",
+        "gps": "Coordinates",
+        "gpsPublicNote": "Public",
+        "openOnSite": "Open on site"
+      },
       "upload": {
         "cta": "Upload photos",
         "heading": "Upload photos",

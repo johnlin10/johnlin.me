@@ -336,6 +336,26 @@
         "size": "尺寸"
       },
       "none": "—",
+      "filters": {
+        "draft": "草稿",
+        "noCaption": "缺說明",
+        "noEnglish": "缺英文",
+        "hasGps": "有座標",
+        "hdr": "HDR",
+        "clear": "清除篩選"
+      },
+      "sheet": {
+        "yearLabel": "{year} 年的照片"
+      },
+      "inspector": {
+        "slug": "Slug",
+        "status": "狀態",
+        "dimensions": "尺寸",
+        "fileSize": "檔案大小",
+        "gps": "座標",
+        "gpsPublicNote": "已公開",
+        "openOnSite": "在前台開啟"
+      },
       "upload": {
         "cta": "上傳照片",
         "heading": "上傳照片",

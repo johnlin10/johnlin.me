@@ -4,39 +4,39 @@
 .photos_page {
   @include entity.entity-page;
 
-  // 縮圖列。表格是暫時型態，之後主視圖改成印象表（見 page.tsx 的說明）。
-  .thumb {
-    display: block;
-    width: 56px;
-    height: 40px;
-    object-fit: cover;
-    border-radius: var(--radius-xs);
-    background: var(--surface-3);
+  .container {
+    // 印象表要橫向空間放縮圖，套用文章/分類那套 1100px 的內容寬度太窄。
+    max-width: var(--width-max);
   }
 
-  .thumbMissing {
-    display: block;
-    width: 56px;
-    height: 40px;
-    border-radius: var(--radius-xs);
-    border: 1px dashed var(--border);
+  .layout {
+    display: grid;
+    grid-template-columns: 1fr 360px;
+    gap: var(--space-8);
+    align-items: start;
+
+    @include respond-to('tablet') {
+      grid-template-columns: 1fr;
+    }
+    @include respond-to('phone') {
+      grid-template-columns: 1fr;
+    }
   }
 
-  .status {
-    display: inline-block;
-    padding: 2px var(--space-2);
-    border-radius: var(--radius-pill);
-    font-size: var(--text-3xs);
-    white-space: nowrap;
+  .sheetPane {
+    min-width: 0;
   }
 
-  .published {
-    background: var(--success-soft);
-    color: var(--success);
-  }
-
-  .draft {
-    background: var(--surface-3);
-    color: var(--text-muted);
+  .inspectorPane {
+    position: sticky;
+    // AdminShell 的 topbar 只在手機抽屜模式出現，桌機沒有固定頂欄，
+    // 貼緊視窗頂端即可。
+    top: var(--space-6);
+    padding: var(--space-4);
+    border: 1px solid var(--border);
+    border-radius: var(--card-radius);
+    background: var(--surface);
+    max-height: calc(100vh - var(--space-12));
+    overflow-y: auto;
   }
 }
