@@ -35,6 +35,9 @@ export default function StagedPhotoRow({
   onRetry,
 }: StagedPhotoRowProps) {
   const t = useTranslations('AdminPage.photos.upload')
+  // 欄位標籤跟檢閱欄（PhotoInspector）共用同一份翻譯，避免兩處各自維護
+  // 幾乎一樣的字串。
+  const tFields = useTranslations('AdminPage.photos.fields')
   const locked =
     photo.status === 'uploading' ||
     photo.status === 'processing' ||
@@ -42,9 +45,9 @@ export default function StagedPhotoRow({
     photo.status === 'invalid'
 
   const precisionOptions: { value: PhotoTakenAtPrecision; label: string }[] = [
-    { value: 'day', label: t('fields.precisionDay') },
-    { value: 'month', label: t('fields.precisionMonth') },
-    { value: 'year', label: t('fields.precisionYear') },
+    { value: 'day', label: tFields('precisionDay') },
+    { value: 'month', label: tFields('precisionMonth') },
+    { value: 'year', label: tFields('precisionYear') },
   ]
 
   return (
@@ -52,7 +55,7 @@ export default function StagedPhotoRow({
       <div className={style.rowThumb}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={photo.previewUrl} alt="" />
-        {photo.isHdr && <span className={style.hdrBadge}>{t('fields.hdr')}</span>}
+        {photo.isHdr && <span className={style.hdrBadge}>{tFields('hdr')}</span>}
       </div>
 
       <div className={style.rowBody}>
@@ -125,7 +128,7 @@ export default function StagedPhotoRow({
         {photo.status !== 'invalid' && (
         <div className={style.rowFields}>
           <Input
-            label={t('fields.slug')}
+            label={tFields('slug')}
             value={photo.slug}
             onChange={(value) => onChange({ slug: value })}
             error={slugError}
@@ -134,10 +137,10 @@ export default function StagedPhotoRow({
 
           <div className={style.rowDateGroup}>
             <Input
-              label={t('fields.date')}
+              label={tFields('date')}
               value={photo.takenAtLocal}
               onChange={(value) => onChange({ takenAtLocal: value, hasExifDate: true })}
-              placeholder={t('fields.datePlaceholder')}
+              placeholder={tFields('datePlaceholder')}
               error={!photo.hasExifDate ? t('needsDate') : undefined}
               disabled={locked}
             />
@@ -147,7 +150,7 @@ export default function StagedPhotoRow({
                 onChange({ takenAtPrecision: value as PhotoTakenAtPrecision })
               }
               options={precisionOptions}
-              placeholder={t('fields.precisionDay')}
+              placeholder={tFields('precisionDay')}
               clearable={false}
               compact
               disabled={locked}
@@ -155,25 +158,25 @@ export default function StagedPhotoRow({
           </div>
 
           <Input
-            label={t('fields.captionZh')}
+            label={tFields('captionZh')}
             value={photo.captionZh}
             onChange={(value) => onChange({ captionZh: value })}
             disabled={locked}
           />
           <Input
-            label={t('fields.captionEn')}
+            label={tFields('captionEn')}
             value={photo.captionEn}
             onChange={(value) => onChange({ captionEn: value })}
             disabled={locked}
           />
           <Input
-            label={t('fields.locationNameZh')}
+            label={tFields('locationNameZh')}
             value={photo.locationNameZh}
             onChange={(value) => onChange({ locationNameZh: value })}
             disabled={locked}
           />
           <Input
-            label={t('fields.locationNameEn')}
+            label={tFields('locationNameEn')}
             value={photo.locationNameEn}
             onChange={(value) => onChange({ locationNameEn: value })}
             disabled={locked}
@@ -196,10 +199,10 @@ export default function StagedPhotoRow({
               onChange={(e) => onChange({ includeGps: e.target.checked })}
               disabled={locked}
             />
-            <span>{t('fields.includeGps')}</span>
+            <span>{tFields('includeGps')}</span>
             {photo.includeGps && (
               <span className={style.rowGpsHelper}>
-                {t('fields.gpsHelper', {
+                {tFields('gpsHelper', {
                   lat: (Math.round(photo.gps.lat * 1000) / 1000).toFixed(3),
                   lng: (Math.round(photo.gps.lng * 1000) / 1000).toFixed(3),
                 })}

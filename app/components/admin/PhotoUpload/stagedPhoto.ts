@@ -3,7 +3,7 @@ import type {
   PhotoLocation,
   PhotoTakenAtPrecision,
 } from '@/app/types/photo'
-import type { SupportedLocale } from '@/app/types/blog'
+import { buildPhotoLocales } from '@/app/lib/photos/localeFields'
 
 export type StageStatus =
   | 'reading' // exifr + readImageSize 進行中
@@ -49,24 +49,6 @@ export interface StagedPhoto {
   isHdr: boolean
 }
 
-export function buildLocales(photo: StagedPhoto) {
-  const locales: Record<SupportedLocale, { caption?: string; locationName?: string }> = {
-    'zh-tw': {},
-    en: {},
-  }
-  if (photo.captionZh.trim()) locales['zh-tw'].caption = photo.captionZh.trim()
-  if (photo.locationNameZh.trim())
-    locales['zh-tw'].locationName = photo.locationNameZh.trim()
-  if (photo.captionEn.trim()) locales.en.caption = photo.captionEn.trim()
-  if (photo.locationNameEn.trim()) locales.en.locationName = photo.locationNameEn.trim()
-
-  const result: Record<string, { caption?: string; locationName?: string }> = {}
-  for (const [locale, fields] of Object.entries(locales)) {
-    if (fields.caption || fields.locationName) result[locale] = fields
-  }
-  return result
-}
-
 function roundCoord(value: number): number {
   return Math.round(value * 1000) / 1000
 }
@@ -85,6 +67,6 @@ export function toIngestPayload(photo: StagedPhoto, takenAtLocal: string, takenA
       photo.includeGps && photo.gps
         ? { lat: roundCoord(photo.gps.lat), lng: roundCoord(photo.gps.lng) }
         : null,
-    locales: buildLocales(photo),
+    locales: buildPhotoLocales(photo),
   }
 }

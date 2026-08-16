@@ -92,6 +92,12 @@ export default function AdminPhotosPage() {
     if (!isDesktop) setMobileModalOpen(true)
   }
 
+  // 檢閱欄自己存進 DB 之後回報上來，讓縮圖角標／篩選計數／年份分組立刻反映
+  // 最新內容，不必整頁重新 load()。
+  const handlePatched = (id: string, patch: Partial<Photo>) => {
+    setPhotos((prev) => prev.map((p) => (p.id === id ? { ...p, ...patch } : p)))
+  }
+
   return (
     <div className={style.photos_page}>
       <div className={style.container}>
@@ -138,11 +144,14 @@ export default function AdminPhotosPage() {
 
             {isDesktop && selectedPhoto && (
               <aside className={style.inspectorPane}>
+                {/* key：換照片整顆重掛載，見 PhotoInspector 檔案頂端註解。 */}
                 <PhotoInspector
+                  key={selectedPhoto.id}
                   photo={selectedPhoto}
                   locale={locale}
                   onPrev={() => moveBy(-1)}
                   onNext={() => moveBy(1)}
+                  onPatched={handlePatched}
                 />
               </aside>
             )}
@@ -158,10 +167,12 @@ export default function AdminPhotosPage() {
           size="large"
         >
           <PhotoInspector
+            key={selectedPhoto.id}
             photo={selectedPhoto}
             locale={locale}
             onPrev={() => moveBy(-1)}
             onNext={() => moveBy(1)}
+            onPatched={handlePatched}
           />
         </Modal>
       )}
