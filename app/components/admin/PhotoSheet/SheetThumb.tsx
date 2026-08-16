@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl'
 import type { Photo } from '@/app/types/photo'
 import type { SupportedLocale } from '@/app/types/blog'
 import { photoAltText } from '@/app/lib/photos/format'
+import Icon from '@/app/components/Icon/Icon'
 import style from './PhotoSheet.module.scss'
 
 interface SheetThumbProps {
@@ -13,7 +14,9 @@ interface SheetThumbProps {
   width: number
   height: number
   selected: boolean
+  checked: boolean
   onSelect: () => void
+  onToggleChecked: () => void
 }
 
 /**
@@ -25,7 +28,10 @@ interface SheetThumbProps {
  * 瀏覽器焦點也移過去，不能只改 React state。
  */
 const SheetThumb = forwardRef<HTMLButtonElement, SheetThumbProps>(
-  function SheetThumb({ photo, locale, width, height, selected, onSelect }, ref) {
+  function SheetThumb(
+    { photo, locale, width, height, selected, checked, onSelect, onToggleChecked },
+    ref
+  ) {
     const t = useTranslations('AdminPage.photos')
     // 縮圖只需要看得出構圖，限前兩階就夠涵蓋一般到高 DPI 螢幕，
     // 沒必要為了印象表的小圖載大階。
@@ -41,9 +47,17 @@ const SheetThumb = forwardRef<HTMLButtonElement, SheetThumbProps>(
         role="option"
         aria-selected={selected}
         tabIndex={selected ? 0 : -1}
-        className={`${style.thumb} ${selected ? style.thumbSelected : ''}`}
+        className={`${style.thumb} ${selected ? style.thumbSelected : ''} ${
+          checked ? style.thumbChecked : ''
+        }`}
         style={{ width, height }}
-        onClick={onSelect}
+        // 勾選走修飾鍵而不是疊一個 checkbox 上去：role="option" 底下不能再放
+        // 互動元素（listbox 的子代只能是 option／group），硬塞會讓讀屏的
+        // 結構壞掉。修飾鍵點選是檔案總管那一套，鍵盤則是 Space。
+        onClick={(e) => {
+          if (e.metaKey || e.ctrlKey || e.shiftKey) onToggleChecked()
+          else onSelect()
+        }}
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
@@ -65,6 +79,11 @@ const SheetThumb = forwardRef<HTMLButtonElement, SheetThumbProps>(
         )}
         {photo.isHdr && (
           <span className={`${style.thumbBadge} ${style.thumbBadgeHdr}`}>HDR</span>
+        )}
+        {checked && (
+          <span className={style.thumbCheck} aria-hidden>
+            <Icon name="check" size="xs" />
+          </span>
         )}
       </button>
     )

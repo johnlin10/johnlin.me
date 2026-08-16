@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useLocale, useTranslations } from 'next-intl'
 import { useRouter } from '@/i18n/navigation'
 import { createClient } from '@/app/lib/supabase/client'
-import { getPhotosForAdmin } from '@/app/lib/supabase/photos'
+import { getPhotosForAdmin, updatePhotosStatus } from '@/app/lib/supabase/photos'
 import { groupByYear } from '@/app/lib/photos/group'
 import {
   applyPhotoFilters,
@@ -12,15 +12,18 @@ import {
   type PhotoFilterKey,
 } from '@/app/lib/photos/adminFilters'
 import { useIsDesktop } from '@/app/lib/hooks/useIsDesktop'
-import type { Photo } from '@/app/types/photo'
+import type { Photo, PhotoStatus } from '@/app/types/photo'
 import type { SupportedLocale } from '@/app/types/blog'
 import Button from '@/app/components/admin/Button/Button'
 import Modal from '@/app/components/admin/Modal/Modal'
 import { useToast } from '@/app/components/admin/Toast/ToastProvider'
+import { useConfirm } from '@/app/components/admin/ConfirmDialog/ConfirmDialog'
 import { photoCaption } from '@/app/lib/photos/format'
 import ContactSheet from '@/app/components/admin/PhotoSheet/ContactSheet'
 import FilterChips from '@/app/components/admin/PhotoSheet/FilterChips'
 import PhotoInspector from '@/app/components/admin/PhotoSheet/PhotoInspector'
+import BulkActionBar from '@/app/components/admin/PhotoSheet/BulkActionBar'
+import OrphanReport from '@/app/components/admin/PhotoSheet/OrphanReport'
 import { usePhotoSelection } from '@/app/components/admin/PhotoSheet/usePhotoSelection'
 import style from './photos.module.scss'
 
@@ -36,6 +39,7 @@ export default function AdminPhotosPage() {
   const locale = useLocale() as SupportedLocale
   const supabase = useMemo(() => createClient(), [])
   const toast = useToast()
+  const confirm = useConfirm()
   const router = useRouter()
   const isDesktop = useIsDesktop()
 
@@ -45,6 +49,8 @@ export default function AdminPhotosPage() {
     new Set()
   )
   const [mobileModalOpen, setMobileModalOpen] = useState(false)
+  const [bulkBusy, setBulkBusy] = useState(false)
+  const [orphansOpen, setOrphansOpen] = useState(false)
 
   const load = async () => {
     try {
@@ -75,7 +81,15 @@ export default function AdminPhotosPage() {
   )
   const groups = useMemo(() => groupByYear(filtered), [filtered])
 
-  const { selectedId, select, moveBy, handleKeyDown } = usePhotoSelection(filtered)
+  const {
+    selectedId,
+    select,
+    moveBy,
+    checkedIds,
+    toggleChecked,
+    clearChecked,
+    handleKeyDown,
+  } = usePhotoSelection(filtered)
   const selectedPhoto = filtered.find((p) => p.id === selectedId) ?? null
 
   const toggleFilter = (key: PhotoFilterKey) => {
@@ -98,6 +112,65 @@ export default function AdminPhotosPage() {
     setPhotos((prev) => prev.map((p) => (p.id === id ? { ...p, ...patch } : p)))
   }
 
+  const handleDeleted = (id: string) => {
+    setPhotos((prev) => prev.filter((p) => p.id !== id))
+    setMobileModalOpen(false)
+  }
+
+  const bulkStatus = async (next: PhotoStatus) => {
+    const ids = [...checkedIds]
+    if (ids.length === 0) return
+    setBulkBusy(true)
+    try {
+      await updatePhotosStatus(supabase, ids, next)
+      setPhotos((prev) =>
+        prev.map((p) => (checkedIds.has(p.id) ? { ...p, status: next } : p))
+      )
+      await fetch('/api/admin/photos/revalidate', { method: 'POST' }).catch(() => {})
+      clearChecked()
+      toast.success(t('bulk.statusSuccess', { count: ids.length }))
+    } catch {
+      toast.error(t('bulk.statusError'))
+    } finally {
+      setBulkBusy(false)
+    }
+  }
+
+  const bulkDelete = async () => {
+    const ids = [...checkedIds]
+    if (ids.length === 0) return
+    const ok = await confirm({
+      title: t('bulk.deleteConfirmTitle', { count: ids.length }),
+      message: t('bulk.deleteConfirmMessage', { count: ids.length }),
+      danger: true,
+    })
+    if (!ok) return
+
+    setBulkBusy(true)
+    try {
+      // 逐張走 DELETE 路由而不是一次 deletePhotos()：R2 的清理是逐個前綴的，
+      // 只刪資料列會讓每一張都變成孤兒，得再跑一次盤點才清得掉。
+      const results = await Promise.allSettled(
+        ids.map((id) => fetch(`/api/admin/photos/${id}`, { method: 'DELETE' }))
+      )
+      const failed = results.filter(
+        (r) => r.status === 'rejected' || !r.value.ok
+      ).length
+      const deleted = ids.filter((_, i) => {
+        const r = results[i]
+        return r.status === 'fulfilled' && r.value.ok
+      })
+      setPhotos((prev) => prev.filter((p) => !deleted.includes(p.id)))
+      clearChecked()
+      if (failed > 0) toast.error(t('bulk.deletePartialError', { count: failed }))
+      else toast.success(t('bulk.deleteSuccess', { count: deleted.length }))
+    } catch {
+      toast.error(t('bulk.deleteError'))
+    } finally {
+      setBulkBusy(false)
+    }
+  }
+
   return (
     <div className={style.photos_page}>
       <div className={style.container}>
@@ -110,9 +183,14 @@ export default function AdminPhotosPage() {
               {t('count.unit')}
             </p>
           </div>
-          <Button onClick={() => router.push('/admin/photos/upload')}>
-            {t('upload.cta')}
-          </Button>
+          <div className={style.headerActions}>
+            <Button variant="ghost" onClick={() => setOrphansOpen(true)}>
+              {t('orphans.cta')}
+            </Button>
+            <Button onClick={() => router.push('/admin/photos/upload')}>
+              {t('upload.cta')}
+            </Button>
+          </div>
         </div>
 
         {photos.length > 0 && (
@@ -123,6 +201,15 @@ export default function AdminPhotosPage() {
             onClear={() => setActiveFilters(new Set())}
           />
         )}
+
+        <BulkActionBar
+          count={checkedIds.size}
+          busy={bulkBusy}
+          onPublish={() => void bulkStatus('published')}
+          onUnpublish={() => void bulkStatus('draft')}
+          onDelete={() => void bulkDelete()}
+          onClear={clearChecked}
+        />
 
         {loading ? (
           <div className={style.loading}>{t('loading')}</div>
@@ -137,7 +224,9 @@ export default function AdminPhotosPage() {
                 groups={groups}
                 locale={locale}
                 selectedId={selectedId}
+                checkedIds={checkedIds}
                 onSelect={handleSelect}
+                onToggleChecked={toggleChecked}
                 onKeyDown={handleKeyDown}
               />
             </div>
@@ -152,6 +241,7 @@ export default function AdminPhotosPage() {
                   onPrev={() => moveBy(-1)}
                   onNext={() => moveBy(1)}
                   onPatched={handlePatched}
+                  onDeleted={handleDeleted}
                 />
               </aside>
             )}
@@ -173,9 +263,16 @@ export default function AdminPhotosPage() {
             onPrev={() => moveBy(-1)}
             onNext={() => moveBy(1)}
             onPatched={handlePatched}
+            onDeleted={handleDeleted}
           />
         </Modal>
       )}
+
+      <OrphanReport
+        isOpen={orphansOpen}
+        onClose={() => setOrphansOpen(false)}
+        onCleaned={load}
+      />
     </div>
   )
 }

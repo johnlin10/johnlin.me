@@ -10,6 +10,7 @@ import { isValidPhotoSlug } from '@/app/lib/photos/slug'
 import { buildPhotoLocales } from '@/app/lib/photos/localeFields'
 import { useAutosave } from '@/app/lib/hooks/useAutosave'
 import { useToast } from '@/app/components/admin/Toast/ToastProvider'
+import { useConfirm } from '@/app/components/admin/ConfirmDialog/ConfirmDialog'
 import type {
   Photo,
   PhotoStatus,
@@ -33,6 +34,7 @@ interface PhotoInspectorProps {
   onNext: () => void
   /** 把已經存進資料庫的變更也反映回印象表（縮圖角標、篩選計數、年份分組）。 */
   onPatched: (id: string, patch: Partial<Photo>) => void
+  onDeleted: (id: string) => void
 }
 
 function formatBytes(bytes: number): string {
@@ -86,12 +88,14 @@ export default function PhotoInspector({
   onPrev,
   onNext,
   onPatched,
+  onDeleted,
 }: PhotoInspectorProps) {
   const t = useTranslations('AdminPage.photos.inspector')
   const tStatus = useTranslations('AdminPage.photos.status')
   const tFields = useTranslations('AdminPage.photos.fields')
   const supabase = useMemo(() => createClient(), [])
   const toast = useToast()
+  const confirm = useConfirm()
 
   const preview =
     photo.derivatives.findLast((d) => d.w <= 1600) ?? photo.derivatives.at(-1)
@@ -120,6 +124,7 @@ export default function PhotoInspector({
 
   const [status, setStatus] = useState(photo.status)
   const [statusSaving, setStatusSaving] = useState(false)
+  const [deleting, setDeleting] = useState(false)
 
   const autosave = useAutosave<PhotoPatch>({
     save: async (patch) => {
@@ -225,6 +230,36 @@ export default function PhotoInspector({
       toast.error(t('statusError'))
     } finally {
       setStatusSaving(false)
+    }
+  }
+
+  const handleDelete = async () => {
+    const ok = await confirm({
+      title: t('deleteConfirmTitle'),
+      message: t('deleteConfirmMessage', {
+        name: captionZh.trim() || captionEn.trim() || slug,
+      }),
+      danger: true,
+    })
+    if (!ok) return
+
+    setDeleting(true)
+    try {
+      // 已排程但還沒送出的編輯要丟掉，不然 unmount flush 會對著一筆
+      // 已經被刪掉的 row 發 UPDATE。
+      autosave.markClean()
+      const res = await fetch(`/api/admin/photos/${photo.id}`, { method: 'DELETE' })
+      if (!res.ok) {
+        const json = await res.json().catch(() => ({}))
+        toast.error(json.error ?? t('deleteError'))
+        return
+      }
+      toast.success(t('deleteSuccess'))
+      onDeleted(photo.id)
+    } catch {
+      toast.error(t('deleteError'))
+    } finally {
+      setDeleting(false)
     }
   }
 
@@ -381,6 +416,18 @@ export default function PhotoInspector({
           {t('openOnSite')}
         </Link>
       )}
+
+      <div className={style.dangerZone}>
+        <Button
+          variant="danger"
+          size="small"
+          onClick={() => void handleDelete()}
+          disabled={deleting}
+        >
+          <Icon name="trash" size="xs" />
+          {t('delete')}
+        </Button>
+      </div>
     </div>
   )
 }

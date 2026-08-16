@@ -61,7 +61,8 @@
 | `/blog/[slug]` | `blog/[slug]/page.tsx` | 依 slug 撈文章，非 `published` 或不存在就 404。若當前語系沒翻譯，退回顯示 `zh-tw` 內容並提示「英文版尚未提供」。掛載 client 元件 `ViewTracker`（見第四節）。 |
 | `/notes` | `notes/page.tsx` | `getPublishedNotes(pageSize:50)`，單欄 feed（像短動態牆）。 |
 | `/notes/[id]` | `notes/[id]/page.tsx` | 依 id 查單篇 note。 |
-| `/gallery` | `gallery/page.tsx` | **目前是空殼**，只有標題/說明文字，沒有任何資料串接、沒有攝影作品資料模型。首頁的 `PhotographyGlimpse` 區塊也對應是「還沒準備好」的佔位卡片。 |
+| `/gallery` | `gallery/page.tsx` | ISR（`revalidate=300`），`getPublishedPhotos` 撈全部已發布照片。預設是可拖曳／縮放的互動「攝影牆」，使用者可切換成齊行清單，偏好記在 localStorage；SSR／無 JS／爬蟲一律拿到不需要 JS 的簡化版清單。 |
+| `/gallery/[slug]` | `gallery/[slug]/page.tsx` | ISR + `generateStaticParams`，單張作品頁。LCP 圖用原生 `<img srcSet>` + `fetchPriority=high`，聚焦時載原檔（HDR 保 HDR）。 |
 | `/lab` | `lab/page.tsx` | 實驗頁索引，目前只有一個連到 `/lab/design` 的連結。 |
 | `/lab/design` | `lab/design/page.tsx` | 設計系統的「活頁」，把 `_tokens.scss`/`_theme.scss` 裡的 CSS 變數渲染成色票/間距/字級等等，`ColorDisplay` 元件負責解析真實算出來的值並支援點擊複製。 |
 
@@ -73,6 +74,8 @@
 | `/admin/login` | `admin/login/page.tsx` | 單一顆 Google OAuth 按鈕，只有這一種登入方式，沒有帳密欄位。 |
 | `/admin/categories`<br>`/admin/tags`<br>`/admin/series` | 各自的 `page.tsx` | 三頁幾乎同構的 CRUD：列表 + `Modal` 表單（雙語名稱欄位），刪除鍵在 `postCount > 0` 時直接 disable，防止刪掉還有文章在用的分類。`series` 額外有封面圖網址欄位；程式註解說 series 的 schema 已經就緒但**前台的系列頁面「暫緩」**，目前只有後台管理，沒有對外呈現。 |
 | `/admin/notes` | `admin/notes/page.tsx` | 純文字輸入框 + 多圖上傳（直接進 `notes` bucket）+ 發布鍵，發完馬上插進下方 feed。沒有編輯功能，只有發布/刪除。 |
+| `/admin/photos` | `admin/photos/page.tsx` | 「印象表」：依年份分段的齊行縮圖牆 + 右側檢閱欄（桌機雙欄，平板/手機改用 Modal）。檢閱欄上半直接重用前台的 `PhotoMeta`，所以後台看到的排版就是訪客會看到的；欄位走自動存檔。J/K 鍵移動游標，⌘/Ctrl-點選或空白鍵切換勾選，勾選後出現批次發布／退草稿／刪除。篩選 chips 針對「還沒弄完的」：草稿、缺說明、缺英文、有座標、HDR。 |
+| `/admin/photos/upload` | `admin/photos/upload/page.tsx` | 上傳預檢表：拖入檔案後**在瀏覽器端**解 EXIF（拍攝時間、相機、鏡頭、GPS）並產生 slug，確認過欄位才送出第一個位元組。HEIC/DNG 在選檔階段就擋掉。並發 2 的佇列，PUT 有真實進度（XHR，`fetch` 沒有上傳進度事件）。 |
 | `/admin/posts` | `posts/page.tsx` | 文章列表，狀態篩選（全部/草稿/已發布）。「新增文章」不是開表單，是直接插一筆草稿再導頁（見下）。 |
 | `/admin/posts/new` | `posts/new/page.tsx` | Mount 時立刻呼叫 `createDraftPost` 建一筆空白草稿（用 ref 擋 React StrictMode 重複觸發），然後 `router.replace` 到 `/write`。沒有「新增文章」表單畫面，這頁只是個轉場。 |
 | `/admin/posts/[id]/layout.tsx` | — | 撈這篇文章、包一層 `PostEditorProvider`+`AiAssistProvider`，讓 `write`/`settings` 兩步共用同一份編輯器狀態，切換步驟不會重新載入。 |
@@ -109,7 +112,7 @@
 
 **沒有 service-role client。** 所有寫入/管理操作都是「一般 anon key + 呼叫者的 session cookie」，權限全部交給 Postgres RLS 判斷，程式碼裡完全找不到繞過 RLS 的後門 key。
 
-### 資料表（從程式裡的查詢反推出來的，這個 repo 沒有 schema 檔案）
+### 資料表（`photos` 有 schema 檔案，其餘是從程式裡的查詢反推的）
 
 | 資料表 | 主要欄位（推測） | 備註 |
 |---|---|---|
@@ -119,23 +122,30 @@
 | `tags` | `id, slug, locales(jsonb), created_at` | |
 | `series` | `id, slug, locales(jsonb), cover_image(text), created_at` | schema 就緒但前台 UI 暫緩 |
 | `notes` | `id, content, images(jsonb[]), status, created_at, published_at` | 單語言，無 slug/title/分類 |
+| `photos` | `id, slug, derivatives(jsonb), url_original, url_og, blur_data_url, original_mime, original_bytes, width, height, is_hdr, taken_at, taken_at_local, taken_at_precision, location(jsonb), exif(jsonb), locales(jsonb), status, created_at, updated_at` | **唯一有 schema 檔案的資料表**，見 `supabase/migrations/0001_photos.sql`。`taken_at_local` 是無時區的牆鐘字串，年份分組與顯示一律讀它（存 timestamptz 會讓跨年夜的照片被分到錯的年份）。`location` 預設 NULL，只在後台明確勾選時寫入且四捨五入到小數 3 位 |
+| `admin_emails` | — | `is_admin()` 判斷用的白名單 |
 
 ### RPC 函式
 
 - `is_admin()` — 無參數，回傳 boolean，`proxy.ts` 和 `requireAdmin.ts` 都靠它判斷管理員身份。
 - `increment_post_view_count(post_id)` — `SECURITY DEFINER`，讓匿名瀏覽也能加計數。
 
-兩個函式的實際 SQL 邏輯都**只存在 Supabase 後台**，這個 repo 裡沒有 migrations 資料夾、沒有任何 `.sql` 檔案（見第九節，這是要注意的落差）。
+兩個函式的實際 SQL 邏輯都**只存在 Supabase 後台**。`supabase/migrations/` 現在有 SQL 檔案了（`0001_photos.sql`、`0002_photos_wipe_placeholders.sql`），但只涵蓋 `photos`；其餘資料表與這兩個 RPC 仍未納入版控（見第九節）。
 
 ### 圖片/媒體儲存
 
-`app/lib/supabase/storage.ts` 的 `uploadImage()` 直接呼叫 **Supabase Storage** 的 JS SDK（`supabase.storage.from(bucket).upload()` + `getPublicUrl()`），bucket 分 `blog`（封面圖、內文圖）跟 `notes`（短動態圖）。編輯器貼上/拖曳圖片如果變成 base64 內嵌，會在儲存前被 `uploadAndReplaceImagesInHtml()` 掃出來重新上傳成真正的網址。
+分兩套，依內容類型而定：
+
+**文章與短文 → Supabase Storage。** `app/lib/supabase/storage.ts` 的 `uploadImage()` 直接呼叫 JS SDK（`supabase.storage.from(bucket).upload()` + `getPublicUrl()`），bucket 分 `blog`（封面圖、內文圖）跟 `notes`（短動態圖）。編輯器貼上/拖曳圖片如果變成 base64 內嵌，會在儲存前被 `uploadAndReplaceImagesInHtml()` 掃出來重新上傳成真正的網址。
+
+**攝影作品 → Cloudflare R2**（`app/lib/r2/`，公開網域 `img.johnlin.me`）。原檔不經過 route handler：Vercel 的 request body 上限是 4.5 MB，一張 40 MB 的原檔進不了函式，所以瀏覽器拿 presigned PUT 直傳 R2，再由 `/api/admin/photos/ingest` 從 R2 把檔案抓回來、用 sharp 產出 8 階 SDR 階梯（320–3200px WebP）＋ 1200×630 OG 圖 ＋ 20px 模糊佔位，寫回 R2 後才建立資料列。物件 key 用不可變的 UUID 前綴（`photos/<id>/`）而不是 slug——slug 會改，改一次就得搬十幾個物件。
 
 ### 環境變數（實際被程式讀到的）
 
 - Supabase：`NEXT_PUBLIC_SUPABASE_URL`、`NEXT_PUBLIC_SUPABASE_ANON_KEY`
 - AI：`AI_GATEWAY_API_KEY`（沒有任何程式碼直接讀它，是 AI SDK Gateway provider 依慣例自己撿的）
 - 站台：`NEXT_PUBLIC_SITE_URL`（RSS、metadata canonical URL 用）
+- R2：`R2_BUCKET`、`R2_S3_ENDPOINT`、`R2_ACCESS_KEY_ID`、`R2_SECRET_ACCESS_KEY`、`NEXT_PUBLIC_R2_PUBLIC_BASE`，全部集中在 `app/lib/r2/env.ts` 讀取。另有可選的 `R2_KEY_PREFIX`（給物件 key 加命名空間）——注意本機開發若設了它，透過本機 dev server 上傳的**真實**照片也會被加上前綴，不是只影響測試。`R2_ACCOUNT_ID` 與 `R2_REST_API_TOKEN` 留在 `.env` 但沒有程式碼讀取，S3 API 已涵蓋所有需求
 - **`.env` 裡還留著一整組 Firebase 變數**，但 `app/` 底下沒有任何程式碼讀取它們，純粹是遷移後沒清掉的殘留。
 
 ---
@@ -187,7 +197,8 @@ Notes 沒有標題、沒有 slug、沒有雙語、沒有草稿流程（一律直
 - **部落格文章渲染管線**：Tiptap 編輯器產出 HTML → 存進 DB → 前台用 `dangerouslySetInnerHTML` 直接注入 → `PostContent` 這個 client 元件額外做一次「補渲染」，把數學公式的 `[data-math]` 佔位節點用 KaTeX 渲染出來。**跟 `/about` 頁的 Markdown 管線是兩條完全不同的路**，`react-markdown` 只有 `/about` 在用。
 - **目錄（TOC）不是即時從頁面 DOM 產生的**，是編輯器儲存時就寫進 `locales.<lang>.toc` 的預先計算資料，前台只是拿現成資料配 `IntersectionObserver` 做捲動高亮。
 - **Notes 前台**：單欄 feed，卡片是純文字+最多 3 張圖網格，用原生 `<img>`（不是 `next/image`，這點跟 `PostCard` 不同）。
-- **Gallery / Lab**：Gallery 目前是空頁面，沒有資料模型。Lab 只有一個連到 `/lab/design`（設計系統活頁）的入口。
+- **Gallery**：ISR 5 分鐘。後台改動狀態後會打 `/api/admin/photos/revalidate` 讓兩個 gallery 路由立刻失效，不必等那 5 分鐘。前台三個視圖全部用原生 `<img srcSet>`，刻意繞開 Vercel 的圖片最佳化（R2 已備好各階，出站免費），所以 `next.config.ts` 的 `remotePatterns` 不需要加 R2 網域。
+- **Lab**：只有一個連到 `/lab/design`（設計系統活頁）的入口。
 
 ---
 
@@ -204,20 +215,19 @@ Notes 沒有標題、沒有 slug、沒有雙語、沒有草稿流程（一律直
 
 這些是探索過程中發現、**跟你原本認知或先前決策對不上**的地方，值得你自己確認一輪：
 
-1. **媒體儲存實際上是 Supabase Storage，不是 R2。** 整個 repo 找不到任何 R2/S3/Cloudflare 相關程式碼或環境變數（`.env` 裡也沒有）。如果你先前決定「媒體走 R2」，目前的實作並沒有照做——除非 Supabase 專案後台把 Storage 的底層接到了外部 S3 相容的 R2 bucket（Supabase 支援這種接法，但這個設定在 repo 裡看不到，得去 Supabase 後台確認）。這點建議直接去 Supabase Dashboard 的 Storage 設定確認一下，免得以為在用 R2 但其實不是。
+1. ~~媒體儲存實際上是 Supabase Storage，不是 R2。~~ **已解決（攝影部分）。** 攝影作品現在真的走 R2，見第四節「圖片/媒體儲存」。文章與短文的圖片仍在 Supabase Storage，這是刻意的分工，不是待辦。
 
 2. **短網址導向功能目前完全不存在。** commit 記錄裡有一次「復原短網址導向功能」，但更後面的地基整理把它整個刪掉了，commit 訊息明講是「未來以獨立模組實作」。目前 proxy、`next.config.ts`、路由裡都沒有任何 `/u/[slug]` 或短網址邏輯——如果你以為這功能還在，它其實只存在於 git 歷史裡。
 
-3. **資料庫 schema 跟 RLS 規則完全沒有版本控制。** 這個 repo 沒有 `supabase/` 目錄、沒有任何 migration 或 `.sql` 檔案。`is_admin()`、`increment_post_view_count()` 這兩個 RPC，還有所有資料表的 RLS 政策，都只存在 Supabase 專案後台，換一台電腦、或哪天要重建這個專案，這些邏輯無法從程式碼重現。這是目前最大的「單點故障」風險——建議之後找時間把現有的 schema/RLS 用 `supabase db dump` 之類的方式拉一份存進 repo。
+3. **資料庫 schema 跟 RLS 規則只有一部分納入版控。** `supabase/migrations/` 現在存在了，但只涵蓋 `photos`（含它自己的 RLS）。`posts`、`notes`、`categories`、`tags`、`series`、`admin_emails` 的結構與 RLS，以及 `is_admin()`、`increment_post_view_count()`、`set_updated_at()` 三個函式，都仍只存在 Supabase 專案後台——注意 `0001_photos.sql` 本身就引用了 `is_admin()` 和 `set_updated_at()`，所以就算照著 migrations 重建也會失敗。這仍是最大的「單點故障」風險，建議把現有的 schema/RLS 用 `supabase db dump` 拉一份補進 repo。
 
-4. **`is_admin()` 怎麼判斷你是管理員，完全不透明。** 沒有 email allowlist 常數、沒有 role 欄位，邏輯藏在 Supabase 後台的 Postgres 函式裡。如果之後要加第二個管理員帳號，你得去 Supabase 後台改，不是改程式碼。
+4. **`is_admin()` 怎麼判斷你是管理員，程式碼裡看不到。** 邏輯藏在 Supabase 後台的 Postgres 函式裡，比對的是 `admin_emails` 資料表。要加第二個管理員帳號是去改那張表，不是改程式碼。
 
 5. **Firebase 殘留還沒清乾淨。** `.env` 裡一整組 Firebase 變數、`next.config.ts` 裡一條 Firebase Storage 的圖片網域白名單（註解已經寫「可移除」）、`node_modules` 裡的 `@firebase` 依賴，都是遷移後沒清掉的殘留，可以放心整批刪除。
 
-6. **未使用的依賴**：`@tiptap/extension-color`、`@tiptap/extension-text-style` 裝了但沒 import，`slugify` 也裝了但實際 slug 生成刻意不用它。
+6. **未使用的依賴**：`@tiptap/extension-color`、`@tiptap/extension-text-style` 裝了但沒 import。（`slugify` 現在有在用了——`app/lib/photos/slug.ts` 拿它產生照片 slug；文章的 slug 生成仍刻意不用它，因為它對純中文標題會回傳空字串。）
 
 7. **明確「做一半」或「暫緩」的功能**（不是 bug，是設計上刻意留白，但你應該知道現況）：
-   - Gallery 頁面完全是空殼，沒有資料模型
    - Series（系列文章）後台管理已經做好，但前台完全沒有對外的系列頁面
    - `/admin/test-editor` 是沒掛導覽的開發測試頁，可以刪或擋起來
    - `/admin/posts/[id]` 和 `/admin/posts/[id]/edit` 是舊版編輯器留下的轉址殘留頁面
@@ -238,5 +248,6 @@ Notes 沒有標題、沒有 slug、沒有雙語、沒有草稿流程（一律直
 
 - 想搞懂「文章怎麼從編輯器變成前台頁面」→ 從 `app/components/admin/PostEditor/` 開始跟到 `app/lib/supabase/posts.ts` 再到 `app/[locale]/blog/[slug]/page.tsx`。
 - 想搞懂「權限怎麼擋」→ `proxy.ts` → `app/lib/supabase/requireAdmin.ts` → 去 Supabase 後台找 `is_admin()` 的定義。
-- 想加新功能（例如真的把 Gallery 做起來）→ 參考 `notes` 這條線（全站最簡單完整的 CRUD 範例：`app/lib/supabase/notes.ts` + `admin/notes/page.tsx` + `notes/page.tsx`），複雜度比 `posts` 低很多，適合當模板。
-- 想確認媒體儲存到底是不是 R2 → 直接去 Supabase Dashboard → Storage → 看 bucket 的底層設定。
+- 想加新功能 → 參考 `notes` 這條線（全站最簡單完整的 CRUD 範例：`app/lib/supabase/notes.ts` + `admin/notes/page.tsx` + `notes/page.tsx`），複雜度比 `posts` 低很多，適合當模板。
+- 想搞懂「一張照片從拖進瀏覽器到出現在攝影牆」→ `admin/photos/upload/page.tsx`（預檢）→ `app/lib/photos/exifDraft.ts`（瀏覽器端解 EXIF）→ `api/admin/photos/upload-url`（presign）→ `api/admin/photos/ingest` → `app/lib/images/photoDerivatives.ts`（sharp 產圖）→ `app/lib/supabase/photos.ts` → `app/[locale]/gallery/`。
+- 攝影相關的踩雷點都寫在原始碼註解裡（EXIF 時區、sharp 的方向不換軸、AWS SDK checksum 與 R2 不相容、白邊要貼著照片而不是外框），改那幾個檔案前先讀註解。

@@ -12,9 +12,26 @@ import { r2Env } from './env'
 // 代價是 R2 後台看不出哪個資料夾是哪張照片 —— 靠 DB 的 slug 對照，
 // 或看 original 物件上的 x-amz-meta-slug（只在上傳時寫一次，不維護）。
 
+/** 所有照片物件的共同根前綴，含部署命名空間。孤兒盤點從這裡開始掃。 */
+export function photosRootPrefix(): string {
+  return `${r2Env().keyPrefix}photos/`
+}
+
 /** `photos/<assetId>/`，含部署命名空間。 */
 export function photoPrefix(assetId: string): string {
-  return `${r2Env().keyPrefix}photos/${assetId}/`
+  return `${photosRootPrefix()}${assetId}/`
+}
+
+/**
+ * 從物件 key 反推 assetId。不是這個 bucket／命名空間下的照片物件就回 null，
+ * 呼叫端據此跳過 —— 盤點時 bucket 裡可能有跟照片無關的東西，不該誤判成孤兒。
+ */
+export function assetIdFromKey(key: string): string | null {
+  const root = photosRootPrefix()
+  if (!key.startsWith(root)) return null
+  const rest = key.slice(root.length)
+  const slash = rest.indexOf('/')
+  return slash > 0 ? rest.slice(0, slash) : null
 }
 
 /** 原檔。原樣保存不重新編碼，HDR 的 gain map 就靠這個物件活著。 */

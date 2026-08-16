@@ -9,6 +9,12 @@
     max-width: var(--width-max);
   }
 
+  .headerActions {
+    @include flexbox(row, flex-end, center);
+    gap: var(--space-2);
+    flex-wrap: wrap;
+  }
+
   .layout {
     display: grid;
     grid-template-columns: 1fr 360px;

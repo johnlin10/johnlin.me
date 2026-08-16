@@ -140,6 +140,108 @@
   right: var(--space-1);
 }
 
+.thumbChecked {
+  border-color: var(--accent);
+  // 勾選跟游標都用強調色，靠這層覆蓋區分：勾選的整張壓一層色，
+  // 只是游標的則只有外框。
+  .thumbImg {
+    opacity: 0.75;
+  }
+}
+
+.thumbCheck {
+  position: absolute;
+  bottom: var(--space-1);
+  left: var(--space-1);
+  @include flexbox(row, center, center);
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+}
+
+//* ==================== BulkActionBar ====================
+
+.bulkBar {
+  @include flexbox(row, space-between, center);
+  gap: var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--accent);
+  border-radius: var(--card-radius);
+  background: var(--accent-soft);
+  flex-wrap: wrap;
+}
+
+.bulkCount {
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  color: var(--text);
+}
+
+.bulkActions {
+  @include flexbox(row, flex-end, center);
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+//* ==================== OrphanReport ====================
+
+.orphanBody {
+  @include flexbox(column, flex-start, stretch);
+  gap: var(--space-6);
+}
+
+.orphanSection {
+  @include flexbox(column, flex-start, stretch);
+  gap: var(--space-2);
+}
+
+.orphanHeading {
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--text);
+  margin: 0;
+}
+
+.orphanHint {
+  font-family: var(--font-sans);
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.orphanEmpty {
+  font-family: var(--font-sans);
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.orphanList {
+  @include flexbox(column, flex-start, stretch);
+  gap: var(--space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  max-height: 200px;
+  overflow-y: auto;
+
+  li {
+    @include flexbox(row, space-between, center);
+    gap: var(--space-3);
+    font-family: var(--font-sans);
+    font-size: var(--text-2xs);
+    color: var(--text-secondary);
+  }
+
+  code {
+    font-family: monospace;
+    color: var(--text);
+  }
+}
+
 //* ==================== PhotoInspector ====================
 
 .inspector {
@@ -272,6 +374,12 @@ $matPadding: 12px;
 .gpsPublicNote {
   color: var(--text-muted);
   font-size: var(--text-3xs);
+}
+
+.dangerZone {
+  @include flexbox(row, flex-end, center);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--border);
 }
 
 .openOnSite {

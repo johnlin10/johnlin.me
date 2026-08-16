@@ -12,7 +12,9 @@ interface ContactSheetProps {
   groups: PhotoYearGroup[]
   locale: SupportedLocale
   selectedId: string | null
+  checkedIds: ReadonlySet<string>
   onSelect: (id: string) => void
+  onToggleChecked: (id: string) => void
   onKeyDown: (e: React.KeyboardEvent) => void
 }
 
@@ -32,7 +34,9 @@ export default function ContactSheet({
   groups,
   locale,
   selectedId,
+  checkedIds,
   onSelect,
+  onToggleChecked,
   onKeyDown,
 }: ContactSheetProps) {
   const t = useTranslations('AdminPage.photos.sheet')
@@ -95,7 +99,9 @@ export default function ContactSheet({
                     width={itemWidth}
                     height={row.height}
                     selected={photo.id === selectedId}
+                    checked={checkedIds.has(photo.id)}
                     onSelect={() => onSelect(photo.id)}
+                    onToggleChecked={() => onToggleChecked(photo.id)}
                   />
                 ))}
               </div>
