@@ -6,5 +6,9 @@
   .input {
     font-family: var(--font-sans);
     @include field-control();
+
+    &.compact {
+      border-radius: var(--field-radius);
+    }
   }
 }

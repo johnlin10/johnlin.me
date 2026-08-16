@@ -13,6 +13,7 @@ interface InputProps {
   error?: string
   helper?: string
   fullWidth?: boolean
+  compact?: boolean
   /** label 列右側的附加元件（例如 AI 輔助按鈕）。 */
   action?: React.ReactNode
 }
@@ -31,6 +32,7 @@ export default function Input({
   error,
   helper,
   fullWidth = true,
+  compact = false,
   action,
 }: InputProps) {
   return (
@@ -56,7 +58,7 @@ export default function Input({
         placeholder={placeholder}
         disabled={disabled}
         required={required}
-        className={`${style.input} ${error ? style.error : ''}`}
+        className={`${style.input} ${compact ? style.compact : ''} ${error ? style.error : ''}`}
       />
 
       {error && <span className={style.error_text}>{error}</span>}

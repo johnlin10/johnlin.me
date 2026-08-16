@@ -133,6 +133,7 @@ export default function StagedPhotoRow({
             onChange={(value) => onChange({ slug: value })}
             error={slugError}
             disabled={locked}
+            compact
           />
 
           <div className={style.rowDateGroup}>
@@ -143,6 +144,7 @@ export default function StagedPhotoRow({
               placeholder={tFields('datePlaceholder')}
               error={!photo.hasExifDate ? t('needsDate') : undefined}
               disabled={locked}
+              compact
             />
             <DropdownSelect
               value={photo.takenAtPrecision}
@@ -162,24 +164,28 @@ export default function StagedPhotoRow({
             value={photo.captionZh}
             onChange={(value) => onChange({ captionZh: value })}
             disabled={locked}
+            compact
           />
           <Input
             label={tFields('captionEn')}
             value={photo.captionEn}
             onChange={(value) => onChange({ captionEn: value })}
             disabled={locked}
+            compact
           />
           <Input
             label={tFields('locationNameZh')}
             value={photo.locationNameZh}
             onChange={(value) => onChange({ locationNameZh: value })}
             disabled={locked}
+            compact
           />
           <Input
             label={tFields('locationNameEn')}
             value={photo.locationNameEn}
             onChange={(value) => onChange({ locationNameEn: value })}
             disabled={locked}
+            compact
           />
         </div>
         )}

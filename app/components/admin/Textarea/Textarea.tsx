@@ -13,6 +13,7 @@ interface TextareaProps {
   helper?: string
   rows?: number
   fullWidth?: boolean
+  compact?: boolean
 }
 
 /**
@@ -29,6 +30,7 @@ export default function Textarea({
   helper,
   rows = 4,
   fullWidth = true,
+  compact = false,
 }: TextareaProps) {
   return (
     <div
@@ -50,7 +52,7 @@ export default function Textarea({
         disabled={disabled}
         required={required}
         rows={rows}
-        className={`${style.textarea} ${error ? style.error : ''}`}
+        className={`${style.textarea} ${compact ? style.compact : ''} ${error ? style.error : ''}`}
       />
 
       {error && <span className={style.error_text}>{error}</span>}

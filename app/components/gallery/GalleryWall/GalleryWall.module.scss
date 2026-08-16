@@ -31,17 +31,29 @@
   // 會讓 layer 光柵化鎖在低解析，放大時整面糊掉。
 }
 
+$photo-frame-pad: 10px;
+
 .photo {
   position: absolute;
   display: block;
+  box-sizing: border-box;
+  padding: $photo-frame-pad;
   overflow: hidden;
   border-radius: var(--radius-xs);
-  background: var(--surface-2);
-  box-shadow: var(--shadow-md);
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.08),
+    0 8px 24px rgba(0, 0, 0, 0.14);
+  transition:
+    box-shadow var(--duration) var(--ease),
+    border-color var(--duration) var(--ease);
   @include focus-ring;
 
   &:hover {
-    box-shadow: var(--shadow-lg);
+    box-shadow:
+      0 3px 8px rgba(0, 0, 0, 0.12),
+      0 14px 32px rgba(0, 0, 0, 0.2);
   }
 }
 
@@ -55,9 +67,9 @@
 // 聚焦時疊在 SDR 衍生檔上的原檔，載入後淡入（HDR 在此亮起）
 .original {
   position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
+  inset: $photo-frame-pad;
+  width: calc(100% - #{$photo-frame-pad * 2});
+  height: calc(100% - #{$photo-frame-pad * 2});
   object-fit: cover;
   transition: opacity var(--duration-slow) var(--ease);
   pointer-events: none;

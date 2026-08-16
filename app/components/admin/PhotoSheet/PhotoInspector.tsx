@@ -125,6 +125,12 @@ export default function PhotoInspector({
   const [status, setStatus] = useState(photo.status)
   const [statusSaving, setStatusSaving] = useState(false)
   const [deleting, setDeleting] = useState(false)
+  const [scrolled, setScrolled] = useState(false)
+
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const isPastThreshold = e.currentTarget.scrollTop >= 6
+    setScrolled((prev) => (prev !== isPastThreshold ? isPastThreshold : prev))
+  }
 
   const autosave = useAutosave<PhotoPatch>({
     save: async (patch) => {
@@ -282,7 +288,9 @@ export default function PhotoInspector({
 
   return (
     <div className={style.inspector}>
-      <div className={style.inspectorNav}>
+      <div
+        className={`${style.inspectorNav} ${scrolled ? style.inspectorNavScrolled : ''}`}
+      >
         <Button variant="ghost" size="small" onClick={onPrev}>
           <Icon name="arrow-left" size="xs" />
         </Button>
@@ -296,137 +304,143 @@ export default function PhotoInspector({
         </Button>
       </div>
 
-      <div className={style.inspectorPreview}>
-        {/* 白邊要貼著照片實際渲染出來的尺寸、四邊等寬，所以 .inspectorPrint
-            是縮到跟圖片一樣大的相框，不是撐滿 .inspectorPreview 的固定框——
-            後者的話橫幅/直幅照片會因為 letterbox 留白不同而讓白邊看起來厚薄不一。
-            不疊模糊底圖：檢閱欄的目的是看清構圖與邊緣，模糊底圖只會讓
-            照片邊界跟背景混在一起。 */}
-        <div className={style.inspectorPrint}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={preview?.url} alt="" />
+      <div className={style.inspectorBody} onScroll={handleScroll}>
+        <div className={style.inspectorPreview}>
+          {/* 白邊要貼著照片實際渲染出來的尺寸、四邊等寬，所以 .inspectorPrint
+              是縮到跟圖片一樣大的相框，不是撐滿 .inspectorPreview 的固定框——
+              後者的話橫幅/直幅照片會因為 letterbox 留白不同而讓白邊看起來厚薄不一。
+              不疊模糊底圖：檢閱欄的目的是看清構圖與邊緣，模糊底圖只會讓
+              照片邊界跟背景混在一起。 */}
+          <div className={style.inspectorPrint}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={preview?.url} alt="" />
+          </div>
         </div>
-      </div>
 
-      <PhotoMeta photo={draftAsPhoto} locale={locale} as="div" />
+        <PhotoMeta photo={draftAsPhoto} locale={locale} as="div" />
 
-      <div className={style.inspectorEdit}>
-        <LocaleToggle
-          value={editLocale}
-          onChange={setEditLocale}
-          filled={{
-            'zh-tw': Boolean(captionZh.trim() || locationNameZh.trim()),
-            en: Boolean(captionEn.trim() || locationNameEn.trim()),
-          }}
-        />
-
-        <Input
-          label={tFields('caption')}
-          value={editLocale === 'zh-tw' ? captionZh : captionEn}
-          onChange={handleCaptionChange}
-        />
-        <Input
-          label={tFields('locationName')}
-          value={editLocale === 'zh-tw' ? locationNameZh : locationNameEn}
-          onChange={handleLocationNameChange}
-        />
-
-        <Input
-          label={t('slug')}
-          value={slug}
-          onChange={handleSlugChange}
-          error={slugError}
-        />
-
-        <div className={style.inspectorDateRow}>
-          <Input
-            label={tFields('date')}
-            value={takenAtLocal}
-            onChange={handleTakenAtLocalChange}
-            placeholder={tFields('datePlaceholder')}
-            error={takenAtLocalError}
+        <div className={style.inspectorEdit}>
+          <LocaleToggle
+            value={editLocale}
+            onChange={setEditLocale}
+            filled={{
+              'zh-tw': Boolean(captionZh.trim() || locationNameZh.trim()),
+              en: Boolean(captionEn.trim() || locationNameEn.trim()),
+            }}
           />
-          <DropdownSelect
-            value={takenAtPrecision}
-            onChange={handlePrecisionChange}
-            options={precisionOptions}
-            placeholder={tFields('precisionDay')}
-            clearable={false}
+
+          <Input
+            label={tFields('caption')}
+            value={editLocale === 'zh-tw' ? captionZh : captionEn}
+            onChange={handleCaptionChange}
             compact
           />
-        </div>
+          <Input
+            label={tFields('locationName')}
+            value={editLocale === 'zh-tw' ? locationNameZh : locationNameEn}
+            onChange={handleLocationNameChange}
+            compact
+          />
 
-        {photo.location && (
-          <label className={style.gpsRow}>
-            <input
-              type="checkbox"
-              checked={includeGps}
-              onChange={(e) => handleGpsToggle(e.target.checked)}
+          <Input
+            label={t('slug')}
+            value={slug}
+            onChange={handleSlugChange}
+            error={slugError}
+            compact
+          />
+
+          <div className={style.inspectorDateRow}>
+            <Input
+              label={tFields('date')}
+              value={takenAtLocal}
+              onChange={handleTakenAtLocalChange}
+              placeholder={tFields('datePlaceholder')}
+              error={takenAtLocalError}
+              compact
             />
-            <span>{tFields('includeGps')}</span>
-            {includeGps && (
-              <span className={style.gpsPublicNote}>
-                {photo.location.lat}, {photo.location.lng}
+            <DropdownSelect
+              value={takenAtPrecision}
+              onChange={handlePrecisionChange}
+              options={precisionOptions}
+              placeholder={tFields('precisionDay')}
+              clearable={false}
+              compact
+            />
+          </div>
+
+          {photo.location && (
+            <label className={style.gpsRow}>
+              <input
+                type="checkbox"
+                checked={includeGps}
+                onChange={(e) => handleGpsToggle(e.target.checked)}
+              />
+              <span>{tFields('includeGps')}</span>
+              {includeGps && (
+                <span className={style.gpsPublicNote}>
+                  {photo.location.lat}, {photo.location.lng}
+                </span>
+              )}
+            </label>
+          )}
+        </div>
+
+        <dl className={style.inspectorFacts}>
+          <div className={style.factRow}>
+            <dt>{t('status')}</dt>
+            <dd>
+              <Button
+                variant="secondary"
+                size="small"
+                onClick={() => void toggleStatus()}
+                disabled={statusSaving}
+              >
+                {status === 'published' ? t('unpublish') : t('publish')}
+              </Button>
+              <span
+                className={`${style.statusPill} ${status === 'published' ? style.statusPublished : style.statusDraft}`}
+              >
+                {tStatus(status)}
               </span>
-            )}
-          </label>
+            </dd>
+          </div>
+          <div className={style.factRow}>
+            <dt>{t('dimensions')}</dt>
+            <dd>
+              {photo.width} × {photo.height}
+              {photo.isHdr && <span className={style.hdrTag}>HDR</span>}
+            </dd>
+          </div>
+          <div className={style.factRow}>
+            <dt>{t('fileSize')}</dt>
+            <dd>{formatBytes(photo.originalBytes)}</dd>
+          </div>
+        </dl>
+
+        {status === 'published' && (
+          <Link
+            href={`/gallery/${slug}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={style.openOnSite}
+          >
+            <Icon name="arrow-right" size="xs" />
+            {t('openOnSite')}
+          </Link>
         )}
-      </div>
 
-      <dl className={style.inspectorFacts}>
-        <div className={style.factRow}>
-          <dt>{t('status')}</dt>
-          <dd>
-            <Button
-              variant="secondary"
-              size="small"
-              onClick={() => void toggleStatus()}
-              disabled={statusSaving}
-            >
-              {status === 'published' ? t('unpublish') : t('publish')}
-            </Button>
-            <span
-              className={`${style.statusPill} ${status === 'published' ? style.statusPublished : style.statusDraft}`}
-            >
-              {tStatus(status)}
-            </span>
-          </dd>
+        <div className={style.dangerZone}>
+          <Button
+            variant="danger"
+            size="small"
+            onClick={() => void handleDelete()}
+            disabled={deleting}
+          >
+            <Icon name="trash" size="xs" />
+            {t('delete')}
+          </Button>
         </div>
-        <div className={style.factRow}>
-          <dt>{t('dimensions')}</dt>
-          <dd>
-            {photo.width} × {photo.height}
-            {photo.isHdr && <span className={style.hdrTag}>HDR</span>}
-          </dd>
-        </div>
-        <div className={style.factRow}>
-          <dt>{t('fileSize')}</dt>
-          <dd>{formatBytes(photo.originalBytes)}</dd>
-        </div>
-      </dl>
-
-      {status === 'published' && (
-        <Link
-          href={`/gallery/${slug}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className={style.openOnSite}
-        >
-          <Icon name="arrow-right" size="xs" />
-          {t('openOnSite')}
-        </Link>
-      )}
-
-      <div className={style.dangerZone}>
-        <Button
-          variant="danger"
-          size="small"
-          onClick={() => void handleDelete()}
-          disabled={deleting}
-        >
-          <Icon name="trash" size="xs" />
-          {t('delete')}
-        </Button>
       </div>
     </div>
   )

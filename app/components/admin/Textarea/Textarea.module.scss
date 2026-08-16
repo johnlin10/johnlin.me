@@ -9,6 +9,10 @@
     resize: vertical;
     @include field-control();
 
+    &.compact {
+      border-radius: var(--field-radius);
+    }
+
     &:disabled {
       resize: none;
     }

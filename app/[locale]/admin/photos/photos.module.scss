@@ -38,11 +38,13 @@
     // AdminShell 的 topbar 只在手機抽屜模式出現，桌機沒有固定頂欄，
     // 貼緊視窗頂端即可。
     top: var(--space-6);
-    padding: var(--space-4);
+    padding: 0;
     border: 1px solid var(--border);
     border-radius: var(--card-radius);
     background: var(--surface);
     max-height: calc(100vh - var(--space-12));
-    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
   }
 }
