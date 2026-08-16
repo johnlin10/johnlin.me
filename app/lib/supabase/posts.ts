@@ -8,6 +8,7 @@ import type {
   PostLocaleContent,
   SupportedLocale,
 } from '@/app/types/blog'
+import { isUniqueViolation } from './errors'
 
 // Supabase 回傳的原始列（snake_case）。tags 透過巢狀 select 帶入。
 type PostRow = {
@@ -216,17 +217,9 @@ export function isPlaceholderSlug(slug: string): boolean {
   return /^untitled-[a-z0-9]+-[a-z0-9]{4}$/.test(slug)
 }
 
-/**
- * 判斷是否為 Postgres 唯一鍵衝突（slug UNIQUE constraint）。
- */
-export function isUniqueViolation(error: unknown): boolean {
-  return (
-    typeof error === 'object' &&
-    error !== null &&
-    'code' in error &&
-    (error as { code?: unknown }).code === '23505'
-  )
-}
+// 實作已搬到 errors.ts（photos 的上傳流程也要判 23505）。這裡續留出口，
+// 讓既有的 `from '@/app/lib/supabase/posts'` 呼叫點不必改。
+export { isUniqueViolation }
 
 /**
  * 建立一篇空白草稿並回傳 id。用於「新增文章」進入即建草稿的流程。

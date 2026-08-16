@@ -2,7 +2,11 @@
 
 /** SDR 衍生檔的一階。階數依原圖尺寸而定，不會有超過原圖長邊的階。 */
 export interface PhotoDerivative {
-  /** 長邊像素寬，對應 srcSet 的 `${w}w` */
+  /**
+   * 這個檔案的實際像素寬度，直接對應 srcSet 的 `${w}w` 描述子。
+   * 是「寬」不是「長邊」——直幅照片若照長邊縮放，w 描述子就會說謊，
+   * 瀏覽器會固定挑小一級的階。產圖時一律 resize({ width: w })。
+   */
   w: number
   url: string
 }
@@ -76,6 +80,12 @@ export interface Photo {
 }
 
 export interface CreatePhotoInput {
+  /**
+   * 由呼叫端指定主鍵。上傳流程在瀏覽器端先產 UUID 當作 R2 的物件前綴
+   * （`photos/<id>/…`），再拿同一個值當 row id，這樣刪除時不需要額外欄位
+   * 就能反推物件位置。省略時由 DB 的 gen_random_uuid() 補。
+   */
+  id?: string
   slug: string
   derivatives: PhotoDerivative[]
   urlOriginal: string

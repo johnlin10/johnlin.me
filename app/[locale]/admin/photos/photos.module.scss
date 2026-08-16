@@ -1,0 +1,42 @@
+@use '../_entityPage' as entity;
+@use '@/app/styles/design' as *;
+
+.photos_page {
+  @include entity.entity-page;
+
+  // 縮圖列。表格是暫時型態，之後主視圖改成印象表（見 page.tsx 的說明）。
+  .thumb {
+    display: block;
+    width: 56px;
+    height: 40px;
+    object-fit: cover;
+    border-radius: var(--radius-xs);
+    background: var(--surface-3);
+  }
+
+  .thumbMissing {
+    display: block;
+    width: 56px;
+    height: 40px;
+    border-radius: var(--radius-xs);
+    border: 1px dashed var(--border);
+  }
+
+  .status {
+    display: inline-block;
+    padding: 2px var(--space-2);
+    border-radius: var(--radius-pill);
+    font-size: var(--text-3xs);
+    white-space: nowrap;
+  }
+
+  .published {
+    background: var(--success-soft);
+    color: var(--success);
+  }
+
+  .draft {
+    background: var(--surface-3);
+    color: var(--text-muted);
+  }
+}

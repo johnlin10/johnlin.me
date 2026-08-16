@@ -12,6 +12,7 @@
       "dashboard": "儀表板",
       "posts": "文章",
       "notes": "短文",
+      "photos": "攝影",
       "categories": "分類",
       "tags": "標籤",
       "series": "系列"
@@ -302,6 +303,41 @@
       "backfillError": "修補失敗",
       "removeImageConfirm": "移除這張圖片？儲存後會一併刪除檔案。"
     },
+    "localeToggle": {
+      "zh": "繁體中文",
+      "en": "English",
+      "ariaLabel": "內容語言"
+    },
+    "saveIndicator": {
+      "unsaved": "未儲存",
+      "saving": "儲存中…",
+      "errorRetry": "儲存失敗，重試",
+      "saved": "已儲存"
+    },
+    "photos": {
+      "heading": "攝影管理",
+      "loading": "載入中...",
+      "empty": "尚無照片",
+      "loadError": "載入照片失敗",
+      "upload": "上傳照片",
+      "count": {
+        "total": "共 ",
+        "unit": " 張照片"
+      },
+      "status": {
+        "draft": "草稿",
+        "published": "已發布"
+      },
+      "table": {
+        "thumb": "縮圖",
+        "slug": "Slug",
+        "takenAt": "拍攝時間",
+        "caption": "說明",
+        "status": "狀態",
+        "size": "尺寸"
+      },
+      "none": "—"
+    },
     "postEditor": {
       "topBar": {
         "backToWrite": "寫作",
@@ -312,17 +348,6 @@
         "saveDraft": "儲存草稿",
         "publish": "發表",
         "update": "更新"
-      },
-      "localeToggle": {
-        "zh": "繁體中文",
-        "en": "English",
-        "ariaLabel": "內容語言"
-      },
-      "saveIndicator": {
-        "unsaved": "未儲存",
-        "saving": "儲存中…",
-        "errorRetry": "儲存失敗，重試",
-        "saved": "已儲存"
       },
       "settingsStep": {
         "urlStatus": "網址與狀態",

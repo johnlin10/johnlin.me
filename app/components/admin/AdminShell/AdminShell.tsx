@@ -14,6 +14,7 @@ const NAV_ITEMS: { href: string; labelKey: string; icon: IconName }[] = [
   { href: '/admin', labelKey: 'dashboard', icon: 'gauge-high' },
   { href: '/admin/posts', labelKey: 'posts', icon: 'newspaper' },
   { href: '/admin/notes', labelKey: 'notes', icon: 'comment' },
+  { href: '/admin/photos', labelKey: 'photos', icon: 'camera' },
   { href: '/admin/categories', labelKey: 'categories', icon: 'folder' },
   { href: '/admin/tags', labelKey: 'tags', icon: 'tag' },
   { href: '/admin/series', labelKey: 'series', icon: 'layer-group' },

@@ -11,6 +11,7 @@
       "dashboard": "Dashboard",
       "posts": "Posts",
       "notes": "Notes",
+      "photos": "Photography",
       "categories": "Categories",
       "tags": "Tags",
       "series": "Series"
@@ -301,6 +302,41 @@
       "backfillError": "Backfill failed",
       "removeImageConfirm": "Remove this image? The file is deleted when you save."
     },
+    "localeToggle": {
+      "zh": "Traditional Chinese",
+      "en": "English",
+      "ariaLabel": "Content language"
+    },
+    "saveIndicator": {
+      "unsaved": "Unsaved",
+      "saving": "Saving…",
+      "errorRetry": "Save failed, retry",
+      "saved": "Saved"
+    },
+    "photos": {
+      "heading": "Photography",
+      "loading": "Loading...",
+      "empty": "No photos yet",
+      "loadError": "Failed to load photos",
+      "upload": "Upload photos",
+      "count": {
+        "total": "",
+        "unit": " photos"
+      },
+      "status": {
+        "draft": "Draft",
+        "published": "Published"
+      },
+      "table": {
+        "thumb": "Thumbnail",
+        "slug": "Slug",
+        "takenAt": "Taken",
+        "caption": "Caption",
+        "status": "Status",
+        "size": "Size"
+      },
+      "none": "—"
+    },
     "postEditor": {
       "topBar": {
         "backToWrite": "Write",
@@ -311,17 +347,6 @@
         "saveDraft": "Save draft",
         "publish": "Publish",
         "update": "Update"
-      },
-      "localeToggle": {
-        "zh": "Traditional Chinese",
-        "en": "English",
-        "ariaLabel": "Content language"
-      },
-      "saveIndicator": {
-        "unsaved": "Unsaved",
-        "saving": "Saving…",
-        "errorRetry": "Save failed, retry",
-        "saved": "Saved"
       },
       "settingsStep": {
         "urlStatus": "URL & Status",

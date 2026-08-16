@@ -35,6 +35,11 @@ import {
   faGripVertical,
   faTableCellsLarge,
   faList,
+  faFilter,
+  faLocationDot,
+  faCalendar,
+  faEye,
+  faEyeSlash,
 } from '@fortawesome/free-solid-svg-icons'
 import { faGithub } from '@fortawesome/free-brands-svg-icons'
 
@@ -72,6 +77,11 @@ export type IconName =
   | 'grip-vertical'
   | 'table-cells-large'
   | 'list'
+  | 'filter'
+  | 'location-dot'
+  | 'calendar'
+  | 'eye'
+  | 'eye-slash'
   | 'github'
 
 //* 圖標映射表
@@ -108,6 +118,11 @@ const iconMap: Record<IconName, IconProp> = {
   'grip-vertical': faGripVertical,
   'table-cells-large': faTableCellsLarge,
   list: faList,
+  filter: faFilter,
+  'location-dot': faLocationDot,
+  calendar: faCalendar,
+  eye: faEye,
+  'eye-slash': faEyeSlash,
   github: faGithub,
 }
 

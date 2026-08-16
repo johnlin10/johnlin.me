@@ -165,6 +165,20 @@ export async function getPhotoBySlug(
   return data ? mapPhoto(data as PhotoRow) : null
 }
 
+/** 後台以 id 取單張（列表已在手上時不必再查，這支給重整／輪詢用）。 */
+export async function getPhotoById(
+  supabase: SupabaseClient,
+  id: string
+): Promise<Photo | null> {
+  const { data, error } = await supabase
+    .from('photos')
+    .select('*')
+    .eq('id', id)
+    .maybeSingle()
+  if (error) throw error
+  return data ? mapPhoto(data as PhotoRow) : null
+}
+
 export async function getPhotosForAdmin(
   supabase: SupabaseClient
 ): Promise<Photo[]> {
@@ -199,6 +213,7 @@ export async function createPhoto(
   const { data, error } = await supabase
     .from('photos')
     .insert({
+      ...(input.id ? { id: input.id } : {}),
       slug: input.slug,
       derivatives: input.derivatives,
       url_original: input.urlOriginal,
@@ -248,10 +263,39 @@ export async function updatePhoto(
   if (error) throw error
 }
 
+/**
+ * 批次切換狀態。一趟拍攝回來常常是整批發布，逐張打 updatePhoto 會是 30 個往返。
+ */
+export async function updatePhotosStatus(
+  supabase: SupabaseClient,
+  ids: string[],
+  status: PhotoStatus
+): Promise<void> {
+  if (ids.length === 0) return
+  const { error } = await supabase
+    .from('photos')
+    .update({ status })
+    .in('id', ids)
+  if (error) throw error
+}
+
 export async function deletePhoto(
   supabase: SupabaseClient,
   id: string
 ): Promise<void> {
   const { error } = await supabase.from('photos').delete().eq('id', id)
+  if (error) throw error
+}
+
+/**
+ * 只刪 row。R2 上的物件要另外清（見 app/lib/r2 的 deletePrefix），
+ * 兩者刻意分開：孤兒檔案不該擋住一筆已經確定要刪的資料。
+ */
+export async function deletePhotos(
+  supabase: SupabaseClient,
+  ids: string[]
+): Promise<void> {
+  if (ids.length === 0) return
+  const { error } = await supabase.from('photos').delete().in('id', ids)
   if (error) throw error
 }
