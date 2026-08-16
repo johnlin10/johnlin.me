@@ -51,16 +51,10 @@ export default function PhotoInspector({
       </div>
 
       <div className={style.inspectorPreview}>
+        {/* 不疊模糊底圖：檢閱欄的目的是看清構圖與邊緣，模糊底圖只會讓
+            照片邊界跟背景混在一起。白邊＋陰影讓這裡看起來像沖印出來的相片。 */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={preview?.url}
-          alt=""
-          style={
-            photo.blurDataUrl
-              ? { backgroundImage: `url(${photo.blurDataUrl})`, backgroundSize: 'cover' }
-              : undefined
-          }
-        />
+        <img src={preview?.url} alt="" />
       </div>
 
       <PhotoMeta photo={photo} locale={locale} as="div" />
