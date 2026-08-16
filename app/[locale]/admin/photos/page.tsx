@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import { useLocale, useTranslations } from 'next-intl'
+import { useRouter } from '@/i18n/navigation'
 import { createClient } from '@/app/lib/supabase/client'
 import { getPhotosForAdmin } from '@/app/lib/supabase/photos'
 import { formatTakenAt, photoCaption } from '@/app/lib/photos/format'
@@ -10,6 +11,7 @@ import type { SupportedLocale } from '@/app/types/blog'
 import DataTable, {
   type DataTableColumn,
 } from '@/app/components/admin/DataTable/DataTable'
+import Button from '@/app/components/admin/Button/Button'
 import { useToast } from '@/app/components/admin/Toast/ToastProvider'
 import style from './photos.module.scss'
 
@@ -25,6 +27,7 @@ export default function AdminPhotosPage() {
   const locale = useLocale() as SupportedLocale
   const supabase = useMemo(() => createClient(), [])
   const toast = useToast()
+  const router = useRouter()
 
   const [photos, setPhotos] = useState<Photo[]>([])
   const [loading, setLoading] = useState(true)
@@ -113,6 +116,9 @@ export default function AdminPhotosPage() {
               {t('count.unit')}
             </p>
           </div>
+          <Button onClick={() => router.push('/admin/photos/upload')}>
+            {t('upload.cta')}
+          </Button>
         </div>
 
         {loading ? (

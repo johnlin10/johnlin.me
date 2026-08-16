@@ -1,0 +1,86 @@
+@use '@/app/styles/design' as *;
+
+.upload_page {
+  @include flexbox(column, flex-start, stretch);
+  gap: var(--space-6);
+  max-width: var(--width-content);
+  margin: 0 auto;
+  // 摘要列 sticky 在頁面底部，留一點呼吸空間避免最後一列被遮住。
+  padding-bottom: var(--space-16);
+}
+
+.header {
+  @include flexbox(row, flex-start, center);
+  gap: var(--space-4);
+}
+
+.back {
+  @include flexbox(row, flex-start, center);
+  gap: var(--space-1);
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+
+  &:hover {
+    color: var(--text);
+  }
+}
+
+.title {
+  font-family: var(--font-serif);
+  font-size: var(--text-2xl);
+  font-weight: 600;
+  color: var(--text);
+  margin: 0;
+}
+
+.rejected {
+  @include flexbox(column, flex-start, stretch);
+  gap: var(--space-2);
+  padding: var(--space-4);
+  border: 1px solid var(--warning-soft);
+  border-radius: var(--radius-md);
+  background: var(--warning-soft);
+}
+
+.rejectedTitle {
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--warning);
+  margin: 0;
+}
+
+.rejectedHint {
+  font-family: var(--font-sans);
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.rejectedList {
+  font-family: var(--font-sans);
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  margin: 0;
+  padding-left: var(--space-5);
+}
+
+.rows {
+  @include flexbox(column, flex-start, stretch);
+  gap: var(--space-3);
+}
+
+.doneBar {
+  @include flexbox(row, center, center);
+}
+
+.doneLink {
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  color: var(--accent);
+
+  &:hover {
+    color: var(--accent-hover);
+  }
+}

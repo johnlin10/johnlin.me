@@ -1,0 +1,245 @@
+@use '@/app/styles/design' as *;
+
+//* ==================== DropZone ====================
+
+.dropzone {
+  @include flexbox(column, center, center);
+  gap: var(--space-2);
+  padding: var(--space-10) var(--space-6);
+  border: 2px dashed var(--border);
+  border-radius: var(--card-radius);
+  background: var(--surface-2);
+  cursor: pointer;
+  text-align: center;
+  transition: border-color var(--duration-fast) var(--ease);
+
+  &:hover,
+  &:focus-visible {
+    border-color: var(--accent);
+  }
+
+  &.dragging {
+    border-color: var(--accent);
+    background: var(--accent-soft);
+  }
+}
+
+.hiddenInput {
+  display: none;
+}
+
+.dropzoneIcon {
+  color: var(--text-muted);
+}
+
+.dropzoneTitle {
+  font-family: var(--font-sans);
+  font-size: var(--text-md);
+  color: var(--text);
+  margin: 0;
+}
+
+.dropzoneHint {
+  font-family: var(--font-sans);
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  margin: 0;
+}
+
+//* ==================== StagedPhotoRow ====================
+
+.row {
+  display: grid;
+  grid-template-columns: 96px 1fr;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  border: 1px solid var(--border);
+  border-radius: var(--card-radius);
+  background: var(--surface);
+
+  @include respond-to('phone') {
+    grid-template-columns: 1fr;
+  }
+}
+
+.row_done {
+  opacity: 0.6;
+}
+
+.row_error,
+.row_invalid {
+  border-color: var(--danger-soft);
+}
+
+.rowThumb {
+  position: relative;
+  width: 96px;
+  height: 72px;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background: var(--surface-3);
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+}
+
+.hdrBadge {
+  position: absolute;
+  bottom: var(--space-1);
+  right: var(--space-1);
+  padding: 1px var(--space-1);
+  border-radius: var(--radius-xs);
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: var(--tracking-wide);
+}
+
+.rowBody {
+  @include flexbox(column, flex-start, stretch);
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.rowHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.rowFileInfo {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
+}
+
+.rowFilename {
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rowFilesize {
+  font-family: var(--font-sans);
+  font-size: var(--text-2xs);
+  color: var(--text-muted);
+}
+
+.rowStatusText {
+  @include flexbox(row, flex-start, center);
+  gap: var(--space-1);
+  font-family: var(--font-sans);
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.rowStatusDone {
+  color: var(--success);
+}
+
+.rowStatusError {
+  color: var(--danger);
+}
+
+.rowActions {
+  @include flexbox(row, flex-end, center);
+  gap: var(--space-2);
+}
+
+.progressTrack {
+  height: 4px;
+  border-radius: var(--radius-pill);
+  background: var(--surface-3);
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  background: var(--accent);
+  transition: width var(--duration-fast) var(--ease);
+}
+
+.rowFields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+
+  @include respond-to('phone') {
+    grid-template-columns: 1fr;
+  }
+}
+
+.rowDateGroup {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: var(--space-2);
+  align-items: end;
+}
+
+.rowExif {
+  @include flexbox(row, flex-start, center);
+  gap: var(--space-3);
+  font-family: var(--font-sans);
+  font-size: var(--text-2xs);
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.rowGps {
+  @include flexbox(row, flex-start, center);
+  gap: var(--space-2);
+  font-family: var(--font-sans);
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.rowGpsHelper {
+  color: var(--text-muted);
+  font-size: var(--text-2xs);
+}
+
+//* ==================== UploadSummaryBar ====================
+
+.summaryBar {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-4) var(--space-5);
+  border: 1px solid var(--border);
+  border-radius: var(--card-radius);
+  background: var(--surface-raised);
+  box-shadow: var(--shadow-md);
+  flex-wrap: wrap;
+}
+
+.summaryText {
+  @include flexbox(row, flex-start, center);
+  gap: var(--space-3);
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+
+.summaryProblem {
+  color: var(--warning);
+}
+
+.summaryActions {
+  @include flexbox(row, flex-end, center);
+  gap: var(--space-2);
+}

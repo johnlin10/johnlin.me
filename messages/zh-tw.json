@@ -319,7 +319,6 @@
       "loading": "載入中...",
       "empty": "尚無照片",
       "loadError": "載入照片失敗",
-      "upload": "上傳照片",
       "count": {
         "total": "共 ",
         "unit": " 張照片"
@@ -336,7 +335,50 @@
         "status": "狀態",
         "size": "尺寸"
       },
-      "none": "—"
+      "none": "—",
+      "upload": {
+        "cta": "上傳照片",
+        "heading": "上傳照片",
+        "back": "返回",
+        "dropTitle": "拖放照片到這裡",
+        "dropHint": "或點擊選擇檔案",
+        "browse": "選擇檔案",
+        "unsupportedTitle": "{count} 個檔案無法使用",
+        "unsupportedHint": "HEIC 與 RAW／DNG 檔案瀏覽器無法直接讀取，請先在 Lightroom 匯出成 JPEG。",
+        "reading": "讀取中…",
+        "unreadable": "無法讀取這個檔案",
+        "needsDate": "缺少拍攝時間，請確認日期",
+        "invalidSlug": "Slug 格式不正確或重複",
+        "fields": {
+          "slug": "Slug",
+          "date": "拍攝日期",
+          "datePlaceholder": "YYYY-MM-DDTHH:mm:ss",
+          "precisionDay": "精確到日",
+          "precisionMonth": "精確到月",
+          "precisionYear": "只知道年份",
+          "captionZh": "說明（中文）",
+          "captionEn": "說明（英文）",
+          "locationNameZh": "地名（中文）",
+          "locationNameEn": "地名（英文）",
+          "includeGps": "公開座標",
+          "gpsHelper": "四捨五入至約 110 公尺：{lat}, {lng}",
+          "camera": "相機",
+          "lens": "鏡頭",
+          "hdr": "HDR"
+        },
+        "remove": "移除",
+        "retry": "重試",
+        "summaryPending": "{count} 張待上傳",
+        "summaryProblem": "{count} 張有問題",
+        "confirm": "確認上傳",
+        "clearAll": "全部清除",
+        "uploading": "上傳中",
+        "processing": "處理中",
+        "done": "已完成",
+        "cancel": "取消上傳",
+        "allDone": "全部上傳完成",
+        "viewList": "回到列表"
+      }
     },
     "postEditor": {
       "topBar": {
