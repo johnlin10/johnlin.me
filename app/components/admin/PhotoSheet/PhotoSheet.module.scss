@@ -152,8 +152,9 @@
   gap: var(--space-1);
 }
 
-// 相片的顯示高度：連同 $matPadding 一起決定 .inspectorPreview 的固定總高，
-// 換照片時下方的事實區塊不會跟著跳動。
+// 相片可用的最大顯示高度：連同 $matPadding 一起決定 .inspectorPreview 的
+// 固定總高，換照片時下方的事實區塊不會跟著跳動。是「上限」不是照片實際
+// 一定會撐到的高度——比例太寬的照片會先撞到寬度上限，見下面 img 的註解。
 $photoHeight: 296px;
 // 白邊寬度，.inspectorPrint 的 padding 四邊都用這個值，實際看起來才會等寬——
 // 白邊要是套在 .inspectorPreview 這個固定框上，橫幅／直幅照片因為 letterbox
@@ -181,12 +182,15 @@ $matPadding: 12px;
 
   img {
     display: block;
+    // width/height 都是 auto，靠 max-width／max-height 兩個上限一起夾出
+    // 「撐滿高度或撐滿寬度，取先撞到的那個」—— 這才是 object-fit: contain
+    // 的語意。之前寫死 height 會在寬版照片撞到 max-width 時把圖硬拉伸成
+    // 錯的比例（看起來像被裁掉兩側），因為 height 沒有跟著讓步。
     max-width: 100%;
-    // 固定高度撐出圖片本身的框，寬度依比例自動算；極端全景圖寬度會撞到
-    // max-width，這時瀏覽器對 replaced element 的既定行為是改保寬度、
-    // 等比縮小高度 —— frame 因此可能矮一點，但比例不會跑掉。
-    height: $photoHeight;
+    max-height: $photoHeight;
     width: auto;
+    height: auto;
+    object-fit: contain;
   }
 }
 
