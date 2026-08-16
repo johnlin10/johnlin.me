@@ -152,27 +152,41 @@
   gap: var(--space-1);
 }
 
+// 相片的顯示高度：連同 $matPadding 一起決定 .inspectorPreview 的固定總高，
+// 換照片時下方的事實區塊不會跟著跳動。
+$photoHeight: 296px;
+// 白邊寬度，.inspectorPrint 的 padding 四邊都用這個值，實際看起來才會等寬——
+// 白邊要是套在 .inspectorPreview 這個固定框上，橫幅／直幅照片因為 letterbox
+// 留白不同，四邊的視覺留白就會厚薄不一。
+
+$matPadding: 12px;
+
 .inspectorPreview {
-  // 固定高度而不是依圖片比例撐開：換照片時下方的事實區塊不會跟著跳動。
-  height: 320px;
+  height: calc(#{$photoHeight} + #{$matPadding} * 2);
+  @include flexbox(row, center, center);
+}
+
+.inspectorPrint {
+  // inline-flex 讓這層縮到跟裡面的圖片一樣大，padding 才會貼著圖片的實際邊緣。
+  display: inline-flex;
+  padding: $matPadding;
+  max-width: 100%;
   box-sizing: border-box;
-  padding: var(--space-4);
   // 半擬態：模擬沖印相片的白邊 —— 刻意用實色白而非語意 token，
   // 紙本的白不該隨深色模式變暗，這是這個元件唯一的裝飾性例外。
   background: #fff;
   box-shadow: var(--shadow-md);
   // 直角，不是卡片圓角：沖印相片的邊是直的。
   border-radius: 0;
-  @include flexbox(row, center, center);
 
   img {
-    max-width: 100%;
-    max-height: 100%;
-    width: auto;
-    height: auto;
-    // contain 不是 cover：檢閱欄要看清完整構圖，不能裁切。
-    object-fit: contain;
     display: block;
+    max-width: 100%;
+    // 固定高度撐出圖片本身的框，寬度依比例自動算；極端全景圖寬度會撞到
+    // max-width，這時瀏覽器對 replaced element 的既定行為是改保寬度、
+    // 等比縮小高度 —— frame 因此可能矮一點，但比例不會跑掉。
+    height: $photoHeight;
+    width: auto;
   }
 }
 

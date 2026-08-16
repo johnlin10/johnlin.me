@@ -51,10 +51,15 @@ export default function PhotoInspector({
       </div>
 
       <div className={style.inspectorPreview}>
-        {/* 不疊模糊底圖：檢閱欄的目的是看清構圖與邊緣，模糊底圖只會讓
-            照片邊界跟背景混在一起。白邊＋陰影讓這裡看起來像沖印出來的相片。 */}
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={preview?.url} alt="" />
+        {/* 白邊要貼著照片實際渲染出來的尺寸、四邊等寬，所以 .inspectorPrint
+            是縮到跟圖片一樣大的相框，不是撐滿 .inspectorPreview 的固定框——
+            後者的話橫幅/直幅照片會因為 letterbox 留白不同而讓白邊看起來厚薄不一。
+            不疊模糊底圖：檢閱欄的目的是看清構圖與邊緣，模糊底圖只會讓
+            照片邊界跟背景混在一起。 */}
+        <div className={style.inspectorPrint}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={preview?.url} alt="" />
+        </div>
       </div>
 
       <PhotoMeta photo={photo} locale={locale} as="div" />
