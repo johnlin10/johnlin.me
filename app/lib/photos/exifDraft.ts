@@ -19,8 +19,8 @@ export interface ExifDraft {
   isHdr: boolean
 }
 
-// exifr 前 4MB 夠涵蓋 metadata 區塊，不需要整個檔案就能找到 HDR 標記。
-const HDR_SCAN_BYTES = 4 * 1024 * 1024
+// 前 4MB 夠涵蓋 metadata 區塊，不需要整個檔案就能找到 HDR 標記。
+const HEAD_SCAN_BYTES = 4 * 1024 * 1024
 const HDR_MARKERS = ['hdrgm', 'urn:iso:std:iso:ts:21496', 'HDRGainMap']
 
 function parseRawDateTime(raw: string | undefined): string | undefined {
@@ -45,13 +45,12 @@ function pickExif(raw: Record<string, unknown>): PhotoExif | undefined {
   return Object.keys(exif).length > 0 ? exif : undefined
 }
 
-async function detectHdr(file: File): Promise<boolean> {
-  const head = await file.slice(0, HDR_SCAN_BYTES).text()
-  return HDR_MARKERS.some((marker) => head.includes(marker))
-}
-
 /**
  * 讀取一個檔案的 EXIF 預檢資料。
+ *
+ * 檔頭先切成 ArrayBuffer 再交給 exifr：餵 File 會走 chunked 模式，而它只掃
+ * 第一個 chunk（瀏覽器 64KB）。Lightroom 匯出的 JPEG 在 Exif 前面有約 99KB
+ * 的 C2PA 內容憑證，Exif 落在窗外就整份讀不到。
  *
  * reviveValues: false 是唯一安全的讀法 —— exifr 預設會把 DateTimeOriginal
  * revive 成瀏覽器目前時區的 Date，實測同一個檔案在 UTC 與 +08:00 的機器上
@@ -61,13 +60,16 @@ async function detectHdr(file: File): Promise<boolean> {
  * 讀不到日期不當錯誤：使用者在預檢表手填即可，這裡只回傳 undefined。
  */
 export async function readExifDraft(file: File): Promise<ExifDraft> {
-  const [raw, gps, isHdr] = await Promise.all([
+  const head = await file.slice(0, HEAD_SCAN_BYTES).arrayBuffer()
+  const text = new TextDecoder().decode(head)
+  const isHdr = HDR_MARKERS.some((marker) => text.includes(marker))
+
+  const [raw, gps] = await Promise.all([
     exifr
       // ifd0（含 Make/Model）依 exifr 的型別定義本來就無法關閉，不用列出來。
-      .parse(file, { reviveValues: false, tiff: true, exif: true, gps: true })
+      .parse(head, { reviveValues: false, tiff: true, exif: true, gps: true })
       .catch(() => null),
-    exifr.gps(file).catch(() => null),
-    detectHdr(file),
+    exifr.gps(head).catch(() => null),
   ])
 
   if (!raw) return { isHdr }
