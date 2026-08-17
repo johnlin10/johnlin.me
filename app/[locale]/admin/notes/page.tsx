@@ -3,11 +3,16 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useLocale, useTranslations } from 'next-intl'
 import { createClient } from '@/app/lib/supabase/client'
-import { getNotesForAdmin, updateNote, deleteNote } from '@/app/lib/supabase/notes'
+import {
+  getNotesForAdmin,
+  updateNote,
+  deleteNote,
+} from '@/app/lib/supabase/notes'
 import { deleteImages } from '@/app/lib/supabase/storage'
 import { readImageSizeFromUrl } from '@/app/lib/images/dimensions'
 import type { Note } from '@/app/types/note'
 import Button from '@/app/components/admin/Button/Button'
+import PageHeader from '@/app/components/admin/PageHeader/PageHeader'
 import { useToast } from '@/app/components/admin/Toast/ToastProvider'
 import { useConfirm } from '@/app/components/admin/ConfirmDialog/ConfirmDialog'
 import NoteComposer from '@/app/components/admin/NoteComposer/NoteComposer'
@@ -55,7 +60,10 @@ export default function AdminNotesPage() {
     try {
       await deleteNote(supabase, note.id)
       if (note.images.length > 0) {
-        await deleteImages(supabase, note.images.map((img) => img.url))
+        await deleteImages(
+          supabase,
+          note.images.map((img) => img.url),
+        )
       }
       toast.success(t('deleteSuccess'))
       load()
@@ -64,7 +72,9 @@ export default function AdminNotesPage() {
     }
   }
 
-  const needsBackfill = notes.filter((n) => n.images.some((img) => !img.w || !img.h))
+  const needsBackfill = notes.filter((n) =>
+    n.images.some((img) => !img.w || !img.h),
+  )
 
   const handleBackfill = async () => {
     setBackfilling(true)
@@ -72,8 +82,10 @@ export default function AdminNotesPage() {
       for (const n of needsBackfill) {
         const images = await Promise.all(
           n.images.map(async (img) =>
-            img.w && img.h ? img : { ...img, ...(await readImageSizeFromUrl(img.url)) }
-          )
+            img.w && img.h
+              ? img
+              : { ...img, ...(await readImageSizeFromUrl(img.url)) },
+          ),
         )
         await updateNote(supabase, { id: n.id, images })
       }
@@ -97,26 +109,28 @@ export default function AdminNotesPage() {
 
   return (
     <div className={style.container}>
-      <div className={style.header}>
-        <div>
-          <h1 className={style.title}>{t('heading')}</h1>
-          <p className={style.subtitle}>
+      <PageHeader
+        title={t('heading')}
+        subtitle={
+          <>
             {t('count.total')}
             {notes.length}
             {t('count.unit')}
-          </p>
-        </div>
-        {needsBackfill.length > 0 && (
-          <Button
-            variant="ghost"
-            size="small"
-            onClick={handleBackfill}
-            disabled={backfilling}
-          >
-            {t('backfillDims')}
-          </Button>
-        )}
-      </div>
+          </>
+        }
+        action={
+          needsBackfill.length > 0 ? (
+            <Button
+              variant="ghost"
+              size="small"
+              onClick={handleBackfill}
+              disabled={backfilling}
+            >
+              {t('backfillDims')}
+            </Button>
+          ) : undefined
+        }
+      />
 
       <NoteComposer mode="create" onSaved={load} />
 
@@ -147,10 +161,14 @@ export default function AdminNotesPage() {
                     </time>
                     <span
                       className={`${style.statusPill} ${
-                        note.status === 'draft' ? style.statusDraft : style.statusPublished
+                        note.status === 'draft'
+                          ? style.statusDraft
+                          : style.statusPublished
                       }`}
                     >
-                      {note.status === 'draft' ? t('statusDraft') : t('statusPublished')}
+                      {note.status === 'draft'
+                        ? t('statusDraft')
+                        : t('statusPublished')}
                     </span>
                   </div>
 
@@ -172,7 +190,9 @@ export default function AdminNotesPage() {
                   </div>
                 </div>
 
-                {note.content && <p className={style.itemContent}>{note.content}</p>}
+                {note.content && (
+                  <p className={style.itemContent}>{note.content}</p>
+                )}
 
                 {note.images.length > 0 && (
                   <div className={style.itemMedia}>
@@ -180,7 +200,7 @@ export default function AdminNotesPage() {
                   </div>
                 )}
               </div>
-            )
+            ),
           )}
         </div>
       )}

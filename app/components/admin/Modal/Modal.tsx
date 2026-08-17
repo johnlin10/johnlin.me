@@ -9,6 +9,11 @@ interface ModalProps {
   title: string
   children: React.ReactNode
   size?: 'small' | 'medium' | 'large'
+  /**
+   * 內容區是否要有預設內距。傳入的內容自帶內距時（例如 PhotoInspector
+   * 這種本來就是獨立面板的元件）設成 false，避免內距疊兩層。
+   */
+  bodyPadding?: boolean
 }
 
 /**
@@ -20,6 +25,7 @@ export default function Modal({
   title,
   children,
   size = 'medium',
+  bodyPadding = true,
 }: ModalProps) {
   //* 按 ESC 關閉彈窗
   useEffect(() => {
@@ -64,7 +70,11 @@ export default function Modal({
             </svg>
           </button>
         </div>
-        <div className={style.modal_body}>{children}</div>
+        <div
+          className={`${style.modal_body} ${bodyPadding ? '' : style.modal_body_flush}`}
+        >
+          {children}
+        </div>
       </div>
     </div>
   )

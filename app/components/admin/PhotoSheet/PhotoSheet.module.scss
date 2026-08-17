@@ -75,16 +75,22 @@
 }
 
 .yearLabel {
-  position: sticky;
-  top: 0;
-  z-index: var(--z-raised);
+  // 不 sticky，就是每年一段的普通標題，跟著內容捲走。
+  // 整條滿版實心／漸層背景會很突兀，改成跟 AdminShell 手機頂欄、
+  // 公開站 Header 次導覽同一套毛玻璃小標籤：只包住文字本身，不搶
+  // 版面，疊在照片縮圖上也靠模糊而非大面積不透明度維持可讀性。
+  align-self: flex-start;
+  width: fit-content;
   font-family: var(--font-serif);
   font-size: var(--text-lg);
   font-weight: 600;
   color: var(--text-secondary);
-  background: var(--surface);
-  padding: var(--space-1) 0;
   margin: 0;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  background: rgba(var(--background-color-rgb), 0.75);
+  backdrop-filter: blur(10px) saturate(1.3);
+  -webkit-backdrop-filter: blur(10px) saturate(1.3);
 }
 
 .rows {

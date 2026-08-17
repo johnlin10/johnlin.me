@@ -8,6 +8,10 @@ import Icon, { type IconName } from '@/app/components/Icon/Icon'
 import ThemeToggle from '@/app/components/ThemeToggle/ThemeToggle'
 import { useConfirm } from '@/app/components/admin/ConfirmDialog/ConfirmDialog'
 import { isFullscreenAdminRoute } from './fullscreenRoutes'
+import {
+  AdminPageHeaderProvider,
+  useAdminPageHeaderSlot,
+} from './AdminPageHeaderContext'
 import style from './AdminShell.module.scss'
 
 const NAV_ITEMS: { href: string; labelKey: string; icon: IconName }[] = [
@@ -21,6 +25,23 @@ const NAV_ITEMS: { href: string; labelKey: string; icon: IconName }[] = [
 ]
 
 const DESKTOP_BREAKPOINT = 1025
+
+/**
+ * PageHeader 的兩個掛載點（主列／副列各一個，理由見
+ * AdminPageHeaderContext.tsx 的註解）。都是 .main 的直接子節點，
+ * 手機／平板／桌機共用，寬度自然跟著 .main 走（手機下側邊欄變成
+ * 覆蓋式抽屜，.main 本來就是滿版）。sticky／固定列高／z-index 都
+ * 交給 PageHeader 自己的 CSS 處理，這裡只單純提供掛載點。
+ */
+function HeaderSlotMount() {
+  const { setMainSlot, setSubSlot } = useAdminPageHeaderSlot()
+  return (
+    <>
+      <div ref={setMainSlot} className={style.headerMainSlot} />
+      <div ref={setSubSlot} className={style.headerSubSlot} />
+    </>
+  )
+}
 
 interface UserProfile {
   email: string | null
@@ -82,9 +103,7 @@ export default function AdminShell({
     return <>{children}</>
   }
 
-  const currentItem = NAV_ITEMS.find(({ href }) =>
-    href === '/admin' ? pathname === '/admin' : pathname.startsWith(href)
-  )
+  const toggleDrawer = () => setDrawerOpen((v) => !v)
 
   const handleSignOut = async () => {
     const ok = await confirm({
@@ -99,111 +118,101 @@ export default function AdminShell({
   }
 
   return (
-    <div className={style.shell}>
-      <div className={style.topbar}>
-        <button
-          type="button"
-          className={style.menuToggle}
-          onClick={() => setDrawerOpen((v) => !v)}
-          aria-label={drawerOpen ? t('menuClose') : t('menuOpen')}
-          aria-expanded={drawerOpen}
-        >
-          <Icon name={drawerOpen ? 'xmark' : 'bars'} size="lg" />
-        </button>
-        <span className={style.topbarTitle}>
-          {currentItem ? tNav(currentItem.labelKey) : t('topbarFallback')}
-        </span>
-      </div>
+    <AdminPageHeaderProvider drawerOpen={drawerOpen} toggleDrawer={toggleDrawer}>
+      {/* data-admin-shell：globals.scss 靠這個屬性用 :has() 鎖住文件層的
+          捲動／回彈，只在後台外殼掛載時生效，見那邊的註解。 */}
+      <div className={style.shell} data-admin-shell>
+        {drawerOpen && (
+          <div
+            className={style.scrim}
+            onClick={() => setDrawerOpen(false)}
+            aria-hidden
+          />
+        )}
 
-      {drawerOpen && (
-        <div
-          className={style.scrim}
-          onClick={() => setDrawerOpen(false)}
-          aria-hidden
-        />
-      )}
+        <aside className={`${style.sidebar} ${drawerOpen ? style.open : ''}`}>
+          <div className={style.sidebarHeader}>
+            <Link href="/" className={style.backHomeButton}>
+              <Icon name="home" size="sm" />
+              <span>{t('backToHome')}</span>
+            </Link>
 
-      <aside className={`${style.sidebar} ${drawerOpen ? style.open : ''}`}>
-        <div className={style.sidebarHeader}>
-          <Link href="/" className={style.backHomeButton}>
-            <Icon name="home" size="sm" />
-            <span>{t('backToHome')}</span>
-          </Link>
-
-          <Link href="/admin" className={style.brand}>
-            <span className={style.brandMark}>John Lin</span>
-            <span className={style.brandSub}>{t('brandSubtitle')}</span>
-          </Link>
-        </div>
-
-        <nav className={style.nav} aria-label={t('navAriaLabel')}>
-          {NAV_ITEMS.map(({ href, labelKey, icon }) => {
-            const active =
-              href === '/admin'
-                ? pathname === '/admin'
-                : pathname.startsWith(href)
-            return (
-              <Link
-                key={href}
-                href={href}
-                className={`${style.navLink} ${active ? style.active : ''}`}
-              >
-                <Icon name={icon} size="sm" />
-                <span>{tNav(labelKey)}</span>
-              </Link>
-            )
-          })}
-        </nav>
-
-        <div className={style.userArea}>
-          <div className={style.userCard}>
-            <div className={style.avatarWrapper}>
-              {userProfile?.avatarUrl ? (
-                <img
-                  src={userProfile.avatarUrl}
-                  alt={userProfile.name ?? t('userAvatarAlt')}
-                  className={style.avatarImage}
-                />
-              ) : (
-                <div className={style.avatarFallback}>
-                  {userProfile?.name ? (
-                    userProfile.name.charAt(0).toUpperCase()
-                  ) : (
-                    <Icon name="user" size="sm" />
-                  )}
-                </div>
-              )}
-            </div>
-
-            <div className={style.userInfo}>
-              <span className={style.userName} title={userProfile?.name ?? ''}>
-                {userProfile?.name ?? t('defaultUserName')}
-              </span>
-              <span
-                className={style.userEmail}
-                title={userProfile?.email ?? ''}
-              >
-                {userProfile?.email ?? ''}
-              </span>
-            </div>
-
-            <ThemeToggle />
+            <Link href="/admin" className={style.brand}>
+              <span className={style.brandMark}>John Lin</span>
+              <span className={style.brandSub}>{t('brandSubtitle')}</span>
+            </Link>
           </div>
 
-          <button
-            type="button"
-            className={style.signOut}
-            onClick={handleSignOut}
-          >
-            <Icon name="right-from-bracket" size="sm" />
-            <span>{t('signOut')}</span>
-          </button>
-        </div>
-      </aside>
+          <nav className={style.nav} aria-label={t('navAriaLabel')}>
+            {NAV_ITEMS.map(({ href, labelKey, icon }) => {
+              const active =
+                href === '/admin'
+                  ? pathname === '/admin'
+                  : pathname.startsWith(href)
+              return (
+                <Link
+                  key={href}
+                  href={href}
+                  className={`${style.navLink} ${active ? style.active : ''}`}
+                >
+                  <Icon name={icon} size="sm" />
+                  <span>{tNav(labelKey)}</span>
+                </Link>
+              )
+            })}
+          </nav>
 
-      <div className={style.main}>
-        <div className={style.page}>{children}</div>
+          <div className={style.userArea}>
+            <div className={style.userCard}>
+              <div className={style.avatarWrapper}>
+                {userProfile?.avatarUrl ? (
+                  <img
+                    src={userProfile.avatarUrl}
+                    alt={userProfile.name ?? t('userAvatarAlt')}
+                    className={style.avatarImage}
+                  />
+                ) : (
+                  <div className={style.avatarFallback}>
+                    {userProfile?.name ? (
+                      userProfile.name.charAt(0).toUpperCase()
+                    ) : (
+                      <Icon name="user" size="sm" />
+                    )}
+                  </div>
+                )}
+              </div>
+
+              <div className={style.userInfo}>
+                <span className={style.userName} title={userProfile?.name ?? ''}>
+                  {userProfile?.name ?? t('defaultUserName')}
+                </span>
+                <span
+                  className={style.userEmail}
+                  title={userProfile?.email ?? ''}
+                >
+                  {userProfile?.email ?? ''}
+                </span>
+              </div>
+
+              <ThemeToggle />
+            </div>
+
+            <button
+              type="button"
+              className={style.signOut}
+              onClick={handleSignOut}
+            >
+              <Icon name="right-from-bracket" size="sm" />
+              <span>{t('signOut')}</span>
+            </button>
+          </div>
+        </aside>
+
+        <div className={style.main}>
+          <HeaderSlotMount />
+          <div className={style.page}>{children}</div>
+        </div>
       </div>
-    </div>
+    </AdminPageHeaderProvider>
   )
 }

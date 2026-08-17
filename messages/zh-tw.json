@@ -681,7 +681,7 @@
     },
     "articles": {
       "label": "最新文章",
-      "heading": "最近想了什麼。",
+      "heading": "最近想了什麼？",
       "empty": "第一篇還在醞釀中，很快就會出現在這裡。",
       "cta": "前往部落格"
     },
@@ -689,12 +689,12 @@
       "label": "攝影一瞥",
       "heading": "透過鏡頭。",
       "empty": "攝影空間正在整理中，敬請期待。",
-      "cta": "前往攝影集"
+      "cta": "前往攝影牆"
     }
   },
   "BlogPage": {
     "title": "部落格",
-    "description": "歡迎來到我的部落格。",
+    "description": "記錄我的所思所想，寫下屬於我的故事。",
     "page_title": "部落格",
     "noPosts": "尚無文章",
     "readingTime": "約 {minutes} 分鐘閱讀",
@@ -708,9 +708,9 @@
     }
   },
   "GalleryPage": {
-    "title": "攝影",
-    "description": "一面掛滿瞬間的牆。這些照片沒有構圖公式，只有當下的感覺 —— 看到某個角度覺得美，就按下快門。",
-    "page_title": "攝影",
+    "title": "攝影牆",
+    "description": "我的攝影沒有什麼公式，只有當下的感覺，覺得美就記錄下來。",
+    "page_title": "攝影牆",
     "empty": "照片正在整理中，很快就會掛上牆。",
     "listView": "照片列表",
     "backToWall": "回到攝影牆",
@@ -807,6 +807,10 @@
         "loading": "載入中...",
         "error": "無法取得"
       }
+    },
+    "GradientPage": {
+      "title": "漸層曲線",
+      "description": "用一條曲線調 linear-gradient 的透明度變化，再輸出貼著曲線走、看不出接縫的 color stops。"
     }
   },
   "Header": {

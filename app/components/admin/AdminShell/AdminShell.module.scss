@@ -2,10 +2,24 @@
 
 $sidebarWidth: 232px;
 
+// 外殼直接用 position:fixed 釘在視窗上、不捲動——只有 .page 自己捲動。
+// 這樣側邊欄／頂部控制欄才是真正獨立於內容捲動區之外，而不是「靠
+// sticky 跟著同一份文件捲動假裝固定」。
+//
+// 用 fixed 而不是 height:100dvh + 留在文件流裡：留在流裡的話 body 仍
+// 然有內容高度，文件層就還是可捲動／可回彈的，iOS 上內容捲到底再滑
+// 一次就會把整份文件（含側邊欄、控制欄）一起橡皮筋拖動。fixed 讓
+// body 完全沒有 in-flow 內容，配合 globals.scss 裡鎖住 html／body 的
+// 規則，文件層就徹底沒有可捲動的東西了。
+//
+// 註：fixed 祖先不會為子孫的 position:fixed 建立 containing block
+// （只有 transform／filter／will-change 之類會），所以 photos 頁的
+// inspector 側欄、行動裝置抽屜跟 scrim 仍然照樣對齊視窗。
 .shell {
+  position: fixed;
+  inset: 0;
   display: flex;
-  min-height: 100vh;
-  width: 100%;
+  overflow: hidden;
   background: var(--surface);
 
   @include respond-to('tablet') {
@@ -14,52 +28,6 @@ $sidebarWidth: 232px;
   @include respond-to('phone') {
     flex-direction: column;
   }
-}
-
-/* ---------- Topbar（僅行動裝置顯示，用來放漢堡選單） ---------- */
-.topbar {
-  display: none;
-  align-items: center;
-  gap: var(--space-3);
-  position: sticky;
-  top: 0;
-  z-index: 120;
-  width: 100%;
-  flex-shrink: 0;
-  height: 56px;
-  padding: 0 var(--space-4);
-  background: rgba(var(--background-color-rgb), 0.92);
-  backdrop-filter: blur(10px);
-  border-bottom: 1px solid var(--border);
-
-  @include respond-to('tablet') {
-    display: flex;
-  }
-  @include respond-to('phone') {
-    display: flex;
-  }
-}
-
-.menuToggle {
-  @include flexbox(row, center, center);
-  width: 36px;
-  height: 36px;
-  background: transparent;
-  color: var(--text);
-  border: none;
-  border-radius: var(--radius-md);
-  cursor: pointer;
-
-  &:hover {
-    background: var(--surface-2);
-  }
-}
-
-.topbarTitle {
-  font-family: var(--font-serif);
-  font-size: var(--text-lg);
-  font-weight: 600;
-  color: var(--text);
 }
 
 /* ---------- Scrim（行動裝置抽屜遮罩） ---------- */
@@ -82,11 +50,13 @@ $sidebarWidth: 232px;
 .sidebar {
   flex-shrink: 0;
   width: $sidebarWidth;
-  position: sticky;
-  top: 0;
-  height: 100vh;
+  // .shell 不捲動了，不需要 sticky 假裝固定——本來就是固定的。
+  height: 100%;
   display: flex;
   flex-direction: column;
+  overflow-y: auto;
+  // 導覽列捲到底時不要把手勢鏈結出去（同 .page 的理由）。
+  overscroll-behavior: contain;
   background: var(--surface-2);
   border-right: 1px solid var(--border);
   padding: var(--space-5) var(--space-4);
@@ -343,12 +313,63 @@ $sidebarWidth: 232px;
 }
 
 /* ---------- Main content ---------- */
+// .main 自己是縱向 flex：頂部控制欄兩列固定高度不縮，.page 吃掉剩下
+// 的高度、自己捲動（min-height:0 讓 flex 子項真的能被壓縮／捲動，
+// 不然 flex 預設的 min-height:auto 會被內容撐開，.page 就捲不動了）。
 .main {
+  position: relative; // 副控制欄要靠它做絕對定位的參考框
   flex: 1;
   min-width: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+/* ---------- PageHeader 掛載點（主列／副列各一個） ---------- */
+// .page 現在自己獨立捲動，這兩個掛載點在它外面，本來就一直看得到，
+// 不需要 position:sticky 假裝固定；也因為主列不再跟 inspector 側欄
+// 重疊，z-index 也不用特別跟它比較了（副列跟 inspector 重疊的部分，
+// inspector 本身是 position:fixed 又帶明確 z-index，本來就會蓋在
+// 一般文件流內容之上，不用另外處理）。拆成兩個掛載點單純是配合
+// PageHeader 元件本身把主列／副列分開 portal 進來的結構。
+.headerMainSlot {
+  flex-shrink: 0;
+  width: 100%;
+}
+
+// 副控制欄的「背景色→透明」漸層，是靠疊在捲動內容上面才看得出來的：
+// 如果它跟主列一樣待在 flex 流裡、底下沒有東西可以透出來，漸層就只會
+// 露出外殼的純色背景，看起來像沒有效果。所以讓它脫離流、絕對定位浮在
+// .page 頂端，內容從它底下捲過去。
+// 空的時候（該頁沒有副控制欄）維持普通的零高度元素，不佔位也不疊。
+.headerSubSlot:not(:empty) {
+  position: absolute;
+  top: var(--admin-header-height);
+  left: 0;
+  right: 0;
+  // 低於 photos 頁的 inspector 側欄（var(--z-header)），讓側欄壓在它
+  // 上面，漸層才不會糊到預覽窗。
+  z-index: var(--z-sticky);
 }
 
 .page {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  // 捲到頂／底之後不要把剩下的手勢鏈結給祖先捲動容器——這是 iOS 上
+  // 「再滑一次整頁跟著回彈」的直接成因：contain 會把回彈效果留在
+  // 這個容器自己身上，不往外傳。
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
   padding: clamp(var(--space-6), 4vw, var(--space-12))
     clamp(var(--space-5), 4vw, var(--space-16));
+}
+
+// 有副控制欄的頁面，內容起點要讓開那一列的高度，初始狀態才不會被蓋住；
+// 捲動之後內容仍然是從它底下穿過去（漸層就是為此存在）。
+.main:has(.headerSubSlot:not(:empty)) .page {
+  padding-top: calc(
+    var(--admin-subbar-height) + clamp(var(--space-2), 2vw, var(--space-4))
+  );
 }

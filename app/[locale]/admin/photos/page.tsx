@@ -4,7 +4,10 @@ import { useEffect, useMemo, useState } from 'react'
 import { useLocale, useTranslations } from 'next-intl'
 import { useRouter } from '@/i18n/navigation'
 import { createClient } from '@/app/lib/supabase/client'
-import { getPhotosForAdmin, updatePhotosStatus } from '@/app/lib/supabase/photos'
+import {
+  getPhotosForAdmin,
+  updatePhotosStatus,
+} from '@/app/lib/supabase/photos'
 import { groupByYear } from '@/app/lib/photos/group'
 import {
   applyPhotoFilters,
@@ -15,6 +18,7 @@ import { useIsDesktop } from '@/app/lib/hooks/useIsDesktop'
 import type { Photo, PhotoStatus } from '@/app/types/photo'
 import type { SupportedLocale } from '@/app/types/blog'
 import Button from '@/app/components/admin/Button/Button'
+import PageHeader from '@/app/components/admin/PageHeader/PageHeader'
 import Modal from '@/app/components/admin/Modal/Modal'
 import { useToast } from '@/app/components/admin/Toast/ToastProvider'
 import { useConfirm } from '@/app/components/admin/ConfirmDialog/ConfirmDialog'
@@ -46,7 +50,7 @@ export default function AdminPhotosPage() {
   const [photos, setPhotos] = useState<Photo[]>([])
   const [loading, setLoading] = useState(true)
   const [activeFilters, setActiveFilters] = useState<Set<PhotoFilterKey>>(
-    new Set()
+    new Set(),
   )
   const [mobileModalOpen, setMobileModalOpen] = useState(false)
   const [bulkBusy, setBulkBusy] = useState(false)
@@ -71,13 +75,14 @@ export default function AdminPhotosPage() {
   // （牆鐘時間）。時區跨日的照片兩者可能不一致，讓同一年被拆成兩組
   // ——印象表先依 takenAtLocal 重排，跟前台掛畫帶的分組依據一致。
   const sorted = useMemo(
-    () => [...photos].sort((a, b) => (a.takenAtLocal < b.takenAtLocal ? 1 : -1)),
-    [photos]
+    () =>
+      [...photos].sort((a, b) => (a.takenAtLocal < b.takenAtLocal ? 1 : -1)),
+    [photos],
   )
   const counts = useMemo(() => countPhotoFilters(sorted), [sorted])
   const filtered = useMemo(
     () => applyPhotoFilters(sorted, activeFilters),
-    [sorted, activeFilters]
+    [sorted, activeFilters],
   )
   const groups = useMemo(() => groupByYear(filtered), [filtered])
 
@@ -124,9 +129,11 @@ export default function AdminPhotosPage() {
     try {
       await updatePhotosStatus(supabase, ids, next)
       setPhotos((prev) =>
-        prev.map((p) => (checkedIds.has(p.id) ? { ...p, status: next } : p))
+        prev.map((p) => (checkedIds.has(p.id) ? { ...p, status: next } : p)),
       )
-      await fetch('/api/admin/photos/revalidate', { method: 'POST' }).catch(() => {})
+      await fetch('/api/admin/photos/revalidate', { method: 'POST' }).catch(
+        () => {},
+      )
       clearChecked()
       toast.success(t('bulk.statusSuccess', { count: ids.length }))
     } catch {
@@ -151,10 +158,10 @@ export default function AdminPhotosPage() {
       // 逐張走 DELETE 路由而不是一次 deletePhotos()：R2 的清理是逐個前綴的，
       // 只刪資料列會讓每一張都變成孤兒，得再跑一次盤點才清得掉。
       const results = await Promise.allSettled(
-        ids.map((id) => fetch(`/api/admin/photos/${id}`, { method: 'DELETE' }))
+        ids.map((id) => fetch(`/api/admin/photos/${id}`, { method: 'DELETE' })),
       )
       const failed = results.filter(
-        (r) => r.status === 'rejected' || !r.value.ok
+        (r) => r.status === 'rejected' || !r.value.ok,
       ).length
       const deleted = ids.filter((_, i) => {
         const r = results[i]
@@ -162,7 +169,8 @@ export default function AdminPhotosPage() {
       })
       setPhotos((prev) => prev.filter((p) => !deleted.includes(p.id)))
       clearChecked()
-      if (failed > 0) toast.error(t('bulk.deletePartialError', { count: failed }))
+      if (failed > 0)
+        toast.error(t('bulk.deletePartialError', { count: failed }))
       else toast.success(t('bulk.deleteSuccess', { count: deleted.length }))
     } catch {
       toast.error(t('bulk.deleteError'))
@@ -174,33 +182,38 @@ export default function AdminPhotosPage() {
   return (
     <div className={style.photos_page}>
       <div className={style.container}>
-        <div className={style.header}>
-          <div className={style.title_section}>
-            <h1 className={style.title}>{t('heading')}</h1>
-            <p className={style.subtitle}>
+        <PageHeader
+          title={t('heading')}
+          subtitle={
+            <>
               {t('count.total')}
               {photos.length}
               {t('count.unit')}
-            </p>
-          </div>
-          <div className={style.headerActions}>
-            <Button variant="ghost" onClick={() => setOrphansOpen(true)}>
-              {t('orphans.cta')}
-            </Button>
+            </>
+          }
+          action={
             <Button onClick={() => router.push('/admin/photos/upload')}>
               {t('upload.cta')}
             </Button>
-          </div>
-        </div>
+          }
+          subbar={
+            photos.length > 0 ? (
+              <FilterChips
+                counts={counts}
+                active={activeFilters}
+                onToggle={toggleFilter}
+                onClear={() => setActiveFilters(new Set())}
+              />
+            ) : undefined
+          }
+        />
 
-        {photos.length > 0 && (
-          <FilterChips
-            counts={counts}
-            active={activeFilters}
-            onToggle={toggleFilter}
-            onClear={() => setActiveFilters(new Set())}
-          />
-        )}
+        {/* 次要功能按鈕：頂部控制欄只放一顆主要操作，這顆放內容區頂部 */}
+        <div className={style.contentActions}>
+          <Button variant="ghost" onClick={() => setOrphansOpen(true)}>
+            {t('orphans.cta')}
+          </Button>
+        </div>
 
         <BulkActionBar
           count={checkedIds.size}
@@ -255,6 +268,8 @@ export default function AdminPhotosPage() {
           onClose={() => setMobileModalOpen(false)}
           title={photoCaption(selectedPhoto, locale) ?? selectedPhoto.slug}
           size="large"
+          // PhotoInspector 自帶內距，Modal 不要再疊一層
+          bodyPadding={false}
         >
           <PhotoInspector
             key={selectedPhoto.id}

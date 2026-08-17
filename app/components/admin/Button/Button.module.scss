@@ -36,23 +36,18 @@
     &:hover:not(:disabled) {
       background: var(--accent-hover);
       border-color: var(--accent-hover);
-      transform: translateY(-1px);
-    }
-
-    &:active:not(:disabled) {
-      transform: translateY(0);
     }
   }
 
   &.secondary {
     background: transparent;
-    color: var(--text);
-    border-color: var(--border-strong);
+    color: var(--text-secondary);
+    border-color: var(--border);
 
     &:hover:not(:disabled) {
-      background: var(--accent-soft);
-      border-color: var(--accent);
-      color: var(--accent);
+      background: var(--background-color-secondary);
+      border-color: var(--border-strong);
+      color: var(--text);
     }
   }
 
@@ -65,7 +60,6 @@
       background: var(--danger);
       border-color: var(--danger);
       color: #fff;
-      transform: translateY(-1px);
     }
 
     &:active:not(:disabled) {

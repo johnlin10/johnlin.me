@@ -16,7 +16,11 @@ import {
   useMotionValueEvent,
 } from 'motion/react'
 import { COL_W, packWall } from '@/app/lib/photos/wallLayout'
-import { fitTransform, fitWallTransform, type Size } from '@/app/lib/photos/geometry'
+import {
+  fitTransform,
+  fitWallTransform,
+  type Size,
+} from '@/app/lib/photos/geometry'
 import { yearMarkerOpacity } from '@/app/lib/photos/lod'
 import type { Photo } from '@/app/types/photo'
 import type { SupportedLocale } from '@/app/types/blog'
@@ -70,14 +74,13 @@ export default function GalleryWall({
   const layout = useMemo(() => packWall(photos), [photos])
   const wall: Size = useMemo(
     () => ({ width: layout.width, height: layout.height }),
-    [layout.width, layout.height]
+    [layout.width, layout.height],
   )
 
   const viewportRef = useRef<HTMLDivElement | null>(null)
   const [viewport, setViewport] = useState<Size>({ width: 0, height: 0 })
 
-  // 首訪 coach mark：一互動或計時到就淡出並記住。dismissCoach 要先於 pz 定義，
-  // 因為 pz 的 onGestureStart 會用它（首次手勢即收起提示）。
+  // 首訪 coach mark：互動或計時到就淡出並記住
   const [showCoach, setShowCoach] = useState(false)
   const coachTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const dismissCoach = useCallback(() => {
@@ -86,7 +89,7 @@ export default function GalleryWall({
     try {
       localStorage.setItem(COACH_STORAGE_KEY, '1')
     } catch {
-      // 隱私模式寫不進去就算了，下次再顯示一次無妨
+      // 靜默忽略
     }
   }, [])
 
@@ -101,7 +104,7 @@ export default function GalleryWall({
     for (const cell of layout.cells) {
       const s = fitTransform(
         { x: cell.x, y: cell.y, w: cell.w, h: cell.photoH },
-        viewport
+        viewport,
       ).scale
       if (s > maxFit) maxFit = s
     }
@@ -129,7 +132,7 @@ export default function GalleryWall({
         pz.animateTo(fitWallTransform(wall, viewport, 0.04, headerClearance()))
       }
     },
-    // focus 中左右滑換照片（手勢在 usePanZoom 判定：只有照片未放大、水平不可平移時才觸發）
+    // focus 中左右滑換照片（只有照片未放大、水平不可平移時才觸發）
     onFocusSwipe: (dir) => {
       if (fm.focusedSlug) fm.navigate(dir)
     },
@@ -163,7 +166,7 @@ export default function GalleryWall({
         roRef.current.observe(node)
       }
     },
-    [bindViewport]
+    [bindViewport],
   )
 
   // 初始鏡頭：前言標題對齊頁面左上角（扣掉 header）、留舒適留白，
@@ -178,9 +181,7 @@ export default function GalleryWall({
     setTransform({ x: marginX, y: marginY, scale: s0 })
   }, [viewport, minScale, setTransform])
 
-  // 鎖整頁捲動，並壓掉瀏覽器的橫向滑動返回手勢（overscroll-behavior 要 html + body
-  // 都設，只設 html 不夠）。iOS Safari 的邊緣返回手勢無視 overscroll-behavior，需真機
-  // 驗證，靠 viewport 的 touch-action:none 與「互動不從最邊緣起手」緩解。
+  // 鎖整頁捲動，並擋掉瀏覽器的橫向滑動返回手勢。
   useEffect(() => {
     const html = document.documentElement
     const body = document.body
@@ -199,7 +200,7 @@ export default function GalleryWall({
     }
   }, [])
 
-  // 進入單張聚焦時淡出浮動 header（避免暗背景與咖啡色 header 割裂）
+  // 進入單張聚焦時淡出浮動 header
   useEffect(() => {
     const html = document.documentElement
     if (fm.focusedSlug) html.dataset.photoFocus = 'true'
@@ -235,10 +236,7 @@ export default function GalleryWall({
 
   // sizes 只升不降（瀏覽器不會為變小的 sizes 重抓小圖）
   const sizesPxRef = useRef(0)
-  const sizesPx = Math.max(
-    sizesPxRef.current,
-    Math.round(COL_W * settledScale)
-  )
+  const sizesPx = Math.max(sizesPxRef.current, Math.round(COL_W * settledScale))
   sizesPxRef.current = sizesPx
 
   const yearOpacity = useTransform(pz.scale, (s) => yearMarkerOpacity(s))
@@ -250,7 +248,6 @@ export default function GalleryWall({
     if (viewport.width === 0) return
     animateTo(fitWallTransform(wall, viewport, 0.04, headerClearance()))
   }, [animateTo, wall, viewport])
-
 
   // Tab 到某張照片時把鏡頭帶過去，否則焦點會落在螢幕外（違反 WCAG 2.4.11）
   const handleFocusCapture = useCallback(
@@ -269,7 +266,7 @@ export default function GalleryWall({
         y: viewport.height / 2 - cy * s,
       })
     },
-    [fm.focusedSlug, layout.cells, pz, animateTo, viewport]
+    [fm.focusedSlug, layout.cells, pz, animateTo, viewport],
   )
 
   const handleKeyDown = useCallback(
@@ -321,7 +318,7 @@ export default function GalleryWall({
           break
       }
     },
-    [fm, zoomBy, handleFitWall, panByScreen, viewport]
+    [fm, zoomBy, handleFitWall, panByScreen, viewport],
   )
 
   return (
@@ -330,7 +327,7 @@ export default function GalleryWall({
       className={styles.viewport}
       tabIndex={0}
       role="application"
-      aria-roledescription={locale === 'en' ? 'Photo wall' : '照片牆'}
+      aria-roledescription={locale === 'en' ? 'Photo wall' : '攝影牆'}
       onPointerDown={pz.onPointerDown}
       onPointerMove={pz.onPointerMove}
       onPointerUp={pz.onPointerUp}

@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { Link } from '@/i18n/navigation'
 import { createClient } from '@/app/lib/supabase/client'
+import PageHeader from '@/app/components/admin/PageHeader/PageHeader'
 import { getTakenSlugs } from '@/app/lib/supabase/photos'
 import {
   ensureUniquePhotoSlug,
@@ -18,7 +19,6 @@ import {
   readExifDraft,
   toTakenAt,
 } from '@/app/lib/photos/exifDraft'
-import Icon from '@/app/components/Icon/Icon'
 import DropZone from '@/app/components/admin/PhotoUpload/DropZone'
 import StagedPhotoRow from '@/app/components/admin/PhotoUpload/StagedPhotoRow'
 import UploadSummaryBar from '@/app/components/admin/PhotoUpload/UploadSummaryBar'
@@ -226,13 +226,10 @@ export default function PhotoUploadPage() {
 
   return (
     <div className={style.upload_page}>
-      <div className={style.header}>
-        <Link href="/admin/photos" className={style.back}>
-          <Icon name="arrow-left" size="sm" />
-          {t('back')}
-        </Link>
-        <h1 className={style.title}>{t('heading')}</h1>
-      </div>
+      <PageHeader
+        title={t('heading')}
+        back={{ href: '/admin/photos', label: t('back') }}
+      />
 
       <DropZone onFiles={(files) => void stageFiles(files)} />
 

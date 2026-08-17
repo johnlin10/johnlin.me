@@ -20,6 +20,7 @@ import DataTable, {
 } from '@/app/components/admin/DataTable/DataTable'
 import { useToast } from '@/app/components/admin/Toast/ToastProvider'
 import { useConfirm } from '@/app/components/admin/ConfirmDialog/ConfirmDialog'
+import PageHeader from '@/app/components/admin/PageHeader/PageHeader'
 import style from './categories.module.scss'
 
 /**
@@ -126,7 +127,9 @@ export default function CategoriesPage() {
   const handleDelete = async (category: Category) => {
     const ok = await confirm({
       title: t('deleteConfirmTitle'),
-      message: t('deleteConfirmMessage', { name: category.locales['zh-tw'].name }),
+      message: t('deleteConfirmMessage', {
+        name: category.locales['zh-tw'].name,
+      }),
       danger: true,
     })
     if (!ok) return
@@ -180,18 +183,17 @@ export default function CategoriesPage() {
   return (
     <div className={style.categories_page}>
       <div className={style.container}>
-        {/* 標題列 */}
-        <div className={style.header}>
-          <div className={style.title_section}>
-            <h1 className={style.title}>{t('heading')}</h1>
-            <p className={style.subtitle}>
+        <PageHeader
+          title={t('heading')}
+          subtitle={
+            <>
               {t('count.total')}
               {categories.length}
               {t('count.unit')}
-            </p>
-          </div>
-          <Button onClick={handleCreate}>{t('newCategory')}</Button>
-        </div>
+            </>
+          }
+          action={<Button onClick={handleCreate}>{t('newCategory')}</Button>}
+        />
 
         {/* 分類列表 */}
         {loading ? (
@@ -296,4 +298,3 @@ export default function CategoriesPage() {
     </div>
   )
 }
-

@@ -19,6 +19,7 @@ import DataTable, {
 } from '@/app/components/admin/DataTable/DataTable'
 import { useToast } from '@/app/components/admin/Toast/ToastProvider'
 import { useConfirm } from '@/app/components/admin/ConfirmDialog/ConfirmDialog'
+import PageHeader from '@/app/components/admin/PageHeader/PageHeader'
 import style from './tags.module.scss'
 
 /**
@@ -179,18 +180,17 @@ export default function TagsPage() {
   return (
     <div className={style.tags_page}>
       <div className={style.container}>
-        {/* 標題列 */}
-        <div className={style.header}>
-          <div className={style.title_section}>
-            <h1 className={style.title}>{t('heading')}</h1>
-            <p className={style.subtitle}>
+        <PageHeader
+          title={t('heading')}
+          subtitle={
+            <>
               {t('count.total')}
               {tags.length}
               {t('count.unit')}
-            </p>
-          </div>
-          <Button onClick={handleCreate}>{t('newTag')}</Button>
-        </div>
+            </>
+          }
+          action={<Button onClick={handleCreate}>{t('newTag')}</Button>}
+        />
 
         {/* 標籤列表 */}
         {loading ? (

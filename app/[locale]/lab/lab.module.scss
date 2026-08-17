@@ -1,6 +1,10 @@
 @use '@/app/styles/design' as *;
 
 .lab {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+
   > .link {
     @include flexbox(row, center, center);
     padding: var(--space-2) var(--space-4);

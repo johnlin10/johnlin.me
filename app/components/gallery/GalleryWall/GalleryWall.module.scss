@@ -1,7 +1,5 @@
 @use '@/app/styles/design' as *;
 
-// 滿版牆鋪滿整個視窗，內容延伸到浮動 header 之下（header 有漸層背景保證可讀）。
-// 不包在 PageContainer 裡，自己 fixed 撐滿並鎖住捲動。
 .viewport {
   position: fixed;
   top: 0;
@@ -9,7 +7,7 @@
   right: 0;
   bottom: 0;
   overflow: hidden;
-  touch-action: none; // pointer-based pan/zoom 必要
+  touch-action: none;
   overscroll-behavior: none;
   background: var(--surface);
   background-image: var(--background-texture);
@@ -26,9 +24,7 @@
   position: absolute;
   top: 0;
   left: 0;
-  transform-origin: 0 0; // motion 預設 50% 50%，不設錨點公式全錯
-  // 刻意不寫 will-change / translateZ / backface-visibility：
-  // 會讓 layer 光柵化鎖在低解析，放大時整面糊掉。
+  transform-origin: 0 0;
 }
 
 $photo-frame-pad: 10px;
@@ -39,7 +35,6 @@ $photo-frame-pad: 10px;
   box-sizing: border-box;
   padding: $photo-frame-pad;
   overflow: hidden;
-  border-radius: var(--radius-xs);
   background: #ffffff;
   border: 1px solid rgba(0, 0, 0, 0.06);
   box-shadow:
@@ -248,7 +243,10 @@ $photo-frame-pad: 10px;
   position: absolute;
   left: 0;
   right: 0;
-  bottom: max(var(--space-8), calc(env(safe-area-inset-bottom) + var(--space-6)));
+  bottom: max(
+    var(--space-8),
+    calc(env(safe-area-inset-bottom) + var(--space-6))
+  );
   display: flex;
   justify-content: center;
   padding: 0 var(--space-5);

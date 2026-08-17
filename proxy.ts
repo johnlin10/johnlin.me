@@ -3,7 +3,7 @@ import { NextResponse, NextRequest } from 'next/server'
 import { createServerClient } from '@supabase/ssr'
 import { routing } from './i18n/routing'
 
-// next-intl 語系處理（保留原行為）。next-intl 目前仍只提供
+// next-intl 語系處理。next-intl 目前仍只提供
 // `next-intl/middleware` 這個進入點，Next 16 改名為 proxy 之後檔案位置變了、
 // 匯入路徑沒變，所以這裡的識別字沿用 intlMiddleware。
 const intlMiddleware = createIntlMiddleware(routing)
@@ -69,11 +69,11 @@ export default async function proxy(request: NextRequest) {
           },
           setAll(cookiesToSet) {
             cookiesToSet.forEach(({ name, value, options }) =>
-              response.cookies.set(name, value, options)
+              response.cookies.set(name, value, options),
             )
           },
         },
-      }
+      },
     )
 
     const {
@@ -89,7 +89,7 @@ export default async function proxy(request: NextRequest) {
     if (!allowed) {
       const prefix = pathname.match(LOCALE_PREFIX)?.[0] ?? ''
       return NextResponse.redirect(
-        new URL(`${prefix}/admin/login`, request.url)
+        new URL(`${prefix}/admin/login`, request.url),
       )
     }
   }

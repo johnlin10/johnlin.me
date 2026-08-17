@@ -116,9 +116,20 @@
       padding: var(--space-8);
       overflow-y: auto;
       flex: 1;
+      // 彈窗內容捲到底時不要把手勢鏈結給底下的頁面（同 AdminShell .page）。
+      overscroll-behavior: contain;
 
       @include respond-to('phone') {
         padding: var(--space-5);
+      }
+
+      // bodyPadding={false}：內容自帶內距，這裡就不要再疊一層。
+      &.modal_body_flush {
+        padding: 0;
+
+        @include respond-to('phone') {
+          padding: 0;
+        }
       }
     }
   }

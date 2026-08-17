@@ -16,6 +16,9 @@ async function LabPage({ params }: { params: Promise<{ locale: string }> }) {
         <Link href="/lab/design" className={styles.link}>
           Design System
         </Link>
+        <Link href="/lab/gradient" className={styles.link}>
+          Gradient Curve
+        </Link>
       </div>
     </PageContainer>
   )

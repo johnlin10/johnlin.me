@@ -13,6 +13,7 @@ import { getTags } from '@/app/lib/supabase/tags'
 import { createClient } from '@/app/lib/supabase/client'
 import type { Post, Category, Tag, SupportedLocale } from '@/app/types/blog'
 import Button from '@/app/components/admin/Button/Button'
+import PageHeader from '@/app/components/admin/PageHeader/PageHeader'
 import DataTable, {
   type DataTableColumn,
   type DataTableAction,
@@ -56,7 +57,7 @@ export default function PostsPage() {
   const openEditor = (
     e: React.MouseEvent<HTMLElement>,
     postId: string,
-    field: 'category' | 'tags'
+    field: 'category' | 'tags',
   ) => {
     anchorRef.current = e.currentTarget
     setEditing({ postId, field })
@@ -66,7 +67,7 @@ export default function PostsPage() {
     setEditing(null)
     const previous = post.categoryId
     setPosts((prev) =>
-      prev.map((p) => (p.id === post.id ? { ...p, categoryId } : p))
+      prev.map((p) => (p.id === post.id ? { ...p, categoryId } : p)),
     )
     try {
       await updatePost(supabase, { id: post.id, categoryId })
@@ -74,21 +75,25 @@ export default function PostsPage() {
       console.error('更新分類失敗:', error)
       toast.error(t('categoryUpdateError'))
       setPosts((prev) =>
-        prev.map((p) => (p.id === post.id ? { ...p, categoryId: previous } : p))
+        prev.map((p) =>
+          p.id === post.id ? { ...p, categoryId: previous } : p,
+        ),
       )
     }
   }
 
   const handleTagsChange = async (post: Post, tagIds: string[]) => {
     const previous = post.tagIds
-    setPosts((prev) => prev.map((p) => (p.id === post.id ? { ...p, tagIds } : p)))
+    setPosts((prev) =>
+      prev.map((p) => (p.id === post.id ? { ...p, tagIds } : p)),
+    )
     try {
       await updatePost(supabase, { id: post.id, tagIds })
     } catch (error) {
       console.error('更新標籤失敗:', error)
       toast.error(t('tagsUpdateError'))
       setPosts((prev) =>
-        prev.map((p) => (p.id === post.id ? { ...p, tagIds: previous } : p))
+        prev.map((p) => (p.id === post.id ? { ...p, tagIds: previous } : p)),
       )
     }
   }
@@ -244,8 +249,8 @@ export default function PostsPage() {
               onClick={(e) => openEditor(e, post.id, 'category')}
             >
               {post.categoryId
-                ? categoryNameById.get(post.categoryId) ??
-                  t('table.category.classes.set')
+                ? (categoryNameById.get(post.categoryId) ??
+                  t('table.category.classes.set'))
                 : t('table.category.classes.not_set')}
             </button>
             <Popover
@@ -256,7 +261,9 @@ export default function PostsPage() {
             >
               <CategorySelector
                 value={post.categoryId}
-                onChange={(categoryId) => handleCategoryChange(post, categoryId)}
+                onChange={(categoryId) =>
+                  handleCategoryChange(post, categoryId)
+                }
                 locale={locale as SupportedLocale}
                 label=""
                 required={false}
@@ -338,50 +345,49 @@ export default function PostsPage() {
   return (
     <div className={style.posts_page}>
       <div className={style.container}>
-        {/* 標題列 */}
-        <div className={style.header}>
-          <div className={style.title_section}>
-            <h1 className={style.title}>{t('title')}</h1>
-            <p className={style.subtitle}>
+        <PageHeader
+          title={t('title')}
+          subtitle={
+            <>
               {t('post_count.total')}
               {posts.length}
               {t('post_count.unit')}
-            </p>
-          </div>
-          <Button onClick={handleCreate} disabled={creating}>
-            {t('new_post')}
-          </Button>
-        </div>
-
-        {/* 篩選器 */}
-        <div className={style.filters}>
-          <div className={style.filter_group}>
-            <button
-              className={`${style.filter_button} ${
-                statusFilter === 'all' ? style.active : ''
-              }`}
-              onClick={() => setStatusFilter('all')}
-            >
-              {t('filter.all')}
-            </button>
-            <button
-              className={`${style.filter_button} ${
-                statusFilter === 'published' ? style.active : ''
-              }`}
-              onClick={() => setStatusFilter('published')}
-            >
-              {t('filter.published')}
-            </button>
-            <button
-              className={`${style.filter_button} ${
-                statusFilter === 'draft' ? style.active : ''
-              }`}
-              onClick={() => setStatusFilter('draft')}
-            >
-              {t('filter.draft')}
-            </button>
-          </div>
-        </div>
+            </>
+          }
+          action={
+            <Button onClick={handleCreate} disabled={creating}>
+              {t('new_post')}
+            </Button>
+          }
+          subbar={
+            <div className={style.filter_group}>
+              <button
+                className={`${style.filter_button} ${
+                  statusFilter === 'all' ? style.active : ''
+                }`}
+                onClick={() => setStatusFilter('all')}
+              >
+                {t('filter.all')}
+              </button>
+              <button
+                className={`${style.filter_button} ${
+                  statusFilter === 'published' ? style.active : ''
+                }`}
+                onClick={() => setStatusFilter('published')}
+              >
+                {t('filter.published')}
+              </button>
+              <button
+                className={`${style.filter_button} ${
+                  statusFilter === 'draft' ? style.active : ''
+                }`}
+                onClick={() => setStatusFilter('draft')}
+              >
+                {t('filter.draft')}
+              </button>
+            </div>
+          }
+        />
 
         {/* 文章列表 */}
         {loading ? (

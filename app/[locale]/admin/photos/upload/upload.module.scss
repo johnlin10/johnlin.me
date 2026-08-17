@@ -9,31 +9,6 @@
   padding-bottom: var(--space-16);
 }
 
-.header {
-  @include flexbox(row, flex-start, center);
-  gap: var(--space-4);
-}
-
-.back {
-  @include flexbox(row, flex-start, center);
-  gap: var(--space-1);
-  font-family: var(--font-sans);
-  font-size: var(--text-sm);
-  color: var(--text-secondary);
-
-  &:hover {
-    color: var(--text);
-  }
-}
-
-.title {
-  font-family: var(--font-serif);
-  font-size: var(--text-2xl);
-  font-weight: 600;
-  color: var(--text);
-  margin: 0;
-}
-
 .rejected {
   @include flexbox(column, flex-start, stretch);
   gap: var(--space-2);

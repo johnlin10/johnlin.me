@@ -60,6 +60,25 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+// 後台是「應用式」版面：外殼固定滿版，只有內容區自己捲動。文件層
+// （html／body）必須完全不是捲動容器——否則內容區捲到頂／底之後，
+// 手勢會往上鏈結（scroll chaining）到文件層，在 iOS 上觸發整份文件
+// 的橡皮筋回彈：側邊欄與頂部控制欄雖然不跟著內容捲，仍會被整份文件
+// 拖著一起動。這裡用 :has() 只在後台外殼掛載時生效，公開站（含後台
+// 登入頁、全螢幕編輯器那些不套外殼的路由）維持正常的文件捲動。
+html:has([data-admin-shell]) {
+  height: 100%;
+  overflow: hidden;
+  overscroll-behavior: none;
+
+  body {
+    height: 100%;
+    min-height: 0;
+    overflow: hidden;
+    overscroll-behavior: none;
+  }
+}
+
 // 讓內容區撐開、Footer 貼底（sticky footer）
 .site-main {
   flex: 1 0 auto;

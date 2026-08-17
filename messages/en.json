@@ -680,7 +680,7 @@
     },
     "articles": {
       "label": "Latest Writing",
-      "heading": "What's been on my mind.",
+      "heading": "What's been on my mind?",
       "empty": "The first piece is still taking shape. It'll be here soon.",
       "cta": "Go to the blog"
     },
@@ -693,7 +693,7 @@
   },
   "BlogPage": {
     "title": "Blog",
-    "description": "Welcome to my blog.",
+    "description": "Recording my thoughts, writing my own story.",
     "page_title": "Blog",
     "noPosts": "No posts yet",
     "readingTime": "{minutes} min read",
@@ -708,7 +708,7 @@
   },
   "GalleryPage": {
     "title": "Photography",
-    "description": "A wall of captured moments. No composition formula here — just the feeling of a moment: an angle looked beautiful, so I pressed the shutter.",
+    "description": "There's no formula to my photography — just the feeling of the moment. If it feels beautiful, I capture it.",
     "page_title": "Photography",
     "empty": "Photos are being sorted — they will be on the wall soon.",
     "listView": "Photo list",
@@ -806,6 +806,10 @@
         "loading": "Loading...",
         "error": "Error"
       }
+    },
+    "GradientPage": {
+      "title": "Gradient Curve",
+      "description": "Shape the alpha ramp of a linear-gradient on a curve, then export the color stops that trace it without a visible seam."
     }
   },
   "Header": {

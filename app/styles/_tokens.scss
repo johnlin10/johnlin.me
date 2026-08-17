@@ -85,6 +85,12 @@
   //* 頁首高度（Header 固定高，供 padding-top 計算用）
   --header-height: 72px;
 
+  //* 後台頂部控制欄：主列／副列都是固定高度而非隨內容伸縮，這樣任何
+  //* 需要「讓開控制欄」的元件（例如 photos 頁的 inspector 側欄）都能
+  //* 直接用常數算 sticky 偏移，不用動態量測、也不會有量測時機的競態。
+  --admin-header-height: 72px;
+  --admin-subbar-height: 56px;
+
   //* Layer 3：區塊 / 卡片 / 控制項節奏別名，取自站上實際慣用值。
   --section-py: clamp(64px, 12vh, 128px);
   --stack-gap: var(--space-6);

@@ -1,0 +1,476 @@
+@use '@/app/styles/design' as *;
+
+.lab {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-6);
+
+  @media (min-width: 1024px) {
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+    align-items: start;
+  }
+}
+
+.panel {
+  @include card;
+  padding: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.panelHead {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.panelTitle {
+  @include eyebrow;
+  margin: 0;
+}
+
+.panelHint {
+  @include meta;
+  margin: 0;
+  line-height: 1.6;
+}
+
+// -------- 曲線圖 --------
+
+.graph {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: var(--radius-sm);
+  background-color: var(--surface-sunken);
+  touch-action: none;
+  cursor: crosshair;
+
+  &:focus-visible {
+    @include focus-ring;
+  }
+}
+
+.grid {
+  stroke: var(--border);
+  stroke-width: 1;
+  opacity: 0.5;
+}
+
+.axisLabel {
+  fill: var(--text-muted);
+  font-size: 9px;
+  font-family: monospace;
+  text-anchor: end;
+}
+
+.curve {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+// 瀏覽器實際畫出來的折線。跟理想曲線分不開，就代表 stop 夠密了。
+.outputLine {
+  fill: none;
+  stroke: var(--text);
+  stroke-width: 1;
+  opacity: 0.45;
+}
+
+.ghostLine {
+  fill: none;
+  stroke: var(--text-muted);
+  stroke-width: 1.25;
+  stroke-dasharray: 3 3;
+  opacity: 0.7;
+}
+
+.stopTick {
+  fill: var(--text);
+  opacity: 0.5;
+}
+
+.handleArm {
+  stroke: var(--accent);
+  stroke-width: 1;
+  opacity: 0.45;
+}
+
+.handle {
+  fill: var(--surface);
+  stroke: var(--accent);
+  stroke-width: 1.5;
+  cursor: grab;
+
+  &:hover {
+    fill: var(--accent-soft);
+  }
+}
+
+.node {
+  fill: var(--surface);
+  stroke: var(--accent);
+  stroke-width: 2;
+  cursor: grab;
+
+  &:hover {
+    fill: var(--accent-soft);
+  }
+}
+
+.nodeActive {
+  fill: var(--accent);
+  stroke: var(--accent-contrast);
+}
+
+// -------- 對齊 x 軸的漸層條 --------
+
+.stripWrap {
+  margin-top: calc(var(--space-2) * -1);
+}
+
+.stripChecker {
+  height: 34px;
+  border-radius: var(--radius-xs);
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background-image: linear-gradient(45deg, var(--surface-3) 25%, transparent 25%),
+    linear-gradient(-45deg, var(--surface-3) 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, var(--surface-3) 75%),
+    linear-gradient(-45deg, transparent 75%, var(--surface-3) 75%);
+  background-size: 12px 12px;
+  background-position: 0 0, 0 6px, 6px -6px, -6px 0;
+}
+
+.strip {
+  width: 100%;
+  height: 100%;
+}
+
+// -------- 斜率圖 --------
+
+.slopeBlock {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.slopeHead {
+  @include flexbox(row, space-between, baseline);
+  gap: var(--space-2);
+}
+
+.slopeTitle {
+  @include eyebrow;
+}
+
+.slopeMeta {
+  @include meta;
+  font-family: monospace;
+}
+
+.slopeGraph {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: var(--radius-sm);
+  background-color: var(--surface-sunken);
+}
+
+.slopeSeg {
+  stroke: var(--accent);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+}
+
+// -------- 控制項 --------
+
+.toolbar {
+  @include flexbox(row, space-between, center);
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.presetRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.chip {
+  padding: var(--space-1) var(--space-3);
+  font-size: var(--text-2xs);
+  font-family: var(--font-sans);
+  color: var(--text-secondary);
+  background-color: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease);
+
+  &:hover:not(:disabled) {
+    background-color: var(--accent);
+    border-color: var(--accent);
+    color: var(--accent-contrast);
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+}
+
+.check {
+  @include flexbox(row, flex-start, center);
+  gap: var(--space-2);
+  font-size: var(--text-2xs);
+  color: var(--text-secondary);
+  cursor: pointer;
+  white-space: nowrap;
+
+  input {
+    accent-color: var(--accent);
+  }
+}
+
+.inspector {
+  @include flexbox(row, flex-start, center);
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  background-color: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  min-height: 52px;
+}
+
+.inspectorLabel {
+  @include meta;
+}
+
+.numField {
+  @include flexbox(row, flex-start, center);
+  gap: var(--space-2);
+  font-size: var(--text-2xs);
+  color: var(--text-secondary);
+
+  input {
+    width: 68px;
+    padding: var(--space-1) var(--space-2);
+    font-family: monospace;
+    font-size: var(--text-2xs);
+    color: var(--text);
+    background-color: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-xs);
+
+    &:disabled {
+      opacity: 0.45;
+    }
+
+    &:focus-visible {
+      @include focus-ring;
+    }
+  }
+}
+
+.unit {
+  @include meta;
+  margin-left: calc(var(--space-1) * -1);
+}
+
+// -------- 預覽 --------
+
+.previewStage {
+  position: relative;
+  height: 320px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background-color: var(--surface);
+}
+
+.previewContent {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+
+  p {
+    margin: 0 0 var(--space-2);
+    padding: 0 var(--space-4);
+    font-size: var(--text-2xs);
+    line-height: 1.7;
+    color: var(--text);
+  }
+
+  p:first-child {
+    padding-top: var(--space-3);
+  }
+}
+
+.stripes {
+  width: 100%;
+  height: 100%;
+  background-image: repeating-linear-gradient(
+    45deg,
+    var(--text) 0 6px,
+    transparent 6px 14px
+  );
+  opacity: 0.55;
+}
+
+.photo {
+  width: 100%;
+  height: 100%;
+  background-image: radial-gradient(
+      60% 80% at 20% 25%,
+      var(--accent) 0%,
+      transparent 60%
+    ),
+    radial-gradient(50% 70% at 80% 20%, var(--info) 0%, transparent 65%),
+    radial-gradient(70% 60% at 50% 90%, var(--warning) 0%, transparent 70%),
+    linear-gradient(160deg, var(--surface-3), var(--text-secondary));
+}
+
+.previewOverlay {
+  position: absolute;
+  pointer-events: none;
+}
+
+.controls {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.controlRow {
+  @include flexbox(row, flex-start, center);
+  gap: var(--space-3);
+
+  input[type='range'] {
+    flex: 1;
+    min-width: 0;
+    accent-color: var(--accent);
+  }
+}
+
+.controlLabel {
+  @include eyebrow;
+  width: 48px;
+  flex-shrink: 0;
+}
+
+.controlValue {
+  @include meta;
+  font-family: monospace;
+  min-width: 72px;
+  text-align: right;
+}
+
+.segmented {
+  display: flex;
+  gap: var(--space-1);
+  padding: 2px;
+  background-color: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+}
+
+.segment {
+  padding: var(--space-1) var(--space-3);
+  font-size: var(--text-2xs);
+  color: var(--text-secondary);
+  background: none;
+  border: none;
+  border-radius: var(--radius-xl);
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease);
+
+  &:hover {
+    color: var(--text);
+  }
+}
+
+.segmentActive {
+  background-color: var(--accent);
+  color: var(--accent-contrast);
+
+  &:hover {
+    color: var(--accent-contrast);
+  }
+}
+
+.select,
+.text {
+  flex: 1;
+  min-width: 0;
+  padding: var(--space-2) var(--space-3);
+  font-family: monospace;
+  font-size: var(--text-2xs);
+  color: var(--text);
+  background-color: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xs);
+
+  &:focus-visible {
+    @include focus-ring;
+  }
+}
+
+// -------- 輸出 --------
+
+.output {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.outputHead {
+  @include flexbox(row, space-between, center);
+  gap: var(--space-2);
+}
+
+// 跟 .controlLabel 同外觀，但不吃那 48px 的固定欄寬
+.outputLabel {
+  @include eyebrow;
+}
+
+.code {
+  margin: 0;
+  padding: var(--space-3);
+  font-family: monospace;
+  font-size: var(--text-3xs);
+  line-height: 1.6;
+  color: var(--text);
+  background-color: var(--surface-sunken);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  overflow-x: auto;
+  white-space: pre;
+}
+
+.textarea {
+  width: 100%;
+  padding: var(--space-3);
+  font-family: monospace;
+  font-size: var(--text-3xs);
+  line-height: 1.6;
+  color: var(--text);
+  background-color: var(--surface-sunken);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  resize: vertical;
+
+  &:focus-visible {
+    @include focus-ring;
+  }
+}
+
+.error {
+  @include meta;
+  margin: 0;
+  color: var(--danger);
+}

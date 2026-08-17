@@ -20,6 +20,7 @@ import DataTable, {
 } from '@/app/components/admin/DataTable/DataTable'
 import { useToast } from '@/app/components/admin/Toast/ToastProvider'
 import { useConfirm } from '@/app/components/admin/ConfirmDialog/ConfirmDialog'
+import PageHeader from '@/app/components/admin/PageHeader/PageHeader'
 import style from './series.module.scss'
 
 /**
@@ -130,7 +131,9 @@ export default function SeriesPage() {
   const handleDelete = async (series: Series) => {
     const ok = await confirm({
       title: t('deleteConfirmTitle'),
-      message: t('deleteConfirmMessage', { name: series.locales['zh-tw'].name }),
+      message: t('deleteConfirmMessage', {
+        name: series.locales['zh-tw'].name,
+      }),
       danger: true,
     })
     if (!ok) return
@@ -184,18 +187,17 @@ export default function SeriesPage() {
   return (
     <div className={style.series_page}>
       <div className={style.container}>
-        {/* 標題列 */}
-        <div className={style.header}>
-          <div className={style.title_section}>
-            <h1 className={style.title}>{t('heading')}</h1>
-            <p className={style.subtitle}>
+        <PageHeader
+          title={t('heading')}
+          subtitle={
+            <>
               {t('count.total')}
               {seriesList.length}
               {t('count.unit')}
-            </p>
-          </div>
-          <Button onClick={handleCreate}>{t('newSeries')}</Button>
-        </div>
+            </>
+          }
+          action={<Button onClick={handleCreate}>{t('newSeries')}</Button>}
+        />
 
         {/* 系列列表 */}
         {loading ? (
@@ -311,4 +313,3 @@ export default function SeriesPage() {
     </div>
   )
 }
-

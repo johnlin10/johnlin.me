@@ -8,31 +8,6 @@
   gap: var(--space-8);
 }
 
-.header {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
-}
-
-.title {
-  font-family: var(--font-serif);
-  font-size: var(--text-3xl);
-  font-weight: 600;
-  color: var(--text);
-  margin: 0;
-
-  @include respond-to('phone') {
-    font-size: var(--text-2xl);
-  }
-}
-
-.subtitle {
-  font-family: var(--font-sans);
-  font-size: var(--text-sm);
-  color: var(--text-muted);
-  margin: 0;
-}
-
 .stats {
   display: grid;
   grid-template-columns: repeat(4, 1fr);

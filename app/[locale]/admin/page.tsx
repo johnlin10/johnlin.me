@@ -6,6 +6,7 @@ import { createClient } from '@/app/lib/supabase/client'
 import { getPostsForAdmin } from '@/app/lib/supabase/posts'
 import { getNotesForAdmin } from '@/app/lib/supabase/notes'
 import Button from '@/app/components/admin/Button/Button'
+import PageHeader from '@/app/components/admin/PageHeader/PageHeader'
 import Icon from '@/app/components/Icon/Icon'
 import { Link } from '@/i18n/navigation'
 import style from './admin.module.scss'
@@ -45,22 +46,31 @@ export default function AdminPage() {
   }, [supabase])
 
   const cards = [
-    { label: t('stats.totalPosts'), value: stats.postsTotal, icon: 'newspaper' as const },
+    {
+      label: t('stats.totalPosts'),
+      value: stats.postsTotal,
+      icon: 'newspaper' as const,
+    },
     {
       label: t('stats.published'),
       value: stats.postsPublished,
       icon: 'gauge-high' as const,
     },
-    { label: t('stats.draft'), value: stats.postsDraft, icon: 'folder' as const },
-    { label: t('stats.totalNotes'), value: stats.notesTotal, icon: 'comment' as const },
+    {
+      label: t('stats.draft'),
+      value: stats.postsDraft,
+      icon: 'folder' as const,
+    },
+    {
+      label: t('stats.totalNotes'),
+      value: stats.notesTotal,
+      icon: 'comment' as const,
+    },
   ]
 
   return (
     <div className={style.dashboard}>
-      <header className={style.header}>
-        <h1 className={style.title}>{t('title')}</h1>
-        <p className={style.subtitle}>{t('subtitle')}</p>
-      </header>
+      <PageHeader title={t('title')} subtitle={t('subtitle')} />
 
       <div className={style.stats}>
         {cards.map(({ label, value, icon }) => (

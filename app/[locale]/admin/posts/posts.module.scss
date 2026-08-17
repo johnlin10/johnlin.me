@@ -15,51 +15,6 @@
   }
 }
 
-.header {
-  @include flexbox(row, space-between, flex-start);
-  flex-wrap: wrap;
-  gap: var(--space-4);
-
-  @include respond-to('phone') {
-    @include flexbox(column, flex-start, stretch);
-  }
-}
-
-.title_section {
-  @include flexbox(column, flex-start, flex-start);
-  gap: var(--space-1);
-}
-
-.title {
-  font-family: var(--font-serif);
-  font-size: var(--text-2xl);
-  font-weight: 600;
-  color: var(--text);
-  margin: 0;
-
-  @include respond-to('phone') {
-    font-size: var(--text-xl);
-  }
-}
-
-.subtitle {
-  font-family: var(--font-sans);
-  font-size: var(--text-xs);
-  color: var(--text-muted);
-  margin: 0;
-}
-
-.filters {
-  @include flexbox(row, space-between, center);
-  flex-wrap: wrap;
-  gap: var(--space-6);
-  border-bottom: 1px solid var(--border);
-
-  @include respond-to('phone') {
-    gap: var(--space-3);
-  }
-}
-
 .filter_group {
   @include flexbox(row, flex-start, center);
   gap: var(--space-5);

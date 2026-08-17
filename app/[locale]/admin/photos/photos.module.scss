@@ -4,28 +4,18 @@
 .photos_page {
   @include entity.entity-page;
 
+  $inspectorWidth: 360px;
+
   .container {
     // 印象表要橫向空間放縮圖，套用文章/分類那套 1100px 的內容寬度太窄。
     max-width: var(--width-max);
-  }
 
-  .headerActions {
-    @include flexbox(row, flex-end, center);
-    gap: var(--space-2);
-    flex-wrap: wrap;
-  }
-
-  .layout {
-    display: grid;
-    grid-template-columns: 1fr 360px;
-    gap: var(--space-8);
-    align-items: start;
-
-    @include respond-to('tablet') {
-      grid-template-columns: 1fr;
-    }
-    @include respond-to('phone') {
-      grid-template-columns: 1fr;
+    // inspectorPane 改成貼右緣的 fixed 側欄，不再吃版面版位，這裡統一
+    // 讓出等寬的留白，讓 BulkActionBar／照片格線都不會被它蓋住。跟舊版
+    // grid 一樣不管有沒有選片都固定留這塊，選片/取消選片時版面才不會
+    // 跳動。
+    @include respond-to('desktop') {
+      padding-right: calc(#{$inspectorWidth} + var(--space-1));
     }
   }
 
@@ -33,18 +23,41 @@
     min-width: 0;
   }
 
+  .contentActions {
+    @include flexbox(row, flex-end, center);
+    gap: var(--space-2);
+  }
+
   .inspectorPane {
-    position: sticky;
-    // AdminShell 的 topbar 只在手機抽屜模式出現，桌機沒有固定頂欄，
-    // 貼緊視窗頂端即可。
-    top: var(--space-6);
+    // 不做懸浮卡片（實邊框＋圓角＋留白）了，改成像左側導覽欄那樣貼右緣
+    // 的側欄：只留左邊界線、層級要蓋過副控制欄（避免它的漸層蓋到預覽
+    // 窗），但不蓋過主控制欄（不然會擋住主控制欄右側的操作按鈕）——
+    // 所以從 --admin-header-height（主控制欄的固定高度）算起，不是從
+    // 視窗頂端算起。
+    //
+    // sticky 沒辦法把元素搬到視窗真正的右緣（sticky 的 offset 只在
+    // 「捲動方向」上生效，這裡是垂直捲動，水平位置搬不動），所以改用
+    // fixed 直接釘在視窗上，不受 .container 置中／版寬限制。
+    position: fixed;
+    top: var(--admin-header-height);
+    right: 0;
+    bottom: 0;
+    width: $inspectorWidth;
+    z-index: var(--z-header);
     padding: 0;
-    border: 1px solid var(--border);
-    border-radius: var(--card-radius);
+    border-left: 1px solid var(--border);
     background: var(--surface);
-    max-height: calc(100vh - var(--space-12));
     display: flex;
     flex-direction: column;
     overflow: hidden;
+
+    // 手機／平板下 inspector 走 Modal（見 page.tsx 的 isDesktop 分支），
+    // 這個 fixed 側欄只在桌機才會被渲染，但保險起見還是限定在桌機顯示。
+    @include respond-to('tablet') {
+      display: none;
+    }
+    @include respond-to('phone') {
+      display: none;
+    }
   }
 }
