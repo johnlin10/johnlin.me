@@ -51,6 +51,7 @@ const requestBody = z.object({
       exposureTime: z.number().positive(),
       iso: z.number().positive(),
       focalLength: z.number().positive(),
+      focalLength35: z.number().positive(),
     })
     .partial()
     .nullable()

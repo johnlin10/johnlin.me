@@ -41,7 +41,11 @@ function pickExif(raw: Record<string, unknown>): PhotoExif | undefined {
   if (typeof raw.FNumber === 'number') exif.fNumber = raw.FNumber
   if (typeof raw.ExposureTime === 'number') exif.exposureTime = raw.ExposureTime
   if (typeof raw.ISO === 'number') exif.iso = raw.ISO
+  // 兩個焦距都收，顯示端再挑：可換鏡機身要實體值，小片幅要等效值。
   if (typeof raw.FocalLength === 'number') exif.focalLength = raw.FocalLength
+  if (typeof raw.FocalLengthIn35mmFormat === 'number') {
+    exif.focalLength35 = raw.FocalLengthIn35mmFormat
+  }
   return Object.keys(exif).length > 0 ? exif : undefined
 }
 

@@ -89,6 +89,22 @@ function formatShutter(exposureTime: number): string {
   return `1/${Math.round(1 / exposureTime)}s`
 }
 
+/**
+ * 焦距顯示值。可換鏡機身印實體焦距 —— 攝影師要能跟鏡頭銘牌對得上，
+ * 70-300 的鏡頭卻標 405mm 會被當成顯示錯誤。小片幅反過來只有等效值有意義，
+ * iPhone 主鏡頭的 6.765mm 看起來像超廣角。
+ *
+ * 以裁切係數 2.7 分界：全片幅 1.0、APS-C 1.5／1.6、M4/3 2.0 都在線下，
+ * 手機約 3.5 在線上。缺哪一個就用另一個。
+ */
+function focalLengthValue(exif: PhotoExif): number | undefined {
+  const { focalLength, focalLength35 } = exif
+  if (focalLength === undefined) return focalLength35
+  if (focalLength35 === undefined) return focalLength
+  // ponytail: 固定門檻，1 吋隨身機（2.7x）剛好踩線；要更準就得存感光元件尺寸
+  return focalLength35 / focalLength > 2.7 ? focalLength35 : focalLength
+}
+
 export interface ExifItem {
   /** i18n key 後綴，對應 GalleryPage.exif.<key> 的無障礙標籤 */
   key: 'aperture' | 'shutter' | 'iso' | 'focalLength' | 'camera' | 'lens'
@@ -104,8 +120,9 @@ export function formatExifItems(exif: PhotoExif | undefined): ExifItem[] {
   const items: ExifItem[] = []
   if (exif.model) items.push({ key: 'camera', value: exif.model })
   if (exif.lens) items.push({ key: 'lens', value: exif.lens })
-  if (exif.focalLength !== undefined) {
-    items.push({ key: 'focalLength', value: `${trimNumber(exif.focalLength)}mm` })
+  const focal = focalLengthValue(exif)
+  if (focal !== undefined) {
+    items.push({ key: 'focalLength', value: `${trimNumber(focal)}mm` })
   }
   if (exif.fNumber !== undefined) {
     items.push({ key: 'aperture', value: `f/${trimNumber(exif.fNumber)}` })

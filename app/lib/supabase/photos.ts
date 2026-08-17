@@ -86,10 +86,12 @@ function normalizeExif(value: unknown): PhotoExif | undefined {
   const exposureTime = positiveNumber(raw.exposureTime)
   const iso = positiveNumber(raw.iso)
   const focalLength = positiveNumber(raw.focalLength)
+  const focalLength35 = positiveNumber(raw.focalLength35)
   if (fNumber !== undefined) exif.fNumber = fNumber
   if (exposureTime !== undefined) exif.exposureTime = exposureTime
   if (iso !== undefined) exif.iso = iso
   if (focalLength !== undefined) exif.focalLength = focalLength
+  if (focalLength35 !== undefined) exif.focalLength35 = focalLength35
   return Object.keys(exif).length > 0 ? exif : undefined
 }
 

@@ -20,8 +20,10 @@ export interface PhotoExif {
   /** 快門秒數，例如 0.008（= 1/125s）。顯示端負責轉成分數 */
   exposureTime?: number
   iso?: number
-  /** 焦距（mm） */
+  /** 實體焦距（mm），鏡頭銘牌上的那個數字 */
   focalLength?: number
+  /** 等效焦距（mm，35mm 片幅）。EXIF 0xA405 不是必填，可能沒有 */
+  focalLength35?: number
 }
 
 /** 只在管理員手動勾選時才寫入，且已四捨五入到小數 3 位（約 110m）。 */
