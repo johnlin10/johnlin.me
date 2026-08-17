@@ -152,6 +152,21 @@ export async function getPublishedPhotos(
   return (data as PhotoRow[]).map(mapPhoto)
 }
 
+/** 首頁 Hero 馬賽克只要最新幾張，不必把整面牆撈回來。 */
+export async function getLatestPhotos(
+  supabase: SupabaseClient,
+  limit: number
+): Promise<Photo[]> {
+  const { data, error } = await supabase
+    .from('photos')
+    .select('*')
+    .eq('status', 'published')
+    .order('taken_at', { ascending: false })
+    .limit(limit)
+  if (error) throw error
+  return (data as PhotoRow[]).map(mapPhoto)
+}
+
 export async function getPhotoBySlug(
   supabase: SupabaseClient,
   slug: string

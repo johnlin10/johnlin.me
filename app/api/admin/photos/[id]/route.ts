@@ -5,7 +5,7 @@ import { createClient } from '@/app/lib/supabase/server'
 import { deletePhoto } from '@/app/lib/supabase/photos'
 import { photoPrefix } from '@/app/lib/r2/keys'
 import { deletePrefix } from '@/app/lib/r2/objects'
-import { revalidateGallery } from '@/app/lib/photos/revalidateGallery'
+import { revalidatePhotos } from '@/app/lib/photos/revalidatePhotos'
 
 /**
  * 刪除一張照片：資料列與 R2 上的整組物件。
@@ -38,7 +38,7 @@ export async function DELETE(
   try {
     const supabase = await createClient()
     await deletePhoto(supabase, id)
-    revalidateGallery()
+    revalidatePhotos()
 
     let removedObjects = 0
     try {

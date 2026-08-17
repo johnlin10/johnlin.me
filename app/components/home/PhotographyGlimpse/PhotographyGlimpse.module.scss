@@ -1,6 +1,273 @@
 @use '@/app/styles/design' as *;
 
-/* ---------- Photography glimpse（空相框骨架）---------- */
+/* ---------- 三張散落的相片（排法同 ThreeThings 的散落卡）---------- */
+.glimpseScatter {
+  // flex-wrap 換行 + justify-content: center，換行後落單的那張會置中
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-6);
+  margin-top: var(--space-12);
+  // padding 給傾斜的邊角留出空間：overflow-x: clip 是切在 padding box 上，
+  // 沒有這圈內縮，最外側那張的斜角會被憑空削掉。負 margin 抵銷回來，
+  // 版面對齊不變（--page-gutter 最小 24px，容得下這 16px）。
+  padding: var(--space-4);
+  margin-inline: calc(var(--space-4) * -1);
+  padding-bottom: var(--space-8); // 給飄最深那張的視差位移一點餘裕
+  overflow-x: clip; // 相片傾斜偏移，避免橫向捲動
+
+  @include respond-to('phone') {
+    gap: var(--space-8);
+    margin-top: var(--space-8);
+  }
+}
+
+.glimpseCell {
+  // flex-basis 300，會 shrink，不用 min-width 以免窄手機被撐出容器
+  flex: 1 1 300px;
+  max-width: 400px;
+  margin-top: var(--stagger, 0px);
+}
+
+.scatterA {
+  --rot: -1.8deg;
+  --stagger: 0px;
+}
+.scatterB {
+  --rot: 1.4deg;
+  --stagger: 44px;
+}
+.scatterC {
+  --rot: -1deg;
+  --stagger: 18px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .glimpseCell {
+    margin-top: 0;
+  }
+}
+
+// 相片與底下的資訊一起傾斜；hover 的回正只發生在相片上，文字留在原地
+.photoCard {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  transform: rotate(var(--rot, 0deg));
+}
+
+// 沖印相片：暖白相框、底邊略厚、直角，與 Hero 馬賽克同一套語彙
+.photoFrame {
+  display: block;
+  padding: var(--space-3) var(--space-3) var(--space-5);
+  border: 1px solid rgba(20, 17, 13, 0.1);
+  background: #fbf9f4;
+  box-shadow:
+    0 20px 40px -14px rgba(20, 17, 13, 0.42),
+    0 2px 6px rgba(20, 17, 13, 0.1);
+  // 預設繞自己的中心轉正；靠邊的那張改繞內側邊，見下方 --- 縮放基準點 ---
+  transform-origin: center;
+  @include transition(transform var(--duration-slow) var(--ease));
+
+  // 抵銷外層的傾斜 → 淨旋轉為 0，再帶一點放大
+  &:hover,
+  &:focus-visible {
+    transform: rotate(calc(var(--rot, 0deg) * -1)) scale(1.035);
+  }
+}
+
+/* --- 縮放基準點：釘住靠外的那一邊，讓相片往版面中央長 ---
+ * 換行點是 flex-basis(300) × 張數 + gap(24) × 間隔 + 容器 padding(32)
+ * 加上左右 --page-gutter 推算來的：≥1076px 排三張、720px 起排兩張＋一張，
+ * 再窄就一行一張（置中，兩側都有餘裕，維持 center）。
+ * 動到 flex-basis／gap／padding 時，這兩個數字要一起重算。
+ */
+@include respond-by-min-width('720px') {
+  .scatterA .photoFrame {
+    transform-origin: left center;
+  }
+  .scatterB .photoFrame {
+    transform-origin: right center;
+  }
+}
+
+@include respond-by-min-width('1076px') {
+  // 三張一排：中間那張兩側都有鄰居，回到繞中心
+  .scatterB .photoFrame {
+    transform-origin: center;
+  }
+  .scatterC .photoFrame {
+    transform-origin: right center;
+  }
+}
+
+.photoImg {
+  display: block;
+  width: 100%;
+  height: auto; // 依原始 width/height 保比例，完整顯示、不裁切
+  background-size: cover; // 載入前先鋪 blurDataUrl
+  background-position: center;
+  box-shadow: inset 0 0 0 1px rgba(20, 17, 13, 0.06);
+}
+
+/* ---------- 攝影牆入口：疊起的六張相片，hover 展開成 2×3 ---------- */
+.wallCta {
+  position: relative;
+  @include flexbox(column, center, center);
+  gap: var(--space-6);
+  width: fit-content;
+  margin: clamp(var(--space-12), 9vw, var(--space-20)) auto 0;
+  padding: var(--space-6) var(--space-8);
+  border-radius: var(--radius-lg);
+  @include transition(background-color var(--duration) var(--ease));
+
+  &:hover,
+  &:focus-visible {
+    background: var(--accent-soft);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+}
+
+.wallStack {
+  --chip-w: 88px;
+  --chip-h: 62px;
+  --chip-gap: 10px;
+  position: relative;
+  display: block;
+  // 先把展開後的 2×3 佔位撐好，hover 時版面不跳
+  width: calc(var(--chip-w) * 3 + var(--chip-gap) * 2);
+  height: calc(var(--chip-h) * 2 + var(--chip-gap));
+
+  @include respond-by-max-width('600px') {
+    --chip-w: 68px;
+    --chip-h: 48px;
+    --chip-gap: 8px;
+  }
+}
+
+// 置中用 margin 而非 transform，transform 就整條留給姿態動畫
+.wallChip {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: var(--chip-w);
+  height: var(--chip-h);
+  margin: calc(var(--chip-h) / -2) 0 0 calc(var(--chip-w) / -2);
+  border: 3px solid #fbf9f4; // 相紙白邊
+  border-radius: 2px;
+  box-shadow: 0 8px 18px -8px rgba(20, 17, 13, 0.55);
+  pointer-events: none; // hover 一律由外層 <a> 判定
+  transform: translate(var(--sx), var(--sy)) rotate(var(--sr));
+  @include transition(transform var(--duration-slow) var(--ease));
+  transition-delay: calc(var(--i, 0) * 35ms);
+}
+
+// 散落姿態 → 2×3 目標格（--col: -1/0/1，--row: -0.5/0.5）
+.wallChip:nth-child(1) {
+  --i: 0;
+  --sx: -30px;
+  --sy: -10px;
+  --sr: -11deg;
+  --col: -1;
+  --row: -0.5;
+  background: linear-gradient(150deg, oklch(0.78 0.11 62), oklch(0.66 0.12 46));
+}
+.wallChip:nth-child(2) {
+  --i: 1;
+  --sx: 14px;
+  --sy: -18px;
+  --sr: 7deg;
+  --col: 0;
+  --row: -0.5;
+  background: linear-gradient(150deg, oklch(0.84 0.07 90), oklch(0.7 0.09 72));
+}
+.wallChip:nth-child(3) {
+  --i: 2;
+  --sx: -12px;
+  --sy: 12px;
+  --sr: 4deg;
+  --col: 1;
+  --row: -0.5;
+  background: linear-gradient(150deg, oklch(0.72 0.1 32), oklch(0.58 0.11 24));
+}
+.wallChip:nth-child(4) {
+  --i: 3;
+  --sx: 26px;
+  --sy: 8px;
+  --sr: -6deg;
+  --col: -1;
+  --row: 0.5;
+  background: linear-gradient(
+    150deg,
+    oklch(0.8 0.08 106),
+    oklch(0.64 0.09 88)
+  );
+}
+.wallChip:nth-child(5) {
+  --i: 4;
+  --sx: -4px;
+  --sy: -2px;
+  --sr: 13deg;
+  --col: 0;
+  --row: 0.5;
+  background: linear-gradient(150deg, oklch(0.75 0.09 50), oklch(0.6 0.1 36));
+}
+.wallChip:nth-child(6) {
+  --i: 5;
+  --sx: 8px;
+  --sy: 20px;
+  --sr: -3deg;
+  --col: 1;
+  --row: 0.5;
+  background: linear-gradient(
+    150deg,
+    oklch(0.86 0.05 84),
+    oklch(0.72 0.07 100)
+  );
+}
+
+.wallCta:hover .wallChip,
+.wallCta:focus-visible .wallChip {
+  transform: translate(
+      calc(var(--col) * (var(--chip-w) + var(--chip-gap))),
+      calc(var(--row) * (var(--chip-h) + var(--chip-gap)))
+    )
+    rotate(0deg);
+}
+
+.wallCtaLabel {
+  @include flexbox(row, center, center);
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  letter-spacing: var(--tracking-wider);
+  color: var(--accent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .photoCard {
+    transform: none;
+  }
+
+  .photoFrame {
+    transition: none;
+
+    &:hover,
+    &:focus-visible {
+      transform: none;
+    }
+  }
+
+  .wallChip {
+    transition: none;
+  }
+}
+
+/* ---------- 空狀態：無照片時的空相框骨架 ---------- */
 .glimpseEmpty {
   @include flexbox(column, center, center);
   gap: var(--space-8);

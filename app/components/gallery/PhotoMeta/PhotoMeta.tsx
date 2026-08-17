@@ -23,6 +23,8 @@ interface PhotoMetaProps {
   heading?: boolean
   /** compact：牆上聚焦卡專用的較小級距（卡片會被牆 transform 放大，需壓小字級）。 */
   compact?: boolean
+  /** 相機參數。首頁一瞥只給辨識用的最小資訊，其餘留給單張頁。 */
+  showExif?: boolean
   className?: string
 }
 
@@ -38,6 +40,7 @@ export default function PhotoMeta({
   as = 'figcaption',
   heading = false,
   compact = false,
+  showExif = true,
   className,
 }: PhotoMetaProps) {
   const t = useTranslations('GalleryPage')
@@ -82,7 +85,7 @@ export default function PhotoMeta({
         )}
       </dl>
 
-      {exifItems.length > 0 && (
+      {showExif && exifItems.length > 0 && (
         <dl className={styles.exif}>
           {exifItems.map((item) => (
             <div key={item.key} className={styles.field}>

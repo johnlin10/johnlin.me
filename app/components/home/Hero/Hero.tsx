@@ -6,6 +6,14 @@ import HeroShowcase from '../HeroShowcase/HeroShowcase'
 import style from './Hero.module.scss'
 
 type Paper = { title: string; excerpt: string; date: string }
+type HeroPhoto = {
+  id: string
+  ratio: number
+  src?: string
+  srcSet?: string
+  blur?: string
+  original?: string
+}
 
 type Props = {
   tagline: string
@@ -13,6 +21,7 @@ type Props = {
   scrollHint: string
   sourceCode: string
   papers?: Paper[]
+  photos?: HeroPhoto[]
 }
 
 const AVATAR = '/assets/images/johnlin.jpeg'
@@ -23,6 +32,7 @@ export default function Hero({
   scrollHint,
   sourceCode,
   papers,
+  photos,
 }: Props) {
   const reduce = useReducedMotion()
 
@@ -50,7 +60,11 @@ export default function Hero({
           <p className={style.heroRole}>{role}</p>
         </motion.div>
 
-        <HeroShowcase sourceCode={sourceCode} papers={papers} />
+        <HeroShowcase
+          sourceCode={sourceCode}
+          papers={papers}
+          photos={photos}
+        />
       </div>
 
       <div className={style.scrollHint} aria-hidden>

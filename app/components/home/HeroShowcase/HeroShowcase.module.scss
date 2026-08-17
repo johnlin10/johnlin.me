@@ -63,10 +63,27 @@
   overflow: hidden;
   border-radius: 0; // 直角
   box-shadow: inset 0 0 0 1px rgba(20, 17, 13, 0.06); // 相片內緣細線
+  background-size: cover; // 載入前先鋪 blurDataUrl
+  background-position: center;
 }
 
+// 相框已依 --ratio 算成照片本身的比例，cover 不會裁到東西
 .heroCardPhoto {
+  display: block;
+  width: 100%;
+  height: 100%;
   object-fit: cover;
+}
+
+// 疊在衍生檔上的原檔，載入後淡入（HDR 在此亮起）
+.heroCardOriginal {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+  @include transition(opacity var(--duration-slow) var(--ease));
 }
 
 .heroCardIcon {

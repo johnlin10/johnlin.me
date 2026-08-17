@@ -1,7 +1,6 @@
 'use client'
 
 import dynamic from 'next/dynamic'
-import Image from 'next/image'
 import { useEffect, useState } from 'react'
 import { motion, useReducedMotion } from 'motion/react'
 import { useTranslations } from 'next-intl'
@@ -14,10 +13,41 @@ const HeroCodeWindow = dynamic(() => import('../HeroCodeWindow/HeroCodeWindow'),
   loading: () => <div className={codeWindowStyle.codeWindow} />,
 })
 
-// ratio = 寬 / 高
-type Photo = { id: string; tone: string; ratio: number; src?: string }
+// ratio = 寬 / 高。相框依此換算短邊，任何比例都完整顯示、不裁切。
+type Photo = {
+  id: string
+  ratio: number
+  tone?: string
+  src?: string
+  srcSet?: string
+  blur?: string
+  /** 原檔（只有 HDR 照片才給，見 OriginalOverlay） */
+  original?: string
+}
 
-const PHOTOS: Photo[] = [
+/**
+ * 疊在 SDR 衍生檔上的原檔，載入完成才淡入 —— HDR 在這一刻亮起來。
+ * 與 GalleryWall 聚焦時的作法同一套；差別是這裡沒有「聚焦」，改由
+ * 首屏空檔觸發（原檔動輒 10MB＋，不能跟首屏內容搶頻寬）。
+ */
+function OriginalOverlay({ src }: { src: string }) {
+  const [loaded, setLoaded] = useState(false)
+  return (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      className={style.heroCardOriginal}
+      src={src}
+      alt=""
+      decoding="async"
+      draggable={false}
+      onLoad={() => setLoaded(true)}
+      style={{ opacity: loaded ? 1 : 0 }}
+    />
+  )
+}
+
+// 尚無已發布照片時的暖色調佔位卡
+const PLACEHOLDERS: Photo[] = [
   { id: 'p1', tone: style.tone1, ratio: 3 / 2 },
   { id: 'p2', tone: style.tone2, ratio: 2 / 3 },
   { id: 'p3', tone: style.tone3, ratio: 1 },
@@ -93,11 +123,13 @@ type Paper = { title: string; excerpt: string; date: string }
 type Props = {
   sourceCode: string
   papers?: Paper[]
+  photos?: Photo[]
 }
 
 export default function HeroShowcase({
   sourceCode,
   papers: papersProp,
+  photos: photosProp,
 }: Props) {
   const reduce = useReducedMotion()
   const t = useTranslations('HomePage')
@@ -107,6 +139,21 @@ export default function HeroShowcase({
   const fallbackPapers = t.raw('hero.papers') as Paper[]
   const papers =
     papersProp && papersProp.length > 0 ? papersProp : fallbackPapers
+  const photos =
+    photosProp && photosProp.length > 0 ? photosProp : PLACEHOLDERS
+
+  // 首屏排完、瀏覽器閒下來才去載原檔
+  const [showOriginals, setShowOriginals] = useState(false)
+  useEffect(() => {
+    if (typeof window.requestIdleCallback !== 'function') {
+      const id = window.setTimeout(() => setShowOriginals(true), 1500)
+      return () => window.clearTimeout(id)
+    }
+    const id = window.requestIdleCallback(() => setShowOriginals(true), {
+      timeout: 3000,
+    })
+    return () => window.cancelIdleCallback(id)
+  }, [])
 
   useEffect(() => {
     if (reduce || isPaused) return
@@ -137,7 +184,7 @@ export default function HeroShowcase({
           style={{ pointerEvents: active === 0 ? 'auto' : 'none' }}
         >
           <div className={style.mosaic}>
-            {PHOTOS.map((photo, i) => {
+            {photos.map((photo, i) => {
               const pose =
                 MOSAIC_LAYOUT[i] ?? MOSAIC_LAYOUT[MOSAIC_LAYOUT.length - 1]
               const posX = `calc(var(--long) * ${pose.xRatio})`
@@ -180,22 +227,33 @@ export default function HeroShowcase({
                   }}
                 >
                   <div
-                    className={`${style.heroPhotoArea} ${
-                      photo.src ? '' : photo.tone
-                    }`}
+                    className={`${style.heroPhotoArea} ${photo.tone ?? ''}`}
+                    style={
+                      photo.blur
+                        ? { backgroundImage: `url(${photo.blur})` }
+                        : undefined
+                    }
                   >
                     {photo.src ? (
-                      <Image
-                        src={photo.src}
-                        alt=""
-                        fill
-                        sizes="220px"
+                      /* R2 上已是切好階的 webp，不再過 next/image 優化器 */
+                      /* eslint-disable-next-line @next/next/no-img-element */
+                      <img
                         className={style.heroCardPhoto}
+                        src={photo.src}
+                        srcSet={photo.srcSet}
+                        sizes="325px"
+                        alt=""
+                        loading="lazy"
+                        decoding="async"
+                        draggable={false}
                       />
                     ) : (
                       <span className={style.heroCardIcon}>
                         <Icon name="camera" size="2x" />
                       </span>
+                    )}
+                    {photo.original && showOriginals && (
+                      <OriginalOverlay src={photo.original} />
                     )}
                   </div>
                 </motion.div>

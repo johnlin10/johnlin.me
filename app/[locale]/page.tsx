@@ -7,7 +7,10 @@ import ThreeThings from '@/app/components/home/ThreeThings/ThreeThings'
 import FeaturedWorks from '@/app/components/home/FeaturedWorks/FeaturedWorks'
 import LatestArticles from '@/app/components/home/LatestArticles/LatestArticles'
 import PhotographyGlimpse from '@/app/components/home/PhotographyGlimpse/PhotographyGlimpse'
-import { getCachedLatestPosts } from '@/app/lib/supabase/cached'
+import {
+  getCachedLatestPhotos,
+  getCachedLatestPosts,
+} from '@/app/lib/supabase/cached'
 import type { SupportedLocale } from '@/app/types/blog'
 
 // ISR 300s；最新文章另有 5 分鐘資料快取
@@ -75,7 +78,21 @@ export default async function Home({ params }: Props) {
   const sourceCode = await getShowcaseSource()
 
   // 只查一次，同時給 Hero 紙堆與下方「最新文章」
-  const latestPosts = await getCachedLatestPosts(3).catch(() => [])
+  const [latestPosts, latestPhotos] = await Promise.all([
+    getCachedLatestPosts(3).catch(() => []),
+    getCachedLatestPhotos(4).catch(() => []),
+  ])
+  // Hero 相框依 ratio 換算短邊，照片完整顯示、不裁切。
+  // reverse：馬賽克的四個位置由舊到新排，最新那張落在最後一格。
+  const heroPhotos = [...latestPhotos].reverse().map((p) => ({
+    id: p.id,
+    ratio: p.width / p.height,
+    src: p.derivatives.at(-1)?.url ?? p.urlOg,
+    srcSet: p.derivatives.map((d) => `${d.url} ${d.w}w`).join(', '),
+    blur: p.blurDataUrl,
+    // 只有 HDR 值得再載一次原檔；SDR 的衍生檔看起來一模一樣
+    original: p.isHdr ? p.urlOriginal : undefined,
+  }))
   const loc = locale as SupportedLocale
   const heroPapers = latestPosts.map((p) => {
     const c = p.locales[loc]?.title ? p.locales[loc] : p.locales['zh-tw']
@@ -99,12 +116,13 @@ export default async function Home({ params }: Props) {
         scrollHint={t('hero.scrollHint')}
         sourceCode={sourceCode}
         papers={heroPapers}
+        photos={heroPhotos}
       />
       <WhoAmI locale={locale} />
       <ThreeThings locale={locale} />
       <FeaturedWorks locale={locale} />
       <LatestArticles locale={locale} posts={latestPosts} />
-      <PhotographyGlimpse locale={locale} />
+      <PhotographyGlimpse locale={locale} photos={latestPhotos.slice(0, 3)} />
     </main>
   )
 }
