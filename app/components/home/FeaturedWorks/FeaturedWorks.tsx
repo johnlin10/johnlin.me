@@ -1,9 +1,10 @@
 import { getTranslations } from 'next-intl/server'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faArrowUpRightFromSquare } from '@fortawesome/free-solid-svg-icons'
-import Reveal from './Reveal'
-import TiltLink from './TiltLink'
-import style from './home.module.scss'
+import Reveal from '../Reveal/Reveal'
+import TiltLink from '../TiltLink/TiltLink'
+import shared from '../shared.module.scss'
+import style from './FeaturedWorks.module.scss'
 
 type Work = { id: string; url: string; primary: boolean }
 
@@ -26,14 +27,13 @@ export default async function FeaturedWorks({ locale }: { locale: string }) {
   const secondary = WORKS.filter((w) => !w.primary)
 
   return (
-    <section className={style.section}>
-      <div className={style.container}>
-        {/* 標題固定 */}
+    <section className={shared.section}>
+      <div className={shared.container}>
         <Reveal>
           <div className={style.worksHead}>
             <div>
-              <span className={style.label}>{t('label')}</span>
-              <h2 className={style.heading}>{t('heading')}</h2>
+              <span className={shared.label}>{t('label')}</span>
+              <h2 className={shared.heading}>{t('heading')}</h2>
             </div>
           </div>
         </Reveal>

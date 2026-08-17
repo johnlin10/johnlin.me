@@ -1,4 +1,5 @@
 @use '@/app/styles/design' as *;
+@use 'sass:meta';
 
 // oklch() 帶 var() 參數會被 Sass 當成色彩函式去解析而報錯，所以整串用字串插值送出去。
 @function tint($alpha) {
@@ -6,12 +7,20 @@
     $alpha + ')'};
 }
 
+@function tint-hover($alpha) {
+  @return #{'oklch(calc(var(--tint-l) * 1.025) calc(var(--tint-c) * var(--tint-c-scale)) var(--tint-h) / ' +
+    $alpha + ')'};
+}
+
+@function tint-hover-dark($alpha) {
+  @return #{'oklch(calc(var(--tint-l) * 1.075) calc(var(--tint-c) * var(--tint-c-scale)) var(--tint-h) / ' +
+    $alpha + ')'};
+}
 // ------------------------------------------------------------
 // 卡片模式（預設）。沒有外層 [data-view] 時也是這個版型，首頁直接用。
 // ------------------------------------------------------------
 .card {
-  // 色相／彩度由 PostCard.tsx 以 inline custom property 餵進來；
-  // 明度是主題常數，不是從圖片來的 —— 這是文字對比不會被封面圖影響的關鍵。
+  // 色相／彩度由 PostCard.tsx 以 inline custom property 傳進來
   --tint-l: 0.93;
   --tint-c-scale: 1;
   --card-tint: oklch(
@@ -49,7 +58,18 @@
   }
 
   &:hover {
+    --card-tint: oklch(
+      calc(var(--tint-l) * 1.025) calc(var(--tint-c) * var(--tint-c-scale))
+        var(--tint-h)
+    );
     border-color: var(--border-strong);
+
+    .cover::after {
+      @include edge-fade(
+        $direction: to top,
+        $color-at: meta.get-function('tint-hover')
+      );
+    }
   }
 
   @include focus-ring;
@@ -59,6 +79,20 @@
   --tint-l: 0.3;
   // 同樣的彩度在深色底上會更跳，壓一點才不會變成螢光色塊。
   --tint-c-scale: 0.82;
+
+  &:hover {
+    --card-tint: oklch(
+      calc(var(--tint-l) * 1.075) calc(var(--tint-c) * var(--tint-c-scale))
+        var(--tint-h)
+    );
+
+    .cover::after {
+      @include edge-fade(
+        $direction: to top,
+        $color-at: meta.get-function('tint-hover-dark')
+      );
+    }
+  }
 }
 
 .cover {
@@ -73,21 +107,15 @@
     object-fit: cover;
   }
 
-  // 圖片下緣溶進卡片底色，消掉「圖片區 / 文字區」的那條硬邊界。
-  // 五個 stop 是刻意逼近緩動曲線：線性 0→1 的 alpha 漸層中段會浮出一條看得見的帶。
-  // 不能寫成 linear-gradient(transparent, X)——transparent 是 rgba(0,0,0,0)，中段會泛黑。
+  // 圖片下緣溶進卡片底色；transparent 是 rgba(0,0,0,0)，跟 oklch 混色會泛黑，改用 edge-fade()
   &::after {
     content: '';
     position: absolute;
     inset: 45% 0 0;
     pointer-events: none;
-    background: linear-gradient(
-      to bottom,
-      tint(0) 0%,
-      tint(0.15) 30%,
-      tint(0.45) 55%,
-      tint(0.8) 78%,
-      tint(1) 100%
+    @include edge-fade(
+      $direction: to top,
+      $color-at: meta.get-function('tint')
     );
   }
 }
@@ -98,12 +126,13 @@
 }
 
 .body {
+  z-index: 10;
   grid-area: body;
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
   min-width: 0;
-  padding: var(--space-5) var(--space-5) var(--space-3);
+  padding: 0 var(--space-5) var(--space-3);
 }
 
 .title {
@@ -144,6 +173,13 @@
 .meta {
   grid-area: meta;
   text-align: right;
+  color: var(--text-muted);
+}
+
+:global([date-view='card']) {
+  .body {
+    margin-top: calc(-1 * var(--space-2));
+  }
 }
 
 // ------------------------------------------------------------
@@ -164,7 +200,6 @@
     background: none;
     border: none;
     border-radius: 0;
-    border-bottom: 1px solid var(--border);
     overflow: visible;
     padding: var(--space-5) 0;
 
@@ -186,9 +221,13 @@
     }
   }
 
+  .card + .card {
+    border-top: 1px solid var(--border);
+  }
+
   .cover {
-    aspect-ratio: 1 / 1;
-    border-radius: var(--radius-md);
+    aspect-ratio: 4 / 3;
+    border-radius: var(--radius-sm);
 
     &::after {
       display: none;

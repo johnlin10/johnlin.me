@@ -67,18 +67,26 @@ async function AboutPage({ params, searchParams }: Props) {
             <p className={style.name}>{displayName}</p>
             <p className={style.tagline}>{t('sidebar.tagline')}</p>
             <div className={style.contacts}>
-              <a href={`mailto:${EMAIL}`} className={style.contactLink}>
-                <Icon name="envelope" aria-hidden="true" />
-                <span className={style.srOnly}>Email</span>
-              </a>
               <a
                 href={SUBSTACK_URL}
                 target="_blank"
                 rel="me noopener noreferrer"
                 className={style.contactLink}
               >
-                <Icon name="newspaper" aria-hidden="true" />
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="14"
+                  height="14"
+                  fill="currentColor"
+                  viewBox="0 0 16 16"
+                >
+                  <path d="M15 3.604H1v1.891h14v-1.89ZM1 7.208V16l7-3.926L15 16V7.208zM15 0H1v1.89h14z" />
+                </svg>
                 <span className={style.srOnly}>Substack</span>
+              </a>
+              <a href={`mailto:${EMAIL}`} className={style.contactLink}>
+                <Icon name="envelope" aria-hidden="true" />
+                <span className={style.srOnly}>Email</span>
               </a>
               <a
                 href={GITHUB_URL}

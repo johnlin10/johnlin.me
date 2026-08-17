@@ -2,14 +2,11 @@ import { getTranslations } from 'next-intl/server'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faArrowRight } from '@fortawesome/free-solid-svg-icons'
 import { Link } from '@/i18n/navigation'
-import Reveal from './Reveal'
-import style from './home.module.scss'
+import Reveal from '../Reveal/Reveal'
+import shared from '../shared.module.scss'
+import style from './PhotographyGlimpse.module.scss'
 
-/**
- * 攝影一瞥。真實照片要到攝影階段才有 → 目前空狀態。
- * 用「空相框」骨架暗示未來的相簿，與文章的純文字空狀態做出區隔；
- * 同樣不加捲動視差，只做安靜的淡入與極輕微的呼吸微光。
- */
+// 目前無真實照片，用空相框骨架暗示未來相簿
 const FRAMES = ['frameTall', 'frameWide', 'frameSquare']
 
 export default async function PhotographyGlimpse({
@@ -23,12 +20,12 @@ export default async function PhotographyGlimpse({
   })
 
   return (
-    <section className={style.section}>
-      <div className={style.container}>
+    <section className={shared.section}>
+      <div className={shared.container}>
         <Reveal>
-          <div className={style.sectionHead}>
-            <span className={style.label}>{t('label')}</span>
-            <h2 className={style.heading}>{t('heading')}</h2>
+          <div className={shared.sectionHead}>
+            <span className={shared.label}>{t('label')}</span>
+            <h2 className={shared.heading}>{t('heading')}</h2>
           </div>
         </Reveal>
 
@@ -43,8 +40,8 @@ export default async function PhotographyGlimpse({
                 />
               ))}
             </div>
-            <p className={style.emptyText}>{t('empty')}</p>
-            <Link href="/gallery" className={`${style.cta} ${style.ctaGhost}`}>
+            <p className={shared.emptyText}>{t('empty')}</p>
+            <Link href="/gallery" className={`${shared.cta} ${shared.ctaGhost}`}>
               {t('cta')}
               <FontAwesomeIcon icon={faArrowRight} />
             </Link>

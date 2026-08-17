@@ -2,17 +2,14 @@
 
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { oneDark } from 'react-syntax-highlighter/dist/cjs/styles/prism'
-import style from './home.module.scss'
+import style from './HeroCodeWindow.module.scss'
 
 type Props = {
   code: string
   fileName?: string
 }
 
-/**
- * 程式面板：編輯視窗外殼＋語法高亮。
- * 高度固定、overflow 交給外層裁切——不做任何行數截斷邏輯。
- */
+// 高度固定，截斷交給外層 overflow
 export default function HeroCodeWindow({
   code,
   fileName = 'HeroShowcase.tsx',

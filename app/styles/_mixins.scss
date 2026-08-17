@@ -4,6 +4,7 @@
 // @forward 只轉發給外部呼叫端，不會讓本檔案自己拿到這個名稱。
 @forward 'breakpoints';
 @use 'breakpoints' as *;
+@use 'sass:meta';
 
 @mixin flexbox($direction: row, $justify: center, $align: center) {
   display: flex;
@@ -81,6 +82,94 @@
   &:hover {
     border-color: var(--border-strong);
   }
+}
+
+// 淡出曲線取樣點：(比例 0~1, alpha)，/lab/gradient 校過，edge-fade()
+// 與 edge-fade-mask() 共用。
+$fade-curve: (
+  (0, 1),
+  (0.124, 0.977),
+  (0.248, 0.909),
+  (0.372, 0.793),
+  (0.496, 0.619),
+  (0.716, 0.203),
+  (0.774, 0.118),
+  (0.831, 0.064),
+  (0.916, 0.014),
+  (1, 0)
+);
+
+// edge-fade() 預設調色：rgba(三元組變數, alpha)。
+@function rgb-tint($alpha, $rgb: var(--background-color-rgb)) {
+  @return rgba($rgb, $alpha);
+}
+
+// 邊緣淡出遮罩：內容從固定列/卡片邊緣後方「浮」出來的效果。$direction
+// 決定哪端不透明（0% = alpha 1）；$color-at 是自訂調色函式，換色彩空間
+// 就傳自己的函式（見 PostCard.module.scss 的 tint()）。
+@mixin edge-fade(
+  $direction: to bottom,
+  $color-at: meta.get-function('rgb-tint'),
+  $color-args...
+) {
+  $stops: ();
+  @each $pair in $fade-curve {
+    $stops: append(
+      $stops,
+      meta.call($color-at, nth($pair, 2), $color-args...) #{nth($pair, 1) * 100%},
+      comma
+    );
+  }
+  background: linear-gradient($direction, $stops...);
+}
+
+// mask-image 只吃 alpha，顏色不重要，統一黑。
+@function mask-tint($alpha) {
+  @return rgba(0, 0, 0, $alpha);
+}
+
+// 兩側淡出的遮罩（例如可橫向捲動列表的邊緣提示）。$start/$end 是各自
+// 淡出寬度，0（預設）代表那側不淡出；中段自動全不透明。
+@mixin edge-fade-mask(
+  $start: 0,
+  $end: 0,
+  $direction: to right,
+  $color-at: meta.get-function('mask-tint'),
+  $color-args...
+) {
+  $stops: ();
+  $n: length($fade-curve);
+
+  @if $start != 0 {
+    // 淡入 = 鏡射 $fade-curve：反著讀、position 換成 1 - 原比例
+    @for $i from 1 through $n {
+      $pair: nth($fade-curve, $n - $i + 1);
+      $frac: 1 - nth($pair, 1);
+      $stops: append(
+        $stops,
+        meta.call($color-at, nth($pair, 2), $color-args...) calc(#{$start} * #{$frac}),
+        comma
+      );
+    }
+  } @else {
+    $stops: append($stops, meta.call($color-at, 1, $color-args...) 0%, comma);
+  }
+
+  @if $end != 0 {
+    @each $pair in $fade-curve {
+      $frac: nth($pair, 1);
+      $stops: append(
+        $stops,
+        meta.call($color-at, nth($pair, 2), $color-args...)
+          calc(100% - #{$end} + #{$end} * #{$frac}),
+        comma
+      );
+    }
+  } @else {
+    $stops: append($stops, meta.call($color-at, 1, $color-args...) 100%, comma);
+  }
+
+  mask-image: linear-gradient($direction, $stops...);
 }
 
 // 鍵盤聚焦環，取代瀏覽器預設藍框，跟 accent 一致。

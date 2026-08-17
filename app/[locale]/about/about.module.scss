@@ -20,7 +20,9 @@ $mobile-subnav-height: 56px;
   flex-direction: column;
   max-width: var(--width-wide);
   margin: 0 auto;
-  padding: calc(var(--header-height) + #{$mobile-subnav-height} + var(--space-5))
+  padding: calc(
+      var(--header-height) + #{$mobile-subnav-height} + var(--space-5)
+    )
     var(--page-gutter) var(--space-24);
 
   @include respond-to('desktop') {
@@ -82,7 +84,7 @@ $mobile-subnav-height: 56px;
 .contacts {
   display: flex;
   justify-content: center;
-  gap: var(--space-4);
+  gap: var(--space-6);
   margin-top: var(--space-2);
 
   @include respond-to('desktop') {
@@ -94,10 +96,9 @@ $mobile-subnav-height: 56px;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
   height: 32px;
   color: var(--text-secondary);
-  font-size: var(--text-md);
+  font-size: var(--text-lg);
   transition: color var(--duration-fast) var(--ease);
 
   &:hover {

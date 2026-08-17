@@ -16,11 +16,9 @@ type Props = {
 }
 
 /**
- * 捲動進場淡入包裝。克制的 fade + 上浮，尊重 prefers-reduced-motion
- * （偏好減少動態時只做 opacity，不做位移）。
- *
- * 觸發用 `amount`（元素露出約 18% 即觸發），不用負的 rootMargin——
- * 負 margin 要求元素深入視窗一段距離，頁面最底部的段落有時因此不觸發。
+ * 捲動進場淡入包裝：fade + 上浮，尊重 prefers-reduced-motion。
+ * 用 `amount` 觸發而非負 rootMargin，避免底部段落不觸發。
+ * @param props - {@link Props}
  */
 export default function Reveal({
   children,

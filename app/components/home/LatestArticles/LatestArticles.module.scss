@@ -1,0 +1,22 @@
+@use '@/app/styles/design' as *;
+
+/* ---------- Empty state ---------- */
+.empty {
+  @include flexbox(column, center, center);
+  gap: var(--space-5);
+  padding: var(--space-16) var(--space-6);
+  text-align: center;
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+}
+
+.articlesGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--space-6);
+}
+
+.articlesCta {
+  margin-top: var(--space-8);
+}

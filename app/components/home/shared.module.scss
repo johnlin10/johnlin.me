@@ -1,0 +1,76 @@
+@use '@/app/styles/design' as *;
+
+.section {
+  @include section;
+}
+
+// 交錯背景：奇數段用 surface，偶數段用 surface-2，製造分段呼吸感
+.sectionAlt {
+  background: var(--surface-2);
+}
+
+// --page-gutter 已由 .section 出過，別再用 container() 疊一次 padding
+.container {
+  width: 100%;
+  max-width: var(--width-wide);
+  margin: 0 auto;
+}
+
+// 段落小標（accent、字距寬、大寫）
+.label {
+  @include eyebrow;
+  margin-bottom: var(--space-5);
+  font-size: var(--text-3xs);
+  letter-spacing: var(--tracking-widest);
+}
+
+.heading {
+  font-family: var(--font-serif);
+  font-size: clamp(1.5rem, 3.4vw, 2.2rem);
+  font-weight: 600;
+  line-height: var(--leading-snug);
+  letter-spacing: var(--tracking-wide);
+  color: var(--text);
+}
+
+.sectionHead {
+  margin-bottom: var(--space-8);
+}
+
+.cta {
+  @include flexbox(row, center, center);
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-6);
+  font-size: var(--text-sm);
+  letter-spacing: var(--tracking-wider);
+  color: var(--accent-contrast);
+  background: var(--accent);
+  border-radius: var(--radius-pill);
+  transition:
+    background-color var(--duration-fast) var(--ease),
+    transform var(--duration-fast) var(--ease);
+
+  &:hover {
+    background: var(--accent-hover);
+  }
+}
+
+.ctaGhost {
+  margin: 0 auto;
+  max-width: 360px;
+  color: var(--accent);
+  background: transparent;
+  border: 1px solid var(--border-strong);
+
+  &:hover {
+    background: var(--accent-soft);
+  }
+}
+
+.emptyText {
+  max-width: 34ch;
+  font-size: var(--text-md);
+  line-height: var(--leading-loose);
+  letter-spacing: var(--tracking-wide);
+  color: var(--text-muted);
+}

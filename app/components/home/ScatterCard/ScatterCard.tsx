@@ -7,22 +7,16 @@ import type { ReactNode } from 'react'
 type Props = {
   children: ReactNode
   className?: string
-  /**
-   * 視差深度（px）。不同卡片給不同值，捲動時各自以不同速度飄移，
-   * 製造「隨意擺放、深淺不一」的層次感。值越大＝離鏡頭越近、飄得越多。
-   */
+  /** 視差深度（px），值越大飄得越多 */
   depth?: number
   /** 進場延遲（秒），讓卡片依序浮現而非同時 */
   delay?: number
 }
 
 /**
- * 「散落卡片」的單張包裝：三層職責分離，互不搶奪 transform——
- *   外層 ref：純量測捲動進度，本身不位移（避免 transform 回饋抖動）
- *   中層：捲動視差位移（每張 depth 不同 → 深淺層次）
- *   內層：一次性進場淡入上浮
- * 卡片本身的靜置傾斜 / hover 回正由 CSS 負責（見 home.module.scss）。
- * 偏好減少動態時：完全靜止，只保留淡入。
+ * 散落卡片包裝：外層量測捲動進度、中層做視差位移、內層做進場淡入，
+ * 三層分開避免互搶 transform。傾斜／hover 回正由 CSS 負責。
+ * @param props - {@link Props}
  */
 export default function ScatterCard({
   children,

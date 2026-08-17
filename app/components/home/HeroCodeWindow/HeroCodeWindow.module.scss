@@ -1,0 +1,62 @@
+@use '@/app/styles/design' as *;
+
+/* ---------- 程式：深色編輯視窗＋語法高亮 ---------- */
+.codeWindow {
+  position: relative;
+  width: 85%;
+  height: 80%;
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+  background: #282c34; // oneDark 主題背景
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  box-shadow:
+    0 24px 54px -16px rgba(20, 17, 13, 0.48),
+    0 2px 6px rgba(20, 17, 13, 0.1);
+}
+
+.codeWindowBar {
+  @include flexbox(row, flex-start, center);
+  flex-shrink: 0;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  background: #21252b;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.codeWindowDots {
+  @include flexbox(row, flex-start, center);
+  gap: var(--space-1);
+}
+
+.codeWindowDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+.dotRed {
+  background: #ff5f56;
+}
+.dotYellow {
+  background: #ffbd2e;
+}
+.dotGreen {
+  background: #27c93f;
+}
+
+.codeWindowFileName {
+  font-size: var(--text-3xs);
+  letter-spacing: var(--tracking-normal);
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.codeWindowBody {
+  flex: 1;
+  overflow: hidden;
+
+  > pre {
+    font-size: 11px;
+    overflow: hidden !important;
+  }
+}

@@ -6,14 +6,15 @@ import { useEffect, useState } from 'react'
 import { motion, useReducedMotion } from 'motion/react'
 import { useTranslations } from 'next-intl'
 import Icon, { type IconName } from '@/app/components/Icon/Icon'
-import style from './home.module.scss'
+import codeWindowStyle from '../HeroCodeWindow/HeroCodeWindow.module.scss'
+import style from './HeroShowcase.module.scss'
 
-const HeroCodeWindow = dynamic(() => import('./HeroCodeWindow'), {
+const HeroCodeWindow = dynamic(() => import('../HeroCodeWindow/HeroCodeWindow'), {
   ssr: false,
-  loading: () => <div className={style.codeWindow} />,
+  loading: () => <div className={codeWindowStyle.codeWindow} />,
 })
 
-// ratio = 寬 / 高。真實照片就緒後只要補上 src，漸層佔位會自動被取代。
+// ratio = 寬 / 高
 type Photo = { id: string; tone: string; ratio: number; src?: string }
 
 const PHOTOS: Photo[] = [
@@ -23,9 +24,7 @@ const PHOTOS: Photo[] = [
   { id: 'p4', tone: style.tone4, ratio: 4 / 5 },
 ]
 
-// 散落版面：手工調出的「隨手一放」效果，刻意不用 Math.random()，避免 SSR/CSR hydration mismatch。
-// xRatio / yRatio 依相片長邊（--long）按比例換算。
-// longMobile / longTablet / longDesktop 分別對應手機（大圖展演）、700px中型視窗（無重疊安全比例）與桌面版（精緻全尺寸）。
+// 手工排版，不用 Math.random()（避免 SSR/CSR hydration mismatch）
 const MOSAIC_LAYOUT: {
   xRatio: number
   yRatio: number
@@ -68,8 +67,7 @@ const MOSAIC_LAYOUT: {
   },
 ]
 
-// 白紙定位槽：最前（可讀）→ 中 → 後。三張紙在槽間輪替，讓最新三篇輪流來到最前完整展示。
-// xRatio / yRatio 依紙張寬度（--paper-w）按比例換算。
+// 三個定位槽（前/中/後），最新文章輪替到最前
 const PAPER_SLOTS: {
   xRatio: number
   yRatio: number
@@ -105,7 +103,7 @@ export default function HeroShowcase({
   const t = useTranslations('HomePage')
   const [active, setActive] = useState<0 | 1 | 2>(0)
   const [isPaused, setIsPaused] = useState(false)
-  // 有真實文章就用真實文章，否則回退 i18n 佔位（空資料庫 / 讀取失敗時仍好看）。
+  // 無真實文章時退回 i18n 佔位
   const fallbackPapers = t.raw('hero.papers') as Paper[]
   const papers =
     papersProp && papersProp.length > 0 ? papersProp : fallbackPapers
@@ -214,7 +212,6 @@ export default function HeroShowcase({
         >
           <div className={style.paperStack}>
             {papers.slice(0, 3).map((paper, i) => {
-              // 靜態扇形：三張紙固定於前 / 中 / 後槽，hover 哪張就把它抬到最上並放大。
               const pose = PAPER_SLOTS[i] ?? PAPER_SLOTS[0]
               const posX = `calc(var(--paper-w) * ${pose.xRatio})`
               const posY = `calc(var(--paper-w) * ${pose.yRatio})`

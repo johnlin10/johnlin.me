@@ -2,8 +2,8 @@
 
 import Image from 'next/image'
 import { motion, useReducedMotion } from 'motion/react'
-import HeroShowcase from './HeroShowcase'
-import style from './home.module.scss'
+import HeroShowcase from '../HeroShowcase/HeroShowcase'
+import style from './Hero.module.scss'
 
 type Paper = { title: string; excerpt: string; date: string }
 

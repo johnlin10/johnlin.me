@@ -1,0 +1,66 @@
+@use '@/app/styles/design' as *;
+
+/* ---------- Who am I（釘住的標題 + 流動的段落）---------- */
+.whoLayout {
+  display: grid;
+  grid-template-columns: minmax(0, 0.82fr) minmax(0, 1.18fr);
+  gap: clamp(var(--space-8), 6vw, 88px);
+  align-items: start;
+
+  @include respond-to('phone') {
+    grid-template-columns: 1fr;
+    gap: var(--space-6);
+  }
+  @include respond-to('tablet') {
+    grid-template-columns: 1fr;
+    gap: var(--space-6);
+  }
+}
+
+// 標題欄「釘」在視窗上緣（扣掉固定頁首），段落在右側流過。
+.whoIntro {
+  position: sticky;
+  top: calc(var(--header-height) + var(--space-12));
+
+  @include respond-to('phone') {
+    position: static;
+    top: auto;
+  }
+  @include respond-to('tablet') {
+    position: static;
+    top: auto;
+  }
+}
+
+.whoHeading {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: clamp(1.7rem, 4vw, 2.6rem);
+  font-weight: 600;
+  line-height: var(--leading-snug);
+  letter-spacing: var(--tracking-wide);
+  white-space: pre-line;
+  word-break: keep-all;
+  color: var(--text);
+}
+
+// 收窄行寬讓右欄比左欄高，sticky 標題才有停留行程
+.whoBody {
+  padding-top: var(--space-1);
+  max-width: 44ch;
+
+  @include respond-to('phone') {
+    max-width: none;
+  }
+  @include respond-to('tablet') {
+    max-width: none;
+  }
+}
+
+.whoParagraph {
+  margin: 0 0 var(--space-3);
+  font-size: var(--text-md);
+  line-height: var(--leading-loose);
+  letter-spacing: var(--tracking-wide);
+  color: var(--text-secondary);
+}

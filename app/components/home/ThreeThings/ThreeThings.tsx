@@ -2,12 +2,12 @@ import { getTranslations } from 'next-intl/server'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCode, faCamera, faPenNib } from '@fortawesome/free-solid-svg-icons'
 import type { IconDefinition } from '@fortawesome/fontawesome-svg-core'
-import Reveal from './Reveal'
-import ScatterCard from './ScatterCard'
-import style from './home.module.scss'
+import Reveal from '../Reveal/Reveal'
+import ScatterCard from '../ScatterCard/ScatterCard'
+import shared from '../shared.module.scss'
+import style from './ThreeThings.module.scss'
 
-// 每張卡片的散落個性：靜置傾斜（scatter class）、視差深度、進場延遲。
-// 刻意讓深度不同 → 捲動時三張各自以不同速度飄，像隨手擺放的照片。
+// depth 刻意不同，捲動時三張飄移速度不同
 const ITEMS: {
   key: string
   icon: IconDefinition
@@ -23,11 +23,10 @@ export default async function ThreeThings({ locale }: { locale: string }) {
   const t = await getTranslations({ locale, namespace: 'HomePage.things' })
 
   return (
-    <section className={`${style.section} ${style.sectionAlt}`}>
-      <div className={style.container}>
-        {/* 標題固定：只做一次性淡入，不隨捲動漂移 */}
+    <section className={`${shared.section} ${shared.sectionAlt}`}>
+      <div className={shared.container}>
         <Reveal>
-          <span className={style.label}>{t('label')}</span>
+          <span className={shared.label}>{t('label')}</span>
         </Reveal>
         <Reveal delay={0.05}>
           <p className={style.thingsIntro}>{t('intro')}</p>

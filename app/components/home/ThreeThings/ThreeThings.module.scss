@@ -1,0 +1,110 @@
+@use '@/app/styles/design' as *;
+
+.thingsIntro {
+  margin: 0;
+  max-width: 42ch;
+  font-family: var(--font-serif);
+  font-size: clamp(1.05rem, 2.2vw, 1.32rem);
+  line-height: var(--leading-normal);
+  letter-spacing: var(--tracking-normal);
+  color: var(--text);
+}
+
+/* ---------- Three things（散落深度卡）---------- */
+.thingsScatter {
+  // flex-wrap 換行 + justify-content: center，換行後落單的卡片會置中
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-6);
+  margin-top: var(--space-12);
+  padding-bottom: var(--space-6); // 給最深那張的視差位移一點呼吸空間
+  overflow-x: clip; // 卡片傾斜偏移，避免橫向捲動
+
+  @include respond-to('phone') {
+    gap: var(--space-5);
+    margin-top: var(--space-8);
+  }
+  @include respond-to('tablet') {
+    gap: var(--space-5);
+  }
+}
+
+.scatterCell {
+  // flex-basis 280，會 shrink，不用 min-width 以免窄手機被撐出容器
+  flex: 1 1 280px;
+  max-width: 420px;
+  margin-top: var(--stagger, 0px);
+}
+
+.scatterA {
+  --rot: -2.2deg;
+  --stagger: 0px;
+}
+.scatterB {
+  --rot: 1.6deg;
+  --stagger: 46px;
+}
+.scatterC {
+  --rot: -1deg;
+  --stagger: 20px;
+}
+
+.thingCard {
+  height: 100%;
+  max-width: 420px;
+  padding: var(--space-8);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  transform: rotate(var(--rot, 0deg));
+  transition:
+    transform var(--duration-slow) var(--ease),
+    border-color var(--duration-slow) var(--ease),
+    box-shadow var(--duration-slow) var(--ease);
+
+  &:hover {
+    transform: rotate(0deg) translateY(-6px);
+    border-color: var(--border-strong);
+    box-shadow: var(--shadow-lg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scatterCell {
+    margin-top: 0;
+  }
+  .thingCard {
+    transform: none;
+    &:hover {
+      transform: none;
+    }
+  }
+}
+
+.thingIcon {
+  @include flexbox(row, center, center);
+  width: 44px;
+  height: 44px;
+  margin-bottom: var(--space-5);
+  border-radius: var(--radius-md);
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: var(--text-md);
+}
+
+.thingTitle {
+  margin: 0 0 var(--space-3);
+  font-family: var(--font-serif);
+  font-size: var(--text-xl);
+  font-weight: 600;
+  letter-spacing: var(--tracking-wide);
+  color: var(--text);
+}
+
+.thingDesc {
+  font-size: var(--text-sm);
+  line-height: var(--leading-loose);
+  letter-spacing: var(--tracking-wide);
+  color: var(--text-secondary);
+}

@@ -1,0 +1,120 @@
+@use '@/app/styles/design' as *;
+
+/* ---------- Hero（標題左，疊放相片右）---------- */
+.hero {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  min-height: 100svh;
+  overflow-x: clip; // 收攏疊放卡片的偏移，避免橫向捲動
+  @include flexbox(column, center, center);
+  padding: calc(var(--header-height) + var(--space-6)) var(--page-gutter)
+    var(--space-24);
+
+  // 柔和自然環境光暈（沖印暗房光影，非硬漸變）
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: radial-gradient(
+      circle at 72% 40%,
+      var(--accent-soft) 0%,
+      transparent 60%
+    );
+    opacity: 0.35;
+    z-index: 0;
+  }
+
+  @include respond-to('phone') {
+    min-height: auto;
+    padding: calc(var(--header-height) + var(--space-6)) var(--page-gutter)
+      var(--space-16);
+  }
+}
+
+.heroInner {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+  align-items: center;
+  gap: clamp(var(--space-6), 8vw, var(--space-16));
+  width: 100%;
+  max-width: 1120px;
+  margin: 0 auto;
+
+  @include respond-by-max-width('800px') {
+    grid-template-columns: 1fr;
+    gap: clamp(6px, 2vh, var(--space-4));
+  }
+}
+
+.heroText {
+  @include flexbox(column, center, flex-start);
+  gap: var(--space-5);
+  text-align: left;
+}
+
+.heroIdentity {
+  @include flexbox(row, center, center);
+  gap: var(--space-3);
+}
+
+.heroAvatar {
+  border-radius: var(--radius-pill);
+  object-fit: cover;
+  border: 2px solid var(--border-strong);
+}
+
+.heroName {
+  font-family: var(--font-serif);
+  font-size: var(--text-2xl);
+  font-weight: 600;
+  letter-spacing: var(--tracking-normal);
+  color: var(--text);
+}
+
+.heroTagline {
+  margin: var(--space-1) 0 0;
+  max-width: min(
+    100%,
+    32ch
+  ); // 中文每行約 7 字，英文最長每行約 28 字，設為 32ch 避免英文單字被強迫換行
+  font-family: var(--font-serif);
+  font-size: clamp(1.4rem, 2.6vw, 2.1rem);
+  font-weight: 600;
+  line-height: var(--leading-snug);
+  letter-spacing: var(--tracking-normal);
+  white-space: pre-line;
+  color: var(--text);
+}
+
+.heroRole {
+  font-size: var(--text-md);
+  letter-spacing: var(--tracking-widest);
+  color: var(--text-secondary);
+}
+
+/* 捲動提示 */
+.scrollHint {
+  position: absolute;
+  bottom: var(--space-6);
+  left: 50%;
+  transform: translateX(-50%);
+  @include flexbox(column, center, center);
+  gap: var(--space-2);
+  font-size: var(--text-3xs);
+  letter-spacing: var(--tracking-widest);
+  color: var(--text-muted);
+
+  @include respond-to('phone') {
+    display: none;
+  }
+}
+
+.scrollDot {
+  width: 1px;
+  height: 36px;
+  background: linear-gradient(to bottom, var(--text-muted), transparent);
+}

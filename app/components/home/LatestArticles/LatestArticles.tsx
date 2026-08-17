@@ -3,14 +3,12 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faArrowRight } from '@fortawesome/free-solid-svg-icons'
 import { Link } from '@/i18n/navigation'
 import PostCard from '@/app/components/blog/PostCard/PostCard'
-import Reveal from './Reveal'
-import style from './home.module.scss'
+import Reveal from '../Reveal/Reveal'
+import shared from '../shared.module.scss'
+import style from './LatestArticles.module.scss'
 import type { Post, SupportedLocale } from '@/app/types/blog'
 
-/**
- * 最新文章。資料由首頁一次查詢後以 props 傳入（與 Hero 共用，不重複打 DB）。
- * 有資料時渲染最新三篇卡片，否則維持優雅的空狀態。
- */
+// posts 由首頁查一次傳入，與 Hero 共用（不重複打 DB）
 export default async function LatestArticles({
   locale,
   posts,
@@ -21,12 +19,12 @@ export default async function LatestArticles({
   const t = await getTranslations({ locale, namespace: 'HomePage.articles' })
 
   return (
-    <section className={`${style.section} ${style.sectionAlt}`}>
-      <div className={style.container}>
+    <section className={`${shared.section} ${shared.sectionAlt}`}>
+      <div className={shared.container}>
         <Reveal>
-          <div className={style.sectionHead}>
-            <span className={style.label}>{t('label')}</span>
-            <h2 className={style.heading}>{t('heading')}</h2>
+          <div className={shared.sectionHead}>
+            <span className={shared.label}>{t('label')}</span>
+            <h2 className={shared.heading}>{t('heading')}</h2>
           </div>
         </Reveal>
 
@@ -42,7 +40,7 @@ export default async function LatestArticles({
               ))}
             </div>
             <div className={style.articlesCta}>
-              <Link href="/blog" className={`${style.cta} ${style.ctaGhost}`}>
+              <Link href="/blog" className={`${shared.cta} ${shared.ctaGhost}`}>
                 {t('cta')}
                 <FontAwesomeIcon icon={faArrowRight} />
               </Link>
@@ -51,8 +49,8 @@ export default async function LatestArticles({
         ) : (
           <Reveal delay={0.1}>
             <div className={style.empty}>
-              <p className={style.emptyText}>{t('empty')}</p>
-              <Link href="/blog" className={`${style.cta} ${style.ctaGhost}`}>
+              <p className={shared.emptyText}>{t('empty')}</p>
+              <Link href="/blog" className={`${shared.cta} ${shared.ctaGhost}`}>
                 {t('cta')}
                 <FontAwesomeIcon icon={faArrowRight} />
               </Link>

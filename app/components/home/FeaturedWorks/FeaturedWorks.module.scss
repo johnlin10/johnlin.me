@@ -1,0 +1,119 @@
+@use '@/app/styles/design' as *;
+
+/* ---------- Featured works ---------- */
+.worksHead {
+  @include flexbox(row, space-between, flex-end);
+  gap: var(--space-6);
+  margin-bottom: var(--space-10);
+  flex-wrap: wrap;
+}
+
+.worksPrimary {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-6);
+
+  @include respond-to('phone') {
+    grid-template-columns: 1fr;
+  }
+  @include respond-to('tablet') {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.worksSecondary {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-6);
+  margin-top: var(--space-6);
+
+  @include respond-to('phone') {
+    grid-template-columns: 1fr;
+  }
+}
+
+// 網格子項：讓 TiltLink（實際的 <a>）能撐滿整格、維持等高。
+.cardCell {
+  height: 100%;
+}
+
+.workCard {
+  @include flexbox(column, flex-start, flex-start);
+  gap: var(--space-4);
+  height: 100%;
+  padding: var(--space-8);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  will-change: transform;
+  // translateY 只在 reduced-motion 生效，一般由 TiltLink 接管
+  transition:
+    border-color var(--duration-fast) var(--ease),
+    box-shadow var(--duration) var(--ease);
+
+  &:hover {
+    border-color: var(--border-strong);
+    box-shadow: var(--shadow-lg);
+
+    .workArrow {
+      color: var(--accent);
+      transform: translate(3px, -3px);
+    }
+  }
+}
+
+.workCardSmall {
+  padding: var(--space-6);
+  flex-direction: row;
+  align-items: flex-start;
+  gap: var(--space-4);
+}
+
+.workTop {
+  @include flexbox(row, space-between, flex-start);
+  gap: var(--space-3);
+  width: 100%;
+}
+
+.workName {
+  font-family: var(--font-serif);
+  font-size: var(--text-lg);
+  font-weight: 600;
+  letter-spacing: var(--tracking-wide);
+  color: var(--text);
+}
+
+.workNameSmall {
+  font-size: var(--text-md);
+}
+
+.workArrow {
+  flex-shrink: 0;
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+  transition:
+    color var(--duration-fast) var(--ease),
+    transform var(--duration-fast) var(--ease);
+}
+
+.workDesc {
+  font-size: var(--text-sm);
+  line-height: var(--leading-relaxed);
+  letter-spacing: var(--tracking-normal);
+  color: var(--text-secondary);
+}
+
+.workDescSmall {
+  font-size: var(--text-xs);
+  line-height: var(--leading-relaxed);
+}
+
+.workBadge {
+  margin-top: auto;
+  padding: var(--space-1) var(--space-2);
+  font-size: var(--text-3xs);
+  letter-spacing: var(--tracking-wider);
+  border-radius: var(--radius-pill);
+  background: var(--accent-soft);
+  color: var(--accent);
+}

@@ -8,7 +8,7 @@ import style from './NoteCard.module.scss'
 function formatDate(iso: string, locale: SupportedLocale) {
   return new Date(iso).toLocaleDateString(
     locale === 'zh-tw' ? 'zh-TW' : 'en-US',
-    { year: 'numeric', month: 'long', day: 'numeric' }
+    { year: 'numeric', month: 'long', day: 'numeric' },
   )
 }
 
@@ -33,6 +33,10 @@ export default async function NoteCard({
   return (
     <article className={style.card}>
       <div className={style.inner}>
+        <time className={style.time} dateTime={iso}>
+          {date}
+        </time>
+
         {asLink && (
           <Link href={`/notes/${note.id}`} className={style.stretched}>
             <span className={style.srOnly}>{t('openNote')}</span>
@@ -46,10 +50,6 @@ export default async function NoteCard({
             <NoteMedia noteId={note.id} images={note.images} />
           </div>
         )}
-
-        <time className={style.time} dateTime={iso}>
-          {date}
-        </time>
       </div>
     </article>
   )

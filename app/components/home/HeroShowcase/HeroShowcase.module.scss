@@ -1,0 +1,195 @@
+@use '@/app/styles/design' as *;
+
+/* 三面向展示區：影像／文字／程式，每 5 秒交叉淡入淡出 */
+.showcase {
+  @include flexbox(column, center, center);
+  width: 100%;
+}
+
+.showcaseStage {
+  position: relative;
+  width: 100%;
+  min-height: clamp(420px, 52vh, 560px);
+
+  @include respond-by-max-width('800px') {
+    min-height: clamp(340px, 48vh, 460px);
+  }
+}
+
+// tone1-4／paper 顏色刻意寫死，不隨主題變化
+
+.showcaseLayer {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+}
+
+/* ---------- 影像：隨機散落＋輕微浮動 ---------- */
+.mosaic {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+}
+
+// 卡片＝實體沖印相片：白色相框、底邊略厚，帶柔和陰影，直角（擬物風）。
+.mosaicTile {
+  position: relative;
+  grid-area: 1 / 1;
+  --long: var(--long-m, 170px);
+  padding: var(--space-2) var(--space-2) var(--space-3);
+  border: 1px solid rgba(20, 17, 13, 0.1);
+  background: #fbf9f4; // 暖白
+  box-shadow:
+    0 20px 40px -14px rgba(20, 17, 13, 0.42),
+    0 2px 6px rgba(20, 17, 13, 0.1);
+  will-change: transform;
+
+  @include respond-by-min-width('601px') {
+    --long: var(--long-t, 185px);
+  }
+  @include respond-by-min-width('801px') {
+    --long: var(--long-d, 240px);
+  }
+}
+
+// 相片區：長邊固定＝--long，短邊依 --ratio（寬/高）換算 → 任何比例都能容納。
+.heroPhotoArea {
+  position: relative;
+  width: calc(var(--long) * min(1, var(--ratio, 1)));
+  height: calc(var(--long) / max(1, var(--ratio, 1)));
+  overflow: hidden;
+  border-radius: 0; // 直角
+  box-shadow: inset 0 0 0 1px rgba(20, 17, 13, 0.06); // 相片內緣細線
+}
+
+.heroCardPhoto {
+  object-fit: cover;
+}
+
+.heroCardIcon {
+  @include flexbox(row, center, center);
+  position: absolute;
+  inset: 0;
+  color: rgba(255, 255, 255, 0.55);
+  font-size: var(--text-2xl);
+}
+
+// 暖色調佔位卡（真實照片就緒後把 src 填上、移除即可）
+.tone1 {
+  background: linear-gradient(150deg, oklch(0.74 0.12 58), oklch(0.6 0.14 38));
+}
+.tone2 {
+  background: linear-gradient(150deg, oklch(0.82 0.06 88), oklch(0.66 0.08 66));
+}
+.tone3 {
+  background: linear-gradient(150deg, oklch(0.7 0.1 30), oklch(0.55 0.1 22));
+}
+.tone4 {
+  background: linear-gradient(150deg, oklch(0.78 0.09 104), oklch(0.62 0.1 82));
+}
+
+/* ---------- 文字：靜態扇形白紙疊放（無循環） ---------- */
+.paperStack {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+}
+
+.paperCard {
+  position: relative;
+  grid-area: 1 / 1;
+  --paper-w: clamp(220px, 27vw, 300px);
+  width: var(--paper-w);
+  aspect-ratio: 3 / 4;
+  padding: var(--space-6) var(--space-6);
+  background: #fbf9f4; // 暖白紙張，與相片沖印同語彙
+  border: 1px solid rgba(20, 17, 13, 0.06);
+  border-radius: 0;
+  box-shadow:
+    0 24px 54px -16px rgba(20, 17, 13, 0.48),
+    0 2px 6px rgba(20, 17, 13, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  overflow: hidden;
+  will-change: transform;
+
+  @include respond-by-max-width('800px') {
+    --paper-w: clamp(200px, 54vw, 280px);
+    padding: var(--space-5) var(--space-4);
+  }
+}
+
+// 紙面固定是暖白色，不隨深色模式變化，文字顏色比照淺色主題的 --text 系列寫死。
+.paperDate {
+  font-size: var(--text-3xs);
+  letter-spacing: var(--tracking-wider);
+  color: #8a7f6c;
+}
+
+.paperTitle {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: var(--text-lg);
+  font-weight: 600;
+  line-height: var(--leading-snug);
+  color: #201b13;
+}
+
+.paperExcerpt {
+  margin: 0;
+  flex: 1; // 撐滿標題下方剩餘空間，避免紙張下半留白
+  min-height: 0; // 允許 flex 子元素收縮，overflow 才能生效
+  font-size: var(--text-xs);
+  line-height: var(--leading-normal);
+  color: #5c5344;
+  overflow: hidden;
+  // 底部漸隱，而非硬裁半個字：文氣自然收束
+  mask-image: linear-gradient(to bottom, #000 78%, transparent);
+  -webkit-mask-image: linear-gradient(to bottom, #000 78%, transparent);
+}
+
+/* ---------- 面板切換按鈕：隱蔽、但保留清楚的鍵盤焦點 ---------- */
+.showcaseControls {
+  position: relative;
+  z-index: var(--z-raised);
+  @include flexbox(row, center, center);
+  gap: var(--space-3);
+  margin-top: clamp(var(--space-6), 5vw, var(--space-12));
+}
+
+.showcaseTab {
+  @include flexbox(row, center, center);
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: var(--text-md);
+  opacity: 0.45;
+  cursor: pointer;
+  @include transition(all var(--duration-fast) var(--ease));
+
+  &:hover {
+    opacity: 0.75;
+    color: var(--accent);
+  }
+
+  &[aria-pressed='true'] {
+    opacity: 1;
+    color: var(--accent);
+  }
+
+  &:focus-visible {
+    opacity: 1;
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+}

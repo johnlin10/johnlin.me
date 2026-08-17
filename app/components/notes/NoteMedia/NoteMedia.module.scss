@@ -49,14 +49,8 @@
     display: none;
   }
 
-  // 兩側淡出提示可橫向捲動；#000 只定義遮罩透明度，非主題色，屬裝飾性例外
-  mask-image: linear-gradient(
-    to right,
-    transparent 0,
-    #000 var(--note-media-bleed),
-    #000 calc(100% - var(--space-8)),
-    transparent 100%
-  );
+  // 兩側淡出提示可橫向捲動
+  @include edge-fade-mask($start: var(--note-media-bleed), $end: var(--space-8));
 
   @include respond-to('phone') {
     --note-strip-height: 160px;
