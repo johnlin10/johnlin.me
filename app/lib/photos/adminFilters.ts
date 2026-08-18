@@ -15,6 +15,11 @@ export const PHOTO_FILTER_KEYS: PhotoFilterKey[] = [
   'hdr',
 ]
 
+/** 網址帶進來的 key 是使用者打得出來的輸入，收進 Set 之前一律先驗。 */
+export function isPhotoFilterKey(value: string): value is PhotoFilterKey {
+  return (PHOTO_FILTER_KEYS as string[]).includes(value)
+}
+
 const PREDICATES: Record<PhotoFilterKey, (photo: Photo) => boolean> = {
   draft: (photo) => photo.status === 'draft',
   noCaption: (photo) => !photo.locales['zh-tw']?.caption,

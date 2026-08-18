@@ -33,18 +33,25 @@ function parseRawDateTime(raw: string | undefined): string | undefined {
   return `${y}-${mo}-${d}T${h}:${mi}:${s}`
 }
 
+/** 相機寫 0 等於沒寫（HTC 的 FocalLengthIn35mmFormat 就是 0），當作缺值。 */
+function positive(value: unknown): number | undefined {
+  return typeof value === 'number' && Number.isFinite(value) && value > 0 ? value : undefined
+}
+
 function pickExif(raw: Record<string, unknown>): PhotoExif | undefined {
   const exif: PhotoExif = {}
   if (typeof raw.Make === 'string') exif.make = raw.Make
   if (typeof raw.Model === 'string') exif.model = raw.Model
   if (typeof raw.LensModel === 'string') exif.lens = raw.LensModel
-  if (typeof raw.FNumber === 'number') exif.fNumber = raw.FNumber
-  if (typeof raw.ExposureTime === 'number') exif.exposureTime = raw.ExposureTime
-  if (typeof raw.ISO === 'number') exif.iso = raw.ISO
+  exif.fNumber = positive(raw.FNumber)
+  exif.exposureTime = positive(raw.ExposureTime)
+  exif.iso = positive(raw.ISO)
   // 兩個焦距都收，顯示端再挑：可換鏡機身要實體值，小片幅要等效值。
-  if (typeof raw.FocalLength === 'number') exif.focalLength = raw.FocalLength
-  if (typeof raw.FocalLengthIn35mmFormat === 'number') {
-    exif.focalLength35 = raw.FocalLengthIn35mmFormat
+  exif.focalLength = positive(raw.FocalLength)
+  exif.focalLength35 = positive(raw.FocalLengthIn35mmFormat)
+
+  for (const key of Object.keys(exif) as (keyof PhotoExif)[]) {
+    if (exif[key] === undefined) delete exif[key]
   }
   return Object.keys(exif).length > 0 ? exif : undefined
 }

@@ -118,6 +118,10 @@ export default function Popover({
 
     const handlePointerDown = (e: MouseEvent | TouchEvent) => {
       const target = e.target as Node
+      // 巢狀 popover（例如設定面板裡的語言下拉）是 portal 到 body 的，不
+      // 在本體的 DOM 子樹裡。不放行的話，點下拉選項會先把外層關掉、連帶
+      // 把選項本身卸載，mousedown 之後的 click 就永遠不會發生。
+      if (target instanceof Element && target.closest('[data-popover]')) return
       if (
         popoverRef.current &&
         !popoverRef.current.contains(target) &&
@@ -146,6 +150,7 @@ export default function Popover({
     <div
       ref={popoverRef}
       className={`${style.popover} ${className}`}
+      data-popover
       style={{
         top: `${coords.top}px`,
         left: `${coords.left}px`,

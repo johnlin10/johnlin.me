@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useLocale, useTranslations } from 'next-intl'
 import { useRouter } from '@/i18n/navigation'
 import { createClient } from '@/app/lib/supabase/client'
+import { useSearchParamState } from '@/app/lib/hooks/useSearchParamState'
 import {
   getPhotosForAdmin,
   updatePhotosStatus,
@@ -12,6 +13,8 @@ import { groupByYear } from '@/app/lib/photos/group'
 import {
   applyPhotoFilters,
   countPhotoFilters,
+  isPhotoFilterKey,
+  PHOTO_FILTER_KEYS,
   type PhotoFilterKey,
 } from '@/app/lib/photos/adminFilters'
 import { useIsDesktop } from '@/app/lib/hooks/useIsDesktop'
@@ -49,9 +52,20 @@ export default function AdminPhotosPage() {
 
   const [photos, setPhotos] = useState<Photo[]>([])
   const [loading, setLoading] = useState(true)
-  const [activeFilters, setActiveFilters] = useState<Set<PhotoFilterKey>>(
-    new Set(),
+  // 篩選條件放在網址上，重整後不會被打回未篩選。不認得的 key 直接丟掉
+  // ——網址是使用者打得出來的輸入。
+  const [filterParam, setFilterParam] = useSearchParamState('filter')
+  const activeFilters = useMemo(
+    () =>
+      new Set(
+        (filterParam?.split(',') ?? []).filter((key) => isPhotoFilterKey(key)),
+      ),
+    [filterParam],
   )
+  // 依 PHOTO_FILTER_KEYS 的固定順序序列化：同一組條件不會因為點選順序不同
+  // 而產生兩種網址。
+  const setActiveFilters = (next: ReadonlySet<PhotoFilterKey>) =>
+    setFilterParam(PHOTO_FILTER_KEYS.filter((key) => next.has(key)).join(','))
   const [mobileModalOpen, setMobileModalOpen] = useState(false)
   const [bulkBusy, setBulkBusy] = useState(false)
   const [orphansOpen, setOrphansOpen] = useState(false)
@@ -98,12 +112,10 @@ export default function AdminPhotosPage() {
   const selectedPhoto = filtered.find((p) => p.id === selectedId) ?? null
 
   const toggleFilter = (key: PhotoFilterKey) => {
-    setActiveFilters((prev) => {
-      const next = new Set(prev)
-      if (next.has(key)) next.delete(key)
-      else next.add(key)
-      return next
-    })
+    const next = new Set(activeFilters)
+    if (next.has(key)) next.delete(key)
+    else next.add(key)
+    setActiveFilters(next)
   }
 
   const handleSelect = (id: string) => {

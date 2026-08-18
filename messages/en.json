@@ -14,7 +14,15 @@
       "photos": "Photography",
       "categories": "Categories",
       "tags": "Tags",
-      "series": "Series"
+      "series": "Series",
+      "groups": {
+        "content": "Content",
+        "taxonomy": "Organize"
+      },
+      "scopes": {
+        "posts": "Posts",
+        "all": "All content"
+      }
     },
     "shell": {
       "backToHome": "Back to site",
@@ -26,6 +34,9 @@
       "userAvatarAlt": "User avatar",
       "defaultUserName": "Admin",
       "signOut": "Sign out",
+      "preferences": "Preferences",
+      "themeLabel": "Theme",
+      "languageLabel": "Language",
       "signOutConfirm": {
         "title": "Sign out",
         "message": "Are you sure you want to sign out?"
@@ -43,15 +54,42 @@
     },
     "dashboard": {
       "title": "Overview",
-      "subtitle": "Content management system",
-      "quickActions": "Quick actions",
+      "subtitle": "Content management",
       "newPost": "New Post",
-      "newNote": "New Note",
+      "loading": "Loading",
       "stats": {
-        "totalPosts": "Total Posts",
         "published": "Published",
-        "draft": "Draft",
-        "totalNotes": "Total Notes"
+        "publishedHint": "Posts + notes + photos",
+        "chars": "Characters written",
+        "charsHint": "Published Chinese content",
+        "photos": "Photos",
+        "photosHint": "Spanning {years} years",
+        "views": "Total views",
+        "viewsHint": "{count} in last 7 days"
+      },
+      "gaps": {
+        "missingEnglish": "{count} posts missing English",
+        "staleDrafts": "{count} drafts untouched for a week",
+        "photosWithoutCaption": "{count} photos without a caption",
+        "photosWithoutLocation": "{count} photos without a location"
+      },
+      "topPosts": {
+        "title": "Top posts",
+        "empty": "No published posts yet",
+        "since": "Daily views recorded since {date}",
+        "noTrendYet": "Daily view tracking just started — no data yet"
+      },
+      "activity": {
+        "title": "Recent activity",
+        "empty": "Nothing yet",
+        "photoBatch": "Uploaded {count} photos"
+      },
+      "photoArchive": {
+        "title": "Photo archive",
+        "cameras": "Body",
+        "focal": "Equiv. focal mm",
+        "years": "Year shot",
+        "empty": "No photos with EXIF yet"
       }
     },
     "login": {

@@ -40,6 +40,7 @@ import {
   faCalendar,
   faEye,
   faEyeSlash,
+  faGear,
 } from '@fortawesome/free-solid-svg-icons'
 import { faGithub } from '@fortawesome/free-brands-svg-icons'
 
@@ -82,6 +83,7 @@ export type IconName =
   | 'calendar'
   | 'eye'
   | 'eye-slash'
+  | 'gear'
   | 'github'
 
 //* 圖標映射表
@@ -123,6 +125,7 @@ const iconMap: Record<IconName, IconProp> = {
   calendar: faCalendar,
   eye: faEye,
   'eye-slash': faEyeSlash,
+  gear: faGear,
   github: faGithub,
 }
 

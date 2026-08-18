@@ -4,7 +4,7 @@
 .photos_page {
   @include entity.entity-page;
 
-  $inspectorWidth: 360px;
+  $inspectorWidth: 420px;
 
   .container {
     // 印象表要橫向空間放縮圖，套用文章/分類那套 1100px 的內容寬度太窄。
@@ -15,7 +15,7 @@
     // grid 一樣不管有沒有選片都固定留這塊，選片/取消選片時版面才不會
     // 跳動。
     @include respond-to('desktop') {
-      padding-right: calc(#{$inspectorWidth} + var(--space-1));
+      padding-right: $inspectorWidth;
     }
   }
 

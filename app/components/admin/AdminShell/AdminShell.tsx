@@ -1,11 +1,13 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { usePathname, useRouter, Link } from '@/i18n/navigation'
 import { createClient } from '@/app/lib/supabase/client'
 import Icon, { type IconName } from '@/app/components/Icon/Icon'
 import ThemeToggle from '@/app/components/ThemeToggle/ThemeToggle'
+import LanguageSwitch from '@/app/components/LanguageSwitch/LanguageSwitch'
+import Popover from '@/app/components/admin/Popover/Popover'
 import { useConfirm } from '@/app/components/admin/ConfirmDialog/ConfirmDialog'
 import { isFullscreenAdminRoute } from './fullscreenRoutes'
 import {
@@ -14,14 +16,54 @@ import {
 } from './AdminPageHeaderContext'
 import style from './AdminShell.module.scss'
 
-const NAV_ITEMS: { href: string; labelKey: string; icon: IconName }[] = [
-  { href: '/admin', labelKey: 'dashboard', icon: 'gauge-high' },
-  { href: '/admin/posts', labelKey: 'posts', icon: 'newspaper' },
-  { href: '/admin/notes', labelKey: 'notes', icon: 'comment' },
-  { href: '/admin/photos', labelKey: 'photos', icon: 'camera' },
-  { href: '/admin/categories', labelKey: 'categories', icon: 'folder' },
-  { href: '/admin/tags', labelKey: 'tags', icon: 'tag' },
-  { href: '/admin/series', labelKey: 'series', icon: 'layer-group' },
+/**
+ * 導覽分組：內容本身（文章／短文／攝影）和整理內容的工具（分類／系列／
+ * 標籤）性質不同，分開兩組。工具組再用 scopeKey 標出服務範圍——分類、
+ * 系列只服務文章，標籤是跨內容型別的，光看名字看不出來。
+ */
+const NAV_GROUPS: {
+  labelKey?: string
+  items: {
+    href: string
+    labelKey: string
+    icon: IconName
+    scopeKey?: string
+  }[]
+}[] = [
+  {
+    items: [{ href: '/admin', labelKey: 'dashboard', icon: 'gauge-high' }],
+  },
+  {
+    labelKey: 'groups.content',
+    items: [
+      { href: '/admin/posts', labelKey: 'posts', icon: 'newspaper' },
+      { href: '/admin/notes', labelKey: 'notes', icon: 'comment' },
+      { href: '/admin/photos', labelKey: 'photos', icon: 'camera' },
+    ],
+  },
+  {
+    labelKey: 'groups.taxonomy',
+    items: [
+      {
+        href: '/admin/categories',
+        labelKey: 'categories',
+        icon: 'folder',
+        scopeKey: 'scopes.posts',
+      },
+      {
+        href: '/admin/series',
+        labelKey: 'series',
+        icon: 'layer-group',
+        scopeKey: 'scopes.posts',
+      },
+      {
+        href: '/admin/tags',
+        labelKey: 'tags',
+        icon: 'tag',
+        scopeKey: 'scopes.all',
+      },
+    ],
+  },
 ]
 
 const DESKTOP_BREAKPOINT = 1025
@@ -65,6 +107,8 @@ export default function AdminShell({
   const confirm = useConfirm()
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null)
   const [drawerOpen, setDrawerOpen] = useState(false)
+  const [settingsOpen, setSettingsOpen] = useState(false)
+  const settingsAnchorRef = useRef<HTMLButtonElement>(null)
 
   useEffect(() => {
     const supabase = createClient()
@@ -89,6 +133,7 @@ export default function AdminShell({
 
   useEffect(() => {
     setDrawerOpen(false)
+    setSettingsOpen(false)
   }, [pathname])
 
   useEffect(() => {
@@ -144,22 +189,34 @@ export default function AdminShell({
           </div>
 
           <nav className={style.nav} aria-label={t('navAriaLabel')}>
-            {NAV_ITEMS.map(({ href, labelKey, icon }) => {
-              const active =
-                href === '/admin'
-                  ? pathname === '/admin'
-                  : pathname.startsWith(href)
-              return (
-                <Link
-                  key={href}
-                  href={href}
-                  className={`${style.navLink} ${active ? style.active : ''}`}
-                >
-                  <Icon name={icon} size="sm" />
-                  <span>{tNav(labelKey)}</span>
-                </Link>
-              )
-            })}
+            {NAV_GROUPS.map((group, groupIndex) => (
+              <div key={group.labelKey ?? groupIndex} className={style.navGroup}>
+                {group.labelKey && (
+                  <span className={style.navGroupLabel}>
+                    {tNav(group.labelKey)}
+                  </span>
+                )}
+                {group.items.map(({ href, labelKey, icon, scopeKey }) => {
+                  const active =
+                    href === '/admin'
+                      ? pathname === '/admin'
+                      : pathname.startsWith(href)
+                  return (
+                    <Link
+                      key={href}
+                      href={href}
+                      className={`${style.navLink} ${active ? style.active : ''}`}
+                    >
+                      <Icon name={icon} size="sm" />
+                      <span>{tNav(labelKey)}</span>
+                      {scopeKey && (
+                        <span className={style.navScope}>{tNav(scopeKey)}</span>
+                      )}
+                    </Link>
+                  )
+                })}
+              </div>
+            ))}
           </nav>
 
           <div className={style.userArea}>
@@ -194,8 +251,39 @@ export default function AdminShell({
                 </span>
               </div>
 
-              <ThemeToggle />
+              {/* 主題／語言收在一顆齒輪後面：這兩個都是「設定一次就不太
+                  會再動」的偏好，不值得長期佔著這排的寬度——原本
+                  ThemeToggle 帶著文字標籤攤在這裡，把名字和 email 擠到
+                  只剩兩三個字。 */}
+              <button
+                ref={settingsAnchorRef}
+                type="button"
+                className={style.settingsButton}
+                onClick={() => setSettingsOpen((v) => !v)}
+                aria-label={t('preferences')}
+                aria-expanded={settingsOpen}
+                title={t('preferences')}
+              >
+                <Icon name="gear" size="sm" />
+              </button>
             </div>
+
+            <Popover
+              isOpen={settingsOpen}
+              onClose={() => setSettingsOpen(false)}
+              anchorRef={settingsAnchorRef}
+              title={t('preferences')}
+              width={248}
+            >
+              <div className={style.prefRow}>
+                <span className={style.prefLabel}>{t('themeLabel')}</span>
+                <ThemeToggle />
+              </div>
+              <div className={style.prefRow}>
+                <span className={style.prefLabel}>{t('languageLabel')}</span>
+                <LanguageSwitch />
+              </div>
+            </Popover>
 
             <button
               type="button"

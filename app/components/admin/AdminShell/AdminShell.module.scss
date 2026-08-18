@@ -154,8 +154,23 @@ $sidebarWidth: 232px;
 .nav {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: var(--space-4);
   flex: 1;
+}
+
+.navGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.navGroupLabel {
+  padding: 0 var(--space-3) var(--space-1);
+  font-size: var(--text-3xs);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
 }
 
 .navLink {
@@ -195,19 +210,16 @@ $sidebarWidth: 232px;
     svg {
       color: var(--accent);
     }
-
-    &::after {
-      content: '';
-      position: absolute;
-      right: 12px;
-      top: 50%;
-      transform: translateY(-50%);
-      width: 5px;
-      height: 5px;
-      border-radius: 50%;
-      background-color: var(--accent);
-    }
   }
+}
+
+// 服務範圍（「文章」／「全站」），只出現在整理工具那組。
+.navScope {
+  margin-left: auto;
+  font-size: var(--text-3xs);
+  font-weight: 400;
+  color: var(--text-muted);
+  opacity: 0.75;
 }
 
 .userArea {
@@ -279,6 +291,51 @@ $sidebarWidth: 232px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.settingsButton {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 30px;
+  height: 30px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition:
+    background-color var(--duration-fast) var(--ease),
+    color var(--duration-fast) var(--ease),
+    border-color var(--duration-fast) var(--ease);
+  @include focus-ring;
+
+  &:hover,
+  &[aria-expanded='true'] {
+    background: var(--surface-3);
+    border-color: var(--border);
+    color: var(--text);
+  }
+}
+
+/* ---------- 偏好設定 Popover ---------- */
+.prefRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-1) 0;
+
+  & + & {
+    border-top: 1px solid var(--border);
+    margin-top: var(--space-1);
+    padding-top: var(--space-2);
+  }
+}
+
+.prefLabel {
+  font-size: var(--text-2xs);
+  color: var(--text-secondary);
 }
 
 .signOut {

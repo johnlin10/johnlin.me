@@ -15,7 +15,15 @@
       "photos": "攝影",
       "categories": "分類",
       "tags": "標籤",
-      "series": "系列"
+      "series": "系列",
+      "groups": {
+        "content": "內容",
+        "taxonomy": "整理"
+      },
+      "scopes": {
+        "posts": "文章",
+        "all": "全站"
+      }
     },
     "shell": {
       "backToHome": "返回首頁",
@@ -27,6 +35,9 @@
       "userAvatarAlt": "用戶頭像",
       "defaultUserName": "管理員",
       "signOut": "登出",
+      "preferences": "偏好設定",
+      "themeLabel": "主題",
+      "languageLabel": "語言",
       "signOutConfirm": {
         "title": "登出後台",
         "message": "確定要登出嗎？"
@@ -45,14 +56,41 @@
     "dashboard": {
       "title": "後台總覽",
       "subtitle": "內容管理系統",
-      "quickActions": "快速動作",
       "newPost": "新增文章",
-      "newNote": "發表短文",
+      "loading": "載入中",
       "stats": {
-        "totalPosts": "文章總數",
         "published": "已發布",
-        "draft": "草稿",
-        "totalNotes": "短文總數"
+        "publishedHint": "文章＋短文＋照片",
+        "chars": "累積字數",
+        "charsHint": "已發布的中文內容",
+        "photos": "照片",
+        "photosHint": "橫跨 {years} 年",
+        "views": "總瀏覽",
+        "viewsHint": "近 7 天 {count}"
+      },
+      "gaps": {
+        "missingEnglish": "{count} 篇文章缺英文版",
+        "staleDrafts": "{count} 篇草稿超過一週沒動",
+        "photosWithoutCaption": "{count} 張照片沒有說明",
+        "photosWithoutLocation": "{count} 張照片沒有地點"
+      },
+      "topPosts": {
+        "title": "熱門文章",
+        "empty": "還沒有已發布的文章",
+        "since": "每日瀏覽自 {date} 起記錄",
+        "noTrendYet": "每日瀏覽剛開始記錄，還沒有資料"
+      },
+      "activity": {
+        "title": "最近動態",
+        "empty": "還沒有動態",
+        "photoBatch": "上傳了 {count} 張照片"
+      },
+      "photoArchive": {
+        "title": "攝影檔案",
+        "cameras": "機身",
+        "focal": "等效焦段 mm",
+        "years": "拍攝年份",
+        "empty": "還沒有帶 EXIF 的照片"
       }
     },
     "login": {

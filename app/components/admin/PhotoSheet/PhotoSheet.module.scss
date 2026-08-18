@@ -275,7 +275,7 @@
 .inspectorBody {
   @include flexbox(column, flex-start, stretch);
   gap: var(--space-4);
-  padding: var(--space-4);
+  padding: var(--space-6);
   flex: 1;
   min-height: 0;
   overflow-y: auto;

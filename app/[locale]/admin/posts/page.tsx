@@ -11,6 +11,7 @@ import {
 import { getCategories } from '@/app/lib/supabase/categories'
 import { getTags } from '@/app/lib/supabase/tags'
 import { createClient } from '@/app/lib/supabase/client'
+import { useSearchParamState } from '@/app/lib/hooks/useSearchParamState'
 import type { Post, Category, Tag, SupportedLocale } from '@/app/types/blog'
 import Button from '@/app/components/admin/Button/Button'
 import PageHeader from '@/app/components/admin/PageHeader/PageHeader'
@@ -41,9 +42,13 @@ export default function PostsPage() {
   const [tags, setTags] = useState<Tag[]>([])
   const [loading, setLoading] = useState(true)
   const [creating, setCreating] = useState(false)
-  const [statusFilter, setStatusFilter] = useState<
-    'all' | 'draft' | 'published'
-  >('all')
+  // 分頁籤狀態放在網址上，重整／分享連結都保得住。網址是使用者打得出來
+  // 的輸入，只認識這三個值，其餘（?status=lol）一律當成 all。
+  const [statusParam, setStatusParam] = useSearchParamState('status')
+  const statusFilter: 'all' | 'draft' | 'published' =
+    statusParam === 'draft' || statusParam === 'published' ? statusParam : 'all'
+  const setStatusFilter = (next: 'all' | 'draft' | 'published') =>
+    setStatusParam(next === 'all' ? null : next)
   const supabase = useMemo(() => createClient(), [])
 
   // 「分類」「標籤」欄位的就地編輯：同一時間只會開一個 Popover，
