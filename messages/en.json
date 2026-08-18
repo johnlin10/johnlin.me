@@ -880,5 +880,13 @@
     "system": "System",
     "system_action_label": "Follow system theme",
     "current_theme": "Current Theme:"
+  },
+  "NotFoundPage": {
+    "caption": "The frame that never developed",
+    "title": "This page does not exist",
+    "lead": "The URL may have changed, been removed, or contain a typo.",
+    "home": "Back home",
+    "blog": "Read the blog",
+    "gallery": "See the photos"
   }
 }

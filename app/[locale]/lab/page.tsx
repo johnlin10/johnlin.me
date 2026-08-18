@@ -37,6 +37,7 @@ export async function generateMetadata({
     title: t('title'),
     description: t('description'),
     url: '/lab',
+    noIndex: true,
   })
 }
 

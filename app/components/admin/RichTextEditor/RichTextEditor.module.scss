@@ -5,7 +5,7 @@
   @include flexbox(column, flex-start, stretch);
   background: var(--surface);
 
-  //* boxed：原本帶邊框、固定高度的樣式（後台側欄式編輯器、/admin/test-editor 沿用）
+  //* boxed：原本帶邊框、固定高度的樣式（後台側欄式編輯器沿用）
   &.boxed {
     height: calc(100vh - 72px);
     border-top: 1px solid var(--border);

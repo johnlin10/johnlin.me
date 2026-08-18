@@ -68,7 +68,8 @@ export async function metadata(options: MetadataOptions): Promise<Metadata> {
     title: rawTitle,
     description,
     keywords = [],
-    image = '/assets/image/metadata-backgrounds/global.webp',
+    // 預設圖由 scripts/generate-og.mjs 產生，尺寸跟下面兩個預設值綁在一起。
+    image = '/assets/og/default.png',
     imageWidth = 1920,
     imageHeight = 1080,
     url,

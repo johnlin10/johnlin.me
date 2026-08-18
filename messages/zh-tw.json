@@ -881,5 +881,13 @@
     "system": "系統",
     "system_action_label": "跟隨系統主題",
     "current_theme": "目前主題："
+  },
+  "NotFoundPage": {
+    "caption": "沒有沖出來的那一張",
+    "title": "這個頁面不存在",
+    "lead": "你要找的網址可能已經改過、刪掉了，或是打錯字。",
+    "home": "回首頁",
+    "blog": "看文章",
+    "gallery": "看攝影"
   }
 }

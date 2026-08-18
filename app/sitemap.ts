@@ -56,6 +56,8 @@ function localizedEntry(
   ]
 }
 
+// /lab 底下是設計系統與漸層曲線這類自用工具，頁面照樣公開可連，
+// 但不進 sitemap、metadata 也標 noIndex，不佔搜尋結果版面。
 const STATIC_PAGES: Array<{
   path: string
   changeFrequency: ChangeFreq
@@ -63,8 +65,6 @@ const STATIC_PAGES: Array<{
 }> = [
   { path: '/about', changeFrequency: 'monthly', priority: 0.6 },
   { path: '/gallery', changeFrequency: 'weekly', priority: 0.6 },
-  { path: '/lab', changeFrequency: 'monthly', priority: 0.4 },
-  { path: '/lab/design', changeFrequency: 'monthly', priority: 0.3 },
 ]
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {

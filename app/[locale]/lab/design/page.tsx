@@ -117,6 +117,7 @@ export async function generateMetadata({
         ? '這個網站所用的顏色、間距、字級、圓角、陰影與元件。'
         : 'The colors, spacing, type scale, radius, shadow, and components used on this site.',
     url: '/lab/design',
+    noIndex: true,
   })
 }
 

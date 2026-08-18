@@ -1,0 +1,119 @@
+@use '@/app/styles/design' as *;
+
+// 一張沒沖洗出來的相紙 + 說明文字。行動裝置疊起來，桌機才並排。
+.stage {
+  @include flexbox(column, center, center);
+  gap: var(--space-10);
+  padding: var(--space-16) var(--page-gutter);
+
+  @include respond-to('desktop') {
+    flex-direction: row;
+    gap: var(--space-16);
+    min-height: 72vh;
+    padding: var(--space-20) var(--page-gutter);
+  }
+}
+
+// 相紙：白邊、下緣留長，跟首頁 PhotographyGlimpse 的沖印框同一個語彙。
+.print {
+  flex-shrink: 0;
+  padding: var(--space-3) var(--space-3) var(--space-5);
+  background: #fbf9f4;
+  border: 1px solid rgba(20, 17, 13, 0.1);
+  border-radius: 2px;
+  box-shadow: 0 24px 48px -20px rgba(20, 17, 13, 0.6);
+  transform: rotate(-2deg);
+
+  @include respond-to('desktop') {
+    transform: rotate(-3deg);
+  }
+}
+
+// 空白畫面：曝光失敗的那一格。
+.blank {
+  @include flexbox(row, center, center);
+  width: 260px;
+  height: 320px;
+  background: #14110d;
+  box-shadow: inset 0 0 0 1px rgba(20, 17, 13, 0.06);
+
+  @include respond-to('phone') {
+    width: 200px;
+    height: 250px;
+  }
+}
+
+.code {
+  font-family: var(--font-serif);
+  font-size: 76px;
+  letter-spacing: 0.08em;
+  color: rgba(242, 236, 225, 0.22);
+
+  @include respond-to('phone') {
+    font-size: 58px;
+  }
+}
+
+// 相紙下緣的手寫註記，對齊攝影牆的圖說語氣。
+.caption {
+  margin-top: var(--space-3);
+  font-family: var(--font-serif);
+  font-size: var(--text-sm);
+  text-align: center;
+  color: rgba(20, 17, 13, 0.55);
+}
+
+.body {
+  max-width: 34ch;
+}
+
+.title {
+  font-family: var(--font-serif);
+  font-size: var(--text-display-sm);
+  color: var(--text);
+}
+
+.lead {
+  margin-top: var(--space-4);
+  font-size: var(--text-md);
+  line-height: 1.8;
+  color: var(--text-secondary);
+}
+
+.links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-top: var(--space-8);
+}
+
+.link,
+.primary {
+  @include flexbox(row, center, center);
+  padding: var(--space-2) var(--space-4);
+  font-size: var(--text-sm);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  @include transition(all var(--duration-fast) var(--ease));
+}
+
+.link {
+  background-color: var(--surface-2);
+  color: var(--text);
+
+  &:hover {
+    background-color: var(--surface-3);
+    border-color: var(--border-strong);
+  }
+}
+
+.primary {
+  background-color: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-contrast);
+
+  &:hover {
+    background-color: var(--accent-hover);
+    border-color: var(--accent-hover);
+  }
+}
