@@ -15,11 +15,11 @@ import {
   useTransform,
   useMotionValueEvent,
 } from 'motion/react'
-import { COL_W, packWall } from '@/app/lib/photos/wallLayout'
+import { COL_W, packWall, type WallCell } from '@/app/lib/photos/wallLayout'
 import {
   fitTransform,
-  fitWallTransform,
   type Size,
+  type Transform,
 } from '@/app/lib/photos/geometry'
 import { yearMarkerOpacity } from '@/app/lib/photos/lod'
 import type { Photo } from '@/app/types/photo'
@@ -45,6 +45,23 @@ interface GalleryWallProps {
 const INITIAL_PHOTO_WIDTH = 240
 const COACH_STORAGE_KEY = 'gallery:coach-seen'
 const COACH_AUTO_HIDE_MS = 6000
+const VIRTUAL_OVERSCAN_PX = 900
+/** 低於這個 scale 就收起照片下方的資訊卡（此時卡片字高不到 7px）。 */
+const CARD_LOD_SCALE = 0.5
+/** 放大後隔多久才把 sizes 升上去（縮小一律立即生效，見 sizesPx）。 */
+const SIZES_UPGRADE_DELAY_MS = 140
+
+/**
+ * 把 sizes 吸附到衍生階梯上的下一階。目的是讓這個值只有幾種可能——縮放過程中
+ * 就不會每幀換一次 prop、把所有掛載中的 WallPhoto 都重繪一遍。
+ *
+ * 吸附「到階梯」而不是到 2 的冪次：後者在中段會多跳一階（要 671px 卻去拿
+ * w1280 而不是 w960），白花流量。
+ */
+function snapSizes(scale: number, ladder: number[]): number {
+  const px = COL_W * scale
+  return ladder.find((w) => w >= px) ?? ladder.at(-1) ?? Math.round(px)
+}
 
 /** 讀 CSS 變數並轉成 px 數字，SSR／變數缺失時退回 fallback。 */
 function cssPx(varName: string, fallback: number): number {
@@ -64,6 +81,41 @@ function headerClearance(): number {
   return cssPx('--header-height', 72) + cssPx('--space-6', 24)
 }
 
+function visibleCellsForViewport(
+  cells: WallCell[],
+  viewport: Size,
+  transform: Transform,
+  focusedSlug: string | null
+): WallCell[] {
+  if (viewport.width === 0 || viewport.height === 0 || transform.scale <= 0) {
+    return cells
+  }
+
+  const { x, y, scale } = transform
+  const left = (-x - VIRTUAL_OVERSCAN_PX) / scale
+  const right = (viewport.width - x + VIRTUAL_OVERSCAN_PX) / scale
+  const top = (-y - VIRTUAL_OVERSCAN_PX) / scale
+  const bottom = (viewport.height - y + VIRTUAL_OVERSCAN_PX) / scale
+
+  return cells.filter((cell) => {
+    if (cell.photo.slug === focusedSlug) return true
+    return (
+      cell.x <= right &&
+      cell.x + cell.w >= left &&
+      cell.y <= bottom &&
+      cell.cardY + cell.cardH >= top
+    )
+  })
+}
+
+function sameCells(a: WallCell[], b: WallCell[]): boolean {
+  if (a.length !== b.length) return false
+  for (let i = 0; i < a.length; i++) {
+    if (a[i].photo.id !== b[i].photo.id) return false
+  }
+  return true
+}
+
 export default function GalleryWall({
   photos,
   locale,
@@ -72,6 +124,15 @@ export default function GalleryWall({
 }: GalleryWallProps) {
   const reduceMotion = !!useReducedMotion()
   const layout = useMemo(() => packWall(photos), [photos])
+  // 衍生階梯直接從資料取。photoDerivatives.ts 裡雖然有 DERIVATIVE_LADDER，
+  // 但那支 import 了 sharp，不能進 client bundle；抄一份又會漂移。
+  const ladder = useMemo(
+    () =>
+      [...new Set(photos.flatMap((p) => p.derivatives.map((d) => d.w)))].sort(
+        (a, b) => a - b,
+      ),
+    [photos],
+  )
   const wall: Size = useMemo(
     () => ({ width: layout.width, height: layout.height }),
     [layout.width, layout.height],
@@ -79,6 +140,7 @@ export default function GalleryWall({
 
   const viewportRef = useRef<HTMLDivElement | null>(null)
   const [viewport, setViewport] = useState<Size>({ width: 0, height: 0 })
+  const [isInteracting, setIsInteracting] = useState(false)
 
   // 首訪 coach mark：互動或計時到就淡出並記住
   const [showCoach, setShowCoach] = useState(false)
@@ -93,10 +155,13 @@ export default function GalleryWall({
     }
   }, [])
 
+  // 最小縮放＝牆的高度剛好塞滿視窗，橫向靠平移瀏覽。
+  // 原本是整面牆連寬度一起塞進來，96 張時每張只剩幾十 px，看不出是什麼照片，
+  // 那個級距只是讓瀏覽器多光柵化一次而已。
   const minScale = useMemo(() => {
-    if (viewport.width === 0) return 0.1
-    return fitWallTransform(wall, viewport).scale
-  }, [wall, viewport])
+    if (viewport.height === 0) return 0.1
+    return viewport.height / wall.height
+  }, [wall.height, viewport.height])
 
   const maxScale = useMemo(() => {
     if (viewport.width === 0) return 4
@@ -116,8 +181,12 @@ export default function GalleryWall({
     viewport,
     minScale,
     maxScale,
-    onGestureStart: dismissCoach,
+    onGestureStart: () => {
+      dismissCoach()
+      setIsInteracting(true)
+    },
     onGestureEnd: (kind) => {
+      setIsInteracting(false)
       if (kind === 'zoom') fm.onZoomSettled()
     },
     // 雙擊：縮放切換。縮著時放大到約一張照片寬（不到磁吸門檻、不強制聚焦），
@@ -129,7 +198,7 @@ export default function GalleryWall({
       if (s < zoomedTarget * 0.9) {
         pz.zoomAtPoint(zoomedTarget, point, true)
       } else {
-        pz.animateTo(fitWallTransform(wall, viewport, 0.04, headerClearance()))
+        pz.zoomAtPoint(minScale, point, true)
       }
     },
     // focus 中左右滑換照片（只有照片未放大、水平不可平移時才觸發）
@@ -137,7 +206,15 @@ export default function GalleryWall({
       if (fm.focusedSlug) fm.navigate(dir)
     },
   })
-  const { setTransform, animateTo, zoomBy, bindViewport, panByScreen } = pz
+  const {
+    setTransform,
+    animateTo,
+    zoomBy,
+    zoomAtPoint,
+    bindViewport,
+    panByScreen,
+    getTransform,
+  } = pz
 
   const fm = useFocusMachine({
     pz,
@@ -226,35 +303,131 @@ export default function GalleryWall({
     }
   }, [dismissCoach])
 
-  // 沉降後的 scale（用於 LOD 與 sizes，避免每幀 thrash）
-  const [settledScale, setSettledScale] = useState(minScale)
-  const settleTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  // 照片在螢幕上的實際寬（CSS px），DPR 由瀏覽器自己乘上去挑 srcSet 階。
+  //
+  // 降階立刻生效、升階才防抖，這個不對稱是有原因的：退出 focus 時牆會從放大
+  // 狀態彈回去，虛擬化在這段動畫裡就把照片掛回來了。若 sizes 還停在放大時的
+  // 高標，這些新掛的照片會去載 w960（實測一次進出多抓約 1MB），而牆上只需要
+  // w320。降階不會有代價——瀏覽器不會為變小的 sizes 重抓已載好的圖，只有新
+  // 掛載的照片會用到這個值，那正是我們要修的對象。升階則維持防抖，免得放大
+  // 過程中每跨一階就觸發一輪重抓。
+  const [sizesPx, setSizesPx] = useState(() => snapSizes(minScale, ladder))
+  const sizesUpTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   useMotionValueEvent(pz.scale, 'change', (s) => {
-    if (settleTimer.current) clearTimeout(settleTimer.current)
-    settleTimer.current = setTimeout(() => setSettledScale(s), 140)
+    const next = snapSizes(s, ladder)
+    if (sizesUpTimer.current) clearTimeout(sizesUpTimer.current)
+    setSizesPx((cur) => (next < cur ? next : cur))
+    sizesUpTimer.current = setTimeout(() => setSizesPx(next), SIZES_UPGRADE_DELAY_MS)
   })
+  useEffect(
+    () => () => {
+      if (sizesUpTimer.current) clearTimeout(sizesUpTimer.current)
+    },
+    []
+  )
 
-  // sizes 只升不降（瀏覽器不會為變小的 sizes 重抓小圖）
-  const sizesPxRef = useRef(0)
-  const sizesPx = Math.max(sizesPxRef.current, Math.round(COL_W * settledScale))
-  sizesPxRef.current = sizesPx
+  // 遠景 LOD：照片縮到這個級別以下時，資訊卡的字已經小到讀不出來，
+  // 只剩下昂貴的文字光柵化。收起來換成年份大字當導航錨點。
+  const [farLod, setFarLod] = useState(false)
+  useMotionValueEvent(pz.scale, 'change', (s) => setFarLod(s < CARD_LOD_SCALE))
+
+  const [visibleCells, setVisibleCells] = useState<WallCell[]>(layout.cells)
+  const visibleRafRef = useRef<number | null>(null)
+
+  const commitVisibleCells = (next: WallCell[]) => {
+    setVisibleCells((current) => (sameCells(current, next) ? current : next))
+  }
+
+  const updateVisibleCells = () => {
+    const next = visibleCellsForViewport(
+      layout.cells,
+      viewport,
+      getTransform(),
+      fm.focusedSlug
+    )
+    commitVisibleCells(next)
+  }
+
+  const scheduleVisibleCellsUpdate = () => {
+    if (visibleRafRef.current !== null) return
+    visibleRafRef.current = requestAnimationFrame(() => {
+      visibleRafRef.current = null
+      updateVisibleCells()
+    })
+  }
+
+  useEffect(() => {
+    if (visibleRafRef.current !== null) {
+      cancelAnimationFrame(visibleRafRef.current)
+    }
+    visibleRafRef.current = requestAnimationFrame(() => {
+      visibleRafRef.current = null
+      const next = visibleCellsForViewport(
+        layout.cells,
+        viewport,
+        getTransform(),
+        fm.focusedSlug
+      )
+      commitVisibleCells(next)
+    })
+  }, [layout.cells, viewport, getTransform, fm.focusedSlug])
+
+  useEffect(
+    () => () => {
+      if (visibleRafRef.current !== null) {
+        cancelAnimationFrame(visibleRafRef.current)
+      }
+    },
+    []
+  )
+
+  useMotionValueEvent(pz.x, 'change', scheduleVisibleCellsUpdate)
+  useMotionValueEvent(pz.y, 'change', scheduleVisibleCellsUpdate)
+  useMotionValueEvent(pz.scale, 'change', scheduleVisibleCellsUpdate)
 
   const yearOpacity = useTransform(pz.scale, (s) => yearMarkerOpacity(s))
 
   // 控制列淡出的基準：聚焦照片（含資訊卡）fit 進視窗所需的 scale
   const focusFitScale = focusedCell ? fm.fitScaleOf(focusedCell) : 1
 
+  // 縮到最小倍率（牆高滿版）。錨在視窗中心而不是把整面牆置中——橫向已經看不完，
+  // 縮小的同時還把人丟到牆的正中間只會失去方位感。
   const handleFitWall = useCallback(() => {
     if (viewport.width === 0) return
-    animateTo(fitWallTransform(wall, viewport, 0.04, headerClearance()))
-  }, [animateTo, wall, viewport])
+    zoomAtPoint(minScale, { x: viewport.width / 2, y: viewport.height / 2 }, true)
+  }, [zoomAtPoint, minScale, viewport])
+
+  // 焦點救援：虛擬化會把「目前有 DOM 焦點的那張照片」連同它的 <a> 一起卸載。
+  // 聚焦時用方向鍵翻個兩三張，最初點進來的那張就滑出可視範圍被移除，焦點掉回
+  // <body>，之後 keydown 再也到不了這個 viewport——方向鍵就此失效（點一下畫面上
+  // 的上／下一張按鈕又會好，因為焦點回到 viewport 裡了）。每次重掛後撿回來。
+  const hadFocus = useRef(false)
+  useEffect(() => {
+    const node = viewportRef.current
+    if (!node || !hadFocus.current) return
+    if (document.activeElement === document.body) {
+      node.focus({ preventScroll: true })
+    }
+  }, [visibleCells, fm.focusedSlug])
+
+  const handleBlurCapture = useCallback((e: React.FocusEvent) => {
+    // relatedTarget 是 null 多半代表「元素被移除」，那正是要救援的情況，別清旗標
+    const next = e.relatedTarget as Node | null
+    if (next && !viewportRef.current?.contains(next)) hadFocus.current = false
+  }, [])
 
   // Tab 到某張照片時把鏡頭帶過去，否則焦點會落在螢幕外（違反 WCAG 2.4.11）
   const handleFocusCapture = useCallback(
     (e: React.FocusEvent) => {
+      hadFocus.current = true
       if (fm.focusedSlug) return
-      const id = (e.target as HTMLElement).dataset?.photoId
+      const el = e.target as HTMLElement
+      const id = el.dataset?.photoId
       if (!id) return
+      // 只有鍵盤 Tab 進來才帶鏡頭。滑鼠點擊也會觸發 focus，那時鏡頭馬上要交給
+      // activate／focusOn 接手；這裡先動一下的話，activate 記下的 preFocus 就是
+      // 動到一半的位置，退出 focus 時回不到原本的牆面。
+      if (!el.matches?.(':focus-visible')) return
       const cell = layout.cells.find((c) => c.photo.id === id)
       if (!cell) return
       const s = pz.getTransform().scale
@@ -324,7 +497,9 @@ export default function GalleryWall({
   return (
     <div
       ref={setViewportNode}
-      className={styles.viewport}
+      className={`${styles.viewport} ${
+        isInteracting ? styles.isInteracting : ''
+      }`}
       tabIndex={0}
       role="application"
       aria-roledescription={locale === 'en' ? 'Photo wall' : '攝影牆'}
@@ -332,11 +507,13 @@ export default function GalleryWall({
       onPointerMove={pz.onPointerMove}
       onPointerUp={pz.onPointerUp}
       onPointerCancel={pz.onPointerCancel}
+      onClickCapture={pz.onClickCapture}
       onKeyDown={handleKeyDown}
       onFocusCapture={handleFocusCapture}
+      onBlurCapture={handleBlurCapture}
     >
       <motion.div
-        className={styles.wall}
+        className={`${styles.wall} ${farLod ? styles.isFarLod : ''}`}
         style={{
           width: wall.width,
           height: wall.height,
@@ -363,7 +540,7 @@ export default function GalleryWall({
           />
         ))}
 
-        {layout.cells.map((cell) => (
+        {visibleCells.map((cell) => (
           <WallPhoto
             key={cell.photo.id}
             cell={cell}

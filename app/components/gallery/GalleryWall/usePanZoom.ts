@@ -1,10 +1,11 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { animate, useMotionValue } from 'motion/react'
 import {
   anchorZoom,
   clampScale,
   clampTranslate,
   clampTranslateToRect,
+  fitScaleForRect,
   type Rect,
   type Size,
   type Transform,
@@ -17,7 +18,7 @@ interface PanZoomOptions {
   viewport: Size
   minScale: number
   maxScale: number
-  /** 手勢開始／結束回呼（供上層做 will-change 或 focus 判定） */
+  /** 手勢開始／結束回呼（供上層收起提示、凍住 hover、判定磁吸／退出 focus） */
   onGestureStart?: () => void
   onGestureEnd?: (kind: 'pan' | 'zoom') => void
   /** 雙擊（觸控／滑鼠）：回傳 viewport 內座標，供上層做縮放切換 */
@@ -41,6 +42,22 @@ const FLICK_MIN_SPEED = 0.05 // px/ms，低於此不觸發慣性（約 50px/s）
 const INERTIA_FRICTION = 0.94 // 每 ~16.7ms 的速度衰減係數
 const SWIPE_MIN_PX = 48 // focus 中左右滑換照片的最小水平位移
 const SWIPE_DOMINANCE = 1.3 // 水平位移要大於垂直位移的倍率，才算「左右滑」
+
+/**
+ * 鏡頭動畫（進出 focus、+/- 按鈕、雙擊、「看整面牆」、Tab 帶鏡頭）。
+ *
+ * 這裡刻意用 duration+bounce 而不是 stiffness/damping。後者是物理 spring，motion
+ * 依「該值自己的位移」挑停止門檻：x/y 位移幾百 px，restDelta 是 0.5px；scale 位移
+ * 不到 5，restDelta 只有 0.005。三條 spring 走同一條曲線，卻在不同時間點停，於是
+ * scale 會先一步硬切到目標值、x/y 還在爬。牆的 transform-origin 是 0 0，牆座標最
+ * 遠處接近 8000px，殘留 0.005 的 scale 就是一次三十幾 px 的瞬間位移——這就是「縮放
+ * 到定點後整個畫面晃一下」。
+ *
+ * duration+bounce 會走 motion 的 isResolvedFromDuration：三個值在同一幀一起落在目
+ * 標上，最後一步就是減速曲線本來的最後一步，不會只有一軸暴衝。bounce:0 等同臨界阻
+ * 尼，與原本 ζ≈1.1 的手感一致。
+ */
+const CAMERA_SPRING = { type: 'spring' as const, duration: 0.6, bounce: 0 }
 
 /**
  * 攝影牆的平移／縮放手勢引擎。只吐 x/y/scale 三個 motion value 與一組事件處理器，
@@ -93,6 +110,7 @@ export function usePanZoom({
   } | null>(null)
   const gesturing = useRef(false)
   const wheelSettleTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const wheelGestureActive = useRef(false)
 
   // 本次手勢是否曾有兩指（放開最後一指時，據此把手勢結束報成 'zoom' 讓磁吸生效）
   const pinchedGesture = useRef(false)
@@ -105,6 +123,8 @@ export function usePanZoom({
   const lastTap = useRef<{ x: number; y: number; t: number } | null>(null)
   // 本次手勢是否為觸控／觸控筆（慣性只給觸控，滑鼠拖曳維持直接、不飄）
   const touchGesture = useRef(false)
+  // 這次放手要不要吃掉隨後的 click（見 onClickCapture）
+  const suppressClick = useRef(false)
 
   const current = useCallback(
     (): Transform => ({ x: x.get(), y: y.get(), scale: scale.get() }),
@@ -140,13 +160,12 @@ export function usePanZoom({
       const zoomed = anchorZoom(current(), s, point)
       const clamped = clampT(zoomed)
       if (animated) {
-        const opts = { type: 'spring' as const, stiffness: 320, damping: 38 }
-        animate(x, clamped.x, opts)
-        animate(y, clamped.y, opts)
+        animate(x, clamped.x, CAMERA_SPRING)
+        animate(y, clamped.y, CAMERA_SPRING)
         // 動畫「真正結束」時才評估磁吸／退出（+/- 按鈕、鍵盤縮放共用此路徑），
         // 避免用固定 timeout 在 spring 未到位時就讀到中途值而誤判。
         animate(scale, s, {
-          ...opts,
+          ...CAMERA_SPRING,
           onComplete: () => callbacks.current.onGestureEnd?.('zoom'),
         })
       } else {
@@ -183,10 +202,9 @@ export function usePanZoom({
         scale.set(s)
         return
       }
-      const spring = { type: 'spring' as const, stiffness: 300, damping: 38 }
-      animate(x, clamped.x, spring)
-      animate(y, clamped.y, spring)
-      animate(scale, s, spring)
+      animate(x, clamped.x, CAMERA_SPRING)
+      animate(y, clamped.y, CAMERA_SPRING)
+      animate(scale, s, CAMERA_SPRING)
     },
     [x, y, scale, clampT]
   )
@@ -276,6 +294,7 @@ export function usePanZoom({
         /* 忽略：抓不到 capture 不影響平移邏輯 */
       }
       stopInertia() // 再次按下就接管，停掉還在滑的慣性
+      suppressClick.current = false
       pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY })
       beginGesture()
 
@@ -373,6 +392,7 @@ export function usePanZoom({
         const dur = start ? now - start.t : Infinity
         const isTap =
           !pinchedGesture.current && moved < TAP_MOVE_PX && dur < TAP_TIME_MS
+        suppressClick.current = !isTap
 
         if (isTap) {
           const prev = lastTap.current
@@ -396,9 +416,14 @@ export function usePanZoom({
           // 非點按的單指拖曳放手
           const cr = clampRect.current
           const t = current()
+          // 左右滑換照片只在「還停在 fit、沒放大看細節」時成立。放大之後的拖曳是
+          // 要看照片的其他部分，一放手就跳下一張是錯的——而且 fit 通常是被高度決
+          // 定的，照片放大到兩倍水平仍可能沒超過視窗寬，光看 horizPinned 判不出來。
+          const atFit =
+            !!cr && t.scale <= fitScaleForRect(cr, cfg.current.viewport) * 1.05
           // focus 中、照片縮放後寬度沒超過視窗（水平不能平移，拖了也只會彈回置中）
           const horizPinned =
-            !!cr && cr.w * t.scale <= cfg.current.viewport.width + 1
+            atFit && !!cr && cr.w * t.scale <= cfg.current.viewport.width + 1
           const dx = start ? e.clientX - start.x : 0
           const dy = start ? e.clientY - start.y : 0
           if (
@@ -426,6 +451,19 @@ export function usePanZoom({
     [current, viewportEl, startInertia]
   )
 
+  /**
+   * 拖曳放手後，瀏覽器仍會在 mousedown/mouseup 的共同祖先上派發一次 click。
+   * 聚焦放大時整個畫面就是那張照片的 <a>，於是「拖到照片的另一部分」會被當成
+   * 點擊，重新 activate 那張照片、把縮放拉回 fit。這裡在捕獲階段吃掉它。
+   * 旗標在每次 pointerdown 重設，所以不會誤殺下一次真正的點擊。
+   */
+  const onClickCapture = useCallback((e: React.MouseEvent) => {
+    if (!suppressClick.current) return
+    suppressClick.current = false
+    e.preventDefault()
+    e.stopPropagation()
+  }, [])
+
   //* ==================== Wheel（滑鼠滾輪／觸控板）====================
   // React 的 onWheel 無法可靠 preventDefault，用原生 listener + passive:false。
 
@@ -435,6 +473,10 @@ export function usePanZoom({
     const handleWheel = (e: WheelEvent) => {
       e.preventDefault()
       stopInertia()
+      if (!wheelGestureActive.current) {
+        wheelGestureActive.current = true
+        callbacks.current.onGestureStart?.()
+      }
       const rect = viewportEl.getBoundingClientRect()
       const point = { x: e.clientX - rect.left, y: e.clientY - rect.top }
 
@@ -450,6 +492,8 @@ export function usePanZoom({
       // 220ms 靜止＝縮放手勢結束，供上層評估磁吸／退出
       if (wheelSettleTimer.current) clearTimeout(wheelSettleTimer.current)
       wheelSettleTimer.current = setTimeout(() => {
+        wheelSettleTimer.current = null
+        wheelGestureActive.current = false
         callbacks.current.onGestureEnd?.('zoom')
       }, 220)
     }
@@ -460,6 +504,13 @@ export function usePanZoom({
 
   // 卸載時停掉還在跑的慣性 rAF
   useEffect(() => stopInertia, [stopInertia])
+
+  useEffect(
+    () => () => {
+      if (wheelSettleTimer.current) clearTimeout(wheelSettleTimer.current)
+    },
+    []
+  )
 
   // iOS Safari 的原生縮放手勢（userScalable:false 對它無效），整頁攔掉
   useEffect(() => {
@@ -475,21 +526,40 @@ export function usePanZoom({
     }
   }, [viewportEl])
 
-  return {
-    x,
-    y,
-    scale,
-    bindViewport: setViewportEl,
-    onPointerDown,
-    onPointerMove,
-    onPointerUp: endPointer,
-    onPointerCancel: endPointer,
-    zoomBy,
-    animateTo,
-    setTransform,
-    zoomAtPoint,
-    setClampRect,
-    panByScreen,
-    getTransform: current,
-  }
+  return useMemo(
+    () => ({
+      x,
+      y,
+      scale,
+      bindViewport: setViewportEl,
+      onPointerDown,
+      onPointerMove,
+      onPointerUp: endPointer,
+      onPointerCancel: endPointer,
+      onClickCapture,
+      zoomBy,
+      animateTo,
+      setTransform,
+      zoomAtPoint,
+      setClampRect,
+      panByScreen,
+      getTransform: current,
+    }),
+    [
+      x,
+      y,
+      scale,
+      onPointerDown,
+      onPointerMove,
+      endPointer,
+      onClickCapture,
+      zoomBy,
+      animateTo,
+      setTransform,
+      zoomAtPoint,
+      setClampRect,
+      panByScreen,
+      current,
+    ]
+  )
 }

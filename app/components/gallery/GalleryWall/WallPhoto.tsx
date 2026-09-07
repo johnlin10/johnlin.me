@@ -1,6 +1,15 @@
 'use client'
 
-import { useEffect, useRef, useState, type MouseEvent } from 'react'
+import {
+  memo,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type DragEvent,
+  type MouseEvent,
+} from 'react'
 import { Link } from '@/i18n/navigation'
 import type { WallCell } from '@/app/lib/photos/wallLayout'
 import type { SupportedLocale } from '@/app/types/blog'
@@ -24,7 +33,7 @@ interface WallPhotoProps {
  * 點擊進 focus（攔截 Link，保留 href 當 SEO／中鍵／no-JS 降級）。
  * 聚焦時疊載原檔並淡入 —— HDR 就是在這一刻亮起來。
  */
-export default function WallPhoto({
+function WallPhoto({
   cell,
   locale,
   isFocused,
@@ -33,8 +42,25 @@ export default function WallPhoto({
   onActivate,
 }: WallPhotoProps) {
   const { photo, x, y, w, photoH, cardY, cardH } = cell
-  const caption = photoCaption(photo, locale)
-  const date = formatTakenAt(photo.takenAtLocal, photo.takenAtPrecision, locale)
+  const caption = useMemo(() => photoCaption(photo, locale), [photo, locale])
+  const date = useMemo(
+    () => formatTakenAt(photo.takenAtLocal, photo.takenAtPrecision, locale),
+    [photo.takenAtLocal, photo.takenAtPrecision, locale]
+  )
+  const srcSet = useMemo(
+    () => photo.derivatives.map((d) => `${d.url} ${d.w}w`).join(', '),
+    [photo.derivatives]
+  )
+  const blurStyle = useMemo(
+    () =>
+      photo.blurDataUrl
+        ? {
+            backgroundImage: `url(${photo.blurDataUrl})`,
+            backgroundSize: 'cover',
+          }
+        : undefined,
+    [photo.blurDataUrl]
+  )
   const [originalLoaded, setOriginalLoaded] = useState(false)
 
   // 聚焦時量測詳細資訊卡的自然高度並回報（offsetHeight 是版面高度，不受牆縮放影響）
@@ -50,12 +76,16 @@ export default function WallPhoto({
     return () => ro.disconnect()
   }, [isFocused, onFocusCardResize])
 
-  const handleClick = (e: MouseEvent) => {
+  const handleClick = useCallback((e: MouseEvent) => {
     // 只攔左鍵無修飾鍵；中鍵／Cmd+click 仍走真正的 href 開新分頁
     if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return
     e.preventDefault()
     onActivate(cell)
-  }
+  }, [cell, onActivate])
+
+  const preventDrag = useCallback((e: DragEvent) => {
+    e.preventDefault()
+  }, [])
 
   return (
     <>
@@ -72,29 +102,22 @@ export default function WallPhoto({
         data-photo-id={photo.id}
         aria-label={photoAltText(photo, locale)}
         draggable={false}
-        onDragStart={(e) => e.preventDefault()}
+        onDragStart={preventDrag}
         onClick={handleClick}
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           className={styles.img}
-          srcSet={photo.derivatives.map((d) => `${d.url} ${d.w}w`).join(', ')}
+          srcSet={srcSet}
           sizes={`${tier}px`}
-          src={photo.derivatives.at(-1)?.url}
+          src={photo.derivatives[0]?.url}
           alt=""
           width={photo.width}
           height={photo.height}
           loading="lazy"
           decoding="async"
           draggable={false}
-          style={
-            photo.blurDataUrl
-              ? {
-                  backgroundImage: `url(${photo.blurDataUrl})`,
-                  backgroundSize: 'cover',
-                }
-              : undefined
-          }
+          style={blurStyle}
         />
         {isFocused && (
           // eslint-disable-next-line @next/next/no-img-element
@@ -132,3 +155,5 @@ export default function WallPhoto({
     </>
   )
 }
+
+export default memo(WallPhoto)

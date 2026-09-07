@@ -762,7 +762,7 @@
     "controls": {
       "zoomIn": "Zoom in",
       "zoomOut": "Zoom out",
-      "fitWall": "View whole wall",
+      "fitWall": "Zoom out fully",
       "prevPhoto": "Previous photo",
       "nextPhoto": "Next photo"
     },

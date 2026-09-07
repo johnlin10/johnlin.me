@@ -763,7 +763,7 @@
     "controls": {
       "zoomIn": "放大",
       "zoomOut": "縮小",
-      "fitWall": "看整面牆",
+      "fitWall": "縮到最小",
       "prevPhoto": "上一張",
       "nextPhoto": "下一張"
     },

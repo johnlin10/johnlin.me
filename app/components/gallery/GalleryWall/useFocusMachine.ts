@@ -119,19 +119,25 @@ export function useFocusMachine({
     [cellBySlug, pz, rectOf, viewport, reduceMotion]
   )
 
-  /** 退出 focus：動畫回進 focus 前的牆位置。pop=true 代表由 popstate 觸發，不再回退歷史。 */
+  /**
+   * 退出 focus：動畫回進 focus 前的牆位置。
+   * pop=true 代表由 popstate 觸發，不再回退歷史。
+   * keepView=true 給「縮小到門檻以下」那條路徑用——使用者已經自己縮到定位了，
+   * 這時再動畫回 preFocus 會把他拉回更大的倍率，跟他剛做的動作相反。
+   */
   const exit = useCallback(
-    (pop: boolean) => {
+    (pop: boolean, keepView = false) => {
       const cur = focusedRef.current
       if (!cur) return
       const cell = cellBySlug.get(cur)
-      let target = preFocus.current ?? fitWallTransform(wall, viewport)
-      // 磁吸進場時 preFocus 就停在照片附近（r≈SNAP_IN）；若直接動畫回那裡，退出後
-      // 又落在磁吸範圍內、被重新吸回照片，形成「明明縮小想退出卻被拉回去」的循環。
-      // 只要目標仍讓該照片接近 fit，就改成明確縮出到照片周邊（r<SNAP_OUT）。
-      if (cell && target.scale / fitScaleOf(cell) > SNAP_OUT) {
-        target = centerTransform(rectOf(cell), fitScaleOf(cell) * 0.5, viewport)
-      }
+      // preFocus 缺席（例如用瀏覽器「下一頁」直接前進到某張）時，退到這張照片
+      // 周邊的牆面，比把整面牆塞進視窗合理——至少還看得出剛才在哪裡。
+      const fallback = cell
+        ? centerTransform(rectOf(cell), fitScaleOf(cell) * 0.5, viewport)
+        : fitWallTransform(wall, viewport)
+      const target = keepView
+        ? pz.getTransform()
+        : preFocus.current ?? fallback
       pz.setClampRect(null)
       pz.animateTo(target, { instant: reduceMotion, clampToWall: true })
       preFocus.current = null
@@ -155,7 +161,16 @@ export function useFocusMachine({
   /** 點照片：記住當前牆位置、進 focus、推一筆歷史。 */
   const activate = useCallback(
     (cell: WallCell) => {
-      if (!preFocus.current) preFocus.current = pz.getTransform()
+      // 已經在 focus 中還點到旁邊露出一角的另一張＝換照片，不是再進一層：
+      // 沿用同一筆歷史（與方向鍵的 navigate 一致）。否則每點一張就多推一筆，
+      // 退出時的 history.back() 只會退到上一張、把這次退出吃掉，preFocus 也
+      // 在那一刻被清空，下一次退出就找不到原本的牆位置了。
+      if (focusedRef.current) {
+        focusOn(cell)
+        url.replaceFocus(cell.photo.slug)
+        return
+      }
+      preFocus.current = pz.getTransform()
       focusOn(cell)
       url.pushFocus(cell.photo.slug)
     },
@@ -235,7 +250,7 @@ export function useFocusMachine({
     const cur = focusedRef.current
     if (cur) {
       const cell = cellBySlug.get(cur)
-      if (cell && s / fitScaleOf(cell) < SNAP_OUT) exit(false)
+      if (cell && s / fitScaleOf(cell) < SNAP_OUT) exit(false, true)
       return
     }
 

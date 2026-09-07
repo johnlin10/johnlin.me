@@ -25,9 +25,28 @@
   top: 0;
   left: 0;
   transform-origin: 0 0;
+  // 這裡不要加 will-change: transform。它確實能讓平移變成純合成、大幅省下
+  // raster，但 Chrome 會因此不再隨縮放重新光柵化這個圖層——放大時直接把舊
+  // 解析度的 raster 撐大，整面牆連文字都會糊掉、看得到馬賽克。攝影作品站
+  // 不能拿畫質換這個。（headless 走軟體光柵重現不出來，別用它的數字背書。）
 }
 
 $photo-frame-pad: 10px;
+$photo-shadow:
+  0 1px 3px rgba(0, 0, 0, 0.08),
+  0 8px 24px rgba(0, 0, 0, 0.14);
+
+// 拖曳時指標會掃過一堆照片，逐一觸發 hover 陰影的重繪。這裡不是把陰影拿掉
+// （那會讓整面牆在每次拖曳時明顯變扁，實測也更慢），而是讓 hover 維持原樣。
+// cursor 交給上面的 .viewport:active，不在這裡設——滑鼠滾輪縮放也會進這個
+// 狀態，那時顯示抓取手勢是錯的。
+.isInteracting .photo {
+  transition: none;
+
+  &:hover {
+    box-shadow: $photo-shadow;
+  }
+}
 
 .photo {
   position: absolute;
@@ -37,9 +56,7 @@ $photo-frame-pad: 10px;
   overflow: hidden;
   background: #ffffff;
   border: 1px solid rgba(0, 0, 0, 0.06);
-  box-shadow:
-    0 1px 3px rgba(0, 0, 0, 0.08),
-    0 8px 24px rgba(0, 0, 0, 0.14);
+  box-shadow: $photo-shadow;
   transition:
     box-shadow var(--duration) var(--ease),
     border-color var(--duration) var(--ease);
@@ -77,6 +94,12 @@ $photo-frame-pad: 10px;
   gap: 2px;
   padding-top: var(--space-2);
   overflow: hidden;
+}
+
+// 遠景 LOD：縮到看整面牆時卡片字只剩幾 px，讀不出來卻仍要逐張光柵化文字。
+// 收起來，導航交給同一時候淡入的年份大字。
+.isFarLod .card {
+  display: none;
 }
 
 // 聚焦照片的完整資訊卡（與照片同平面、隨牆縮放）。高度由內容決定、由 JS 量測。
