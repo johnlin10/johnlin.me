@@ -749,11 +749,11 @@
     "description": "There's no formula to my photography — just the feeling of the moment. If it feels beautiful, I capture it.",
     "page_title": "Photography",
     "empty": "Photos are being sorted — they will be on the wall soon.",
-    "listView": "Photo list",
+    "gridView": "Photo grid",
     "backToWall": "Back to the wall",
     "mode": {
       "wall": "Wall",
-      "list": "List",
+      "grid": "Grid",
       "label": "View mode"
     },
     "hint": {

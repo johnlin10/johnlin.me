@@ -1,6 +1,6 @@
 @use '@/app/styles/design' as *;
 
-.list {
+.grid {
   display: flex;
   flex-direction: column;
   gap: var(--space-12);
@@ -27,7 +27,7 @@
   flex-direction: column;
 }
 
-// gap 由 JustifiedList.tsx 內聯設定（跟 computeJustifiedRows 算寬度時用的
+// gap 由 JustifiedGrid.tsx 內聯設定（跟 computeJustifiedRows 算寬度時用的
 // gap 值同一個來源，兩邊對不齊的話列寬就沒辦法精準貼齊容器邊緣）。
 .row {
   display: flex;

@@ -5,7 +5,7 @@ import { metadata } from '@/app/lib/metadata'
 import type { SupportedLocale } from '@/app/types/blog'
 import PageContainer from '@/app/components/PageContainer/PageContainer'
 import PageHeader from '@/app/components/PageHeader/PageHeader'
-import GalleryList from '@/app/components/gallery/GalleryList/GalleryList'
+import GalleryGrid from '@/app/components/gallery/GalleryGrid/GalleryGrid'
 import GalleryExperience from '@/app/components/gallery/GalleryExperience'
 
 type Props = {
@@ -32,12 +32,12 @@ export default async function GalleryPage({ params }: Props) {
 
   const photos = await getPublishedPhotos(createPublicClient())
 
-  // SSR 一律吐出語意化列表（SEO 內鏈 + no-JS + 手機 + 爬蟲）；
-  // 桌機掛載後 GalleryExperience 升級成互動牆，列表退居降級層。
+  // SSR 一律吐出語意化網格（SEO 內鏈 + no-JS + 手機 + 爬蟲）；
+  // 桌機掛載後 GalleryExperience 升級成互動牆，網格退居降級層。
   const fallback = (
     <PageContainer maxWidth="wide">
       <PageHeader size="md" title={t('page_title')} lead={t('description')} />
-      <GalleryList photos={photos} locale={locale} />
+      <GalleryGrid photos={photos} locale={locale} />
     </PageContainer>
   )
 

@@ -1,6 +1,6 @@
 @use '@/app/styles/design' as *;
 
-.list {
+.grid {
   display: flex;
   flex-direction: column;
   gap: var(--space-12);
@@ -25,7 +25,7 @@
 // CSS 多欄瀑布流（無 JS 也能用的基準版面）：每張照片維持自己的原始比例
 // （frame 的 aspect-ratio 由 .tsx 內聯設成 width/height），不裁切、欄內堆疊
 // 也不會有固定格高造成的破洞。真正「齊行、貼滿容器寬」的版面需要量測容器
-// 寬度分列，那是 JustifiedList（掛載後的 List 模式）在做的事。
+// 寬度分列，那是 JustifiedGrid（掛載後的 Grid 模式）在做的事。
 .columns {
   list-style: none;
   margin: 0;

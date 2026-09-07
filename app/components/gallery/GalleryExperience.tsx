@@ -10,14 +10,14 @@ import GalleryWall from './GalleryWall/GalleryWall'
 import GalleryModeToggle, {
   type GalleryViewMode,
 } from './GalleryWall/GalleryModeToggle'
-import JustifiedList from './GalleryList/JustifiedList'
+import JustifiedGrid from './GalleryGrid/JustifiedGrid'
 import styles from './GalleryWall/GalleryWall.module.scss'
 
 interface GalleryExperienceProps {
   photos: Photo[]
   locale: SupportedLocale
-  /** SSR 版面（PageContainer＋PageHeader＋GalleryList 全包好），只在掛載前／
-   *  無 JS／零照片時使用；掛載後的清單模式改用 JustifiedList（見下）。 */
+  /** SSR 版面（PageContainer＋PageHeader＋GalleryGrid 全包好），只在掛載前／
+   *  無 JS／零照片時使用；掛載後的網格模式改用 JustifiedGrid（見下）。 */
   fallback: ReactNode
 }
 
@@ -25,10 +25,10 @@ const MODE_STORAGE_KEY = 'gallery:view-mode'
 
 /**
  * 有照片且有 JS → 預設升級成可自由探索的互動牆（含手機觸控：拖曳＋慣性＋捏合）。
- * 使用者可切到「清單模式」，偏好記在 localStorage。掛載前一律回 fallback（與
- * SSR 一致避免 hydration 不匹配）；掛載後選清單才換成 JustifiedList——那是
+ * 使用者可切到「網格模式」，偏好記在 localStorage。掛載前一律回 fallback（與
+ * SSR 一致避免 hydration 不匹配）；掛載後選網格才換成 JustifiedGrid——那是
  * 需要量測容器寬度才能精算的齊行版面，SSR／no-JS 版走的是簡化過、不需要 JS
- * 的 GalleryList（包在 fallback 裡）。no-JS／爬蟲永遠只會拿到 fallback。
+ * 的 GalleryGrid（包在 fallback 裡）。no-JS／爬蟲永遠只會拿到 fallback。
  */
 export default function GalleryExperience({
   photos,
@@ -46,7 +46,7 @@ export default function GalleryExperience({
     } catch {
       // localStorage 被隱私模式擋掉時退回預設，不擋渲染
     }
-    if (saved === 'list' || saved === 'wall') setMode(saved)
+    if (saved === 'grid' || saved === 'wall') setMode(saved)
     setMounted(true)
   }, [])
 
@@ -63,7 +63,7 @@ export default function GalleryExperience({
     return <>{fallback}</>
   }
 
-  if (mode === 'list') {
+  if (mode === 'grid') {
     return (
       <>
         <PageContainer maxWidth="wide">
@@ -72,7 +72,7 @@ export default function GalleryExperience({
             title={t('page_title')}
             lead={t('description')}
           />
-          <JustifiedList photos={photos} locale={locale} />
+          <JustifiedGrid photos={photos} locale={locale} />
         </PageContainer>
         <div className={styles.modeDock}>
           <GalleryModeToggle mode={mode} onChange={changeMode} />

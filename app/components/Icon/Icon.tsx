@@ -34,6 +34,7 @@ import {
   faWandMagicSparkles,
   faGripVertical,
   faTableCellsLarge,
+  faTableCells,
   faList,
   faFilter,
   faLocationDot,
@@ -77,6 +78,7 @@ export type IconName =
   | 'wand-magic-sparkles'
   | 'grip-vertical'
   | 'table-cells-large'
+  | 'table-cells'
   | 'list'
   | 'filter'
   | 'location-dot'
@@ -119,6 +121,7 @@ const iconMap: Record<IconName, IconProp> = {
   'wand-magic-sparkles': faWandMagicSparkles,
   'grip-vertical': faGripVertical,
   'table-cells-large': faTableCellsLarge,
+  'table-cells': faTableCells,
   list: faList,
   filter: faFilter,
   'location-dot': faLocationDot,

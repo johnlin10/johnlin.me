@@ -8,9 +8,9 @@ import type { SupportedLocale } from '@/app/types/blog'
 import { photoAltText, photoCaption, formatTakenAt } from '@/app/lib/photos/format'
 import { groupByYear } from '@/app/lib/photos/group'
 import { computeJustifiedRows } from '@/app/lib/photos/justified'
-import styles from './JustifiedList.module.scss'
+import styles from './JustifiedGrid.module.scss'
 
-interface JustifiedListProps {
+interface JustifiedGridProps {
   photos: Photo[]
   locale: SupportedLocale
 }
@@ -33,13 +33,13 @@ function targetsFor(containerWidth: number) {
 }
 
 /**
- * List 模式的齊行（justified）版面：同一列等高，寬度依比例分配、加總撐滿
+ * Grid 模式的齊行（justified）版面：同一列等高，寬度依比例分配、加總撐滿
  * 容器寬度；不同列可以有不同高度，換照片不必犧牲完整顯示（不裁切、不變形）
  * —— 這需要量測容器實際寬度才能精算，只有掛載後的 JS 環境做得到，所以是
- * GalleryExperience 在使用者切到 List 模式、且已掛載時才會用到的版本；
- * SSR／no-JS／爬蟲走的是 GalleryList 那份不需要 JS 的簡化版基準版面。
+ * GalleryExperience 在使用者切到 Grid 模式、且已掛載時才會用到的版本；
+ * SSR／no-JS／爬蟲走的是 GalleryGrid 那份不需要 JS 的簡化版基準版面。
  */
-export default function JustifiedList({ photos, locale }: JustifiedListProps) {
+export default function JustifiedGrid({ photos, locale }: JustifiedGridProps) {
   const t = useTranslations('GalleryPage')
   const groups = useMemo(() => groupByYear(photos), [photos])
 
@@ -63,7 +63,7 @@ export default function JustifiedList({ photos, locale }: JustifiedListProps) {
   const { rowHeight, gap, minHeight } = targetsFor(width)
 
   return (
-    <nav ref={containerRef} className={styles.list} aria-label={t('listView')}>
+    <nav ref={containerRef} className={styles.grid} aria-label={t('gridView')}>
       {groups.map((group) => (
         <section key={group.year} className={styles.group}>
           <h2 className={styles.year}>{group.year}</h2>

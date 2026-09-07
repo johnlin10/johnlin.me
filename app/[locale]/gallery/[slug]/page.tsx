@@ -15,6 +15,7 @@ import type { SupportedLocale } from '@/app/types/blog'
 import PageContainer from '@/app/components/PageContainer/PageContainer'
 import PhotoMeta from '@/app/components/gallery/PhotoMeta/PhotoMeta'
 import PhotoJsonLd from '@/app/components/gallery/PhotoJsonLd'
+import PhotoFrame from './PhotoFrame'
 import styles from './photo.module.scss'
 
 interface PhotoPageProps {
@@ -77,27 +78,9 @@ export default async function PhotoPage({ params }: PhotoPageProps) {
           style={{ aspectRatio: `${photo.width} / ${photo.height}` }}
         >
           {/* 原生 <img> + 自產 srcSet，繞開 Vercel optimizer（R2 已備好各階）。
-              單張頁是 LCP，用 fetchPriority=high 取代 next/image 的 priority。 */}
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            className={styles.img}
-            srcSet={photo.derivatives.map((d) => `${d.url} ${d.w}w`).join(', ')}
-            sizes="(max-width: 900px) 100vw, 1080px"
-            src={photo.derivatives.at(-1)?.url ?? photo.urlOriginal}
-            alt={photoAltText(photo, locale)}
-            width={photo.width}
-            height={photo.height}
-            fetchPriority="high"
-            decoding="async"
-            style={
-              photo.blurDataUrl
-                ? {
-                    backgroundImage: `url(${photo.blurDataUrl})`,
-                    backgroundSize: 'cover',
-                  }
-                : undefined
-            }
-          />
+              單張頁是 LCP，用 fetchPriority=high 取代 next/image 的 priority。
+              HDR 照片另外疊載原檔淡入，見 PhotoFrame。 */}
+          <PhotoFrame photo={photo} alt={photoAltText(photo, locale)} />
         </div>
 
         <PhotoMeta

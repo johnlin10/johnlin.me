@@ -8,22 +8,43 @@
   align-items: center;
 }
 
+// 與 GalleryWall 同一套「相片＋白色相框」樣式（見 GalleryWall.module.scss
+// 的 $photo-frame-pad／$photo-shadow）——單張頁是牆上聚焦狀態的等價頁面，
+// 兩者該長一樣。Grid（JustifiedGrid）刻意不用這套，留給它緊湊排列。
+$photo-frame-pad: 10px;
+$photo-shadow:
+  0 1px 3px rgba(0, 0, 0, 0.08),
+  0 8px 24px rgba(0, 0, 0, 0.14);
+
 .frame {
   // 不設 width:100% —— 只給 aspect-ratio + max-*，讓橫圖受 max-width 夾、
   // 直圖受 max-height 夾，兩種方向都不超出視窗且維持完整比例（不裁切）。
+  position: relative;
+  box-sizing: border-box;
   max-height: 78vh;
   max-width: 100%;
+  padding: $photo-frame-pad;
   overflow: hidden;
-  border-radius: var(--radius-sm);
-  background: var(--surface-2);
-  box-shadow: var(--shadow-lg);
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow: $photo-shadow;
 }
 
 .img {
   display: block;
   width: 100%;
   height: 100%;
-  object-fit: contain;
+  object-fit: cover;
+}
+
+// 疊在 SDR 衍生檔上的原檔，載入後淡入（HDR 在此亮起，見 PhotoFrame）
+.original {
+  position: absolute;
+  inset: $photo-frame-pad;
+  width: calc(100% - #{$photo-frame-pad * 2});
+  height: calc(100% - #{$photo-frame-pad * 2});
+  object-fit: cover;
+  transition: opacity var(--duration-slow) var(--ease);
 }
 
 .caption {

@@ -750,11 +750,11 @@
     "description": "我的攝影沒有什麼公式，只有當下的感覺，覺得美就記錄下來。",
     "page_title": "攝影牆",
     "empty": "照片正在整理中，很快就會掛上牆。",
-    "listView": "照片列表",
+    "gridView": "照片網格",
     "backToWall": "回到攝影牆",
     "mode": {
       "wall": "攝影牆",
-      "list": "清單",
+      "grid": "網格",
       "label": "檢視方式"
     },
     "hint": {
