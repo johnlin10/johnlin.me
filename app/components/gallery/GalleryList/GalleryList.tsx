@@ -2,7 +2,7 @@ import { getTranslations } from 'next-intl/server'
 import { Link } from '@/i18n/navigation'
 import type { Photo } from '@/app/types/photo'
 import type { SupportedLocale } from '@/app/types/blog'
-import { photoAltText, formatTakenAt } from '@/app/lib/photos/format'
+import { photoAltText, photoCaption, formatTakenAt } from '@/app/lib/photos/format'
 import { groupByYear } from '@/app/lib/photos/group'
 import styles from './GalleryList.module.scss'
 
@@ -40,54 +40,63 @@ export default async function GalleryList({
         <section key={group.year} className={styles.group}>
           <h2 className={styles.year}>{group.year}</h2>
           <ol className={styles.columns}>
-            {group.photos.map((photo) => (
-              <li key={photo.id} className={styles.item}>
-                <Link href={`/gallery/${photo.slug}`} className={styles.link}>
-                  <span
-                    className={styles.frame}
-                    style={{ aspectRatio: `${photo.width} / ${photo.height}` }}
-                  >
-                    {/* 原生 <img>：R2 已備好 srcSet 各階、出站免費，刻意不走
-                        Vercel optimizer（見 Stage 3 決策）。frame 的 aspect-ratio
-                        就是照片自己的比例，object-fit:cover 在這裡不會裁切
-                        （框跟圖同比例，cover 等於精準貼合）。 */}
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      className={styles.img}
-                      srcSet={photo.derivatives
-                        .map((d) => `${d.url} ${d.w}w`)
-                        .join(', ')}
-                      sizes="(max-width: 600px) 45vw, 240px"
-                      src={photo.derivatives[0]?.url}
-                      alt={photoAltText(photo, locale)}
-                      width={photo.width}
-                      height={photo.height}
-                      loading="lazy"
-                      decoding="async"
-                      style={
-                        photo.blurDataUrl
-                          ? {
-                              backgroundImage: `url(${photo.blurDataUrl})`,
-                              backgroundSize: 'cover',
-                            }
-                          : undefined
-                      }
-                    />
-                  </span>
-                  <time
-                    className={styles.date}
-                    dateTime={photo.takenAtLocal.slice(0, 10)}
-                  >
-                    {formatTakenAt(
-                      photo.takenAtLocal,
-                      photo.takenAtPrecision,
-                      locale,
-                      { omitCurrentYear: true }
-                    )}
-                  </time>
-                </Link>
-              </li>
-            ))}
+            {group.photos.map((photo) => {
+              const caption = photoCaption(photo, locale)
+              const date = formatTakenAt(
+                photo.takenAtLocal,
+                photo.takenAtPrecision,
+                locale,
+                { omitCurrentYear: true }
+              )
+              return (
+                <li key={photo.id} className={styles.item}>
+                  <Link href={`/gallery/${photo.slug}`} className={styles.link}>
+                    <span
+                      className={styles.frame}
+                      style={{ aspectRatio: `${photo.width} / ${photo.height}` }}
+                    >
+                      {/* 原生 <img>：R2 已備好 srcSet 各階、出站免費，刻意不走
+                          Vercel optimizer（見 Stage 3 決策）。frame 的 aspect-ratio
+                          就是照片自己的比例，object-fit:cover 在這裡不會裁切
+                          （框跟圖同比例，cover 等於精準貼合）。 */}
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        className={styles.img}
+                        srcSet={photo.derivatives
+                          .map((d) => `${d.url} ${d.w}w`)
+                          .join(', ')}
+                        sizes="(max-width: 600px) 45vw, 240px"
+                        src={photo.derivatives[0]?.url}
+                        alt={photoAltText(photo, locale)}
+                        width={photo.width}
+                        height={photo.height}
+                        loading="lazy"
+                        decoding="async"
+                        style={
+                          photo.blurDataUrl
+                            ? {
+                                backgroundImage: `url(${photo.blurDataUrl})`,
+                                backgroundSize: 'cover',
+                              }
+                            : undefined
+                        }
+                      />
+                      <span className={styles.overlay} aria-hidden="true">
+                        {caption && (
+                          <span className={styles.caption}>{caption}</span>
+                        )}
+                        <time
+                          className={styles.date}
+                          dateTime={photo.takenAtLocal.slice(0, 10)}
+                        >
+                          {date}
+                        </time>
+                      </span>
+                    </span>
+                  </Link>
+                </li>
+              )
+            })}
           </ol>
         </section>
       ))}

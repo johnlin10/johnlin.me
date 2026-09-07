@@ -5,7 +5,7 @@ import { useTranslations } from 'next-intl'
 import { Link } from '@/i18n/navigation'
 import type { Photo } from '@/app/types/photo'
 import type { SupportedLocale } from '@/app/types/blog'
-import { photoAltText, formatTakenAt } from '@/app/lib/photos/format'
+import { photoAltText, photoCaption, formatTakenAt } from '@/app/lib/photos/format'
 import { groupByYear } from '@/app/lib/photos/group'
 import { computeJustifiedRows } from '@/app/lib/photos/justified'
 import styles from './JustifiedList.module.scss'
@@ -67,7 +67,7 @@ export default function JustifiedList({ photos, locale }: JustifiedListProps) {
       {groups.map((group) => (
         <section key={group.year} className={styles.group}>
           <h2 className={styles.year}>{group.year}</h2>
-          <div className={styles.rows}>
+          <div className={styles.rows} style={{ gap }}>
             {width > 0 &&
               computeJustifiedRows(
                 group.photos,
@@ -77,57 +77,66 @@ export default function JustifiedList({ photos, locale }: JustifiedListProps) {
                 minHeight,
               ).map((row, i) => (
                 <div key={i} className={styles.row} style={{ gap }}>
-                  {row.items.map(({ photo, width: itemWidth }) => (
-                    <Link
-                      key={photo.id}
-                      href={`/gallery/${photo.slug}`}
-                      className={styles.item}
-                      style={{ width: itemWidth }}
-                    >
-                      <span
-                        className={styles.frame}
-                        style={{ height: row.height }}
+                  {row.items.map(({ photo, width: itemWidth }) => {
+                    const caption = photoCaption(photo, locale)
+                    const date = formatTakenAt(
+                      photo.takenAtLocal,
+                      photo.takenAtPrecision,
+                      locale,
+                      { omitCurrentYear: true },
+                    )
+                    return (
+                      <Link
+                        key={photo.id}
+                        href={`/gallery/${photo.slug}`}
+                        className={styles.item}
+                        style={{ width: itemWidth }}
                       >
-                        {/* 原生 <img>：R2 已備好 srcSet 各階、出站免費，刻意
-                            不走 Vercel optimizer。
-                            frame 的寬高就是 computeJustifiedRows 算好的結果，
-                            跟照片自身比例一致，object-fit:cover 不會裁到。   */}
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
-                          className={styles.img}
-                          srcSet={photo.derivatives
-                            .map((d) => `${d.url} ${d.w}w`)
-                            .join(', ')}
-                          sizes="(max-width: 600px) 55vw, 420px"
-                          src={photo.derivatives[0]?.url}
-                          alt={photoAltText(photo, locale)}
-                          width={photo.width}
-                          height={photo.height}
-                          loading="lazy"
-                          decoding="async"
-                          style={
-                            photo.blurDataUrl
-                              ? {
-                                  backgroundImage: `url(${photo.blurDataUrl})`,
-                                  backgroundSize: 'cover',
-                                }
-                              : undefined
-                          }
-                        />
-                      </span>
-                      <time
-                        className={styles.date}
-                        dateTime={photo.takenAtLocal.slice(0, 10)}
-                      >
-                        {formatTakenAt(
-                          photo.takenAtLocal,
-                          photo.takenAtPrecision,
-                          locale,
-                          { omitCurrentYear: true },
-                        )}
-                      </time>
-                    </Link>
-                  ))}
+                        <span
+                          className={styles.frame}
+                          style={{ height: row.height }}
+                        >
+                          {/* 原生 <img>：R2 已備好 srcSet 各階、出站免費，刻意
+                              不走 Vercel optimizer。
+                              frame 的寬高就是 computeJustifiedRows 算好的結果，
+                              跟照片自身比例一致，object-fit:cover 不會裁到。   */}
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            className={styles.img}
+                            srcSet={photo.derivatives
+                              .map((d) => `${d.url} ${d.w}w`)
+                              .join(', ')}
+                            sizes="(max-width: 600px) 55vw, 420px"
+                            src={photo.derivatives[0]?.url}
+                            alt={photoAltText(photo, locale)}
+                            width={photo.width}
+                            height={photo.height}
+                            loading="lazy"
+                            decoding="async"
+                            style={
+                              photo.blurDataUrl
+                                ? {
+                                    backgroundImage: `url(${photo.blurDataUrl})`,
+                                    backgroundSize: 'cover',
+                                  }
+                                : undefined
+                            }
+                          />
+                          <span className={styles.overlay} aria-hidden="true">
+                            {caption && (
+                              <span className={styles.caption}>{caption}</span>
+                            )}
+                            <time
+                              className={styles.date}
+                              dateTime={photo.takenAtLocal.slice(0, 10)}
+                            >
+                              {date}
+                            </time>
+                          </span>
+                        </span>
+                      </Link>
+                    )
+                  })}
                 </div>
               ))}
           </div>
