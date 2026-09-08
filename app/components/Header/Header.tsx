@@ -69,7 +69,7 @@ export default function Header() {
         <div className={`${style.island} ${style.brandIsland}`}>
           <Link href="/" className={style.brand} aria-label={t('home')}>
             <Image
-              src="/johnlin-logo-128-nb.png"
+              src="/assets/icons/web-icons/johnlin-logo-192.png"
               alt="John Lin"
               width={32}
               height={32}

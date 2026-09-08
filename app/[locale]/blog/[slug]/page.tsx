@@ -11,6 +11,9 @@ import PageContainer from '@/app/components/PageContainer/PageContainer'
 import PostContent from '@/app/components/blog/PostContent/PostContent'
 import TableOfContents from '@/app/components/blog/TableOfContents/TableOfContents'
 import ViewTracker from '@/app/components/blog/ViewTracker/ViewTracker'
+import JsonLd from '@/app/components/JsonLd/JsonLd'
+import { blogPostingJsonLd } from '@/app/lib/jsonLd'
+import { SITE_CONFIG } from '@/app/lib/siteConfigs'
 import type { Metadata } from 'next'
 import type { SupportedLocale } from '@/app/types/blog'
 import style from './post.module.scss'
@@ -86,8 +89,25 @@ export default async function PostPage({ params }: PostPageProps) {
   const toc = content.toc ?? []
   const hasToc = toc.length > 0
 
+  const canonicalPath = `${SITE_CONFIG.url}${locale === 'en' ? '/en' : ''}/blog/${slug}`
+
   return (
     <PageContainer maxWidth={hasToc ? 'wide' : 'content'}>
+      <JsonLd
+        data={blogPostingJsonLd({
+          title: content.title,
+          description: content.seo?.metaDescription || content.description,
+          image: post.coverImage?.url,
+          url: canonicalPath,
+          datePublished: post.publishedAt
+            ? new Date(post.publishedAt).toISOString()
+            : undefined,
+          dateModified: post.updatedAt
+            ? new Date(post.updatedAt).toISOString()
+            : undefined,
+          locale,
+        })}
+      />
       <ViewTracker postId={post.id} />
       <article>
         {post.coverImage && (

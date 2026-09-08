@@ -13,6 +13,8 @@ import { NextIntlClientProvider, hasLocale } from 'next-intl'
 import { setRequestLocale } from 'next-intl/server'
 
 import { GoogleAnalytics } from '@next/third-parties/google'
+import JsonLd from '@/app/components/JsonLd/JsonLd'
+import { websiteJsonLd } from '@/app/lib/jsonLd'
 
 const notoSansTC = Noto_Sans_TC({
   variable: '--font-noto-sans-tc',
@@ -30,7 +32,9 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     ...baseMetadata,
     icons: {
-      icon: '/johnlin-logo-128-nb.png',
+      // 分頁圖標用透明無背景版；apple／manifest 一律用有底色的正常版。
+      icon: '/assets/icons/web-icons/johnlin-logo-192.png',
+      apple: '/assets/icons/apple-touch-icon/apple-touch-icon-180.png',
     },
   }
 }
@@ -65,6 +69,7 @@ export default async function RootLayout({
         <link rel="stylesheet" href="/fonts/genkimin/genkimin.css" />
       </head>
       <body className={`${notoSansTC.variable} antialiased`}>
+        <JsonLd data={websiteJsonLd(locale)} />
         <GoogleAnalytics gaId="G-X5EXGR4ERD" />
         <NextIntlClientProvider locale={locale}>
           <ThemeProvider>
