@@ -25,20 +25,32 @@ function isTopLanguageChinese(acceptLanguage: string | null) {
   return /^zh\b/i.test(top?.tag ?? '')
 }
 
+// 社群平台抓取連結預覽用的爬蟲 UA。這些請求不代表真人的語言偏好——
+// User-Agent 幾乎都寫死、跟分享者實際使用的瀏覽器語言無關；如果讓它們
+// 也吃 Accept-Language 判斷，分享 https://johnlin.me（無前綴）時常常會
+// 被爬蟲自己的 Accept-Language 導去 /en，抓回英文標題/描述/OG 圖，跟
+// 使用者實際貼出去的網址對不上。
+const LINK_PREVIEW_BOT = /facebookexternalhit|Twitterbot|Slackbot|LinkedInBot|Discordbot|TelegramBot|WhatsApp|SkypeUriPreview|Pinterest|redditbot|Googlebot/i
+
 /**
- * next-intl 只支援 en / zh-tw 兩個 locale，它內建的 Accept-Language 比對
- * 是嚴格 BCP-47 lookup，碰到 zh-CN、fr、ja 這類不在名單裡的標籤時規則不
- * 直覺（可能誤配到列表裡的下一個語言，或直接退回 defaultLocale），不是
- * 我們要的「非中文一律英文」二分法。所以在沒有 NEXT_LOCALE cookie 時，
- * 自己解析 Accept-Language 最高權重的語言，改寫成 'zh-tw' 或 'en' 這種
- * 能被 next-intl 精準比對的值再丟進去；cookie 存在時完全不動，判斷優先
- * 序本來就是 cookie > Accept-Language。
+ * 語系判斷優先序：網址前綴 > NEXT_LOCALE cookie（使用者用 LanguageSwitch
+ * 明確切換過，或先前被下面這段自動導向過） > Accept-Language。
+ * 真人瀏覽器：預設中文，Accept-Language 最高權重語言非中文（不分繁簡）就
+ * 自動導去 /en，next-intl 會順便把選擇寫回 NEXT_LOCALE cookie，效果等同
+ * 使用者手動切換過一次。
+ * 連結預覽爬蟲：只看網址是否已經帶 /en，完全不採信它自己的 Accept-Language，
+ * 避免分享出去的網址跟抓回來的語言對不上。
  */
 function normalizeAcceptLanguage(request: NextRequest) {
   if (request.cookies.has('NEXT_LOCALE')) return request
-  const preferred = isTopLanguageChinese(request.headers.get('accept-language'))
-    ? 'zh-tw'
-    : 'en'
+
+  const isBot = LINK_PREVIEW_BOT.test(request.headers.get('user-agent') ?? '')
+  const preferred = isBot
+    ? routing.defaultLocale
+    : isTopLanguageChinese(request.headers.get('accept-language'))
+      ? 'zh-tw'
+      : 'en'
+
   const headers = new Headers(request.headers)
   headers.set('accept-language', preferred)
   return new NextRequest(request, { headers })
