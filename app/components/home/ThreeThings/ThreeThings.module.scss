@@ -19,7 +19,7 @@
   gap: var(--space-6);
   margin-top: var(--space-12);
   padding-bottom: var(--space-6); // 給最深那張的視差位移一點呼吸空間
-  overflow-x: clip; // 卡片傾斜偏移，避免橫向捲動
+  // 不設 overflow-x：卡片旋轉的視覺溢出需要露出來，body 已有 overflow-x: hidden 擋橫向捲動
 
   @include respond-to('phone') {
     gap: var(--space-5);

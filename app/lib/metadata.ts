@@ -68,8 +68,8 @@ export async function metadata(options: MetadataOptions): Promise<Metadata> {
     title: rawTitle,
     description,
     keywords = [],
-    // 預設圖由 scripts/generate-og.mjs 產生，尺寸跟下面兩個預設值綁在一起。
-    image = '/assets/og/default.png',
+    // 預設圖由 scripts/generate-og.mjs 產生（中英各一張），尺寸跟下面兩個預設值綁在一起。
+    image = isEn ? '/assets/og/default-en.png' : '/assets/og/default.png',
     imageWidth = 1920,
     imageHeight = 1080,
     url,
