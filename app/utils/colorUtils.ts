@@ -25,11 +25,9 @@ export const getColorValue = (colorVar: string): string => {
 /**
  * 複製顏色值到剪貼板
  * @param colorValue 顏色值
- * @param colorName 顏色名稱
  */
 export const copyColorToClipboard = async (
-  colorValue: string,
-  colorName: string
+  colorValue: string
 ): Promise<void> => {
   if (typeof window === 'undefined') {
     return
@@ -37,7 +35,6 @@ export const copyColorToClipboard = async (
 
   try {
     await navigator.clipboard.writeText(colorValue)
-    console.log(`Copied ${colorName} color value: ${colorValue}`)
   } catch (error) {
     console.error('Copy color value failed:', error)
   }

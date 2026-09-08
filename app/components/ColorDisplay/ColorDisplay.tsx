@@ -50,7 +50,7 @@ const ColorDisplay: React.FC<ColorDisplayProps> = ({
    */
   const handleCopyColor = async () => {
     if (isValidColor(colorValue)) {
-      await copyColorToClipboard(colorValue, name)
+      await copyColorToClipboard(colorValue)
     }
   }
 
