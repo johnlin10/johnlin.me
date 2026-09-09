@@ -43,7 +43,16 @@ export default async function NoteCard({
           </Link>
         )}
 
-        {note.content && <p className={style.content}>{note.content}</p>}
+        {note.content && (
+          <div className={style.content}>
+            {note.content
+              .split(/\n+/)
+              .filter(Boolean)
+              .map((paragraph, i) => (
+                <p key={i}>{paragraph}</p>
+              ))}
+          </div>
+        )}
 
         {note.images.length > 0 && (
           <div className={style.media}>

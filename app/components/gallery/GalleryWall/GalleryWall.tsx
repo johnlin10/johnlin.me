@@ -15,13 +15,19 @@ import {
   useTransform,
   useMotionValueEvent,
 } from 'motion/react'
-import { COL_W, packWall, type WallCell } from '@/app/lib/photos/wallLayout'
+import {
+  COL_W,
+  GAP_X,
+  packWall,
+  type WallCell,
+} from '@/app/lib/photos/wallLayout'
 import {
   fitTransform,
   type Size,
   type Transform,
 } from '@/app/lib/photos/geometry'
 import { yearMarkerOpacity } from '@/app/lib/photos/lod'
+import { useIsDesktop } from '@/app/lib/hooks/useIsDesktop'
 import type { Photo } from '@/app/types/photo'
 import type { SupportedLocale } from '@/app/types/blog'
 import { usePanZoom } from './usePanZoom'
@@ -43,6 +49,8 @@ interface GalleryWallProps {
 }
 
 const INITIAL_PHOTO_WIDTH = 240
+/** 「瀏覽作品」按鈕鎖定的目標鏡頭：留這麼多牆座標寬度，讓第二欄探出頭。 */
+const VIEW_PHOTOS_PEEK_PX = 180
 const COACH_STORAGE_KEY = 'gallery:coach-seen'
 const COACH_AUTO_HIDE_MS = 6000
 const VIRTUAL_OVERSCAN_PX = 900
@@ -85,7 +93,7 @@ function visibleCellsForViewport(
   cells: WallCell[],
   viewport: Size,
   transform: Transform,
-  focusedSlug: string | null
+  focusedSlug: string | null,
 ): WallCell[] {
   if (viewport.width === 0 || viewport.height === 0 || transform.scale <= 0) {
     return cells
@@ -123,6 +131,7 @@ export default function GalleryWall({
   onModeChange,
 }: GalleryWallProps) {
   const reduceMotion = !!useReducedMotion()
+  const isDesktop = useIsDesktop()
   const layout = useMemo(() => packWall(photos), [photos])
   // 衍生階梯直接從資料取。photoDerivatives.ts 裡雖然有 DERIVATIVE_LADDER，
   // 但那支 import 了 sharp，不能進 client bundle；抄一份又會漂移。
@@ -317,13 +326,16 @@ export default function GalleryWall({
     const next = snapSizes(s, ladder)
     if (sizesUpTimer.current) clearTimeout(sizesUpTimer.current)
     setSizesPx((cur) => (next < cur ? next : cur))
-    sizesUpTimer.current = setTimeout(() => setSizesPx(next), SIZES_UPGRADE_DELAY_MS)
+    sizesUpTimer.current = setTimeout(
+      () => setSizesPx(next),
+      SIZES_UPGRADE_DELAY_MS,
+    )
   })
   useEffect(
     () => () => {
       if (sizesUpTimer.current) clearTimeout(sizesUpTimer.current)
     },
-    []
+    [],
   )
 
   // 遠景 LOD：照片縮到這個級別以下時，資訊卡的字已經小到讀不出來，
@@ -343,7 +355,7 @@ export default function GalleryWall({
       layout.cells,
       viewport,
       getTransform(),
-      fm.focusedSlug
+      fm.focusedSlug,
     )
     commitVisibleCells(next)
   }
@@ -366,7 +378,7 @@ export default function GalleryWall({
         layout.cells,
         viewport,
         getTransform(),
-        fm.focusedSlug
+        fm.focusedSlug,
       )
       commitVisibleCells(next)
     })
@@ -378,7 +390,7 @@ export default function GalleryWall({
         cancelAnimationFrame(visibleRafRef.current)
       }
     },
-    []
+    [],
   )
 
   useMotionValueEvent(pz.x, 'change', scheduleVisibleCellsUpdate)
@@ -394,8 +406,51 @@ export default function GalleryWall({
   // 縮小的同時還把人丟到牆的正中間只會失去方位感。
   const handleFitWall = useCallback(() => {
     if (viewport.width === 0) return
-    zoomAtPoint(minScale, { x: viewport.width / 2, y: viewport.height / 2 }, true)
+    zoomAtPoint(
+      minScale,
+      { x: viewport.width / 2, y: viewport.height / 2 },
+      true,
+    )
   }, [zoomAtPoint, minScale, viewport])
+
+  // 前言面板的「瀏覽作品」按鈕：手機螢幕窄，面板常撐滿視窗看不出右邊還有牆，
+  // 直接把鏡頭帶到最新照片（第一欄第一張）的左上角。對齊的是年份大字的頂端
+  // （而不是照片頂端）並多留一點留白，避免年份標題被浮動 header 蓋住、
+  // 也讓照片跟視窗左緣有比初始鏡頭更寬鬆的呼吸空間。順便把鏡頭縮小到剛好
+  // 露出第二欄一角，讓使用者一眼看出右邊還有更多照片可以捲。
+  const handleViewPhotos = useCallback(() => {
+    if (viewport.width === 0) return
+    const first = layout.cells[0]
+    if (!first) return
+    const extra = cssPx('--space-4', 16)
+    const marginX = cssPx('--page-gutter', 48) + extra
+    const marginY = headerClearance() + extra
+    // 桌機螢幕本來就寬，光是定位過去就看得到旁邊的照片，不必額外縮小；
+    // 縮放只在手機上做，用來彌補螢幕窄、擠不出第二欄的問題。
+    const s = isDesktop
+      ? getTransform().scale
+      : Math.min(
+          maxScale,
+          Math.max(
+            minScale,
+            (viewport.width - marginX) / (COL_W + GAP_X + VIEW_PHOTOS_PEEK_PX)
+          )
+        )
+    animateTo({
+      x: marginX - first.x * s,
+      y: marginY - layout.yearMarkerY * s,
+      scale: s,
+    })
+  }, [
+    viewport.width,
+    layout.cells,
+    layout.yearMarkerY,
+    minScale,
+    maxScale,
+    isDesktop,
+    getTransform,
+    animateTo,
+  ])
 
   // 焦點救援：虛擬化會把「目前有 DOM 焦點的那張照片」連同它的 <a> 一起卸載。
   // 聚焦時用方向鍵翻個兩三張，最初點進來的那張就滑出可視範圍被移除，焦點掉回
@@ -528,6 +583,7 @@ export default function GalleryWall({
           y={layout.preface.y}
           w={layout.preface.w}
           h={layout.preface.h}
+          onViewPhotos={handleViewPhotos}
         />
 
         {layout.groups.map((g) => (

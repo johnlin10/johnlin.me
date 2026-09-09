@@ -37,6 +37,7 @@
   display: flex;
   gap: var(--space-2);
   overflow-x: auto;
+  overflow-y: hidden;
   overscroll-behavior-x: contain;
   scroll-snap-type: x mandatory;
 
@@ -50,7 +51,7 @@
   }
 
   // 兩側淡出提示可橫向捲動
-  @include edge-fade-mask($start: var(--note-media-bleed), $end: var(--space-8));
+  @include edge-fade-mask($start: var(--space-10), $end: var(--space-10));
 
   @include respond-to('phone') {
     --note-strip-height: 160px;

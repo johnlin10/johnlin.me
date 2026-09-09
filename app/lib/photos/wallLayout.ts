@@ -27,8 +27,10 @@ export const BAND_MIN_H = 1600
  * 才不會像先前那樣落在 y<0 被視窗 overflow 裁掉。
  */
 export const BAND_TOP = 96
-/** 年份大字的頂端 y（牆座標）。 */
-export const YEAR_MARKER_Y = BAND_TOP - 60
+/** 年份大字的字級（對應 GalleryWall.module.scss 的 .yearMarker font-size，line-height 設 1 讓框高=字級）。 */
+export const YEAR_MARKER_FONT_SIZE = 44
+/** 年份大字的頂端 y（牆座標）：往上留出字級高度，再留一個 GAP_X 當它與照片之間的縫，讓縫隙不小於欄距。 */
+export const YEAR_MARKER_Y = BAND_TOP - YEAR_MARKER_FONT_SIZE - GAP_X
 /** 每欄最多幾張（使用者需求：垂直最多五張）。 */
 export const MAX_PER_COL = 5
 /** 牆最左端策展前言面板的寬度（與掛畫帶同高）。 */

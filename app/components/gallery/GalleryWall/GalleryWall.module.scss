@@ -162,10 +162,60 @@ $photo-shadow:
   margin: 0;
 }
 
+// 手機螢幕窄，面板常撐滿整個視窗，看不出右邊還有牆——這其實只是把鏡頭帶到
+// 最新照片，不是跳頁，所以刻意不做成實心按鈕（那會讀成「導向另一頁」），
+// 用跟 .hint coach mark 同一套語彙：邊框 + 半透明底 + 淡出方向箭頭。
+.prefaceCta {
+  align-self: center;
+  margin-top: var(--space-20);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-6) var(--space-8);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-pill);
+  color: var(--text-secondary);
+  font-family: var(--font-sans);
+  font-size: var(--text-2xl);
+  font-weight: 200;
+  cursor: pointer;
+  backdrop-filter: blur(10px);
+  transition:
+    color var(--duration) var(--ease),
+    border-color var(--duration) var(--ease);
+
+  &:hover {
+    color: var(--text);
+    border-color: var(--text-secondary);
+  }
+}
+
+.prefaceCtaArrow {
+  display: inline-block;
+  animation: prefaceCtaNudge 1.6s ease-in-out infinite;
+}
+
+@keyframes prefaceCtaNudge {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(4px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .prefaceCtaArrow {
+    animation: none;
+  }
+}
+
 .yearMarker {
   position: absolute;
   font-family: var(--font-serif);
   font-size: 44px;
+  line-height: 1; // 讓框高等於字級，wallLayout.ts 的 YEAR_MARKER_Y 才能精準算出跟照片的縫隙
   font-weight: 700;
   color: var(--text-muted);
   pointer-events: none;

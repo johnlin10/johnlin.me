@@ -37,12 +37,19 @@
 .content {
   position: relative;
   font-family: var(--font-serif);
-  font-size: var(--text-lg);
+  font-size: var(--text-sm);
   line-height: var(--leading-loose);
   color: var(--text);
-  margin: 0;
-  white-space: pre-wrap;
   word-break: break-word;
+
+  p {
+    margin: 0;
+    white-space: pre-wrap;
+
+    &:not(:last-child) {
+      margin-bottom: var(--space-4);
+    }
+  }
 }
 
 .media {

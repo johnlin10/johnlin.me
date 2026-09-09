@@ -752,6 +752,7 @@
     "empty": "照片正在整理中，很快就會掛上牆。",
     "gridView": "照片網格",
     "backToWall": "回到攝影牆",
+    "viewPhotos": "瀏覽作品",
     "mode": {
       "wall": "攝影牆",
       "grid": "網格",

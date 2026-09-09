@@ -751,6 +751,7 @@
     "empty": "Photos are being sorted — they will be on the wall soon.",
     "gridView": "Photo grid",
     "backToWall": "Back to the wall",
+    "viewPhotos": "Browse the work",
     "mode": {
       "wall": "Wall",
       "grid": "Grid",
