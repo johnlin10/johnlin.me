@@ -10,13 +10,13 @@ import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
 /**
  * 主題切換元件（極簡：單一圖示按鈕，點擊循環 亮 → 系統 → 暗）
  */
-const NEXT_THEME: Record<string, string> = {
+export const NEXT_THEME: Record<string, string> = {
   light: 'system',
   system: 'dark',
   dark: 'light',
 }
 
-const THEME_ICON: Record<string, IconName> = {
+export const THEME_ICON: Record<string, IconName> = {
   light: 'sun',
   system: 'circle-half-stroke',
   dark: 'moon',

@@ -10,6 +10,7 @@ import style from './Header.module.scss'
 import Icon, { type IconName } from '@/app/components/Icon/Icon'
 import MenuDrawer from './MenuDrawer'
 import { useHeaderSubNavSlot } from './HeaderSubNavContext'
+import { ThemeControl, LocaleControl } from './NavPrefs'
 
 const NAV_ITEMS: {
   href: string
@@ -22,20 +23,21 @@ const NAV_ITEMS: {
   { href: '/about', key: 'about', icon: 'user' },
 ]
 
-// 捲動狀態的門檻與去抖：低於此高度一律展開；小於此位移量忽略（避免抖動）。
+// 捲動狀態的門檻與去抖：低於此高度一律顯示；小於此位移量忽略（避免抖動）。
 const TOP_THRESHOLD = 64
 const DELTA_THRESHOLD = 6
 
 /**
- * 懸浮式分離頁首。左島＝首頁品牌，右島＝頁面連結＋基本設定。
- * 向下捲動：兩島縮小＋半透明，降低瀏覽干擾；向上捲動或回到頂端：復原。
- * 滑鼠懸停 / 鍵盤聚焦任一島：整組喚醒復原（純 CSS `:has` / `:focus-within`）。
+ * 桌機＝左側直立導軌，平時極淡、只有圖示；滑鼠靠近（或鍵盤聚焦）整條才
+ * 展開文字並浮出漸層，跟內容分層。導軌本體不吃指標事件，只有圖示／按鈕
+ * 吃，所以蓋在內容上也不會擋住點擊。
+ * 手機／平板＝頂部細列，左 Logo 右漢堡，向下捲整條滑出畫面。
  */
 export default function Header() {
   const currentPath = usePathname()
   const t = useTranslations('Header')
 
-  const [collapsed, setCollapsed] = useState(false)
+  const [hidden, setHidden] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const { scrollY } = useScroll()
   const lastY = useRef(0)
@@ -49,68 +51,72 @@ export default function Header() {
   useMotionValueEvent(scrollY, 'change', (y) => {
     if (y < TOP_THRESHOLD) {
       lastY.current = y
-      setCollapsed(false)
+      setHidden(false)
       return
     }
     const delta = y - lastY.current
     if (Math.abs(delta) < DELTA_THRESHOLD) return
     lastY.current = y
-    setCollapsed(delta > 0) // 往下＝收合，往上＝展開
+    setHidden(delta > 0) // 往下＝收起，往上＝滑回
   })
 
-  // 後台有自己的側邊欄外殼，不套用公開站的懸浮頁首。
+  // 後台有自己的側邊欄外殼，不套用公開站的導軌。
   if (currentPath.startsWith('/admin')) return null
 
   return (
-    <header className={style.shell} data-collapsed={collapsed}>
-      {/* 漸層背景 */}
-      <div className={style.gradientBackground}></div>
-      <div className={style.dock}>
-        <div className={`${style.island} ${style.brandIsland}`}>
-          <Link href="/" className={style.brand} aria-label={t('home')}>
-            <Image
-              src="/assets/icons/web-icons/johnlin-logo-192.png"
-              alt="John Lin"
-              width={32}
-              height={32}
-              className={style.logo}
-              priority
-            />
-          </Link>
+    <header className={style.shell} data-hidden={hidden}>
+      <div className={style.rail}>
+        {/* 漸層背景：桌機展開時才浮現，手機常駐（讓頂列文字有底） */}
+        <div className={style.railBg} />
+
+        <Link href="/" className={style.brand} aria-label={t('home')}>
+          <Image
+            src="/assets/icons/web-icons/johnlin-logo-192.png"
+            alt="John Lin"
+            width={32}
+            height={32}
+            className={style.logo}
+            priority
+          />
+        </Link>
+
+        <nav className={style.nav} aria-label="primary">
+          {NAV_ITEMS.map(({ href, key, icon }) => {
+            const active =
+              currentPath === href || currentPath.startsWith(`${href}/`)
+            return (
+              <Link
+                key={href}
+                href={href}
+                data-nav-item
+                className={`${style.item} ${active ? style.active : ''}`}
+                aria-current={active ? 'page' : undefined}
+              >
+                <Icon name={icon} className={style.itemIcon} fixedWidth />
+                <span data-nav-label>{t(key)}</span>
+              </Link>
+            )
+          })}
+        </nav>
+
+        {/* 桌機不另開抽屜：主題與語言就是導軌最下面兩列，跟手機選單
+            共用同一組元件（見 NavPrefs），只是版位不同。 */}
+        <div className={style.settings}>
+          <ThemeControl />
+          <LocaleControl />
         </div>
 
-        <div className={style.rightGroup}>
-          <div className={`${style.island} ${style.navIsland}`}>
-            <nav className={style.nav} aria-label="primary">
-              {NAV_ITEMS.map(({ href, key, icon }) => {
-                const active =
-                  currentPath === href || currentPath.startsWith(`${href}/`)
-                return (
-                  <Link
-                    key={href}
-                    href={href}
-                    className={`${style.link} ${active ? style.active : ''}`}
-                  >
-                    <Icon name={icon} className={style.linkIcon} />
-                    <span className={style.linkLabel}>{t(key)}</span>
-                  </Link>
-                )
-              })}
-            </nav>
-
-            {/* 跟頁面導覽同一排、同一座島；不分裝置，主題/語言等控制選項一律收在這裡。 */}
-            <button
-              type="button"
-              className={style.menuTrigger}
-              onClick={() => setMenuOpen(true)}
-              aria-label={t('menu')}
-              aria-haspopup="dialog"
-              aria-expanded={menuOpen}
-            >
-              <Icon name="bars" className={style.linkIcon} />
-            </button>
-          </div>
-        </div>
+        {/* 手機／平板專用：導覽與設定都收進抽屜裡。 */}
+        <button
+          type="button"
+          className={style.menuTrigger}
+          onClick={() => setMenuOpen(true)}
+          aria-label={t('menu')}
+          aria-haspopup="dialog"
+          aria-expanded={menuOpen}
+        >
+          <Icon name="bars" />
+        </button>
       </div>
 
       {/* 頁面自帶的次導覽（例如 About 的手機章節列）portal 進來的掛載點；

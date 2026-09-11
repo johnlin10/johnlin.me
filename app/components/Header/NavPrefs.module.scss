@@ -1,0 +1,59 @@
+@use '@/app/styles/mixins' as *;
+
+/* ============================================================
+ * 偏好設定控制的「外觀」。刻意沒有邊框、沒有底色：它永遠浮在半透明的
+ * 導軌／選單上，一有框就會變成貼上去的實體方塊。版位（高度、對齊、
+ * 文字何時出現）由 Header.module.scss / MenuDrawer.module.scss 透過
+ * [data-nav-item] 決定，這裡不碰。
+ * ============================================================ */
+.control {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: inherit;
+  white-space: nowrap;
+}
+
+button.control {
+  cursor: pointer;
+}
+
+.icon {
+  font-size: var(--text-md);
+  flex: none;
+}
+
+.label {
+  min-width: 0;
+}
+
+// 語言的原生 <select>：拔掉瀏覽器的外觀（框、底色、那顆系統箭頭），
+// 只留文字，剩下的行為全部交給原生——行動裝置的系統選單、鍵盤操作、
+// 跟著 color-scheme 走的下拉配色，都不必自己重做一次。
+.selectWrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.select {
+  appearance: none;
+  background: none;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  padding-right: 1.15em; // 讓開自己畫的箭頭
+  border-radius: var(--radius-xs);
+  @include focus-ring;
+}
+
+.caret {
+  position: absolute;
+  right: 0;
+  font-size: var(--text-2xs);
+  opacity: 0.6;
+  pointer-events: none;
+}

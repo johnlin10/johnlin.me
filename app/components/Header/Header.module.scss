@@ -1,30 +1,25 @@
 @use '@/app/styles/mixins' as *;
 
-/* ============================================================
- * 懸浮式分離頁首（Phase 1b 改版）
- * shell 是固定在頂端的外殼（滿版但不吃指標事件），裡面兩層：
- *   .dock       ── 品牌／導覽／設定，只有兩座「島」可互動、可懸浮。
- *   .subNavHost ── 頁面自帶次導覽的掛載點（見 HeaderSubNav），沒內容時
- *                  完全不佔版面；有內容時 shell 才會整塊帶上背景，
- *                  讓 dock 與次導覽共用同一塊視覺矩形，不必用負 margin 互借背景。
- * ============================================================ */
+// 滑鼠滑過圖示之間的空隙時，hover 狀態的寬限時間：離開才延遲收合，
+// 進入一律即時，所以「短暫滑出」看起來像沒發生過。
+$wake-grace: 0.22s;
+// 喚醒條件：滑鼠懸停，或「鍵盤」聚焦。用 :focus-visible 而非 :focus-within——
+// 後者在點連結跳頁後焦點還留在連結上，滑鼠早就離開了導軌卻還是展開的。
+$awake: '[data-nav-item]:hover, a:focus-visible, button:focus-visible';
+$rail-collapsed: 64px;
+$rail-expanded: 216px;
+
 .shell {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   z-index: var(--z-header);
-  pointer-events: none; // 中間空隙讓內容可被點擊 / 捲動
-  transition:
-    opacity var(--duration) var(--ease),
-    background-color var(--duration) var(--ease),
-    backdrop-filter var(--duration) var(--ease),
-    -webkit-backdrop-filter var(--duration) var(--ease),
-    border-color var(--duration) var(--ease);
+  pointer-events: none; // 空隙讓內容可被點擊 / 捲動
+  transition: transform var(--duration) var(--ease);
 
-  // 攝影牆單張聚焦時，浮動 header 淡出，讓暗背景滿版、不與咖啡色 header 割裂。
-  // 子層（.island 等）自己宣告了 pointer-events:auto，父層設 none 蓋不到它們，
-  // 所以要連子孫一起關掉，否則聚焦畫面右上角的關閉鍵會被隱形的 header 島擋住。
+  // 攝影牆單張聚焦時，導覽淡出，讓暗背景滿版。子層自己宣告了
+  // pointer-events:auto，父層設 none 蓋不到，所以要連子孫一起關掉。
   :global(html[data-photo-focus]) & {
     opacity: 0;
     pointer-events: none;
@@ -35,49 +30,215 @@
   }
 }
 
-// 只有手機/平板會有頁面 portal 進來的次導覽（桌機走頁面自己的 sidebar），
-// 所以背景也只在這個範圍內、且掛載點真的有內容時才出現。
-@media (max-width: 1024px) {
-  .shell:has(.subNavHost:not(:empty)) {
-    background: rgba(var(--background-color-rgb), 0.85);
-    backdrop-filter: saturate(1.3) blur(14px);
-    -webkit-backdrop-filter: saturate(1.3) blur(14px);
-    border-bottom: 1px solid var(--border);
-  }
-}
-
-// 漸層背景
-.gradientBackground {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  width: 100%;
-  height: 100%;
-  @include edge-fade;
-  z-index: -1;
-  transition: all var(--duration) var(--ease);
-}
-
-.dock {
-  @include flexbox(row, space-between, flex-start);
+/* ---------- 導軌 ---------- */
+.rail {
+  position: relative;
+  @include flexbox(row, space-between, center);
   gap: var(--space-3);
-  padding: clamp(var(--space-3), 2vw, var(--space-5))
-    clamp(var(--space-4), 3vw, var(--space-6));
-  pointer-events: none;
+  padding: var(--space-3) var(--space-4);
+  pointer-events: none; // 只有裡面的圖示／按鈕吃事件
 
-  @include respond-to('phone') {
-    padding: var(--space-3) var(--space-2); // 手機收窄邊距，讓兩座島有足夠空間
-    gap: var(--space-2);
+  @include respond-to('desktop') {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: $rail-collapsed;
+    padding: var(--space-4) 0;
+    @include flexbox(column, space-between, flex-start);
+    gap: var(--space-6);
+    opacity: 0.4;
+    transition:
+      width var(--duration) var(--ease),
+      opacity var(--duration) var(--ease);
+    // 離開時晚一點才收：滑過圖示之間的空隙（甚至導覽到設定那段長空白）
+    // 都還在這個寬限時間內，hover 狀態不會閃掉再回來。
+    transition-delay: $wake-grace;
+
+    &:has(#{$awake}) {
+      width: $rail-expanded;
+      opacity: 1;
+      transition-delay: 0s;
+    }
   }
 }
 
+// 漸層背景：手機常駐（頂列要有底才看得清楚），桌機只在展開時浮現。
+.railBg {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  @include edge-fade(to bottom);
+  transition: opacity var(--duration) var(--ease);
+  transition-delay: $wake-grace;
+
+  @include respond-to('desktop') {
+    // 比導軌再寬一截，讓漸層在內容上柔和收尾，而不是切一條硬邊。
+    right: auto;
+    width: calc(100% + 96px);
+    @include edge-fade(to right);
+    opacity: 0;
+  }
+}
+
+.rail:has(#{$awake}) .railBg {
+  @include respond-to('desktop') {
+    opacity: 1;
+    transition-delay: 0s;
+  }
+}
+
+/* ---------- 品牌 ---------- */
+.brand {
+  @include flexbox(row, center, center);
+  pointer-events: auto;
+  width: 40px;
+  height: 40px;
+  flex: none;
+  transition: transform var(--duration-fast) var(--ease);
+
+  &:hover {
+    transform: scale(1.06);
+  }
+
+  @include respond-to('desktop') {
+    width: $rail-collapsed;
+  }
+}
+
+.logo {
+  width: 26px;
+  height: 26px;
+  object-fit: contain;
+  display: block;
+
+  :global(.dark) & {
+    filter: invert(1) hue-rotate(180deg);
+  }
+}
+
+/* ---------- 導覽本體（桌機才出現） ---------- */
+.nav,
+.settings {
+  display: none;
+
+  @include respond-to('desktop') {
+    @include flexbox(column, flex-start, stretch);
+    width: 100%;
+    // 不留 gap：間距由 .item 自身高度撐出來，相鄰不留死區，
+    // 滑鼠由上往下滑過整排時 hover 不會在縫隙處斷掉。
+    gap: 0;
+  }
+}
+
+// 導覽置中、設定貼底（rail 是 space-between，nav 吃掉剩餘空間）
+.nav {
+  @include respond-to('desktop') {
+    justify-content: center;
+    flex: 1;
+  }
+}
+
+// 導覽連結與偏好設定控制共用同一份版位：後者的外觀來自 NavPrefs，
+// 但「一列有多高、圖示對齊哪裡」是導軌的事，所以掛在 [data-nav-item] 上。
+.item,
+.rail [data-nav-item] {
+  position: relative;
+  pointer-events: auto;
+  @include flexbox(row, flex-start, center);
+  gap: var(--space-3);
+  height: 52px; // 圖示 ~20px，其餘是上下呼吸空間（取代 gap）
+  padding: 0 var(--space-3) 0 22px;
+  font-size: var(--text-sm);
+  font-family: var(--font-sans);
+  letter-spacing: var(--tracking-wide);
+  white-space: nowrap;
+  color: var(--text-secondary);
+  transition: color var(--duration-fast) var(--ease);
+
+  &:hover {
+    color: var(--text);
+  }
+
+  &.active {
+    color: var(--accent);
+
+    // 目前所在位置的短豎線，收合狀態也看得到。
+    &::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 50%;
+      width: 2px;
+      height: 18px;
+      margin-top: -9px;
+      border-radius: 0 2px 2px 0;
+      background: var(--accent);
+    }
+  }
+}
+
+.itemIcon {
+  font-size: var(--text-md);
+  flex: none;
+}
+
+// 文字預設收起；整條展開時依序滑出，像清單被「翻開」而不是整塊跳出來。
+// 收起時要連指標事件一起關掉：文字是溢出到導軌右邊的（只是透明），
+// 不關的話內容區會多出一塊看不見的可點範圍。
+.rail [data-nav-label] {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(-6px);
+  transition:
+    opacity var(--duration-fast) var(--ease),
+    transform var(--duration-fast) var(--ease);
+  transition-delay: $wake-grace;
+}
+
+.rail:has(#{$awake}) [data-nav-label] {
+  opacity: 1;
+  pointer-events: auto;
+  transform: none;
+}
+
+@include respond-to('desktop') {
+  @for $i from 1 through 4 {
+    .rail:has(#{$awake}) .nav > *:nth-child(#{$i}) [data-nav-label] {
+      transition-delay: #{0.04 * $i}s;
+    }
+  }
+
+  @for $i from 1 through 2 {
+    .rail:has(#{$awake}) .settings > *:nth-child(#{$i}) [data-nav-label] {
+      transition-delay: #{0.2 + 0.04 * $i}s;
+    }
+  }
+}
+
+/* ---------- 手機漢堡 ---------- */
+.menuTrigger {
+  pointer-events: auto;
+  @include flexbox(row, center, center);
+  width: 40px;
+  height: 40px;
+  font-size: var(--text-lg);
+  color: var(--text-secondary);
+
+  &:hover {
+    color: var(--text);
+  }
+
+  @include respond-to('desktop') {
+    display: none;
+  }
+}
+
+/* ---------- 次導覽掛載點（手機／平板） ---------- */
 .subNavHost {
   display: none;
   pointer-events: auto;
   padding: 0 0 var(--space-2);
-  transform-origin: top;
-  transition: all var(--duration) var(--ease);
 
   &:not(:empty) {
     display: block;
@@ -88,217 +249,43 @@
   }
 }
 
-.island {
-  pointer-events: auto;
-  @include flexbox(row, center, center);
-  height: 52px;
-  background: transparent;
-  border: 1px solid transparent;
-  border-radius: var(--radius-pill);
-  box-shadow: none;
-  backdrop-filter: blur(0px);
-  -webkit-backdrop-filter: blur(0px);
-  transition: all var(--duration) var(--ease);
-
-  @include respond-to('phone') {
-    height: 48px;
-  }
-
-  &:hover,
-  &:focus-within {
-    background: rgba(var(--background-color-rgb), 0.72);
-    border-color: var(--border);
-    box-shadow: var(--shadow-sm);
+// 有次導覽時整塊帶上底，讓頂列與次導覽共用同一塊視覺矩形。
+@media (max-width: 1024px) {
+  .shell:has(.subNavHost:not(:empty)) {
+    background: rgba(var(--background-color-rgb), 0.85);
     backdrop-filter: saturate(1.3) blur(14px);
-    -webkit-backdrop-filter: saturate(1.3) blur(14px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  // 向下捲：整條（含次導覽）滑出畫面，把高度完全還給內容。
+  .shell[data-hidden='true'] {
+    transform: translateY(-100%);
   }
 }
 
-.rightGroup {
-  pointer-events: none;
-  @include flexbox(column, flex-start, flex-end);
-}
-
-.brandIsland {
-  transform-origin: left top;
-}
-
-.navIsland {
-  gap: 2px;
-  padding: 0 var(--space-3);
-
-  @include respond-to('phone') {
-    padding: 0 var(--space-2);
-  }
-}
-
-/* ---------- 收合狀態：縮小 + 半透明 ---------- */
-// data-collapsed 現在標在 shell 本體，dock 的兩座島跟 subNavHost（次導覽列）
-// 都是 shell 的子孫，所以捲動降噪的效果能一起套用，不會只有島縮、次導覽不縮。
-.shell[data-collapsed='true'] .island {
-  opacity: 0.5;
-  height: 40px;
-}
-
-.shell[data-collapsed='true'] .subNavHost {
-  opacity: 0.5;
-}
-
-/* 懸停 / 聚焦任一島 → 整組（含次導覽）一起復原（:has 讓大家一起喚醒） */
-.shell:has(.island:hover) .island,
-.shell:has(.island:focus-within) .island {
-  opacity: 1;
-  transform: none;
-}
-
-.shell:has(.island:hover) .subNavHost,
-.shell:has(.island:focus-within) .subNavHost {
-  opacity: 1;
-  transform: none;
-}
-
-/* ---------- 品牌 ---------- */
-.brand {
-  @include flexbox(row, center, center);
-  width: 52px;
-  height: 52px;
-  transition: all var(--duration-fast) var(--ease);
-
-  &:hover {
-    opacity: 0.85;
-    transform: scale(1.05);
-  }
-
-  img {
-    transition: all var(--duration-fast) var(--ease);
-  }
-}
-
-.shell[data-collapsed='true'] .brand {
-  width: 40px;
-  height: 40px;
-}
-
-.logo {
-  width: 28px;
-  height: 28px;
-  object-fit: contain;
-  display: block;
-
-  @include respond-to('phone') {
-    width: 24px;
-    height: 24px;
-  }
-
-  :global(.dark) & {
-    filter: invert(1) hue-rotate(180deg);
-  }
-}
-
-.shell[data-collapsed='true'] .logo {
-  width: 24px;
-  height: 24px;
-
-  @include respond-to('phone') {
-    width: 20px;
-    height: 20px;
-  }
-}
-
-/* ---------- 導覽連結 ---------- */
-.nav {
-  @include flexbox(row, center, center);
-  gap: var(--space-3);
-}
-
-.link {
-  @include flexbox(row, center, center);
-  gap: var(--space-2);
-  padding: var(--space-2) var(--space-4);
-  font-size: var(--text-sm);
-  letter-spacing: var(--tracking-wide);
-  color: var(--text-secondary);
-  border-radius: var(--radius-pill);
-  white-space: nowrap;
-  transition: all var(--duration-fast) var(--ease);
-
-  svg {
-    height: 1rem;
-    transition: all var(--duration-fast) var(--ease);
-  }
-
-  &:hover {
-    color: var(--text);
-  }
-
-  &.active {
-    color: var(--accent);
-  }
-
-  // 手機空間有限：導覽只留圖示，完整頁面清單/文字在 Menu 抽屜裡。
-  @include respond-to('phone') {
-    padding: var(--space-2);
-  }
-}
-
-.shell[data-collapsed='true'] .link {
-  font-size: var(--text-2xs);
-
-  svg {
-    height: var(--text-xs);
-  }
-}
-
-.linkIcon {
-  font-size: var(--text-md);
-
-  // 手機只剩圖示、沒有文字撐場面，圖示要再大一點才不會太單薄。
-  @include respond-to('phone') {
-    font-size: var(--text-xl);
-  }
-}
-
-.linkLabel {
-  @include respond-to('phone') {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
-    border: 0;
-  }
-}
-
-// 開啟 Menu 抽屜的按鈕：跟頁面導覽同一排、同一座島。不分裝置一律顯示——
-// 主題／語言等控制選項不再直接放在 Header 上，一律收進 Menu 抽屜。
-.menuTrigger {
-  @include flexbox(row, center, center);
-  margin-left: var(--space-2);
-  padding: var(--space-3);
-  color: var(--text-secondary);
-
-  &:hover {
-    color: var(--text);
-  }
-}
-
-/* ---------- 尊重減少動態：只淡不縮，過場近乎即時 ---------- */
+/* ---------- 尊重減少動態：只淡不動 ---------- */
 @media (prefers-reduced-motion: reduce) {
-  .island,
-  .subNavHost {
-    transition: opacity var(--duration-fast) linear;
+  .shell,
+  .rail,
+  .rail [data-nav-label],
+  .railBg {
+    transition-duration: var(--duration-fast);
   }
-  .shell[data-collapsed='true'] .island,
-  .shell[data-collapsed='true'] .subNavHost {
+
+  // 取消「依序」出場，但保留離開時的寬限延遲——那不是動態效果，
+  // 是避免滑過空隙時整條閃爍。
+  .rail:has(#{$awake}) [data-nav-label] {
+    transition-delay: 0s !important;
+  }
+
+  .rail [data-nav-label] {
     transform: none;
   }
-  .shell:has(.island:hover) .island,
-  .shell:has(.island:focus-within) .island,
-  .shell:has(.island:hover) .subNavHost,
-  .shell:has(.island:focus-within) .subNavHost {
-    transform: none;
+
+  @media (max-width: 1024px) {
+    .shell[data-hidden='true'] {
+      transform: none;
+      opacity: 0;
+    }
   }
 }

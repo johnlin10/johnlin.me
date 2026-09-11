@@ -301,24 +301,28 @@ $photo-shadow:
   z-index: var(--z-raised);
 }
 
-// 牆↔清單切換的停靠位（左下，鏡射右下的縮放控制）。用 fixed 讓它在
-// 牆模式（fixed viewport 內）與清單模式（一般捲動頁）都貼在視窗左下角。
+// 牆↔清單切換的停靠位：底部置中。左下角留給桌機的側邊導軌（見
+// Header.module.scss），兩者搶同一塊會打架。用 fixed 讓它在牆模式
+// （fixed viewport 內）與清單模式（一般捲動頁）都貼在視窗底部。
 .modeDock {
   position: fixed;
-  left: var(--space-5);
+  left: 50%;
+  transform: translateX(-50%);
   bottom: max(var(--space-5), env(safe-area-inset-bottom));
   z-index: var(--z-raised);
 }
 
-// 首訪提示 coach mark：底部置中（避開左右下角的控制），一互動或計時到淡出。
+// 首訪提示 coach mark：底部置中，疊在模式切換上方（那也在底部置中），
+// 一互動或計時到淡出。
 // 動畫掛在這層 dock（flex 置中），內層按鈕不需 transform，才不跟 motion 打架。
 .hintDock {
   position: absolute;
   left: 0;
   right: 0;
+  // 讓開底部置中的 .modeDock（約 46px 高 + 20px 邊距）
   bottom: max(
-    var(--space-8),
-    calc(env(safe-area-inset-bottom) + var(--space-6))
+    var(--space-20),
+    calc(env(safe-area-inset-bottom) + var(--space-16))
   );
   display: flex;
   justify-content: center;

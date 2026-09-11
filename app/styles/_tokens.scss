@@ -106,7 +106,7 @@
   //* Layer 3：頁面左右邊距，唯一真相來源，響應式在這裡切，別在各頁重寫。
   // 放在 :root 區塊最後面：這幾行 media query 後面不能再接純宣告，
   // 不然 Sass 會噴 mixed-decls 警告。
-  --page-gutter: 48px;
+  --page-gutter: 72px;
   @media (max-width: 900px) {
     --page-gutter: 32px;
   }

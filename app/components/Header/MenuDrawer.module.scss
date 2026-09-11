@@ -5,115 +5,130 @@
   inset: 0;
   z-index: var(--z-drawer);
   pointer-events: auto; // Header 的 .shell 祖先是 pointer-events:none，這裡要拿回來
-  background: rgba(0, 0, 0, 0.32);
+  // 不壓暗，改用一層模糊把整頁內容推到後面去：選單有層次，底下的內容
+  // 也還認得出來，只是失焦。這層不能有 opacity/transform 動畫，否則會
+  // 變成 backdrop root，模糊就取樣不到頁面內容（見 MenuDrawer.tsx）。
+  // 注意：別手寫 -webkit- 前綴。lightningcss 看到手寫前綴會把標準屬性
+  // 收掉只留前綴版（Firefox 就沒模糊了）；只寫標準寫法它自己會補前綴。
+  background: transparent;
+  backdrop-filter: blur(3px) saturate(1.1);
+  // 用 keyframes 而不是 opacity 過場，理由同上：模糊要自己從 0 長出來，
+  // 這層本身的不透明度不能動。（減少動態時全站的 * 規則會把時長歸零）
+  animation: blur-in var(--duration) var(--ease) both;
 }
 
+@keyframes blur-in {
+  from {
+    backdrop-filter: blur(0px) saturate(1);
+  }
+}
+
+// 面板＝一塊右濃左淡的漸層，沒有邊框也沒有陰影。點面板空白處＝關閉
+// （左半邊的淡出區看起來就是「外面」），只有偏好設定那排例外。
 .panel {
   position: fixed;
   top: 0;
   right: 0;
   bottom: 0;
-  // 面板要蓋在 backdrop 之上，兩者才不會靠 DOM 順序碰運氣疊對。
   z-index: calc(var(--z-drawer) + 1);
-  pointer-events: auto; // 同上
-  width: min(320px, 84vw);
+  pointer-events: auto;
+  // 夠寬，漸層才有空間慢慢化開；手機直接滿寬，左邊自然淡到透明。
+  --drawer-width: min(560px, 100vw);
+  width: var(--drawer-width);
   display: flex;
   flex-direction: column;
+  align-items: flex-end;
   gap: var(--space-1);
-  padding: calc(env(safe-area-inset-top, 0px) + var(--space-5)) var(--space-5)
-    var(--space-6);
-  background: var(--background-color);
-  background-image: var(--background-texture);
-  border-left: 1px solid var(--border);
-  box-shadow: var(--shadow-lg);
+  padding: calc(env(safe-area-inset-top, 0px) + var(--space-8)) var(--space-8)
+    var(--space-8);
   overflow-y: auto;
 }
 
-.panelHeader {
-  @include flexbox(row, space-between, center);
-  margin-bottom: var(--space-3);
+.wash {
+  // fixed 而非 absolute：面板內容夠長要捲動時，漸層不會跟著捲走。
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: var(--drawer-width);
+  z-index: -1;
+  // 只有顏色：模糊統一交給底下的 .backdrop，這層要滑入（transform／
+  // opacity 動畫），跟 backdrop-filter 放在一起只會讓模糊失效。
+  @include edge-fade(to left);
 }
 
-.panelTitle {
-  font-family: var(--font-serif);
-  font-size: var(--text-lg);
-  font-weight: 600;
-  letter-spacing: var(--tracking-normal);
-  color: var(--text);
+.panelHeader {
+  @include flexbox(row, flex-end, center);
+  margin-bottom: var(--space-4);
 }
 
 .closeButton {
   @include flexbox(row, center, center);
-  width: 36px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
   font-size: var(--text-xl);
   border-radius: var(--radius-pill);
   color: var(--text-secondary);
-  transition:
-    color var(--duration-fast) var(--ease),
-    background-color var(--duration-fast) var(--ease);
+  transition: color var(--duration-fast) var(--ease);
 
   &:hover {
     color: var(--text);
-    background: var(--surface-2);
   }
 }
 
 .nav {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  align-items: flex-end;
+  gap: var(--space-1);
 }
 
+// 右側進場，所以文字靠右、圖示殿後，讀起來跟動線同向。
 .navLink {
-  @include flexbox(row, flex-start, center);
+  @include flexbox(row, flex-end, center);
   gap: var(--space-3);
-  padding: var(--space-3) var(--space-4);
-  border-radius: var(--radius-sm);
-  font-size: var(--text-md);
-  letter-spacing: var(--tracking-normal);
+  padding: var(--space-3) 0;
+  font-family: var(--font-serif);
+  font-size: var(--text-xl);
+  letter-spacing: var(--tracking-wide);
   color: var(--text-secondary);
-  transition:
-    color var(--duration-fast) var(--ease),
-    background-color var(--duration-fast) var(--ease);
+  transition: color var(--duration-fast) var(--ease);
 
   &:hover {
     color: var(--text);
-    background: var(--surface-2);
   }
 
   &.active {
     color: var(--accent);
-    background: var(--accent-soft);
   }
 }
 
 .navIcon {
-  font-size: var(--text-lg);
-}
-
-.divider {
-  height: 1px;
-  margin: var(--space-4) 0;
-  background: var(--border);
+  font-size: var(--text-md);
+  opacity: 0.6;
 }
 
 .controls {
   display: flex;
   flex-direction: column;
+  align-items: flex-end;
   gap: var(--space-2);
+  margin-top: var(--space-8);
 }
 
 .controlsLabel {
-  padding: 0 var(--space-4);
   font-size: var(--text-2xs);
   letter-spacing: var(--tracking-wide);
   color: var(--text-muted);
 }
 
-.controlsRow {
-  @include flexbox(row, flex-start, center);
-  flex-wrap: wrap;
-  gap: var(--space-2);
-  padding: 0 var(--space-3);
+// 主題／語言的外觀由 NavPrefs 決定（無框無底，才不會在半透的選單裡
+// 顯得像貼上去的實體）；這裡只排版位：靠右、圖示殿後，跟上面的導覽同向。
+.controls [data-nav-item] {
+  flex-direction: row-reverse;
+  gap: var(--space-3);
+  padding: var(--space-2) 0;
+  font-size: var(--text-md);
+  letter-spacing: var(--tracking-wide);
+  color: var(--text-secondary);
 }
