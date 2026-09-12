@@ -77,7 +77,7 @@ export default async function PhotographyGlimpse({
                   {/* 相片與底下的資訊是同一個整體，一起傾斜、一起回正 */}
                   <figure className={style.photoCard}>
                     <Link
-                      href={`/gallery/${photo.slug}`}
+                      href={`/photography/${photo.slug}`}
                       className={style.photoFrame}
                     >
                       {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -111,7 +111,7 @@ export default async function PhotographyGlimpse({
         <Reveal delay={0.1}>
           {/* 疊起來的相片本身就是入口：hover 展開成 2×3 的牆。
               hover 綁在整個 <a> 上，游標走到相片縫隙也不會掉出狀態。 */}
-          <Link href="/gallery" className={style.wallCta}>
+          <Link href="/photography" className={style.wallCta}>
             <span className={style.wallStack} aria-hidden>
               {WALL_CHIPS.map((i) => (
                 <span key={i} className={style.wallChip} />

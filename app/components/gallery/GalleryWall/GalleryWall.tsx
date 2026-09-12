@@ -557,7 +557,7 @@ export default function GalleryWall({
       }`}
       tabIndex={0}
       role="application"
-      aria-roledescription={locale === 'en' ? 'Photo wall' : '攝影牆'}
+      aria-roledescription={locale === 'en' ? 'Photo wall' : '照片牆'}
       onPointerDown={pz.onPointerDown}
       onPointerMove={pz.onPointerMove}
       onPointerUp={pz.onPointerUp}

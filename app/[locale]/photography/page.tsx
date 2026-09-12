@@ -21,7 +21,7 @@ export async function generateMetadata({ params }: Props) {
   return metadata({
     title: t('title'),
     description: t('description'),
-    url: '/gallery',
+    url: '/photography',
   })
 }
 

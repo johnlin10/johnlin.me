@@ -420,7 +420,7 @@ export default function PhotoInspector({
 
         {status === 'published' && (
           <Link
-            href={`/gallery/${slug}`}
+            href={`/photography/${slug}`}
             target="_blank"
             rel="noopener noreferrer"
             className={style.openOnSite}

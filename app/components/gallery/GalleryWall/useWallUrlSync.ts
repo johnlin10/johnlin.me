@@ -19,7 +19,7 @@ export function useWallUrlSync(
 
   const urlFor = useCallback(
     (slug: string | null) =>
-      slug ? `${prefix}/gallery/${slug}` : `${prefix}/gallery`,
+      slug ? `${prefix}/photography/${slug}` : `${prefix}/photography`,
     [prefix]
   )
 
@@ -43,9 +43,9 @@ export function useWallUrlSync(
 
   useEffect(() => {
     const handler = () => {
-      // 從 /gallery 或 /(en/)gallery/<slug> 取出 slug（末段），/gallery 本身 → null
+      // 從 /photography 或 /(en/)gallery/<slug> 取出 slug（末段），/photography 本身 → null
       const path = window.location.pathname
-      const match = path.match(/\/gallery\/([^/]+)\/?$/)
+      const match = path.match(/\/photography\/([^/]+)\/?$/)
       cb.current(match ? decodeURIComponent(match[1]) : null)
     }
     window.addEventListener('popstate', handler)

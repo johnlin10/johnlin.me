@@ -720,24 +720,24 @@
       "label": "Latest Writing",
       "heading": "What's been on my mind?",
       "empty": "The first piece is still taking shape. It'll be here soon.",
-      "cta": "Go to the blog"
+      "cta": "All writing"
     },
     "photographyGlimpse": {
       "label": "A Glimpse",
       "heading": "Through the lens.",
       "empty": "The photography space is being put together. Stay tuned.",
-      "cta": "Go to the gallery"
+      "cta": "All photos"
     }
   },
   "BlogPage": {
-    "title": "Blog",
+    "title": "Writing",
     "description": "Recording my thoughts, writing my own story.",
-    "page_title": "Blog",
+    "page_title": "Writing",
     "noPosts": "No posts yet",
     "readingTime": "{minutes} min read",
     "yearDivider": "{year}",
     "fallbackNote": "This article is not yet available in English — showing the original Chinese.",
-    "backToList": "← Back to all posts",
+    "backToList": "← Back to all writing",
     "viewMode": {
       "label": "Switch post layout",
       "card": "Card view",
@@ -751,6 +751,7 @@
     "empty": "Photos are being sorted — they will be on the wall soon.",
     "gridView": "Photo grid",
     "backToWall": "Back to the wall",
+    "backToList": "Back to all photos",
     "viewPhotos": "Browse the work",
     "mode": {
       "wall": "Wall",
@@ -888,7 +889,7 @@
     "title": "This page does not exist",
     "lead": "The URL may have changed, been removed, or contain a typo.",
     "home": "Back home",
-    "blog": "Read the blog",
-    "gallery": "See the photos"
+    "blog": "Read my writing",
+    "gallery": "See my photos"
   }
 }

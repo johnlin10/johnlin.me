@@ -15,8 +15,8 @@ import { revalidatePath, revalidateTag } from 'next/cache'
  * 各處自己寫一份遲早會有一處跟著路由改名而漏改。
  */
 export function revalidatePhotos(): void {
-  revalidatePath('/[locale]/gallery', 'page')
-  revalidatePath('/[locale]/gallery/[slug]', 'page')
+  revalidatePath('/[locale]/photography', 'page')
+  revalidatePath('/[locale]/photography/[slug]', 'page')
   revalidatePath('/[locale]', 'page')
   // 第二個參數是 Next 16 起的必填：'max' 標記為過期但先送舊的、背景換新
   revalidateTag('photos', 'max')

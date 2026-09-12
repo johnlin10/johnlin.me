@@ -19,7 +19,7 @@ const NAV_ITEMS: {
 }[] = [
   { href: '/blog', key: 'blog', icon: 'newspaper' },
   { href: '/notes', key: 'notes', icon: 'comment' },
-  { href: '/gallery', key: 'gallery', icon: 'camera' },
+  { href: '/photography', key: 'gallery', icon: 'camera' },
   { href: '/about', key: 'about', icon: 'user' },
 ]
 

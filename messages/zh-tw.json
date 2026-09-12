@@ -721,19 +721,19 @@
       "label": "最新文章",
       "heading": "最近想了什麼？",
       "empty": "第一篇還在醞釀中，很快就會出現在這裡。",
-      "cta": "前往部落格"
+      "cta": "看所有文章"
     },
     "photographyGlimpse": {
       "label": "攝影一瞥",
       "heading": "透過鏡頭。",
       "empty": "攝影空間正在整理中，敬請期待。",
-      "cta": "前往攝影牆"
+      "cta": "看所有照片"
     }
   },
   "BlogPage": {
-    "title": "部落格",
+    "title": "文章",
     "description": "記錄我的所思所想，寫下屬於我的故事。",
-    "page_title": "部落格",
+    "page_title": "文章",
     "noPosts": "尚無文章",
     "readingTime": "約 {minutes} 分鐘閱讀",
     "yearDivider": "{year} 年",
@@ -746,15 +746,16 @@
     }
   },
   "GalleryPage": {
-    "title": "攝影牆",
+    "title": "攝影",
     "description": "我的攝影沒有什麼公式，只有當下的感覺，覺得美就記錄下來。",
-    "page_title": "攝影牆",
+    "page_title": "攝影",
     "empty": "照片正在整理中，很快就會掛上牆。",
     "gridView": "照片網格",
-    "backToWall": "回到攝影牆",
+    "backToWall": "回到照片牆",
+    "backToList": "回到所有照片",
     "viewPhotos": "瀏覽作品",
     "mode": {
-      "wall": "攝影牆",
+      "wall": "照片牆",
       "grid": "網格",
       "label": "檢視方式"
     },

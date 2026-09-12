@@ -7,6 +7,13 @@ const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: false,
   },
+  // 攝影頁網址 /gallery → /photography（v1.2.2），舊連結轉過去。
+  async redirects() {
+    return [
+      { source: '/gallery/:path*', destination: '/photography/:path*', permanent: true },
+      { source: '/en/gallery/:path*', destination: '/en/photography/:path*', permanent: true },
+    ]
+  },
   // About 頁章節內容在執行期用 readdir/readFile 讀取，@vercel/nft 無法追蹤
   // 動態組出的路徑；沒有這行，正式站會安靜地讀不到檔案（About 頁變空白）。
   outputFileTracingIncludes: {

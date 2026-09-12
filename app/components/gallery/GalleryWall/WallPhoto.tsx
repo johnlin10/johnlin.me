@@ -90,7 +90,7 @@ function WallPhoto({
   return (
     <>
       <Link
-        href={`/gallery/${photo.slug}`}
+        href={`/photography/${photo.slug}`}
         className={styles.photo}
         style={{
           left: x,
@@ -133,7 +133,7 @@ function WallPhoto({
       </Link>
 
       {isFocused ? (
-        // 聚焦：與照片同平面呈現完整資訊（與 /gallery/[slug] 同一份 PhotoMeta）
+        // 聚焦：與照片同平面呈現完整資訊（與 /photography/[slug] 同一份 PhotoMeta）
         <div
           ref={focusCardRef}
           className={styles.focusCard}

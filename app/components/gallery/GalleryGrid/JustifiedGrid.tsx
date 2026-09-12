@@ -88,7 +88,7 @@ export default function JustifiedGrid({ photos, locale }: JustifiedGridProps) {
                     return (
                       <Link
                         key={photo.id}
-                        href={`/gallery/${photo.slug}`}
+                        href={`/photography/${photo.slug}`}
                         className={styles.item}
                         style={{ width: itemWidth }}
                       >

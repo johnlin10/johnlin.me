@@ -10,7 +10,7 @@ const EMAIL = 'johnlin@johnlin.me'
 
 const NAV_ITEMS = [
   { href: '/blog', key: 'blog' },
-  { href: '/gallery', key: 'gallery' },
+  { href: '/photography', key: 'gallery' },
   { href: '/about', key: 'about' },
 ] as const
 

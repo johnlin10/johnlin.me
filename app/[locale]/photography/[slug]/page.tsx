@@ -51,7 +51,7 @@ export async function generateMetadata({
     image: photo.urlOg,
     imageWidth: 1200,
     imageHeight: 630,
-    url: `/gallery/${slug}`,
+    url: `/photography/${slug}`,
     type: 'article',
   })
 }
@@ -64,9 +64,9 @@ export default async function PhotoPage({ params }: PhotoPageProps) {
   if (!photo || photo.status !== 'published') notFound()
 
   const t = await getTranslations({ locale, namespace: 'GalleryPage' })
-  // SITE_CONFIG.url 已 strip 尾斜線；直接用 env 會多一條斜線（johnlin.me//gallery）
+  // SITE_CONFIG.url 已 strip 尾斜線；直接用 env 會多一條斜線（johnlin.me//photography）
   const prefix = locale === routing.defaultLocale ? '' : `/${locale}`
-  const pageUrl = `${SITE_CONFIG.url}${prefix}/gallery/${slug}`
+  const pageUrl = `${SITE_CONFIG.url}${prefix}/photography/${slug}`
 
   return (
     <PageContainer maxWidth="wide">
@@ -92,8 +92,8 @@ export default async function PhotoPage({ params }: PhotoPageProps) {
         />
       </figure>
 
-      <Link href="/gallery" className={styles.back}>
-        ← {t('backToWall')}
+      <Link href="/photography" className={styles.back}>
+        ← {t('backToList')}
       </Link>
     </PageContainer>
   )

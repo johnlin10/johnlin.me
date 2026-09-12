@@ -64,7 +64,7 @@ const STATIC_PAGES: Array<{
   priority: number
 }> = [
   { path: '/about', changeFrequency: 'monthly', priority: 0.6 },
-  { path: '/gallery', changeFrequency: 'weekly', priority: 0.6 },
+  { path: '/photography', changeFrequency: 'weekly', priority: 0.6 },
 ]
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
@@ -114,7 +114,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const photoEntries = photos.flatMap((photo) =>
     localizedEntry(
-      `/gallery/${photo.slug}`,
+      `/photography/${photo.slug}`,
       new Date(photo.updatedAt || photo.createdAt),
       'monthly',
       0.5

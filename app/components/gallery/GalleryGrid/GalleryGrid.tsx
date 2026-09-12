@@ -13,8 +13,8 @@ interface GalleryGridProps {
 
 /**
  * 攝影作品的語意化網格，Server Component。一石三鳥：
- * ① 給爬蟲一組指向每張 /gallery/[slug] 的內鏈（沒有這個，牆是 canvas 式黑洞，
- *    爬蟲從 /gallery 找不到任何一張照片）；② no-JS 與螢幕閱讀器的可用版本；
+ * ① 給爬蟲一組指向每張 /photography/[slug] 的內鏈（沒有這個，牆是 canvas 式黑洞，
+ *    爬蟲從 /photography 找不到任何一張照片）；② no-JS 與螢幕閱讀器的可用版本；
  * ③ reduced-motion 使用者的替代路徑。牆（Stage 4）會把它當降級層包在裡面。
  *
  * 版面刻意簡單：CSS 多欄（columns）瀑布流，每張照片維持自己的原始比例、
@@ -50,7 +50,7 @@ export default async function GalleryGrid({
               )
               return (
                 <li key={photo.id} className={styles.item}>
-                  <Link href={`/gallery/${photo.slug}`} className={styles.link}>
+                  <Link href={`/photography/${photo.slug}`} className={styles.link}>
                     <span
                       className={styles.frame}
                       style={{ aspectRatio: `${photo.width} / ${photo.height}` }}

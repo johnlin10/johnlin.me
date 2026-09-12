@@ -61,8 +61,8 @@
 | `/blog/[slug]` | `blog/[slug]/page.tsx` | 依 slug 撈文章，非 `published` 或不存在就 404。若當前語系沒翻譯，退回顯示 `zh-tw` 內容並提示「英文版尚未提供」。掛載 client 元件 `ViewTracker`（見第四節）。 |
 | `/notes` | `notes/page.tsx` | `getPublishedNotes(pageSize:50)`，單欄 feed（像短動態牆）。 |
 | `/notes/[id]` | `notes/[id]/page.tsx` | 依 id 查單篇 note。 |
-| `/gallery` | `gallery/page.tsx` | ISR（`revalidate=300`），`getPublishedPhotos` 撈全部已發布照片。預設是可拖曳／縮放的互動「攝影牆」，使用者可切換成齊行清單，偏好記在 localStorage；SSR／無 JS／爬蟲一律拿到不需要 JS 的簡化版清單。 |
-| `/gallery/[slug]` | `gallery/[slug]/page.tsx` | ISR + `generateStaticParams`，單張作品頁。LCP 圖用原生 `<img srcSet>` + `fetchPriority=high`，聚焦時載原檔（HDR 保 HDR）。 |
+| `/photography` | `photography/page.tsx` | ISR（`revalidate=300`），`getPublishedPhotos` 撈全部已發布照片。預設是可拖曳／縮放的互動「照片牆」，使用者可切換成齊行清單，偏好記在 localStorage；SSR／無 JS／爬蟲一律拿到不需要 JS 的簡化版清單。 |
+| `/photography/[slug]` | `photography/[slug]/page.tsx` | ISR + `generateStaticParams`，單張作品頁。LCP 圖用原生 `<img srcSet>` + `fetchPriority=high`，聚焦時載原檔（HDR 保 HDR）。 |
 | `/lab` | `lab/page.tsx` | 實驗頁索引，目前只有一個連到 `/lab/design` 的連結。 |
 | `/lab/design` | `lab/design/page.tsx` | 設計系統的「活頁」，把 `_tokens.scss`/`_theme.scss` 裡的 CSS 變數渲染成色票/間距/字級等等，`ColorDisplay` 元件負責解析真實算出來的值並支援點擊複製。 |
 
@@ -236,9 +236,9 @@ Notes 沒有標題、沒有 slug、沒有雙語、沒有草稿流程（一律直
 
 9. **proxy 拒絕放行時會丟掉 Supabase 剛續期的 cookie。** `proxy.ts` 的 Supabase cookie adapter 把更新後的 auth cookie 寫在 next-intl 產生的 `response` 上，但守衛判定不放行時回傳的是一個全新的 `NextResponse.redirect(...)`，那些 cookie 就沒了。實務上影響有限（不放行本來就要重新登入），但 session 只在放行路徑上會被續期。修法是把 `response.cookies.getAll()` 複製到 redirect response 上。Beta 3 升級時刻意不動它，好讓升級的 diff 保持乾淨。
 
-10. **靜態產生依賴 `setRequestLocale`，而它是 next-intl 的舊 API。** `app/[locale]/layout.tsx` 呼叫 `setRequestLocale(locale)`，少了它，`/gallery/[slug]` 那 104 頁會整批退回動態渲染（Next 16 起不再讓 `app/lib/metadata.ts` 裡 `getLocale().catch()` 把錯誤吞掉）。next-intl 官方建議改用 `next/root-params`，那是獨立的遷移工作。
+10. **靜態產生依賴 `setRequestLocale`，而它是 next-intl 的舊 API。** `app/[locale]/layout.tsx` 呼叫 `setRequestLocale(locale)`，少了它，`/photography/[slug]` 那 104 頁會整批退回動態渲染（Next 16 起不再讓 `app/lib/metadata.ts` 裡 `getLocale().catch()` 把錯誤吞掉）。next-intl 官方建議改用 `next/root-params`，那是獨立的遷移工作。
 
-11. **eslint-plugin-react-hooks v6 的四條新規則被降為警告。** `refs`／`set-state-in-effect`／`immutability`／`preserve-manual-memoization` 在既有程式碼上共 31 個違規，集中在攝影牆的手勢與狀態機 hook、自動存檔與燈箱。它們指出的是真問題（例如 render 期間寫 ref），設定在 `eslint.config.mjs` 裡刻意降級以免升級 diff 被淹沒，是明確的待辦。
+11. **eslint-plugin-react-hooks v6 的四條新規則被降為警告。** `refs`／`set-state-in-effect`／`immutability`／`preserve-manual-memoization` 在既有程式碼上共 31 個違規，集中在照片牆的手勢與狀態機 hook、自動存檔與燈箱。它們指出的是真問題（例如 render 期間寫 ref），設定在 `eslint.config.mjs` 裡刻意降級以免升級 diff 被淹沒，是明確的待辦。
 
 12. **首頁的原始碼展示面板有檔案追蹤漏洞。** `app/[locale]/page.tsx` 在執行期用 `readFile` 讀 `app/components/home/HeroShowcase.tsx` 當展示內容，但 `next.config.ts` 的 `outputFileTracingIncludes` 只涵蓋 `/[locale]/about`。讀不到時 `catch` 回傳「原始碼讀取失敗」字串——跟 About 頁同一類的安靜失效。目前正式站正常，但這是靠運氣。
 
@@ -249,5 +249,5 @@ Notes 沒有標題、沒有 slug、沒有雙語、沒有草稿流程（一律直
 - 想搞懂「文章怎麼從編輯器變成前台頁面」→ 從 `app/components/admin/PostEditor/` 開始跟到 `app/lib/supabase/posts.ts` 再到 `app/[locale]/blog/[slug]/page.tsx`。
 - 想搞懂「權限怎麼擋」→ `proxy.ts` → `app/lib/supabase/requireAdmin.ts` → 去 Supabase 後台找 `is_admin()` 的定義。
 - 想加新功能 → 參考 `notes` 這條線（全站最簡單完整的 CRUD 範例：`app/lib/supabase/notes.ts` + `admin/notes/page.tsx` + `notes/page.tsx`），複雜度比 `posts` 低很多，適合當模板。
-- 想搞懂「一張照片從拖進瀏覽器到出現在攝影牆」→ `admin/photos/upload/page.tsx`（預檢）→ `app/lib/photos/exifDraft.ts`（瀏覽器端解 EXIF）→ `api/admin/photos/upload-url`（presign）→ `api/admin/photos/ingest` → `app/lib/images/photoDerivatives.ts`（sharp 產圖）→ `app/lib/supabase/photos.ts` → `app/[locale]/gallery/`。
+- 想搞懂「一張照片從拖進瀏覽器到出現在攝影頁」→ `admin/photos/upload/page.tsx`（預檢）→ `app/lib/photos/exifDraft.ts`（瀏覽器端解 EXIF）→ `api/admin/photos/upload-url`（presign）→ `api/admin/photos/ingest` → `app/lib/images/photoDerivatives.ts`（sharp 產圖）→ `app/lib/supabase/photos.ts` → `app/[locale]/photography/`。
 - 攝影相關的踩雷點都寫在原始碼註解裡（EXIF 時區、sharp 的方向不換軸、AWS SDK checksum 與 R2 不相容、白邊要貼著照片而不是外框），改那幾個檔案前先讀註解。

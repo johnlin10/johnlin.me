@@ -28,7 +28,7 @@ export default async function NotFound() {
           <Link href="/blog" className={styles.link}>
             {t('blog')}
           </Link>
-          <Link href="/gallery" className={styles.link}>
+          <Link href="/photography" className={styles.link}>
             {t('gallery')}
           </Link>
         </nav>
