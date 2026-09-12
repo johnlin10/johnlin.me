@@ -1,28 +1,80 @@
+@use '@/app/styles/design' as *;
+
 .card {
   padding-bottom: var(--space-5);
-  transition:
-    border-color var(--duration),
-    box-shadow var(--duration);
 
   &:not(:last-child) {
     border-bottom: 1px solid var(--border);
   }
+}
 
-  &:hover {
+// 左欄日期 + 右欄內容的 L 形版面。左欄 80 + gap 24 = 104px 由
+// --width-notes 額外撐出來，內文欄維持 --width-content 的 720px。
+.inner {
+  display: grid;
+  // minmax(0, ...) 不能省：1fr 的最小值是 auto（＝內容 min-content），
+  // 圖片區會把整條 track 撐爆，連文字一起溢出容器。
+  grid-template-columns: var(--space-20) minmax(0, 1fr);
+  gap: var(--space-6);
+  padding: var(--space-5) 0 var(--space-4);
+
+  @include respond-to('phone') {
+    display: block;
   }
 }
 
-.inner {
-  position: relative;
-  padding: var(--space-5) 0 var(--space-4);
+.dateLink {
+  color: inherit;
+  text-decoration: none;
+
+  &:hover .date {
+    color: var(--accent);
+  }
+
+  // 手機上日期收成單行，點擊區太薄；padding 撐開後用負 margin 抵銷，
+  // 版面節奏跟 asLink=false 的情況一致。
+  @include respond-to('phone') {
+    display: block;
+    padding: var(--space-2) var(--space-4) var(--space-2) 0;
+    margin: calc(var(--space-2) * -1) 0;
+  }
 }
 
-// 讓卡片文字/空白區可點（連到永久連結），圖片區另外浮在上層攔截點擊——
-// <a> 內不能合法包住 <button>，這是拆開點擊區的必要結構。
-.stretched {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
+.date {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  font-family: var(--font-sans);
+  font-size: var(--text-3xs);
+  line-height: var(--leading-snug);
+  color: var(--text-muted);
+  transition: color var(--duration);
+
+  // 月日要跟內文第一行同一條基線，借內文的行高來對齊。
+  > span:first-child {
+    line-height: calc(var(--text-sm) * var(--leading-loose));
+  }
+
+  @include respond-to('phone') {
+    flex-direction: row;
+    align-items: baseline;
+    gap: 0.4em;
+    margin-bottom: var(--space-4);
+
+    > span:first-child {
+      line-height: inherit;
+    }
+  }
+}
+
+// grid item 的 min-width 預設也是 auto，track 鎖住後還要鎖住 item 本身，
+// 圖片橫向滑動區才會乖乖在 472px 裡捲動而不是往外長。
+.body {
+  min-width: 0;
+}
+
+.year {
+  opacity: 0.65;
 }
 
 .srOnly {
@@ -35,7 +87,6 @@
 }
 
 .content {
-  position: relative;
   font-family: var(--font-serif);
   font-size: var(--text-sm);
   line-height: var(--leading-loose);
@@ -53,16 +104,13 @@
 }
 
 .media {
-  position: relative;
-  z-index: 1; // 疊在 .stretched 連結之上，圖片本身才點得到
   margin-top: var(--space-4);
-}
 
-.time {
-  position: relative;
-  display: block;
-  margin-bottom: var(--space-4);
-  font-family: var(--font-sans);
-  font-size: var(--text-3xs);
-  color: var(--text-muted);
+  // NoteMedia 的出血預設對稱吃掉左右頁距，但左邊現在是日期欄的 gap，
+  // 再出血圖片就會壓到日期上；桌機關掉，手機是上下堆疊所以照舊。
+  --note-media-bleed: 0;
+
+  @include respond-to('phone') {
+    --note-media-bleed: var(--space-6);
+  }
 }

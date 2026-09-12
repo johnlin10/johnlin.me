@@ -1,10 +1,18 @@
 import styles from './PageContainer.module.scss'
 
-type MaxWidth = 'feed' | 'content' | 'wide' | 'max' | 'full' | 'max-content'
+type MaxWidth =
+  | 'feed'
+  | 'notes'
+  | 'content'
+  | 'wide'
+  | 'max'
+  | 'full'
+  | 'max-content'
 
 // content 是 .container 的預設寬度，不需要額外 modifier class。
 const modifierClass: Record<MaxWidth, string | undefined> = {
   feed: styles.feed,
+  notes: styles.notes,
   content: undefined,
   wide: styles.wide,
   max: styles.max,

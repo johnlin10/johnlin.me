@@ -1,7 +1,9 @@
+import Image from 'next/image'
 import { notFound } from 'next/navigation'
 import { getTranslations } from 'next-intl/server'
 import { Link } from '@/i18n/navigation'
 import { createClient } from '@/app/lib/supabase/server'
+import { SITE_CONFIG, authorName } from '@/app/lib/siteConfigs'
 import { getNoteById } from '@/app/lib/supabase/notes'
 import PageContainer from '@/app/components/PageContainer/PageContainer'
 import NoteCard from '@/app/components/notes/NoteCard/NoteCard'
@@ -60,14 +62,25 @@ export default async function NotePage({ params }: NotePageProps) {
   const note = await getNoteById(supabase, id)
   if (!note || note.status !== 'published') notFound()
 
+  const author = authorName(locale)
+
   return (
-    <PageContainer maxWidth="content">
-      <div className={style.single}>
-        <NoteCard note={note} locale={locale} asLink={false} />
-        <Link href="/notes" className={style.back}>
-          {t('back')}
-        </Link>
-      </div>
+    <PageContainer maxWidth="notes">
+      <Link href="/about" className={style.author}>
+        <Image
+          src={SITE_CONFIG.avatar}
+          alt={author}
+          width={40}
+          height={40}
+          className={style.authorAvatar}
+        />
+        <span className={style.authorName}>{author}</span>
+      </Link>
+
+      <NoteCard note={note} locale={locale} asLink={false} />
+      <Link href="/notes" className={style.back}>
+        {t('back')}
+      </Link>
     </PageContainer>
   )
 }

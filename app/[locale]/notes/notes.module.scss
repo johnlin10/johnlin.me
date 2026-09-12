@@ -1,5 +1,6 @@
 // 頁首（eyebrow/標題/引言）搬去共用的 PageHeader 元件了。
-// max-width 也不用再各自寫 600px：外層 PageContainer 已經用 maxWidth="feed" 統一撐開。
+// 版寬由外層 PageContainer 的 maxWidth="notes" 統一決定：容器扣掉左右頁距
+// 與 NoteCard 的日期欄之後，內文欄剛好是 --width-content 的 720px。
 
 .feed {
   display: flex;
@@ -25,4 +26,39 @@
   color: var(--text-muted);
   font-family: var(--font-serif);
   font-size: var(--text-lg);
+}
+
+//* ==================== 單篇頁的署名 ====================
+// 從分享連結冷啟動進來的人沒有站內脈絡，Header 又只有 logo 沒有名字，
+// 這一行是整頁唯一的身分訊號。整塊連到 /about 當作「想看更多」的出口。
+// 只放單篇頁：列表頁有 PageHeader，從站內點進來的人本來就知道這是誰。
+
+.author {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-5);
+  text-decoration: none;
+  width: fit-content;
+
+  &:hover .authorName {
+    color: var(--accent);
+  }
+}
+
+.authorAvatar {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-pill);
+  object-fit: cover;
+  border: 1px solid var(--border);
+}
+
+.authorName {
+  font-family: var(--font-serif);
+  font-size: var(--text-md);
+  font-weight: 600;
+  letter-spacing: var(--tracking-wide);
+  color: var(--text);
+  transition: color var(--duration);
 }

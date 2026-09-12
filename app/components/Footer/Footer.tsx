@@ -1,5 +1,6 @@
 import { Link } from '@/i18n/navigation'
-import { getTranslations } from 'next-intl/server'
+import { getLocale, getTranslations } from 'next-intl/server'
+import { authorName } from '@/app/lib/siteConfigs'
 import style from './Footer.module.scss'
 
 // 外部連結。Substack 網址待確認（見 SUBSTACK_URL）。
@@ -14,6 +15,7 @@ const NAV_ITEMS = [
 ] as const
 
 export default async function Footer() {
+  const locale = await getLocale()
   const t = await getTranslations('Footer')
   const nav = await getTranslations('Header')
   const year = new Date().getFullYear()
@@ -22,7 +24,7 @@ export default async function Footer() {
     <footer className={style.footer}>
       <div className={style.inner}>
         <div className={style.brandCol}>
-          <p className={style.brand}>林昌龍 · John Lin</p>
+          <p className={style.brand}>{authorName(locale)}</p>
           <p className={style.tagline}>{t('tagline')}</p>
         </div>
 

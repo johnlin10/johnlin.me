@@ -11,6 +11,7 @@ import {
   getCachedLatestPhotos,
   getCachedLatestPosts,
 } from '@/app/lib/supabase/cached'
+import { authorName } from '@/app/lib/siteConfigs'
 import type { SupportedLocale } from '@/app/types/blog'
 
 // ISR 300s；最新文章另有 5 分鐘資料快取
@@ -111,6 +112,7 @@ export default async function Home({ params }: Props) {
   return (
     <main>
       <Hero
+        name={authorName(loc)}
         tagline={t('tagline')}
         role={t('role')}
         scrollHint={t('hero.scrollHint')}

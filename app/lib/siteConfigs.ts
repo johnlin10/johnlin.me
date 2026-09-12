@@ -4,6 +4,13 @@ export const SITE_CONFIG = {
     zh_tw: 'John Lin | 林昌龍',
     en: 'John Lin',
   },
+  // 頭像旁顯示的名字：中文版帶中英雙名，英文版只留英文。
+  // 跟 name/creator 不同，那兩個是給 metadata 用的。
+  displayName: {
+    zh_tw: '林昌龍 · John Lin',
+    en: 'John Lin',
+  },
+  avatar: '/assets/images/johnlin.jpeg',
   shortName: {
     zh_tw: 'John Lin',
     en: 'John Lin',
@@ -46,3 +53,12 @@ export const SITE_CONFIG = {
     '網頁設計師',
   ],
 } as const
+
+/**
+ * 取得頭像／品牌名旁顯示的名字。
+ * @param locale 目前語系
+ * @returns 中文版為中英雙名，英文版只有英文名
+ */
+export function authorName(locale: string) {
+  return locale === 'en' ? SITE_CONFIG.displayName.en : SITE_CONFIG.displayName.zh_tw
+}

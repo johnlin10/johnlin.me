@@ -3,6 +3,7 @@ import Markdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { getTranslations } from 'next-intl/server'
 import { getAboutChapters } from '@/app/lib/about-chapters'
+import { SITE_CONFIG, authorName } from '@/app/lib/siteConfigs'
 import Icon from '@/app/components/Icon/Icon'
 import ChapterShell from './ChapterShell'
 import style from './about.module.scss'
@@ -29,7 +30,6 @@ export async function generateMetadata({ params }: Props) {
   })
 }
 
-const AVATAR = '/assets/images/johnlin.jpeg'
 const EMAIL = 'johnlin@johnlin.me'
 const SUBSTACK_URL = 'https://johnlin10.substack.com'
 const GITHUB_URL = 'https://github.com/johnlin10'
@@ -44,8 +44,7 @@ async function AboutPage({ params, searchParams }: Props) {
   const initialChapterId =
     chapters.find((c) => c.id === requested)?.id ?? chapters[0]?.id ?? ''
 
-  // 中文版顯示中英雙名；英文版只顯示英文名字
-  const displayName = locale === 'zh-tw' ? '林昌龍 · John Lin' : 'John Lin'
+  const displayName = authorName(locale)
 
   return (
     <main className={style.about}>
@@ -57,7 +56,7 @@ async function AboutPage({ params, searchParams }: Props) {
         sidebar={
           <>
             <Image
-              src={AVATAR}
+              src={SITE_CONFIG.avatar}
               alt="John Lin"
               width={96}
               height={96}

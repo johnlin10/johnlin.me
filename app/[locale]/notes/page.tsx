@@ -36,7 +36,7 @@ export default async function NotesPage({
   const { data: notes } = await getPublishedNotes(supabase, { pageSize: 50 })
 
   return (
-    <PageContainer maxWidth="content">
+    <PageContainer maxWidth="notes">
       <PageHeader
         size="md"
         eyebrow="Notes"

@@ -81,6 +81,12 @@
   --width-wide: 1080px; // 首頁／關於／Footer
   --width-max: 1280px; // 最寬容器
   --width-prose: 66ch; // 純文字段落上限
+  // 短文列表：扣掉左欄日期與 gap 之後，內文欄要剛好對齊 --width-content。
+  // 用 calc 推導而非寫死 968px，--page-gutter 換斷點時會自己跟上。
+  --width-notes: calc(
+    var(--width-content) + var(--space-20) + var(--space-6) + var(--page-gutter) *
+      2
+  );
 
   //* 頁首高度（Header 固定高，供 padding-top 計算用）
   --header-height: 72px;
