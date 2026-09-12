@@ -64,7 +64,7 @@ export default async function BlogPage({
   return (
     // 列表要放得下三欄卡片，用 wide（1080）而不是內文寬的 content（720）。
     <PageContainer maxWidth="wide">
-      <PageHeader eyebrow="Blog" title={t('title')} lead={t('description')} />
+      <PageHeader title={t('title')} lead={t('description')} />
 
       {posts.length === 0 ? (
         <div className={style.empty}>{t('noPosts')}</div>

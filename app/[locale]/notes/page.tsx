@@ -37,12 +37,7 @@ export default async function NotesPage({
 
   return (
     <PageContainer maxWidth="notes">
-      <PageHeader
-        size="md"
-        eyebrow="Notes"
-        title={t('page_title')}
-        lead={t('lead')}
-      />
+      <PageHeader size="md" title={t('page_title')} lead={t('lead')} />
 
       {notes.length === 0 ? (
         <div className={style.empty}>{t('empty')}</div>

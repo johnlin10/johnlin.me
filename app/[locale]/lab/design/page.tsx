@@ -128,7 +128,6 @@ function DesignSystemPage() {
     <PageContainer maxWidth="wide">
       <PageHeader
         size="md"
-        eyebrow="Lab"
         title={t('title')}
         lead={t('description')}
       />
