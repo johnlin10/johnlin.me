@@ -228,7 +228,7 @@ export default function PhotoUploadPage() {
     <div className={style.upload_page}>
       <PageHeader
         title={t('heading')}
-        back={{ href: '/admin/photos', label: t('back') }}
+        back={{ href: '/photos', label: t('back') }}
       />
 
       <DropZone onFiles={(files) => void stageFiles(files)} />
@@ -274,7 +274,7 @@ export default function PhotoUploadPage() {
 
       {allDone && (
         <div className={style.doneBar}>
-          <Link href="/admin/photos" className={style.doneLink}>
+          <Link href="/photos" className={style.doneLink}>
             {t('viewList')}
           </Link>
         </div>

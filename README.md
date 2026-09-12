@@ -52,19 +52,23 @@
 | `/lab/design`                    | 設計系統活頁，即時渲染 CSS 變數為色票／間距／字級，可點擊複製                                         | `getComputedStyle` 解析實際計算值                                                                                          |
 | `/rss/blog.xml` `/rss/notes.xml` | 兩支獨立 RSS feed                                                                                     | `force-dynamic`，目前僅中文版                                                                                              |
 
-### 後台（`/admin`，需管理員身分）
+### 後台（`admin.johnlin.me`，需管理員身分）
 
-| 路由                                              | 說明                                                                                                                                                                 |
-| ------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `/admin`                                          | 儀表板，文章與短文的數量統計                                                                                                                                         |
-| `/admin/posts`                                    | 文章 CRUD。Tiptap 編輯器；草稿階段自動存檔（1.2s debounce／8s 上限），發布後改為手動更新；離開未編輯過的空草稿會自動刪除                                             |
-| `/admin/photos`                                   | 依年份分段的縮圖牆 + 檢閱欄，支援鍵盤巡覽與批次操作；欄位自動存檔                                                                                                    |
-| `/admin/photos/upload`                            | 上傳預檢。瀏覽器端解 EXIF 並產生 slug，確認後才上傳；原檔以 presigned PUT 直傳 R2（避開函式 4.5 MB body 上限），再由 ingest 端點以 sharp 產出各尺寸、OG 圖與模糊佔位 |
-| `/admin/notes`                                    | 短文發布與刪除                                                                                                                                                       |
-| `/admin/categories` `/admin/tags` `/admin/series` | 分類／標籤／系列管理（系列前台頁面尚未實作）                                                                                                                         |
-| `/admin/login`                                    | Google OAuth 單一登入方式                                                                                                                                            |
+後台放在獨立子網域，可單獨安裝成 PWA（John Lin Dashboard）。程式碼在 `app/[locale]/admin/`，由 proxy 依 Host 對應過去；主站的 `/admin` 一律回 404。雙語規則與主站相同（中文無前綴、英文 `/en`）。
+
+| 路由                                  | 說明                                                                                                                                                                 |
+| ------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `/`                                   | 儀表板，文章與短文的數量統計                                                                                                                                         |
+| `/posts`                              | 文章 CRUD。Tiptap 編輯器；草稿階段自動存檔（1.2s debounce／8s 上限），發布後改為手動更新；離開未編輯過的空草稿會自動刪除                                             |
+| `/photos`                             | 依年份分段的縮圖牆 + 檢閱欄，支援鍵盤巡覽與批次操作；欄位自動存檔                                                                                                    |
+| `/photos/upload`                      | 上傳預檢。瀏覽器端解 EXIF 並產生 slug，確認後才上傳；原檔以 presigned PUT 直傳 R2（避開函式 4.5 MB body 上限），再由 ingest 端點以 sharp 產出各尺寸、OG 圖與模糊佔位 |
+| `/notes`                              | 短文發布與刪除                                                                                                                                                       |
+| `/categories` `/tags` `/series`       | 分類／標籤／系列管理（系列前台頁面尚未實作）                                                                                                                         |
+| `/login`                              | Google OAuth 單一登入方式                                                                                                                                            |
 
 後台使用自行實作的元件庫（`Button`／`Input`／`Modal`／`ConfirmDialog`／`Toast` 等），未引入外部 UI 套件。
+
+本機開發用 Chrome 開 `http://admin.localhost:3000`（Safari 不一定解析得到 `*.localhost`）。
 
 ### AI 輔助
 
@@ -79,8 +83,9 @@
 ```txt
 Request
  └─ proxy.ts（Next 16 的 middleware）
-     ├─ next-intl 語系處理
-     └─ /admin/* → Supabase getUser() + rpc('is_admin')，未通過導向 /admin/login
+     ├─ 主站：next-intl 語系處理；/admin/* 回 404
+     └─ admin.* 子網域：next-intl 語系處理 → 改寫到 /[locale]/admin/*
+         └─ /login 以外 → Supabase getUser() + rpc('is_admin')，未通過導向 /login
  └─ app/[locale]/layout.tsx（字體、i18n provider、主題、Header/Footer）
  └─ page.tsx
 ```
@@ -146,7 +151,7 @@ npm run dev      # predev 會先執行字型子集化
 
 ```txt
 app/
-  [locale]/          # 前台頁面與 /admin 後台
+  [locale]/          # 前台頁面與 admin/ 後台（admin.johnlin.me）
   api/               # /api/admin/ai、/api/admin/photos/*、/api/views
   components/        # 依區塊分組：home / blog / gallery / notes / admin
   lib/               # supabase / r2 / blog / notes / photos / images / ai …
@@ -155,7 +160,7 @@ app/
 content/about/       # 關於頁 Markdown（<slug>.<locale>.md）
 docs/                # 藍圖與設計系統文件
 i18n/ messages/      # next-intl 設定與翻譯字串
-proxy.ts             # 語系處理與 /admin 守衛
+proxy.ts             # 語系處理、後台子網域分流與守衛
 supabase/migrations/ # SQL schema
 scripts/             # 字型子集化、OG 圖產生
 ```

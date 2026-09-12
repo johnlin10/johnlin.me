@@ -13,7 +13,7 @@ export default function EditPostRedirect() {
   const router = useRouter()
 
   useEffect(() => {
-    router.replace(`/admin/posts/${id}/write`)
+    router.replace(`/posts/${id}/write`)
   }, [id, router])
 
   return null

@@ -238,13 +238,13 @@ export async function getDashboardData(
       kind: 'post' as const,
       at: p.publishedAt ?? p.createdAt,
       title: p.locales['zh-tw']?.title || p.slug,
-      href: `/admin/posts/${p.id}`,
+      href: `/posts/${p.id}`,
     })),
     ...notes.map((n) => ({
       kind: 'note' as const,
       at: n.publishedAt ?? n.createdAt,
       title: n.content.slice(0, 40),
-      href: '/admin/notes',
+      href: '/notes',
     })),
     // 照片一次上傳幾十張，逐張列會把其他兩種內容整個沖掉，按日併成一筆。
     ...[...countBy(photos, (p) => p.created_at.slice(0, 10))].map(([day, count]) => ({
@@ -252,7 +252,7 @@ export async function getDashboardData(
       at: `${day}T00:00:00.000Z`,
       title: day,
       groupCount: count,
-      href: '/admin/photos',
+      href: '/photos',
     })),
   ]
     .sort((a, b) => b.at.localeCompare(a.at))

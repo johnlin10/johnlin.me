@@ -1,7 +1,14 @@
 import type { MetadataRoute } from 'next'
+import { headers } from 'next/headers'
+import { SITE_CONFIG, isAdminHost } from '@/app/lib/siteConfigs'
 
-export default function manifest(): MetadataRoute.Manifest {
-  return {
+/**
+ * 主站與後台子網域共用這支 manifest，依 Host 回傳各自的 PWA 設定。
+ * 用到 headers()，所以每次請求才產生，不在建置時快取。
+ * @returns 目前網域的 Web App Manifest
+ */
+export default async function manifest(): Promise<MetadataRoute.Manifest> {
+  const site: MetadataRoute.Manifest = {
     name: 'John Lin',
     id: 'johnlin.me',
     short_name: 'John Lin',
@@ -38,5 +45,16 @@ export default function manifest(): MetadataRoute.Manifest {
         purpose: 'maskable',
       },
     ],
+  }
+
+  if (!isAdminHost((await headers()).get('host'))) return site
+
+  // 圖示暫時沿用主站。
+  return {
+    ...site,
+    name: SITE_CONFIG.admin.name,
+    id: 'admin.johnlin.me',
+    short_name: SITE_CONFIG.admin.shortName,
+    description: 'Content dashboard for johnlin.me.',
   }
 }

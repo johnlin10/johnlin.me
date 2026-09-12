@@ -200,12 +200,12 @@ export function PostEditorProvider({
 
   const goToWrite = useCallback(async () => {
     await flush()
-    router.push(`/admin/posts/${postId}/write`)
+    router.push(`/posts/${postId}/write`)
   }, [flush, router, postId])
 
   const goToSettings = useCallback(async () => {
     await flush()
-    router.push(`/admin/posts/${postId}/settings`)
+    router.push(`/posts/${postId}/settings`)
   }, [flush, router, postId])
 
   const exit = useCallback(async () => {
@@ -226,7 +226,7 @@ export function PostEditorProvider({
         // 靜默失敗即可——孤兒草稿留在列表也無妨，不值得為此中斷返回動作
       }
     }
-    router.push('/admin/posts')
+    router.push('/posts')
   }, [flush, supabase, postId, router, confirm, saveState, t])
 
   const discardDraft = useCallback(async () => {
@@ -238,7 +238,7 @@ export function PostEditorProvider({
     if (!ok) return
     await deletePost(supabase, postId)
     toast.success(t('discardSuccess'))
-    router.push('/admin/posts')
+    router.push('/posts')
   }, [confirm, supabase, postId, toast, router, t])
 
   const publish = useCallback(async () => {
@@ -273,7 +273,7 @@ export function PostEditorProvider({
       draftRef.current = { ...finalDraft, status: 'published' }
       setDraft(draftRef.current)
       toast.success(t('publishSuccess'))
-      router.push('/admin/posts')
+      router.push('/posts')
       return { ok: true as const }
     } catch (err) {
       const message = isUniqueViolation(err)
@@ -295,7 +295,7 @@ export function PostEditorProvider({
         status: 'draft',
       })
       toast.success(t('draftSaveSuccess'))
-      router.push('/admin/posts')
+      router.push('/posts')
     } catch {
       toast.error(t('draftSaveError'))
     }

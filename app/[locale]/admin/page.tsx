@@ -87,10 +87,10 @@ export default function AdminPage() {
 
   const gapItems = dash
     ? ([
-        ['missingEnglish', dash.gaps.missingEnglish, '/admin/posts'],
-        ['staleDrafts', dash.gaps.staleDrafts, '/admin/posts'],
-        ['photosWithoutCaption', dash.gaps.photosWithoutCaption, '/admin/photos'],
-        ['photosWithoutLocation', dash.gaps.photosWithoutLocation, '/admin/photos'],
+        ['missingEnglish', dash.gaps.missingEnglish, '/posts'],
+        ['staleDrafts', dash.gaps.staleDrafts, '/posts'],
+        ['photosWithoutCaption', dash.gaps.photosWithoutCaption, '/photos'],
+        ['photosWithoutLocation', dash.gaps.photosWithoutLocation, '/photos'],
       ] as const).filter(([, count]) => count > 0)
     : []
 
@@ -100,7 +100,7 @@ export default function AdminPage() {
         title={t('title')}
         subtitle={t('subtitle')}
         action={
-          <Link href="/admin/posts/new">
+          <Link href="/posts/new">
             <Button>{t('newPost')}</Button>
           </Link>
         }
@@ -141,7 +141,7 @@ export default function AdminPage() {
             <ul className={style.rankList}>
               {dash.topPosts.map((post) => (
                 <li key={post.id}>
-                  <Link href={`/admin/posts/${post.id}`} className={style.rankRow}>
+                  <Link href={`/posts/${post.id}`} className={style.rankRow}>
                     <span className={style.rankTitle}>{post.title}</span>
                     <span className={style.rankTrack}>
                       <span

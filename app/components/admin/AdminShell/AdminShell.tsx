@@ -1,8 +1,11 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { useTranslations } from 'next-intl'
-import { usePathname, useRouter, Link } from '@/i18n/navigation'
+import { useSelectedLayoutSegments } from 'next/navigation'
+import { useLocale, useTranslations } from 'next-intl'
+import { useRouter, Link } from '@/i18n/navigation'
+import { routing } from '@/i18n/routing'
+import { SITE_CONFIG } from '@/app/lib/siteConfigs'
 import { createClient } from '@/app/lib/supabase/client'
 import Icon, { type IconName } from '@/app/components/Icon/Icon'
 import ThemeToggle from '@/app/components/ThemeToggle/ThemeToggle'
@@ -31,33 +34,33 @@ const NAV_GROUPS: {
   }[]
 }[] = [
   {
-    items: [{ href: '/admin', labelKey: 'dashboard', icon: 'gauge-high' }],
+    items: [{ href: '/', labelKey: 'dashboard', icon: 'gauge-high' }],
   },
   {
     labelKey: 'groups.content',
     items: [
-      { href: '/admin/posts', labelKey: 'posts', icon: 'newspaper' },
-      { href: '/admin/notes', labelKey: 'notes', icon: 'comment' },
-      { href: '/admin/photos', labelKey: 'photos', icon: 'camera' },
+      { href: '/posts', labelKey: 'posts', icon: 'newspaper' },
+      { href: '/notes', labelKey: 'notes', icon: 'comment' },
+      { href: '/photos', labelKey: 'photos', icon: 'camera' },
     ],
   },
   {
     labelKey: 'groups.taxonomy',
     items: [
       {
-        href: '/admin/categories',
+        href: '/categories',
         labelKey: 'categories',
         icon: 'folder',
         scopeKey: 'scopes.posts',
       },
       {
-        href: '/admin/series',
+        href: '/series',
         labelKey: 'series',
         icon: 'layer-group',
         scopeKey: 'scopes.posts',
       },
       {
-        href: '/admin/tags',
+        href: '/tags',
         labelKey: 'tags',
         icon: 'tag',
         scopeKey: 'scopes.all',
@@ -102,7 +105,10 @@ export default function AdminShell({
 }) {
   const t = useTranslations('AdminPage.shell')
   const tNav = useTranslations('AdminPage.nav')
-  const pathname = usePathname()
+  const locale = useLocale()
+  // 以後台為根的路徑（/posts/<id>/write）。不用 usePathname：子網域靠 proxy 改寫，
+  // 預先渲染時看到的是 /admin/...，瀏覽器網址沒有，兩邊會對不上。
+  const pathname = `/${useSelectedLayoutSegments().join('/')}`
   const router = useRouter()
   const confirm = useConfirm()
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null)
@@ -144,7 +150,7 @@ export default function AdminShell({
     return () => window.removeEventListener('resize', handleResize)
   }, [])
 
-  if (pathname === '/admin/login' || isFullscreenAdminRoute(pathname)) {
+  if (pathname === '/login' || isFullscreenAdminRoute(pathname)) {
     return <>{children}</>
   }
 
@@ -158,7 +164,7 @@ export default function AdminShell({
     if (!ok) return
     const supabase = createClient()
     await supabase.auth.signOut()
-    router.push('/admin/login')
+    router.push('/login')
     router.refresh()
   }
 
@@ -177,12 +183,20 @@ export default function AdminShell({
 
         <aside className={`${style.sidebar} ${drawerOpen ? style.open : ''}`}>
           <div className={style.sidebarHeader}>
-            <Link href="/" className={style.backHomeButton}>
+            {/* 主站在另一個網域，用一般連結。 */}
+            <a
+              href={
+                locale === routing.defaultLocale
+                  ? SITE_CONFIG.url
+                  : `${SITE_CONFIG.url}/${locale}`
+              }
+              className={style.backHomeButton}
+            >
               <Icon name="home" size="sm" />
               <span>{t('backToHome')}</span>
-            </Link>
+            </a>
 
-            <Link href="/admin" className={style.brand}>
+            <Link href="/" className={style.brand}>
               <span className={style.brandMark}>John Lin</span>
               <span className={style.brandSub}>{t('brandSubtitle')}</span>
             </Link>
@@ -198,8 +212,8 @@ export default function AdminShell({
                 )}
                 {group.items.map(({ href, labelKey, icon, scopeKey }) => {
                   const active =
-                    href === '/admin'
-                      ? pathname === '/admin'
+                    href === '/'
+                      ? pathname === '/'
                       : pathname.startsWith(href)
                   return (
                     <Link

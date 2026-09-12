@@ -204,7 +204,7 @@ export default function AdminPhotosPage() {
             </>
           }
           action={
-            <Button onClick={() => router.push('/admin/photos/upload')}>
+            <Button onClick={() => router.push('/photos/upload')}>
               {t('upload.cta')}
             </Button>
           }

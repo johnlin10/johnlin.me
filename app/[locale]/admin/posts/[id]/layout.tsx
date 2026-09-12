@@ -69,7 +69,7 @@ export default function PostEditorLayout({
       <div className={style.shell}>
         <div className={style.error_container}>
           <p className={style.error_message}>{t('notFound')}</p>
-          <Button onClick={() => router.push('/admin/posts')}>
+          <Button onClick={() => router.push('/posts')}>
             {t('backToList')}
           </Button>
         </div>
@@ -85,7 +85,7 @@ export default function PostEditorLayout({
           <div className={style.error_actions}>
             <Button
               variant="secondary"
-              onClick={() => router.push('/admin/posts')}
+              onClick={() => router.push('/posts')}
             >
               {t('backToList')}
             </Button>

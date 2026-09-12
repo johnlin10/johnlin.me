@@ -2,6 +2,7 @@ import createIntlMiddleware from 'next-intl/middleware'
 import { NextResponse, NextRequest } from 'next/server'
 import { createServerClient } from '@supabase/ssr'
 import { routing } from './i18n/routing'
+import { isAdminHost } from './app/lib/siteConfigs'
 
 // next-intl 語系處理。next-intl 目前仍只提供
 // `next-intl/middleware` 這個進入點，Next 16 改名為 proxy 之後檔案位置變了、
@@ -10,6 +11,8 @@ const intlMiddleware = createIntlMiddleware(routing)
 
 // 比對開頭的語系前綴（/en 或 /zh-tw），用來還原/組回帶前綴的路徑。
 const LOCALE_PREFIX = /^\/(en|zh-tw)(?=\/|$)/
+
+const ADMIN_PATH = /^\/admin(?=\/|$)/
 
 // Accept-Language 裡權重最高的語言標籤是否為中文（不分繁簡：zh、zh-TW、zh-CN、zh-Hans...）。
 function isTopLanguageChinese(acceptLanguage: string | null) {
@@ -57,53 +60,76 @@ function normalizeAcceptLanguage(request: NextRequest) {
 }
 
 /**
- * Proxy（Next 16 前稱 middleware）：先跑 next-intl，再對 /admin 路徑做
- * 伺服器端守衛。proxy 只能跑 Node.js runtime，不支援 edge，也不能設 runtime。
- * 公開頁完全不碰 Supabase，保持快速；只有後台會付出 getUser + is_admin 的成本。
+ * 目前登入者是否為管理員（getUser + is_admin RPC）。
+ * @param request 進來的請求，從這裡讀 Supabase session cookie
+ * @param response 準備回傳的回應，session 換新時把 cookie 寫回這裡
+ * @returns 已登入且為管理員才回 true
+ */
+async function isAdmin(request: NextRequest, response: NextResponse) {
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return request.cookies.getAll()
+        },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value, options }) =>
+            response.cookies.set(name, value, options),
+          )
+        },
+      },
+    },
+  )
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) return false
+  const { data } = await supabase.rpc('is_admin')
+  return data === true
+}
+
+/**
+ * Proxy（Next 16 前稱 middleware）：依 Host 分成主站與後台子網域。
+ * proxy 只能跑 Node.js runtime，不支援 edge，也不能設 runtime。
+ * - 主站：只跑 next-intl，完全不碰 Supabase。/admin 回 404，不轉址到子網域——
+ *   轉址等於把後台位置告訴對方。
+ * - 後台子網域：語系沿用主站同一套 next-intl 規則，再把 /posts 對應到
+ *   app/[locale]/admin/posts；除了 /login 都要通過 getUser + is_admin。
  * 真正的資料安全底線是 RLS，這裡只是提前把未授權者導回登入頁。
  */
 export default async function proxy(request: NextRequest) {
-  const response = intlMiddleware(normalizeAcceptLanguage(request))
+  const { pathname, search } = request.nextUrl
+  const prefix = pathname.match(LOCALE_PREFIX)?.[0] ?? ''
+  const stripped = pathname.slice(prefix.length) || '/'
+  const locale = prefix.slice(1) || routing.defaultLocale
 
-  const { pathname } = request.nextUrl
-  const stripped = pathname.replace(LOCALE_PREFIX, '') || '/'
-  const isAdminPath = stripped === '/admin' || stripped.startsWith('/admin/')
-  const isLoginPath = stripped === '/admin/login'
-
-  if (isAdminPath && !isLoginPath) {
-    const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        cookies: {
-          getAll() {
-            return request.cookies.getAll()
-          },
-          setAll(cookiesToSet) {
-            cookiesToSet.forEach(({ name, value, options }) =>
-              response.cookies.set(name, value, options),
-            )
-          },
-        },
-      },
-    )
-
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-
-    let allowed = false
-    if (user) {
-      const { data } = await supabase.rpc('is_admin')
-      allowed = data === true
+  if (!isAdminHost(request.headers.get('host'))) {
+    if (ADMIN_PATH.test(stripped)) {
+      // 沒有 /404 這個路由，落到 [...rest]，跟其他不存在的網址回一樣的 404。
+      return NextResponse.rewrite(new URL(`/${locale}/404`, request.url))
     }
+    return intlMiddleware(normalizeAcceptLanguage(request))
+  }
 
-    if (!allowed) {
-      const prefix = pathname.match(LOCALE_PREFIX)?.[0] ?? ''
-      return NextResponse.redirect(
-        new URL(`${prefix}/admin/login`, request.url),
-      )
-    }
+  // next-intl 要轉址（/zh-tw/x → /x、依 cookie／Accept-Language 導去 /en/x）就照轉，
+  // 轉址目標本來就是子網域上看得到的網址。
+  const intlResponse = intlMiddleware(normalizeAcceptLanguage(request))
+  if (intlResponse.headers.has('location')) return intlResponse
+
+  // 沒轉址代表語系已定：有前綴就是前綴的語系，沒前綴就是預設語系（as-needed）。
+  const headers = new Headers(request.headers)
+  headers.set('X-NEXT-INTL-LOCALE', locale)
+  const response = NextResponse.rewrite(
+    new URL(`/${locale}/admin${stripped === '/' ? '' : stripped}${search}`, request.url),
+    { request: { headers } },
+  )
+  intlResponse.cookies.getAll().forEach((cookie) => response.cookies.set(cookie))
+
+  if (stripped !== '/login' && !(await isAdmin(request, response))) {
+    return NextResponse.redirect(new URL(`${prefix}/login`, request.url))
   }
 
   return response

@@ -1,6 +1,7 @@
 'use client'
 
 import Image from 'next/image'
+import { useSelectedLayoutSegment } from 'next/navigation'
 import { Link, usePathname } from '@/i18n/navigation'
 import { useTranslations } from 'next-intl'
 import { useScroll, useMotionValueEvent } from 'motion/react'
@@ -35,6 +36,7 @@ const DELTA_THRESHOLD = 6
  */
 export default function Header() {
   const currentPath = usePathname()
+  const segment = useSelectedLayoutSegment()
   const t = useTranslations('Header')
 
   const [hidden, setHidden] = useState(false)
@@ -61,7 +63,8 @@ export default function Header() {
   })
 
   // 後台有自己的側邊欄外殼，不套用公開站的導軌。
-  if (currentPath.startsWith('/admin')) return null
+  // 看路由 segment 而不是網址：後台子網域的網址裡沒有 /admin。
+  if (segment === 'admin') return null
 
   return (
     <header className={style.shell} data-hidden={hidden}>

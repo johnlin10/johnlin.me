@@ -4,6 +4,8 @@ import createNextIntlPlugin from 'next-intl/plugin'
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+  // 本機用 admin.localhost:3000 開後台子網域，不列進來 dev server 會擋掉它的 HMR 與開發資源。
+  allowedDevOrigins: ['admin.localhost'],
   typescript: {
     ignoreBuildErrors: false,
   },

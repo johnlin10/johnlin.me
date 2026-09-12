@@ -3,6 +3,7 @@ import AdminShell from '@/app/components/admin/AdminShell/AdminShell'
 import { ToastProvider } from '@/app/components/admin/Toast/ToastProvider'
 import { ConfirmDialogProvider } from '@/app/components/admin/ConfirmDialog/ConfirmDialog'
 import { metadata } from '@/app/lib/metadata'
+import { SITE_CONFIG } from '@/app/lib/siteConfigs'
 
 export async function generateMetadata({
   params,
@@ -11,17 +12,25 @@ export async function generateMetadata({
 }) {
   const { locale } = await params
   const t = await getTranslations({ locale, namespace: 'AdminPage' })
-  return metadata({
-    title: t('title'),
-    description: 'Dashboard',
-    noIndex: true,
-    appendSiteName: false,
-  })
+  return {
+    ...(await metadata({
+      title: t('title'),
+      description: 'Dashboard',
+      noIndex: true,
+      appendSiteName: false,
+    })),
+    applicationName: SITE_CONFIG.admin.name,
+    appleWebApp: {
+      capable: true,
+      title: SITE_CONFIG.admin.shortName,
+      statusBarStyle: 'default' as const,
+    },
+  }
 }
 
 /**
- * 後台 Layout。
- * 權限守衛已上移至 proxy（伺服器端統一守 /admin，login 除外），
+ * 後台 Layout，只從後台子網域進得來（見 proxy.ts）。
+ * 權限守衛在 proxy（除了 /login 都要檢查），
  * 資料安全底線則由 Supabase RLS 把關，這裡負責後台版面外殼與站內提示。
  */
 export default function AdminLayout({

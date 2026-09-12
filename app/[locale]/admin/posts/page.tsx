@@ -132,7 +132,7 @@ export default function PostsPage() {
     setCreating(true)
     try {
       const id = await createDraftPost(supabase)
-      router.push(`/admin/posts/${id}/write`)
+      router.push(`/posts/${id}/write`)
     } catch (error) {
       console.error('建立草稿失敗:', error)
       toast.error(t('createDraftError'))
@@ -216,7 +216,7 @@ export default function PostsPage() {
               post.locales.en?.title
             return (
               <Link
-                href={`/admin/posts/${post.id}/write`}
+                href={`/posts/${post.id}/write`}
                 className={style.title_link}
               >
                 {displayTitle || (

@@ -26,12 +26,17 @@
 
 ```
 請求
- └─ proxy.ts（Next 16 前稱 middleware.ts）
-     ├─ next-intl 語系處理（決定 /zh-tw or /en 前綴、寫 locale cookie）
-     └─ 如果路徑是 /admin/*（且不是 /admin/login）
-         └─ 用 request cookies 建一個 Supabase server client
-             ├─ getUser()          → 沒登入就導回 /admin/login
-             └─ rpc('is_admin')    → 不是 admin 也導回 /admin/login
+ └─ proxy.ts（Next 16 前稱 middleware.ts），先看 Host
+     ├─ 主站（johnlin.me）
+     │   ├─ next-intl 語系處理（決定 /zh-tw or /en 前綴、寫 locale cookie）
+     │   └─ /admin/* 一律 404（不轉址，避免洩漏後台位置）
+     └─ 後台子網域（admin.johnlin.me，本機 admin.localhost:3000）
+         ├─ 同一套 next-intl 語系處理；要轉址就照轉
+         ├─ 改寫到 /[locale]/admin/*（/posts → /zh-tw/admin/posts）
+         └─ 如果不是 /login
+             └─ 用 request cookies 建一個 Supabase server client
+                 ├─ getUser()          → 沒登入就導回 /login
+                 └─ rpc('is_admin')    → 不是 admin 也導回 /login
  └─ app/[locale]/layout.tsx（真正的根 layout，見下方）
  └─ 對應的 page.tsx
 ```
@@ -68,21 +73,23 @@
 
 ### 後台頁面（`app/[locale]/admin/**`，皆為 Client Component 除非特別註明）
 
+下表路徑都是 `admin.johnlin.me` 上看到的網址，proxy 會對應到 `app/[locale]/admin/` 底下。後台裡判斷「目前在哪一頁」要用 `useSelectedLayoutSegments()`，不能用 `usePathname()`：預先渲染時看到的是改寫後的 `/admin/...`，瀏覽器網址沒有，兩邊會對不上。
+
 | 路徑 | 檔案 | 說明 |
 |---|---|---|
-| `/admin` | `admin/page.tsx` | 儀表板。平行抓 `getPostsForAdmin({})` 與 `getNotesForAdmin()`，前端用 `Array.filter` 算總數/已發布/草稿數（沒有 DB 端聚合），4 張統計卡 + 2 個快速動作按鈕。 |
-| `/admin/login` | `admin/login/page.tsx` | 單一顆 Google OAuth 按鈕，只有這一種登入方式，沒有帳密欄位。 |
-| `/admin/categories`<br>`/admin/tags`<br>`/admin/series` | 各自的 `page.tsx` | 三頁幾乎同構的 CRUD：列表 + `Modal` 表單（雙語名稱欄位），刪除鍵在 `postCount > 0` 時直接 disable，防止刪掉還有文章在用的分類。`series` 額外有封面圖網址欄位；程式註解說 series 的 schema 已經就緒但**前台的系列頁面「暫緩」**，目前只有後台管理，沒有對外呈現。 |
-| `/admin/notes` | `admin/notes/page.tsx` | 純文字輸入框 + 多圖上傳（直接進 `notes` bucket）+ 發布鍵，發完馬上插進下方 feed。沒有編輯功能，只有發布/刪除。 |
-| `/admin/photos` | `admin/photos/page.tsx` | 「印象表」：依年份分段的齊行縮圖牆 + 右側檢閱欄（桌機雙欄，平板/手機改用 Modal）。檢閱欄上半直接重用前台的 `PhotoMeta`，所以後台看到的排版就是訪客會看到的；欄位走自動存檔。J/K 鍵移動游標，⌘/Ctrl-點選或空白鍵切換勾選，勾選後出現批次發布／退草稿／刪除。篩選 chips 針對「還沒弄完的」：草稿、缺說明、缺英文、有座標、HDR。 |
-| `/admin/photos/upload` | `admin/photos/upload/page.tsx` | 上傳預檢表：拖入檔案後**在瀏覽器端**解 EXIF（拍攝時間、相機、鏡頭、GPS）並產生 slug，確認過欄位才送出第一個位元組。HEIC/DNG 在選檔階段就擋掉。並發 2 的佇列，PUT 有真實進度（XHR，`fetch` 沒有上傳進度事件）。 |
-| `/admin/posts` | `posts/page.tsx` | 文章列表，狀態篩選（全部/草稿/已發布）。「新增文章」不是開表單，是直接插一筆草稿再導頁（見下）。 |
-| `/admin/posts/new` | `posts/new/page.tsx` | Mount 時立刻呼叫 `createDraftPost` 建一筆空白草稿（用 ref 擋 React StrictMode 重複觸發），然後 `router.replace` 到 `/write`。沒有「新增文章」表單畫面，這頁只是個轉場。 |
-| `/admin/posts/[id]/layout.tsx` | — | 撈這篇文章、包一層 `PostEditorProvider`+`AiAssistProvider`，讓 `write`/`settings` 兩步共用同一份編輯器狀態，切換步驟不會重新載入。 |
-| `/admin/posts/[id]/write` | `write/page.tsx` | 內容編輯步驟：標題、可折疊的副標/摘要、雙語富文字內容（切語系用 `key={locale}` 強制重新 mount 編輯器）。 |
-| `/admin/posts/[id]/settings` | `settings/page.tsx` | 設定步驟：slug、分類/標籤/系列選擇器、封面圖、各語系 SEO 欄位、危險操作區。 |
-| `/admin/posts/[id]`<br>`/admin/posts/[id]/edit` | 各自 `page.tsx` | **都是導頁用的殘留 stub**，舊版單頁編輯器被拆成 write/settings 兩步之後留下的相容轉址，實際內容都在 `write`。 |
-| `/admin/test-editor` | `test-editor/page.tsx` | 沒有掛在導覽列上的開發用測試頁，單純孤立掛一個 `<RichTextEditor>`，不連 Supabase，可以直接刪或用 dev-only 的方式擋起來。 |
+| `/` | `admin/page.tsx` | 儀表板。平行抓 `getPostsForAdmin({})` 與 `getNotesForAdmin()`，前端用 `Array.filter` 算總數/已發布/草稿數（沒有 DB 端聚合），4 張統計卡 + 2 個快速動作按鈕。 |
+| `/login` | `admin/login/page.tsx` | 單一顆 Google OAuth 按鈕，只有這一種登入方式，沒有帳密欄位。 |
+| `/categories`<br>`/tags`<br>`/series` | 各自的 `page.tsx` | 三頁幾乎同構的 CRUD：列表 + `Modal` 表單（雙語名稱欄位），刪除鍵在 `postCount > 0` 時直接 disable，防止刪掉還有文章在用的分類。`series` 額外有封面圖網址欄位；程式註解說 series 的 schema 已經就緒但**前台的系列頁面「暫緩」**，目前只有後台管理，沒有對外呈現。 |
+| `/notes` | `admin/notes/page.tsx` | 純文字輸入框 + 多圖上傳（直接進 `notes` bucket）+ 發布鍵，發完馬上插進下方 feed。沒有編輯功能，只有發布/刪除。 |
+| `/photos` | `admin/photos/page.tsx` | 「印象表」：依年份分段的齊行縮圖牆 + 右側檢閱欄（桌機雙欄，平板/手機改用 Modal）。檢閱欄上半直接重用前台的 `PhotoMeta`，所以後台看到的排版就是訪客會看到的；欄位走自動存檔。J/K 鍵移動游標，⌘/Ctrl-點選或空白鍵切換勾選，勾選後出現批次發布／退草稿／刪除。篩選 chips 針對「還沒弄完的」：草稿、缺說明、缺英文、有座標、HDR。 |
+| `/photos/upload` | `admin/photos/upload/page.tsx` | 上傳預檢表：拖入檔案後**在瀏覽器端**解 EXIF（拍攝時間、相機、鏡頭、GPS）並產生 slug，確認過欄位才送出第一個位元組。HEIC/DNG 在選檔階段就擋掉。並發 2 的佇列，PUT 有真實進度（XHR，`fetch` 沒有上傳進度事件）。 |
+| `/posts` | `posts/page.tsx` | 文章列表，狀態篩選（全部/草稿/已發布）。「新增文章」不是開表單，是直接插一筆草稿再導頁（見下）。 |
+| `/posts/new` | `posts/new/page.tsx` | Mount 時立刻呼叫 `createDraftPost` 建一筆空白草稿（用 ref 擋 React StrictMode 重複觸發），然後 `router.replace` 到 `/write`。沒有「新增文章」表單畫面，這頁只是個轉場。 |
+| `/posts/[id]/layout.tsx` | — | 撈這篇文章、包一層 `PostEditorProvider`+`AiAssistProvider`，讓 `write`/`settings` 兩步共用同一份編輯器狀態，切換步驟不會重新載入。 |
+| `/posts/[id]/write` | `write/page.tsx` | 內容編輯步驟：標題、可折疊的副標/摘要、雙語富文字內容（切語系用 `key={locale}` 強制重新 mount 編輯器）。 |
+| `/posts/[id]/settings` | `settings/page.tsx` | 設定步驟：slug、分類/標籤/系列選擇器、封面圖、各語系 SEO 欄位、危險操作區。 |
+| `/posts/[id]`<br>`/posts/[id]/edit` | 各自 `page.tsx` | **都是導頁用的殘留 stub**，舊版單頁編輯器被拆成 write/settings 兩步之後留下的相容轉址，實際內容都在 `write`。 |
+| `/test-editor` | `test-editor/page.tsx` | 沒有掛在導覽列上的開發用測試頁，單純孤立掛一個 `<RichTextEditor>`，不連 Supabase，可以直接刪或用 dev-only 的方式擋起來。 |
 
 ### API 路由
 
@@ -95,7 +102,7 @@
 
 | 路徑 | 說明 |
 |---|---|
-| `GET /auth/callback` | 接住 Supabase Google OAuth 的 `?code`，`exchangeCodeForSession` 換出 session cookie，成功導回 `?next`（預設 `/admin`），失敗導回 `/admin/login?error=auth`。 |
+| `GET /auth/callback` | 接住 Supabase Google OAuth 的 `?code`，`exchangeCodeForSession` 換出 session cookie，成功導回後台首頁 `/`，失敗導回 `/login?error=auth`。刻意不收 `?next`，避免 open redirect；轉址用相對路徑，本機開發時才不會被 `request.url` 帶回 `localhost:3000`。 |
 | `GET /rss/blog.xml`<br>`GET /rss/notes.xml` | `force-dynamic`，各自抓已發布的文章/notes，用 `app/lib/rss.ts` 的 `rssDocument()` 拼 XML。**只有中文版**，不分語系，這點如果你想做雙語 RSS 需要另外處理。 |
 
 ---
@@ -152,9 +159,9 @@
 
 ## 五、身份驗證流程
 
-1. `/admin/login` 按鈕呼叫 `supabase.auth.signInWithOAuth({provider:'google', redirectTo:'/auth/callback?next=/admin'})`。
+1. 後台子網域的 `/login` 按鈕呼叫 `supabase.auth.signInWithOAuth({provider:'google', redirectTo:'/auth/callback'})`。session cookie 只寫在 `admin.johnlin.me`，主站拿不到。
 2. Google 導回 `/auth/callback?code=...`，`exchangeCodeForSession` 換出 session、寫入 cookie。
-3. 之後每個請求，`proxy.ts` 對 `/admin/*` 路徑重建一個 server client 讀 cookie、呼叫 `getUser()` + `rpc('is_admin')` 判斷放不放行。
+3. 之後後台子網域的每個請求（`/login` 除外），`proxy.ts` 都重建一個 server client 讀 cookie、呼叫 `getUser()` + `rpc('is_admin')` 判斷放不放行。
 4. `AdminShell` 裡也會呼叫一次 `getUser()`，但那只是拿來顯示大頭貼/名字，**不是安全檢查**。
 5. `is_admin()` 怎麼判斷「誰是管理員」——是 email allowlist？是 role 欄位？——**完全看不到**，因為邏輯在 Supabase 後台，這個 repo 裡沒有任何程式碼或 SQL 定義它。
 
@@ -229,8 +236,8 @@ Notes 沒有標題、沒有 slug、沒有雙語、沒有草稿流程（一律直
 
 7. **明確「做一半」或「暫緩」的功能**（不是 bug，是設計上刻意留白，但你應該知道現況）：
    - Series（系列文章）後台管理已經做好，但前台完全沒有對外的系列頁面
-   - `/admin/test-editor` 是沒掛導覽的開發測試頁，可以刪或擋起來
-   - `/admin/posts/[id]` 和 `/admin/posts/[id]/edit` 是舊版編輯器留下的轉址殘留頁面
+   - 後台的 `/test-editor` 是沒掛導覽的開發測試頁，可以刪或擋起來
+   - 後台的 `/posts/[id]` 和 `/posts/[id]/edit` 是舊版編輯器留下的轉址殘留頁面
 
 8. **README.md 和 BLOG_SETUP.md 已經完全過期**，兩份都還在講 Firebase，跟現在的 Supabase 架構對不上，容易誤導之後回來看文件的自己。
 

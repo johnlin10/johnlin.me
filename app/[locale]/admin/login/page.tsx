@@ -8,7 +8,7 @@ import style from './login.module.scss'
 
 /**
  * 後台登入頁面 — Supabase Google OAuth。
- * 成功後瀏覽器導向 Google → /auth/callback → /admin。
+ * 成功後瀏覽器導向 Google → /auth/callback → 後台首頁。
  */
 export default function AdminLoginPage() {
   const t = useTranslations('AdminPage.login')
@@ -22,7 +22,7 @@ export default function AdminLoginPage() {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/auth/callback?next=/admin`,
+          redirectTo: `${window.location.origin}/auth/callback`,
           queryParams: { prompt: 'select_account' },
         },
       })

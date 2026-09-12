@@ -1,5 +1,6 @@
 'use client'
 
+import { useSelectedLayoutSegment } from 'next/navigation'
 import { usePathname } from '@/i18n/navigation'
 
 /**
@@ -13,7 +14,9 @@ export default function FooterGate({
   children: React.ReactNode
 }) {
   const pathname = usePathname()
-  if (pathname.startsWith('/admin')) return null
+  const segment = useSelectedLayoutSegment()
+  // 看路由 segment 而不是網址：後台子網域的網址裡沒有 /admin。
+  if (segment === 'admin') return null
   // 攝影牆是滿版沉浸式（fixed），不要 footer；但單張頁 /photography/[slug] 是一般頁面要保留。
   if (pathname.startsWith('/photography')) return null
   return <>{children}</>

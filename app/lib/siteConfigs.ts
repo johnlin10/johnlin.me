@@ -20,6 +20,11 @@ export const SITE_CONFIG = {
     ''
   ),
   locale: 'zh-TW',
+  // 後台子網域的 PWA 名稱，manifest 與 iOS 主畫面共用。
+  admin: {
+    name: 'John Lin Dashboard',
+    shortName: 'JL Dashboard',
+  },
   creator: {
     zh_tw: '林昌龍',
     en: 'John Lin',
@@ -61,4 +66,13 @@ export const SITE_CONFIG = {
  */
 export function authorName(locale: string) {
   return locale === 'en' ? SITE_CONFIG.displayName.en : SITE_CONFIG.displayName.zh_tw
+}
+
+/**
+ * 是否為後台子網域（正式站 admin.johnlin.me、本機 admin.localhost:3000）。
+ * @param host 請求的 Host 標頭
+ * @returns 以 admin. 開頭才回 true
+ */
+export function isAdminHost(host: string | null) {
+  return host?.startsWith('admin.') ?? false
 }

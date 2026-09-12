@@ -26,7 +26,7 @@ export default function NewPostPage() {
     createdRef.current = true
     setError(false)
     createDraftPost(supabase)
-      .then((id) => router.replace(`/admin/posts/${id}/write`))
+      .then((id) => router.replace(`/posts/${id}/write`))
       .catch(() => setError(true))
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [retryToken])
@@ -39,7 +39,7 @@ export default function NewPostPage() {
           <div className={style.error_actions}>
             <Button
               variant="secondary"
-              onClick={() => router.push('/admin/posts')}
+              onClick={() => router.push('/posts')}
             >
               {t('backToList')}
             </Button>
