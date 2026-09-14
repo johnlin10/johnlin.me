@@ -13,6 +13,8 @@ interface PageHeaderProps {
   subtitle?: ReactNode
   action?: ReactNode
   subbar?: ReactNode
+  /** 副控制欄外框的額外 class（它 portal 在頁面 DOM 外，頁面樣式碰不到）。 */
+  subbarClassName?: string
   /**
    * 第二層頁面（例如上傳預檢表）用來取代漢堡選單的返回連結，顯示在
    * 標題左側。href 是列表頁路徑，label 供螢幕閱讀器使用。
@@ -46,6 +48,7 @@ export default function PageHeader({
   subtitle,
   action,
   subbar,
+  subbarClassName,
   back,
 }: PageHeaderProps) {
   const t = useTranslations('AdminPage.shell')
@@ -77,7 +80,9 @@ export default function PageHeader({
     </div>
   )
 
-  const subBar = subbar ? <div className={style.subBar}>{subbar}</div> : null
+  const subBar = subbar ? (
+    <div className={`${style.subBar} ${subbarClassName ?? ''}`}>{subbar}</div>
+  ) : null
 
   return (
     <>

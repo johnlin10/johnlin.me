@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import style from './Modal.module.scss'
 
 interface ModalProps {
@@ -48,7 +49,9 @@ export default function Modal({
 
   if (!isOpen) return null
 
-  return (
+  // portal 到 body：iOS WebKit 會把 fixed 子孫框在 AdminShell 的 .page 捲動容器裡，
+  // 被頂部控制欄蓋住（桌機 Chrome 不會）。
+  return createPortal(
     <div className={style.modal_overlay} onClick={onClose}>
       <div
         className={`${style.modal_content} ${style[size]}`}
@@ -76,7 +79,8 @@ export default function Modal({
           {children}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   )
 }
 

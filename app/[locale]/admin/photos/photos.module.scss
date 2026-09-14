@@ -1,10 +1,19 @@
 @use '../_entityPage' as entity;
 @use '@/app/styles/design' as *;
 
+$inspectorWidth: 420px;
+
+// 副控制欄 portal 在 AdminShell 裡、不在 .photos_page 底下，所以放頂層。
+// 跟 .container 一樣固定讓出 inspector 的寬度，chips 才不會鑽到側欄底下、
+// 溢出時也捲得到。
+.subbar {
+  @include respond-to('desktop') {
+    margin-right: $inspectorWidth;
+  }
+}
+
 .photos_page {
   @include entity.entity-page;
-
-  $inspectorWidth: 420px;
 
   .container {
     // 印象表要橫向空間放縮圖，套用文章/分類那套 1100px 的內容寬度太窄。

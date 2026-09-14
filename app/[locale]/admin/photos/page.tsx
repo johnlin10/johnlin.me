@@ -208,6 +208,7 @@ export default function AdminPhotosPage() {
               {t('upload.cta')}
             </Button>
           }
+          subbarClassName={style.subbar}
           subbar={
             photos.length > 0 ? (
               <FilterChips
