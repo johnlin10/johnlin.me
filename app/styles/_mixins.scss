@@ -4,6 +4,7 @@
 // @forward 只轉發給外部呼叫端，不會讓本檔案自己拿到這個名稱。
 @forward 'breakpoints';
 @use 'breakpoints' as *;
+@use 'sass:list';
 @use 'sass:meta';
 
 @mixin flexbox($direction: row, $justify: center, $align: center) {
@@ -114,9 +115,9 @@ $fade-curve: (
 ) {
   $stops: ();
   @each $pair in $fade-curve {
-    $stops: append(
+    $stops: list.append(
       $stops,
-      meta.call($color-at, nth($pair, 2), $color-args...) #{nth($pair, 1) * 100%},
+      meta.call($color-at, list.nth($pair, 2), $color-args...) #{list.nth($pair, 1) * 100%},
       comma
     );
   }
@@ -138,35 +139,35 @@ $fade-curve: (
   $color-args...
 ) {
   $stops: ();
-  $n: length($fade-curve);
+  $n: list.length($fade-curve);
 
   @if $start != 0 {
     // 淡入 = 鏡射 $fade-curve：反著讀、position 換成 1 - 原比例
     @for $i from 1 through $n {
-      $pair: nth($fade-curve, $n - $i + 1);
-      $frac: 1 - nth($pair, 1);
-      $stops: append(
+      $pair: list.nth($fade-curve, $n - $i + 1);
+      $frac: 1 - list.nth($pair, 1);
+      $stops: list.append(
         $stops,
-        meta.call($color-at, nth($pair, 2), $color-args...) calc(#{$start} * #{$frac}),
+        meta.call($color-at, list.nth($pair, 2), $color-args...) calc(#{$start} * #{$frac}),
         comma
       );
     }
   } @else {
-    $stops: append($stops, meta.call($color-at, 1, $color-args...) 0%, comma);
+    $stops: list.append($stops, meta.call($color-at, 1, $color-args...) 0%, comma);
   }
 
   @if $end != 0 {
     @each $pair in $fade-curve {
-      $frac: nth($pair, 1);
-      $stops: append(
+      $frac: list.nth($pair, 1);
+      $stops: list.append(
         $stops,
-        meta.call($color-at, nth($pair, 2), $color-args...)
+        meta.call($color-at, list.nth($pair, 2), $color-args...)
           calc(100% - #{$end} + #{$end} * #{$frac}),
         comma
       );
     }
   } @else {
-    $stops: append($stops, meta.call($color-at, 1, $color-args...) 100%, comma);
+    $stops: list.append($stops, meta.call($color-at, 1, $color-args...) 100%, comma);
   }
 
   mask-image: linear-gradient($direction, $stops...);

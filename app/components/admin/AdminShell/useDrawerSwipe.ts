@@ -1,7 +1,7 @@
 import { useRef } from 'react'
 
-// 抽屜收著時，起手要落在左緣這麼寬的範圍內（HIG 最小觸控尺寸）。
-const EDGE_ZONE = 44
+// 抽屜收著時，起手要落在左側這麼寬的範圍內（寬過 Safari 的返回手勢區）。
+const EDGE_ZONE = 72
 // 位移超過這個距離才判定方向；縱向就交還給捲動。
 const AXIS_SLOP = 10
 // 放手前停住超過這麼久（ms）就不算甩動。
@@ -43,9 +43,43 @@ function currentX(el: HTMLElement) {
 }
 
 /**
- * 手機／平板抽屜的跟手拖曳：從左緣拉出、在抽屜或遮罩上拖回去，開關動畫
- * 進行到一半也能按住接手。拖曳中直接寫 inline style，放手後清掉，交給
- * CSS transition 從當下位置走到目標。
+ * 觸控起點是否落在自己會吃橫向手勢的元素裡：真的能橫向捲動的容器、表單
+ * 欄位、禁止橫向平移的元素（例如 motion 的 drag="x" 會設 touch-action:pan-y）。
+ * @param target 觸控起點
+ * @param root 往上找到這層為止
+ * @returns 是的話抽屜不接這個手勢
+ */
+function claimsHorizontalSwipe(target: Element, root: Element) {
+  for (
+    let el: Element | null = target;
+    el && el !== root;
+    el = el.parentElement
+  ) {
+    if (el.matches('input, textarea, select, [contenteditable="true"]'))
+      return true
+    const { overflowX, touchAction } = getComputedStyle(el)
+    if (
+      (overflowX === 'auto' || overflowX === 'scroll') &&
+      el.scrollWidth > el.clientWidth
+    ) {
+      return true
+    }
+    if (
+      touchAction !== 'auto' &&
+      touchAction !== 'manipulation' &&
+      !touchAction.includes('pan-x')
+    ) {
+      return true
+    }
+  }
+  return false
+}
+
+/**
+ * 手機／平板抽屜的跟手拖曳：從左側 EDGE_ZONE 內往右滑拉出（不必貼著最
+ * 左緣，避開 Safari 的返回手勢），在抽屜或遮罩上拖回去，開關動畫進行到
+ * 一半也能按住接手。拖曳中直接寫 inline style，放手後清掉，交給 CSS transition
+ * 從當下位置走到目標。
  * @param options.setOpen 放手後決定的開關狀態
  * @param options.desktopBreakpoint 視窗寬度達到這個值就是桌機，不啟用
  * @returns 抽屜與遮罩的 ref，以及要掛在外殼上的觸控事件
@@ -67,6 +101,8 @@ export function useDrawerSwipe({
     if (!sidebar || !scrim) return
     sidebar.style.transition = scrim.style.transition = 'none'
     sidebar.style.transform = `translateX(${x}px)`
+    // 收起時遮罩是 display:none（見 AdminShell.module.scss 的 .scrim）
+    scrim.style.display = 'block'
     scrim.style.opacity = String(1 + x / width)
   }
 
@@ -75,6 +111,7 @@ export function useDrawerSwipe({
       el?.style.removeProperty('transition')
       el?.style.removeProperty('transform')
       el?.style.removeProperty('opacity')
+      el?.style.removeProperty('display')
     }
   }
 
@@ -93,7 +130,13 @@ export function useDrawerSwipe({
     const touch = e.touches[0]
     const onDrawer =
       sidebar.contains(target) || !!scrimRef.current?.contains(target)
-    if (!onDrawer && touch.clientX > EDGE_ZONE) return
+    if (
+      !onDrawer &&
+      (touch.clientX > EDGE_ZONE ||
+        claimsHorizontalSwipe(e.target as Element, e.currentTarget))
+    ) {
+      return
+    }
 
     const width = sidebar.offsetWidth
     const x = currentX(sidebar)
