@@ -37,6 +37,15 @@ $sidebarWidth: 232px;
   inset: 0;
   z-index: 150;
   background: rgba(0, 0, 0, 0.4);
+  // 常駐不卸載，拖曳抽屜時透明度才能跟著手指走。
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--duration) var(--ease);
+
+  &.open {
+    opacity: 1;
+    pointer-events: auto;
+  }
 
   @include respond-to('tablet') {
     display: block;

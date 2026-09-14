@@ -13,6 +13,7 @@ import LanguageSwitch from '@/app/components/LanguageSwitch/LanguageSwitch'
 import Popover from '@/app/components/admin/Popover/Popover'
 import { useConfirm } from '@/app/components/admin/ConfirmDialog/ConfirmDialog'
 import { isFullscreenAdminRoute } from './fullscreenRoutes'
+import { useDrawerSwipe } from './useDrawerSwipe'
 import {
   AdminPageHeaderProvider,
   useAdminPageHeaderSlot,
@@ -115,6 +116,10 @@ export default function AdminShell({
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [settingsOpen, setSettingsOpen] = useState(false)
   const settingsAnchorRef = useRef<HTMLButtonElement>(null)
+  const { sidebarRef, scrimRef, touchHandlers } = useDrawerSwipe({
+    setOpen: setDrawerOpen,
+    desktopBreakpoint: DESKTOP_BREAKPOINT,
+  })
 
   useEffect(() => {
     const supabase = createClient()
@@ -172,16 +177,22 @@ export default function AdminShell({
     <AdminPageHeaderProvider drawerOpen={drawerOpen} toggleDrawer={toggleDrawer}>
       {/* data-admin-shell：globals.scss 靠這個屬性用 :has() 鎖住文件層的
           捲動／回彈，只在後台外殼掛載時生效，見那邊的註解。 */}
-      <div className={style.shell} data-admin-shell>
-        {drawerOpen && (
-          <div
-            className={style.scrim}
-            onClick={() => setDrawerOpen(false)}
-            aria-hidden
-          />
-        )}
+      <div
+        className={style.shell}
+        data-admin-shell
+        {...touchHandlers}
+      >
+        <div
+          ref={scrimRef}
+          className={`${style.scrim} ${drawerOpen ? style.open : ''}`}
+          onClick={() => setDrawerOpen(false)}
+          aria-hidden
+        />
 
-        <aside className={`${style.sidebar} ${drawerOpen ? style.open : ''}`}>
+        <aside
+          ref={sidebarRef}
+          className={`${style.sidebar} ${drawerOpen ? style.open : ''}`}
+        >
           <div className={style.sidebarHeader}>
             {/* 主站在另一個網域，用一般連結。 */}
             <a
