@@ -195,7 +195,7 @@ export default function DataTable<T>({
           onClose={() => setMenuRow(null)}
           anchorRef={menuAnchorRef}
           placement="bottom"
-          width={160}
+          width={112}
           className={style.menu_popover}
         >
           {menuRow !== null && (

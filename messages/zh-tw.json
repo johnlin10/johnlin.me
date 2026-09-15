@@ -280,7 +280,6 @@
         "actions": "操作"
       },
       "none": "—",
-      "edit": "編輯",
       "delete": "刪除",
       "modal": {
         "editTitle": "編輯標籤",

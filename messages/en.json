@@ -279,7 +279,6 @@
         "actions": "Actions"
       },
       "none": "—",
-      "edit": "Edit",
       "delete": "Delete",
       "modal": {
         "editTitle": "Edit Tag",

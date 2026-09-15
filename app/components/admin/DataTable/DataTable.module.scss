@@ -148,6 +148,12 @@
   --menu-bg: var(--row-hover);
 }
 
+// 分隔線是半透明色，「⋯」欄這段疊在底下捲過去的分隔線上會變亮；
+// 墊一層不透明底色，顏色就跟單一條線一樣
+.table tbody tr:not(:last-child) td.menu_cell::after {
+  background: linear-gradient(var(--border), var(--border)) var(--surface);
+}
+
 .menu_trigger {
   @include flexbox(row, center, center);
   width: 1.75rem;

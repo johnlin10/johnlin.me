@@ -328,6 +328,7 @@ export function randomSlug(length = 6) {
 | 3. 短網址 ✅ | 0005 migration、proxy 的 go 分支、slug 產生、管理頁、統計頁 | v1.5 Beta 3 |
 | 課表介面調整 ✅ | 手機滿版、管理區收合、整列點擊編輯 | v1.5 Beta 4 |
 | 表格去外框 ✅ | DataTable 無外框、捲動延伸到頁面內距、圓角 hover | v1.5 Beta 5 |
+| 後台列表操作收進選單 ✅ | 標籤整列點擊編輯、標籤與文章的刪除收進「⋯」選單 | v1.5 Beta 6 |
 
 開發在 `feat/tools` 分支，每個階段一個 commit，版本號用 v1.5 Beta x；整批併回 main 時才是 v1.5.0。
 
