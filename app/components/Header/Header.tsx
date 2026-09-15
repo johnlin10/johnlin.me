@@ -62,9 +62,9 @@ export default function Header() {
     setHidden(delta > 0) // 往下＝收起，往上＝滑回
   })
 
-  // 後台有自己的側邊欄外殼，不套用公開站的導軌。
-  // 看路由 segment 而不是網址：後台子網域的網址裡沒有 /admin。
-  if (segment === 'admin') return null
+  // 後台與工具有自己的側邊欄外殼，不套用公開站的導軌。
+  // 看路由 segment 而不是網址：子網域的網址裡沒有 /admin、/tools。
+  if (segment === 'admin' || segment === 'tools') return null
 
   return (
     <header className={style.shell} data-hidden={hidden}>

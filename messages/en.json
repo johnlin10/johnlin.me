@@ -631,6 +631,38 @@
       }
     }
   },
+  "ToolsPage": {
+    "title": "Tools",
+    "login": {
+      "title": "Tools"
+    },
+    "shell": {
+      "backToHome": "Back to site",
+      "brandSubtitle": "Tools",
+      "navAriaLabel": "Tools navigation",
+      "menuOpen": "Open menu",
+      "menuClose": "Close menu",
+      "topbarFallback": "Tools",
+      "userAvatarAlt": "User avatar",
+      "defaultUserName": "Admin",
+      "signOut": "Sign out",
+      "preferences": "Preferences",
+      "themeLabel": "Theme",
+      "languageLabel": "Language",
+      "signOutConfirm": {
+        "title": "Sign out",
+        "message": "Are you sure you want to sign out?"
+      }
+    },
+    "nav": {
+      "home": "Overview"
+    },
+    "home": {
+      "title": "Overview",
+      "subtitle": "Small tools just for me",
+      "empty": "No tools yet."
+    }
+  },
   "HomePage": {
     "title": "John Lin | Web Developer",
     "description": "Capturing moments in images, tracing thought in words.",

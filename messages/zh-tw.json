@@ -632,6 +632,38 @@
       }
     }
   },
+  "ToolsPage": {
+    "title": "個人工具",
+    "login": {
+      "title": "個人工具"
+    },
+    "shell": {
+      "backToHome": "返回首頁",
+      "brandSubtitle": "個人工具",
+      "navAriaLabel": "工具導覽",
+      "menuOpen": "開啟選單",
+      "menuClose": "關閉選單",
+      "topbarFallback": "工具",
+      "userAvatarAlt": "用戶頭像",
+      "defaultUserName": "管理員",
+      "signOut": "登出",
+      "preferences": "偏好設定",
+      "themeLabel": "主題",
+      "languageLabel": "語言",
+      "signOutConfirm": {
+        "title": "登出工具",
+        "message": "確定要登出嗎？"
+      }
+    },
+    "nav": {
+      "home": "總覽"
+    },
+    "home": {
+      "title": "總覽",
+      "subtitle": "只給自己用的小工具",
+      "empty": "還沒有工具。"
+    }
+  },
   "HomePage": {
     "title": "林昌龍",
     "description": "用影像捕捉瞬間，用文字刻畫思考。",

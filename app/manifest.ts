@@ -1,9 +1,9 @@
 import type { MetadataRoute } from 'next'
 import { headers } from 'next/headers'
-import { SITE_CONFIG, isAdminHost } from '@/app/lib/siteConfigs'
+import { SITE_CONFIG, subdomainOf } from '@/app/lib/siteConfigs'
 
 /**
- * 主站與後台子網域共用這支 manifest，依 Host 回傳各自的 PWA 設定。
+ * 主站與子網域共用這支 manifest，依 Host 回傳各自的 PWA 設定。
  * 用到 headers()，所以每次請求才產生，不在建置時快取。
  * @returns 目前網域的 Web App Manifest
  */
@@ -47,14 +47,16 @@ export default async function manifest(): Promise<MetadataRoute.Manifest> {
     ],
   }
 
-  if (!isAdminHost((await headers()).get('host'))) return site
+  const app = subdomainOf((await headers()).get('host'))
+  if (!app) return site
 
   // 圖示暫時沿用主站。
+  const { name, shortName, description } = SITE_CONFIG[app]
   return {
     ...site,
-    name: SITE_CONFIG.admin.name,
-    id: 'admin.johnlin.me',
-    short_name: SITE_CONFIG.admin.shortName,
-    description: 'Content dashboard for johnlin.me.',
+    name,
+    id: `${app}.johnlin.me`,
+    short_name: shortName,
+    description,
   }
 }
