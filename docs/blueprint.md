@@ -29,10 +29,10 @@
  └─ proxy.ts（Next 16 前稱 middleware.ts），先看 Host
      ├─ 主站（johnlin.me）
      │   ├─ next-intl 語系處理（決定 /zh-tw or /en 前綴、寫 locale cookie）
-     │   └─ /admin/* 一律 404（不轉址，避免洩漏後台位置）
-     └─ 後台子網域（admin.johnlin.me，本機 admin.localhost:3000）
+     │   └─ /admin/*、/tools/* 一律 404（不轉址，避免洩漏子網域位置）
+     └─ 子網域：後台 admin.johnlin.me、工具 tools.johnlin.me（本機 admin.localhost:3000、tools.localhost:3000）
          ├─ 同一套 next-intl 語系處理；要轉址就照轉
-         ├─ 改寫到 /[locale]/admin/*（/posts → /zh-tw/admin/posts）
+         ├─ 改寫到 /[locale]/<子網域>/*（admin 的 /posts → /zh-tw/admin/posts）
          └─ 如果不是 /login
              └─ 用 request cookies 建一個 Supabase server client
                  ├─ getUser()          → 沒登入就導回 /login
@@ -51,6 +51,7 @@
 - `app/layout.tsx`：空殼，只放 `<Analytics/>`，存在只是因為 Next.js 需要一個檔案系統意義上的根 layout。
 - `app/[locale]/layout.tsx`：真正的根 layout。驗證 `locale` 合法性（不合法就 404）、載入字體（`Noto Sans TC` + 自製「GenKiMin TW」serif，字型子集是 `scripts/generate-fonts.mjs` 在 build 前產生的）、包上 `NextIntlClientProvider` → `ThemeProvider`（next-themes）→ `HeaderSubNavProvider`，渲染全站共用的 `Header`/`Footer`，掛 Google Analytics。
 - `app/[locale]/admin/layout.tsx`：`ToastProvider` → `ConfirmDialogProvider` → `AdminShell`。**這一層本身不做任何登入檢查**，完全信任 proxy 已經擋過了。
+- `app/[locale]/tools/layout.tsx`：跟後台同一套外殼，`AdminShell` 帶 `app="tools"` 換成工具的導覽和文案，一樣不做登入檢查。規劃見 [`tools-plan.md`](tools-plan.md)。
 
 ---
 

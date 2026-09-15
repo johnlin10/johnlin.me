@@ -42,6 +42,10 @@ import {
   faEye,
   faEyeSlash,
   faGear,
+  faLink,
+  faCopy,
+  faEllipsis,
+  faPlus,
 } from '@fortawesome/free-solid-svg-icons'
 import { faGithub } from '@fortawesome/free-brands-svg-icons'
 
@@ -86,6 +90,10 @@ export type IconName =
   | 'eye'
   | 'eye-slash'
   | 'gear'
+  | 'link'
+  | 'copy'
+  | 'ellipsis'
+  | 'plus'
   | 'github'
 
 //* 圖標映射表
@@ -129,6 +137,10 @@ const iconMap: Record<IconName, IconProp> = {
   eye: faEye,
   'eye-slash': faEyeSlash,
   gear: faGear,
+  link: faLink,
+  copy: faCopy,
+  ellipsis: faEllipsis,
+  plus: faPlus,
   github: faGithub,
 }
 

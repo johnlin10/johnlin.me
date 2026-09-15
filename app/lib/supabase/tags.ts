@@ -6,6 +6,7 @@ type TagRow = {
   slug: string
   locales: Tag['locales']
   created_at: string
+  post_tags?: { count: number }[]
 }
 
 function mapTag(row: TagRow): Tag {
@@ -13,6 +14,7 @@ function mapTag(row: TagRow): Tag {
     id: row.id,
     slug: row.slug,
     locales: row.locales,
+    postCount: row.post_tags?.[0]?.count,
     createdAt: row.created_at,
   }
 }
@@ -20,7 +22,7 @@ function mapTag(row: TagRow): Tag {
 export async function getTags(supabase: SupabaseClient): Promise<Tag[]> {
   const { data, error } = await supabase
     .from('tags')
-    .select('*')
+    .select('*, post_tags(count)')
     .order('created_at', { ascending: true })
   if (error) throw error
   return (data as TagRow[]).map(mapTag)

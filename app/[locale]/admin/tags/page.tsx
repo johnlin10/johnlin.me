@@ -165,11 +165,6 @@ export default function TagsPage() {
 
   const tagActions: DataTableAction<Tag>[] = [
     {
-      label: t('edit'),
-      variant: 'secondary',
-      onClick: handleEdit,
-    },
-    {
       label: t('delete'),
       variant: 'danger',
       onClick: handleDelete,
@@ -207,6 +202,8 @@ export default function TagsPage() {
             rowKey={(tag) => tag.id}
             actionsHeader={t('table.actions')}
             actions={tagActions}
+            actionsAs="menu"
+            onRowClick={handleEdit}
           />
         )}
 

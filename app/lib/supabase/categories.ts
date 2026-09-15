@@ -6,6 +6,7 @@ type CategoryRow = {
   slug: string
   locales: Category['locales']
   created_at: string
+  posts?: { count: number }[]
 }
 
 function mapCategory(row: CategoryRow): Category {
@@ -13,6 +14,7 @@ function mapCategory(row: CategoryRow): Category {
     id: row.id,
     slug: row.slug,
     locales: row.locales,
+    postCount: row.posts?.[0]?.count,
     createdAt: row.created_at,
   }
 }
@@ -22,7 +24,7 @@ export async function getCategories(
 ): Promise<Category[]> {
   const { data, error } = await supabase
     .from('categories')
-    .select('*')
+    .select('*, posts(count)')
     .order('created_at', { ascending: true })
   if (error) throw error
   return (data as CategoryRow[]).map(mapCategory)

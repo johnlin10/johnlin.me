@@ -5,7 +5,7 @@ import { useSelectedLayoutSegments } from 'next/navigation'
 import { useLocale, useTranslations } from 'next-intl'
 import { useRouter, Link } from '@/i18n/navigation'
 import { routing } from '@/i18n/routing'
-import { SITE_CONFIG } from '@/app/lib/siteConfigs'
+import { SITE_CONFIG, type Subdomain } from '@/app/lib/siteConfigs'
 import { createClient } from '@/app/lib/supabase/client'
 import Icon, { type IconName } from '@/app/components/Icon/Icon'
 import ThemeToggle from '@/app/components/ThemeToggle/ThemeToggle'
@@ -25,7 +25,7 @@ import style from './AdminShell.module.scss'
  * 標籤）性質不同，分開兩組。工具組再用 scopeKey 標出服務範圍——分類、
  * 系列只服務文章，標籤是跨內容型別的，光看名字看不出來。
  */
-const NAV_GROUPS: {
+type NavGroup = {
   labelKey?: string
   items: {
     href: string
@@ -33,7 +33,9 @@ const NAV_GROUPS: {
     icon: IconName
     scopeKey?: string
   }[]
-}[] = [
+}
+
+const NAV_GROUPS: NavGroup[] = [
   {
     items: [{ href: '/', labelKey: 'dashboard', icon: 'gauge-high' }],
   },
@@ -70,6 +72,16 @@ const NAV_GROUPS: {
   },
 ]
 
+const TOOLS_NAV_GROUPS: NavGroup[] = [
+  {
+    items: [
+      { href: '/', labelKey: 'home', icon: 'table-cells-large' },
+      { href: '/schedule', labelKey: 'schedule', icon: 'calendar' },
+      { href: '/links', labelKey: 'links', icon: 'link' },
+    ],
+  },
+]
+
 const DESKTOP_BREAKPOINT = 1025
 
 /**
@@ -96,16 +108,21 @@ interface UserProfile {
 }
 
 /**
- * 後台外殼：左側固定側邊欄（行動裝置收合為抽屜）＋ 使用者資訊／登出。
+ * 後台與工具子網域共用的外殼：左側固定側邊欄（行動裝置收合為抽屜）＋ 使用者資訊／登出。
  * 登入頁不套用外殼，維持獨立的置中版面。
+ * @param props.app 哪個子網域，決定導覽項目和文案
  */
 export default function AdminShell({
   children,
+  app = 'admin',
 }: {
   children: React.ReactNode
+  app?: Subdomain
 }) {
-  const t = useTranslations('AdminPage.shell')
-  const tNav = useTranslations('AdminPage.nav')
+  const namespace = app === 'tools' ? 'ToolsPage' : 'AdminPage'
+  const navGroups = app === 'tools' ? TOOLS_NAV_GROUPS : NAV_GROUPS
+  const t = useTranslations(`${namespace}.shell`)
+  const tNav = useTranslations(`${namespace}.nav`)
   const locale = useLocale()
   // 以後台為根的路徑（/posts/<id>/write）。不用 usePathname：子網域靠 proxy 改寫，
   // 預先渲染時看到的是 /admin/...，瀏覽器網址沒有，兩邊會對不上。
@@ -214,7 +231,7 @@ export default function AdminShell({
           </div>
 
           <nav className={style.nav} aria-label={t('navAriaLabel')}>
-            {NAV_GROUPS.map((group, groupIndex) => (
+            {navGroups.map((group, groupIndex) => (
               <div key={group.labelKey ?? groupIndex} className={style.navGroup}>
                 {group.labelKey && (
                   <span className={style.navGroupLabel}>

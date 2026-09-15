@@ -411,6 +411,7 @@ export default function PostsPage() {
             rowKey={(post) => post.id}
             actionsHeader={t('table.actions.title')}
             actions={postActions}
+            actionsAs="menu"
           />
         )}
       </div>

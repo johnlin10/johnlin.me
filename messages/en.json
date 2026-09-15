@@ -279,7 +279,6 @@
         "actions": "Actions"
       },
       "none": "—",
-      "edit": "Edit",
       "delete": "Delete",
       "modal": {
         "editTitle": "Edit Tag",
@@ -628,6 +627,198 @@
       "tag": {
         "label": "Tags",
         "loading": "Loading..."
+      }
+    }
+  },
+  "ToolsPage": {
+    "title": "Tools",
+    "login": {
+      "title": "Tools"
+    },
+    "shell": {
+      "backToHome": "Back to site",
+      "brandSubtitle": "Tools",
+      "navAriaLabel": "Tools navigation",
+      "menuOpen": "Open menu",
+      "menuClose": "Close menu",
+      "topbarFallback": "Tools",
+      "userAvatarAlt": "User avatar",
+      "defaultUserName": "Admin",
+      "signOut": "Sign out",
+      "preferences": "Preferences",
+      "themeLabel": "Theme",
+      "languageLabel": "Language",
+      "signOutConfirm": {
+        "title": "Sign out",
+        "message": "Are you sure you want to sign out?"
+      }
+    },
+    "nav": {
+      "home": "Overview",
+      "schedule": "Timetable",
+      "links": "Short links"
+    },
+    "home": {
+      "title": "Overview",
+      "subtitle": "Small tools just for me",
+      "tools": {
+        "schedule": {
+          "name": "Timetable",
+          "description": "Courses, teachers and rooms for each semester"
+        },
+        "links": {
+          "name": "Short links",
+          "description": "Redirects on go.johnlin.me with click stats"
+        }
+      }
+    },
+    "links": {
+      "title": "Short links",
+      "subtitle": "{count, plural, one {# short link} other {# short links}}",
+      "new": "New short link",
+      "loading": "Loading…",
+      "loadError": "Couldn't load short links",
+      "saveError": "Couldn't save. Please try again.",
+      "deleteError": "Couldn't delete. Please try again.",
+      "copyError": "Couldn't copy. Please copy it by hand.",
+      "empty": "No short links yet.",
+      "copied": "Copied {url}",
+      "created": "Created {url}",
+      "createdCopied": "Created and copied {url}",
+      "updated": "Updated",
+      "copy": "Copy",
+      "edit": "Edit",
+      "delete": "Delete",
+      "cancel": "Cancel",
+      "save": "Save",
+      "table": {
+        "slug": "Short link",
+        "target": "Target",
+        "note": "Note",
+        "clicks": "Clicks",
+        "recent": "Last 7 days",
+        "created": "Created",
+        "actions": "Actions"
+      },
+      "form": {
+        "newTitle": "New short link",
+        "editTitle": "Edit short link",
+        "target": "Target URL",
+        "targetInvalid": "The target must be an http or https URL",
+        "slug": "Custom short link",
+        "slugHelper": "Leave blank for a random 6-character one. Lowercase letters, numbers and - only.",
+        "slugInvalid": "Use lowercase letters, numbers and - only, and don't start with api, auth or trpc",
+        "slugTaken": "That short link is already taken",
+        "shortUrl": "Short link",
+        "note": "Note"
+      },
+      "deleteTitle": "Delete short link",
+      "deleteMessage": "Delete {slug}? Its click history goes with it, and links you've shared will stop working.",
+      "detail": {
+        "back": "Back to short links",
+        "notFound": "Short link not found.",
+        "total": "Total clicks",
+        "last30": "Last 30 days",
+        "last7": "Last 7 days",
+        "daily": "Daily clicks, last 90 days",
+        "referrers": "Referrers",
+        "countries": "Countries and regions",
+        "direct": "Direct or unknown",
+        "unknown": "Unknown",
+        "noClicks": "No clicks in the last 90 days.",
+        "footnote": "Link preview bots aren't counted. Clicks record only the time, referring site and country."
+      }
+    },
+    "schedule": {
+      "title": "Timetable",
+      "subtitle": "{count, plural, one {# course} other {# courses}} this semester",
+      "loading": "Loading…",
+      "loadError": "Couldn't load the timetable",
+      "saveError": "Couldn't save. Please try again.",
+      "deleteError": "Couldn't delete. Please try again.",
+      "busy": "Class",
+      "noSemester": "No semesters yet. Add one to start.",
+      "manage": "Courses, teachers & semester",
+      "delete": "Delete",
+      "cancel": "Cancel",
+      "save": "Save",
+      "semester": {
+        "title": "Semester",
+        "new": "New semester",
+        "newTitle": "New semester",
+        "editTitle": "Rename semester",
+        "codeLabel": "Semester code",
+        "codeHelper": "Like 114-1 or 114-2",
+        "codeInvalid": "Semester codes look like 114-1",
+        "duplicate": "That semester already exists",
+        "deleteBlocked": "This semester still has courses. Delete them first.",
+        "deleteTitle": "Delete semester",
+        "deleteMessage": "Delete {code}?"
+      },
+      "slot": {
+        "newTitle": "New class time",
+        "editTitle": "Edit class time",
+        "course": "Course",
+        "coursePlaceholder": "Choose a course",
+        "noCourses": "No courses this semester yet. Add one first.",
+        "teacher": "Teacher",
+        "teacherPlaceholder": "No teacher",
+        "location": "Room",
+        "day": "Day",
+        "start": "From period",
+        "end": "To period",
+        "courseRequired": "Choose a course",
+        "rangeInvalid": "The end period can't come before the start",
+        "overlap": "Overlaps with “{course}”",
+        "deleteTitle": "Delete class time",
+        "deleteMessage": "Delete this class time?"
+      },
+      "course": {
+        "title": "Courses",
+        "new": "New course",
+        "empty": "No courses yet.",
+        "newTitle": "New course",
+        "editTitle": "Edit course",
+        "name": "Name",
+        "credits": "Credits",
+        "creditsHelper": "Optional",
+        "creditsUnit": "{count, plural, one {# credit} other {# credits}}",
+        "creditsInvalid": "Credits must be a whole number, 0 or more",
+        "color": "Color",
+        "nameRequired": "Enter a name",
+        "duplicate": "There's already a course with that name this semester",
+        "inUse": "{count, plural, one {# class time still uses} other {# class times still use}} this course. Delete them first.",
+        "deleteTitle": "Delete course",
+        "deleteMessage": "Delete “{name}”?"
+      },
+      "teacher": {
+        "title": "Teachers",
+        "new": "New teacher",
+        "empty": "No teachers yet.",
+        "newTitle": "New teacher",
+        "editTitle": "Edit teacher",
+        "name": "Name",
+        "nameRequired": "Enter a name",
+        "duplicate": "There's already a teacher with that name",
+        "deleteTitle": "Delete teacher",
+        "deleteMessage": "Delete “{name}”? Class times with this teacher will have no teacher."
+      },
+      "colors": {
+        "red": "Red",
+        "orange": "Orange",
+        "amber": "Amber",
+        "yellow": "Yellow",
+        "lime": "Lime",
+        "green": "Green",
+        "teal": "Teal",
+        "cyan": "Cyan",
+        "sky": "Sky",
+        "blue": "Blue",
+        "indigo": "Indigo",
+        "violet": "Violet",
+        "purple": "Purple",
+        "pink": "Pink",
+        "gray": "Gray"
       }
     }
   },

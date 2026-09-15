@@ -280,7 +280,6 @@
         "actions": "操作"
       },
       "none": "—",
-      "edit": "編輯",
       "delete": "刪除",
       "modal": {
         "editTitle": "編輯標籤",
@@ -629,6 +628,198 @@
       "tag": {
         "label": "標籤",
         "loading": "載入中..."
+      }
+    }
+  },
+  "ToolsPage": {
+    "title": "個人工具",
+    "login": {
+      "title": "個人工具"
+    },
+    "shell": {
+      "backToHome": "返回首頁",
+      "brandSubtitle": "個人工具",
+      "navAriaLabel": "工具導覽",
+      "menuOpen": "開啟選單",
+      "menuClose": "關閉選單",
+      "topbarFallback": "工具",
+      "userAvatarAlt": "用戶頭像",
+      "defaultUserName": "管理員",
+      "signOut": "登出",
+      "preferences": "偏好設定",
+      "themeLabel": "主題",
+      "languageLabel": "語言",
+      "signOutConfirm": {
+        "title": "登出工具",
+        "message": "確定要登出嗎？"
+      }
+    },
+    "nav": {
+      "home": "總覽",
+      "schedule": "課表",
+      "links": "短網址"
+    },
+    "home": {
+      "title": "總覽",
+      "subtitle": "只給自己用的小工具",
+      "tools": {
+        "schedule": {
+          "name": "課表",
+          "description": "每學期的課、老師和教室"
+        },
+        "links": {
+          "name": "短網址",
+          "description": "go.johnlin.me 的轉址和點擊統計"
+        }
+      }
+    },
+    "links": {
+      "title": "短網址",
+      "subtitle": "{count} 個短網址",
+      "new": "新增短網址",
+      "loading": "載入中…",
+      "loadError": "短網址載入失敗",
+      "saveError": "儲存失敗，請稍後再試",
+      "deleteError": "刪除失敗，請稍後再試",
+      "copyError": "複製失敗，請手動複製",
+      "empty": "還沒有短網址。",
+      "copied": "已複製 {url}",
+      "created": "已建立 {url}",
+      "createdCopied": "已建立並複製 {url}",
+      "updated": "已更新",
+      "copy": "複製",
+      "edit": "編輯",
+      "delete": "刪除",
+      "cancel": "取消",
+      "save": "儲存",
+      "table": {
+        "slug": "短網址",
+        "target": "目標",
+        "note": "備註",
+        "clicks": "點擊",
+        "recent": "近 7 天",
+        "created": "建立",
+        "actions": "操作"
+      },
+      "form": {
+        "newTitle": "新增短網址",
+        "editTitle": "編輯短網址",
+        "target": "目標網址",
+        "targetInvalid": "目標網址要是 http 或 https 的網址",
+        "slug": "自訂短網址",
+        "slugHelper": "留空會自動產生 6 碼；只能用小寫英文、數字和 -",
+        "slugInvalid": "只能用小寫英文、數字和 -，也不能用 api、auth、trpc 開頭",
+        "slugTaken": "這個短網址已經用過了",
+        "shortUrl": "短網址",
+        "note": "備註"
+      },
+      "deleteTitle": "刪除短網址",
+      "deleteMessage": "確定要刪除 {slug} 嗎？點擊紀錄會一起刪掉，發出去的連結也會失效。",
+      "detail": {
+        "back": "回到短網址列表",
+        "notFound": "找不到這個短網址。",
+        "total": "總點擊",
+        "last30": "近 30 天",
+        "last7": "近 7 天",
+        "daily": "近 90 天每日點擊",
+        "referrers": "來源",
+        "countries": "國家／地區",
+        "direct": "直接開啟或未知",
+        "unknown": "未知",
+        "noClicks": "近 90 天還沒有點擊。",
+        "footnote": "連結預覽爬蟲不算在內；點擊只記時間、來源網域和國家。"
+      }
+    },
+    "schedule": {
+      "title": "課表",
+      "subtitle": "這學期 {count} 門課",
+      "loading": "載入中…",
+      "loadError": "課表載入失敗",
+      "saveError": "儲存失敗，請稍後再試",
+      "deleteError": "刪除失敗，請稍後再試",
+      "busy": "有課",
+      "noSemester": "還沒有學期，先新增一個。",
+      "manage": "管理課程、老師與學期",
+      "delete": "刪除",
+      "cancel": "取消",
+      "save": "儲存",
+      "semester": {
+        "title": "學期",
+        "new": "新增學期",
+        "newTitle": "新增學期",
+        "editTitle": "修改學期代號",
+        "codeLabel": "學期代號",
+        "codeHelper": "格式像 114-1、114-2",
+        "codeInvalid": "學期代號要像 114-1 這樣",
+        "duplicate": "這個學期已經有了",
+        "deleteBlocked": "這學期還有課程，要先刪掉課程",
+        "deleteTitle": "刪除學期",
+        "deleteMessage": "確定要刪除 {code} 嗎？"
+      },
+      "slot": {
+        "newTitle": "新增時段",
+        "editTitle": "編輯時段",
+        "course": "課程",
+        "coursePlaceholder": "選擇課程",
+        "noCourses": "這學期還沒有課程，要先新增。",
+        "teacher": "老師",
+        "teacherPlaceholder": "不指定老師",
+        "location": "教室",
+        "day": "星期",
+        "start": "開始節次",
+        "end": "結束節次",
+        "courseRequired": "要選課程",
+        "rangeInvalid": "結束節次不能早於開始節次",
+        "overlap": "跟「{course}」的時間重疊了",
+        "deleteTitle": "刪除時段",
+        "deleteMessage": "確定要刪除這個時段嗎？"
+      },
+      "course": {
+        "title": "課程",
+        "new": "新增課程",
+        "empty": "還沒有課程。",
+        "newTitle": "新增課程",
+        "editTitle": "編輯課程",
+        "name": "課名",
+        "credits": "學分",
+        "creditsHelper": "可以先不填",
+        "creditsUnit": "{count} 學分",
+        "creditsInvalid": "學分要是 0 以上的整數",
+        "color": "顏色",
+        "nameRequired": "要填課名",
+        "duplicate": "這學期已經有同名的課",
+        "inUse": "還有 {count} 個時段在用這門課，要先刪掉那些時段",
+        "deleteTitle": "刪除課程",
+        "deleteMessage": "確定要刪除「{name}」嗎？"
+      },
+      "teacher": {
+        "title": "老師",
+        "new": "新增老師",
+        "empty": "還沒有老師。",
+        "newTitle": "新增老師",
+        "editTitle": "編輯老師",
+        "name": "名字",
+        "nameRequired": "要填名字",
+        "duplicate": "已經有同名的老師",
+        "deleteTitle": "刪除老師",
+        "deleteMessage": "確定要刪除「{name}」嗎？有這位老師的時段會變成沒有老師。"
+      },
+      "colors": {
+        "red": "紅",
+        "orange": "橘",
+        "amber": "琥珀",
+        "yellow": "黃",
+        "lime": "萊姆",
+        "green": "綠",
+        "teal": "藍綠",
+        "cyan": "青",
+        "sky": "天藍",
+        "blue": "藍",
+        "indigo": "靛",
+        "violet": "紫羅蘭",
+        "purple": "紫",
+        "pink": "粉紅",
+        "gray": "灰"
       }
     }
   },

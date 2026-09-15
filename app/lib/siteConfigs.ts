@@ -20,10 +20,16 @@ export const SITE_CONFIG = {
     ''
   ),
   locale: 'zh-TW',
-  // 後台子網域的 PWA 名稱，manifest 與 iOS 主畫面共用。
+  // 子網域的 PWA 設定，manifest 與 iOS 主畫面共用。
   admin: {
     name: 'John Lin Dashboard',
     shortName: 'JL Dashboard',
+    description: 'Content dashboard for johnlin.me.',
+  },
+  tools: {
+    name: 'John Lin Tools',
+    shortName: 'JL Tools',
+    description: 'Personal tools by John Lin.',
   },
   creator: {
     zh_tw: '林昌龍',
@@ -68,11 +74,25 @@ export function authorName(locale: string) {
   return locale === 'en' ? SITE_CONFIG.displayName.en : SITE_CONFIG.displayName.zh_tw
 }
 
+export type Subdomain = 'admin' | 'tools'
+
 /**
- * 是否為後台子網域（正式站 admin.johnlin.me、本機 admin.localhost:3000）。
+ * 判斷請求來自哪個子網域（正式站 admin.johnlin.me、本機 admin.localhost:3000）。
  * @param host 請求的 Host 標頭
- * @returns 以 admin. 開頭才回 true
+ * @returns 子網域名稱；主站或其他網域回 null
  */
-export function isAdminHost(host: string | null) {
-  return host?.startsWith('admin.') ?? false
+export function subdomainOf(host: string | null): Subdomain | null {
+  const sub = host?.split('.')[0]
+  return sub === 'admin' || sub === 'tools' ? sub : null
 }
+
+/**
+ * 是否為短網址子網域（正式站 go.johnlin.me、本機 go.localhost:3000）。
+ * @param host 請求的 Host 標頭
+ * @returns 以 go. 開頭才回 true
+ */
+export function isGoHost(host: string | null): boolean {
+  return host?.split('.')[0] === 'go'
+}
+
+export const SHORT_LINK_BASE = SITE_CONFIG.url.replace('://', '://go.')
