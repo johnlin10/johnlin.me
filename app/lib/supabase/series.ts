@@ -8,6 +8,7 @@ type SeriesRow = {
   locales: Series['locales']
   cover_image: string | null
   created_at: string
+  posts?: { count: number }[]
 }
 
 function mapSeries(row: SeriesRow): Series {
@@ -15,6 +16,7 @@ function mapSeries(row: SeriesRow): Series {
     id: row.id,
     slug: row.slug,
     locales: row.locales,
+    postCount: row.posts?.[0]?.count,
     coverImage: row.cover_image ?? undefined,
     createdAt: row.created_at,
   }
@@ -23,7 +25,7 @@ function mapSeries(row: SeriesRow): Series {
 export async function getSeries(supabase: SupabaseClient): Promise<Series[]> {
   const { data, error } = await supabase
     .from('series')
-    .select('*')
+    .select('*, posts(count)')
     .order('created_at', { ascending: true })
   if (error) throw error
   return (data as SeriesRow[]).map(mapSeries)
