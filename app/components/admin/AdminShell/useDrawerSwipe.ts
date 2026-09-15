@@ -43,8 +43,9 @@ function currentX(el: HTMLElement) {
 }
 
 /**
- * 觸控起點是否落在自己會吃橫向手勢的元素裡：真的能橫向捲動的容器、表單
- * 欄位、禁止橫向平移的元素（例如 motion 的 drag="x" 會設 touch-action:pan-y）。
+ * 觸控起點是否落在自己會吃橫向手勢的元素裡：往右捲過的容器（捲在最左端時
+ * 往右滑捲不動它，讓給抽屜）、表單欄位、禁止橫向平移的元素（例如 motion 的
+ * drag="x" 會設 touch-action:pan-y）。
  * @param target 觸控起點
  * @param root 往上找到這層為止
  * @returns 是的話抽屜不接這個手勢
@@ -60,7 +61,7 @@ function claimsHorizontalSwipe(target: Element, root: Element) {
     const { overflowX, touchAction } = getComputedStyle(el)
     if (
       (overflowX === 'auto' || overflowX === 'scroll') &&
-      el.scrollWidth > el.clientWidth
+      el.scrollLeft > 0
     ) {
       return true
     }
@@ -101,6 +102,7 @@ export function useDrawerSwipe({
     if (!sidebar || !scrim) return
     sidebar.style.transition = scrim.style.transition = 'none'
     sidebar.style.transform = `translateX(${x}px)`
+    sidebar.style.boxShadow = 'var(--shadow-xl)'
     // 收起時遮罩是 display:none（見 AdminShell.module.scss 的 .scrim）
     scrim.style.display = 'block'
     scrim.style.opacity = String(1 + x / width)
@@ -112,6 +114,7 @@ export function useDrawerSwipe({
       el?.style.removeProperty('transform')
       el?.style.removeProperty('opacity')
       el?.style.removeProperty('display')
+      el?.style.removeProperty('box-shadow')
     }
   }
 
@@ -163,7 +166,10 @@ export function useDrawerSwipe({
     if (drag.axis === 'pending') {
       const dy = touch.clientY - drag.startY
       if (Math.hypot(dx, dy) < AXIS_SLOP) return
-      drag.axis = Math.abs(dx) > Math.abs(dy) ? 'x' : 'y'
+      // 全收時往左滑沒東西可拉，跟縱向一樣交還（例如底下的表格要捲）。
+      // 容差 1px：84vw 的寬度會有小數，offsetWidth 是四捨五入的。
+      const closedLeft = dx < 0 && drag.originX <= 1 - drag.width
+      drag.axis = Math.abs(dx) > Math.abs(dy) && !closedLeft ? 'x' : 'y'
     }
     if (drag.axis === 'y') {
       // 被按住的動畫從停下的位置繼續走完

@@ -80,11 +80,14 @@ $sidebarWidth: 232px;
     left: 0;
     z-index: 200;
     transform: translateX(-100%);
-    transition: transform var(--duration) var(--ease);
-    box-shadow: var(--shadow-xl);
+    // 收起時不留陰影，不然會從左緣溢到內容上；拖曳中由 useDrawerSwipe 補上。
+    transition:
+      transform var(--duration) var(--ease),
+      box-shadow var(--duration) var(--ease);
 
     &.open {
       transform: translateX(0);
+      box-shadow: var(--shadow-xl);
     }
   }
   @include respond-to('phone') {
@@ -94,11 +97,14 @@ $sidebarWidth: 232px;
     z-index: 200;
     width: min(84vw, 280px);
     transform: translateX(-100%);
-    transition: transform var(--duration) var(--ease);
-    box-shadow: var(--shadow-xl);
+    // 收起時不留陰影，不然會從左緣溢到內容上；拖曳中由 useDrawerSwipe 補上。
+    transition:
+      transform var(--duration) var(--ease),
+      box-shadow var(--duration) var(--ease);
 
     &.open {
       transform: translateX(0);
+      box-shadow: var(--shadow-xl);
     }
   }
 }
