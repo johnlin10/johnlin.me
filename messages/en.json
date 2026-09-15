@@ -655,12 +655,111 @@
       }
     },
     "nav": {
-      "home": "Overview"
+      "home": "Overview",
+      "schedule": "Timetable"
     },
     "home": {
       "title": "Overview",
       "subtitle": "Small tools just for me",
-      "empty": "No tools yet."
+      "tools": {
+        "schedule": {
+          "name": "Timetable",
+          "description": "Courses, teachers and rooms for each semester"
+        }
+      }
+    },
+    "schedule": {
+      "title": "Timetable",
+      "subtitle": "{count, plural, one {# course} other {# courses}} this semester",
+      "loading": "Loading…",
+      "loadError": "Couldn't load the timetable",
+      "saveError": "Couldn't save. Please try again.",
+      "deleteError": "Couldn't delete. Please try again.",
+      "busy": "Class",
+      "noSemester": "No semesters yet. Add one to start.",
+      "edit": "Edit",
+      "delete": "Delete",
+      "cancel": "Cancel",
+      "save": "Save",
+      "semester": {
+        "title": "Semester",
+        "new": "New semester",
+        "newTitle": "New semester",
+        "editTitle": "Rename semester",
+        "codeLabel": "Semester code",
+        "codeHelper": "Like 114-1 or 114-2",
+        "codeInvalid": "Semester codes look like 114-1",
+        "duplicate": "That semester already exists",
+        "deleteBlocked": "This semester still has courses. Delete them first.",
+        "deleteTitle": "Delete semester",
+        "deleteMessage": "Delete {code}?"
+      },
+      "slot": {
+        "newTitle": "New class time",
+        "editTitle": "Edit class time",
+        "course": "Course",
+        "coursePlaceholder": "Choose a course",
+        "noCourses": "No courses this semester yet. Add one first.",
+        "teacher": "Teacher",
+        "teacherPlaceholder": "No teacher",
+        "location": "Room",
+        "day": "Day",
+        "start": "From period",
+        "end": "To period",
+        "courseRequired": "Choose a course",
+        "rangeInvalid": "The end period can't come before the start",
+        "overlap": "Overlaps with “{course}”",
+        "deleteTitle": "Delete class time",
+        "deleteMessage": "Delete this class time?"
+      },
+      "course": {
+        "title": "Courses this semester",
+        "new": "New course",
+        "empty": "No courses yet.",
+        "newTitle": "New course",
+        "editTitle": "Edit course",
+        "name": "Name",
+        "credits": "Credits",
+        "creditsHelper": "Optional",
+        "creditsUnit": "{count, plural, one {# credit} other {# credits}}",
+        "creditsEmpty": "No credits set",
+        "creditsInvalid": "Credits must be a whole number, 0 or more",
+        "color": "Color",
+        "nameRequired": "Enter a name",
+        "duplicate": "There's already a course with that name this semester",
+        "inUse": "{count, plural, one {# class time still uses} other {# class times still use}} this course. Delete them first.",
+        "deleteTitle": "Delete course",
+        "deleteMessage": "Delete “{name}”?"
+      },
+      "teacher": {
+        "title": "Teachers",
+        "new": "New teacher",
+        "empty": "No teachers yet.",
+        "newTitle": "New teacher",
+        "editTitle": "Edit teacher",
+        "name": "Name",
+        "nameRequired": "Enter a name",
+        "duplicate": "There's already a teacher with that name",
+        "deleteTitle": "Delete teacher",
+        "deleteMessage": "Delete “{name}”? Class times with this teacher will have no teacher."
+      },
+      "colors": {
+        "red": "Red",
+        "orange": "Orange",
+        "amber": "Amber",
+        "yellow": "Yellow",
+        "lime": "Lime",
+        "green": "Green",
+        "teal": "Teal",
+        "cyan": "Cyan",
+        "sky": "Sky",
+        "blue": "Blue",
+        "indigo": "Indigo",
+        "violet": "Violet",
+        "purple": "Purple",
+        "pink": "Pink",
+        "gray": "Gray"
+      }
     }
   },
   "HomePage": {

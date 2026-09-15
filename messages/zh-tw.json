@@ -656,12 +656,111 @@
       }
     },
     "nav": {
-      "home": "總覽"
+      "home": "總覽",
+      "schedule": "課表"
     },
     "home": {
       "title": "總覽",
       "subtitle": "只給自己用的小工具",
-      "empty": "還沒有工具。"
+      "tools": {
+        "schedule": {
+          "name": "課表",
+          "description": "每學期的課、老師和教室"
+        }
+      }
+    },
+    "schedule": {
+      "title": "課表",
+      "subtitle": "這學期 {count} 門課",
+      "loading": "載入中…",
+      "loadError": "課表載入失敗",
+      "saveError": "儲存失敗，請稍後再試",
+      "deleteError": "刪除失敗，請稍後再試",
+      "busy": "有課",
+      "noSemester": "還沒有學期，先新增一個。",
+      "edit": "編輯",
+      "delete": "刪除",
+      "cancel": "取消",
+      "save": "儲存",
+      "semester": {
+        "title": "學期",
+        "new": "新增學期",
+        "newTitle": "新增學期",
+        "editTitle": "修改學期代號",
+        "codeLabel": "學期代號",
+        "codeHelper": "格式像 114-1、114-2",
+        "codeInvalid": "學期代號要像 114-1 這樣",
+        "duplicate": "這個學期已經有了",
+        "deleteBlocked": "這學期還有課程，要先刪掉課程",
+        "deleteTitle": "刪除學期",
+        "deleteMessage": "確定要刪除 {code} 嗎？"
+      },
+      "slot": {
+        "newTitle": "新增時段",
+        "editTitle": "編輯時段",
+        "course": "課程",
+        "coursePlaceholder": "選擇課程",
+        "noCourses": "這學期還沒有課程，要先新增。",
+        "teacher": "老師",
+        "teacherPlaceholder": "不指定老師",
+        "location": "教室",
+        "day": "星期",
+        "start": "開始節次",
+        "end": "結束節次",
+        "courseRequired": "要選課程",
+        "rangeInvalid": "結束節次不能早於開始節次",
+        "overlap": "跟「{course}」的時間重疊了",
+        "deleteTitle": "刪除時段",
+        "deleteMessage": "確定要刪除這個時段嗎？"
+      },
+      "course": {
+        "title": "這學期的課程",
+        "new": "新增課程",
+        "empty": "還沒有課程。",
+        "newTitle": "新增課程",
+        "editTitle": "編輯課程",
+        "name": "課名",
+        "credits": "學分",
+        "creditsHelper": "可以先不填",
+        "creditsUnit": "{count} 學分",
+        "creditsEmpty": "學分未填",
+        "creditsInvalid": "學分要是 0 以上的整數",
+        "color": "顏色",
+        "nameRequired": "要填課名",
+        "duplicate": "這學期已經有同名的課",
+        "inUse": "還有 {count} 個時段在用這門課，要先刪掉那些時段",
+        "deleteTitle": "刪除課程",
+        "deleteMessage": "確定要刪除「{name}」嗎？"
+      },
+      "teacher": {
+        "title": "老師",
+        "new": "新增老師",
+        "empty": "還沒有老師。",
+        "newTitle": "新增老師",
+        "editTitle": "編輯老師",
+        "name": "名字",
+        "nameRequired": "要填名字",
+        "duplicate": "已經有同名的老師",
+        "deleteTitle": "刪除老師",
+        "deleteMessage": "確定要刪除「{name}」嗎？有這位老師的時段會變成沒有老師。"
+      },
+      "colors": {
+        "red": "紅",
+        "orange": "橘",
+        "amber": "琥珀",
+        "yellow": "黃",
+        "lime": "萊姆",
+        "green": "綠",
+        "teal": "藍綠",
+        "cyan": "青",
+        "sky": "天藍",
+        "blue": "藍",
+        "indigo": "靛",
+        "violet": "紫羅蘭",
+        "purple": "紫",
+        "pink": "粉紅",
+        "gray": "灰"
+      }
     }
   },
   "HomePage": {

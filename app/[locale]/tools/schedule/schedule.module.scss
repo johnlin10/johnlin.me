@@ -1,0 +1,144 @@
+@use '@/app/styles/design' as *;
+@use '../../admin/entityPage' as entity;
+
+.schedule_page {
+  @include entity.entity-page;
+  @include entity.entity-form;
+}
+
+.semesterSelect {
+  width: 7.5rem;
+}
+
+.manage {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+  gap: var(--space-6);
+
+  @include respond-to('phone') {
+    gap: var(--space-4);
+  }
+}
+
+.panel {
+  @include flexbox(column, flex-start, stretch);
+  gap: var(--space-3);
+  padding: var(--space-5);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
+
+.panelHead {
+  @include flexbox(row, space-between, center);
+  gap: var(--space-3);
+}
+
+.panelTitle {
+  margin: 0;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--text);
+}
+
+.list {
+  @include flexbox(column, flex-start, stretch);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.item {
+  @include flexbox(row, flex-start, center);
+  gap: var(--space-2);
+  padding: var(--space-2) 0;
+  border-top: 1px solid var(--border);
+
+  &:first-child {
+    border-top: 0;
+  }
+}
+
+.itemName {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  font-size: var(--text-sm);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--text);
+}
+
+.itemMeta {
+  font-size: var(--text-2xs);
+  white-space: nowrap;
+  color: var(--text-muted);
+}
+
+.dot,
+.swatch {
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: oklch(0.7 calc(0.13 * var(--course-chroma)) var(--course-hue));
+}
+
+.dot {
+  width: 0.75rem;
+  height: 0.75rem;
+}
+
+.hint {
+  margin: 0;
+  font-size: var(--text-2xs);
+  color: var(--text-muted);
+}
+
+.field {
+  @include field-shell();
+}
+
+.row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
+.notice {
+  @include flexbox(row, space-between, center);
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius-md);
+}
+
+.swatches {
+  @include flexbox(row, flex-start, center);
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.swatch {
+  width: 1.75rem;
+  height: 1.75rem;
+  padding: 0;
+  border: 2px solid transparent;
+  box-shadow: inset 0 0 0 1px var(--border);
+  cursor: pointer;
+
+  &.swatchActive {
+    border-color: var(--text);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+}
+
+.pushStart {
+  margin-right: auto;
+
+  @include respond-to('phone') {
+    margin-right: 0;
+  }
+}
