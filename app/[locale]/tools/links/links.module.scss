@@ -1,0 +1,43 @@
+@use '@/app/styles/design' as *;
+@use '../../admin/entityPage' as entity;
+
+.links_page {
+  @include entity.entity-page;
+  @include entity.entity-form;
+}
+
+.slugCell {
+  @include flexbox(row, flex-start, center);
+  gap: var(--space-2);
+}
+
+.copyButton {
+  @include flexbox(row, center, center);
+  width: 1.5rem;
+  height: 1.5rem;
+  padding: 0;
+  color: var(--text-muted);
+  background: none;
+  border: none;
+  border-radius: var(--radius-xs);
+  cursor: pointer;
+  transition: color var(--duration-fast) var(--ease);
+
+  &:hover {
+    color: var(--accent);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+  }
+}
+
+.target {
+  color: var(--text-secondary);
+  text-decoration: none;
+
+  &:hover {
+    color: var(--accent);
+  }
+}

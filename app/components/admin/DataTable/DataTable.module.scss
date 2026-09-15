@@ -72,6 +72,127 @@
   word-break: break-word;
 }
 
+// 網址等長字串：單行，超過 column.maxWidth 用省略號截斷。
+.cell_truncate {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.clickable {
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: -2px;
+  }
+}
+
+// 表格橫向捲動時「⋯」固定在右邊；左緣漸層讓捲到底下的內容淡出。
+// 底色和漸層都吃 --menu-bg，跟著所在列（表頭、一般列、hover）換色。
+.table th.menu_head,
+.table td.menu_cell {
+  position: sticky;
+  right: 0;
+  background: var(--menu-bg);
+
+  // 寬度等於欄位內距，沒捲動時只蓋在前一欄的留白上
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 100%;
+    width: var(--space-5);
+    background: linear-gradient(to right, transparent, var(--menu-bg));
+    pointer-events: none;
+
+    @include respond-to('phone') {
+      width: var(--space-4);
+    }
+  }
+}
+
+.table th.menu_head {
+  --menu-bg: var(--surface-2);
+}
+
+// 「⋯」按鈕比文字行高，上下內距收一點，列高才不會被撐開。
+.table td.menu_cell {
+  --menu-bg: var(--surface);
+  width: 1%;
+  padding-top: var(--space-3);
+  padding-bottom: var(--space-3);
+  text-align: right;
+}
+
+.table tbody tr:hover td.menu_cell {
+  --menu-bg: var(--surface-2);
+}
+
+.menu_trigger {
+  @include flexbox(row, center, center);
+  width: 1.75rem;
+  height: 1.75rem;
+  margin-left: auto;
+  padding: 0;
+  color: var(--text-muted);
+  background: none;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition:
+    color var(--duration-fast) var(--ease),
+    background var(--duration-fast) var(--ease);
+  @include focus-ring;
+
+  &:hover,
+  &[aria-expanded='true'] {
+    color: var(--text);
+    background: var(--surface-3);
+  }
+}
+
+.menu_popover {
+  padding: var(--space-2);
+}
+
+.menu {
+  @include flexbox(column, flex-start, stretch);
+  gap: var(--space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.menu_item {
+  width: 100%;
+  padding: var(--space-2) var(--space-3);
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  text-align: left;
+  color: var(--text);
+  background: none;
+  border: none;
+  border-radius: var(--radius-xs);
+  cursor: pointer;
+  transition: background var(--duration-fast) var(--ease);
+  @include focus-ring;
+
+  &:hover:not(:disabled) {
+    background: var(--surface-2);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.menu_danger {
+  color: var(--danger);
+}
+
 .actions {
   @include flexbox(row, flex-start, center);
   gap: var(--space-2);

@@ -656,7 +656,8 @@
     },
     "nav": {
       "home": "Overview",
-      "schedule": "Timetable"
+      "schedule": "Timetable",
+      "links": "Short links"
     },
     "home": {
       "title": "Overview",
@@ -665,7 +666,68 @@
         "schedule": {
           "name": "Timetable",
           "description": "Courses, teachers and rooms for each semester"
+        },
+        "links": {
+          "name": "Short links",
+          "description": "Redirects on go.johnlin.me with click stats"
         }
+      }
+    },
+    "links": {
+      "title": "Short links",
+      "subtitle": "{count, plural, one {# short link} other {# short links}}",
+      "new": "New short link",
+      "loading": "Loading…",
+      "loadError": "Couldn't load short links",
+      "saveError": "Couldn't save. Please try again.",
+      "deleteError": "Couldn't delete. Please try again.",
+      "copyError": "Couldn't copy. Please copy it by hand.",
+      "empty": "No short links yet.",
+      "copied": "Copied {url}",
+      "created": "Created {url}",
+      "createdCopied": "Created and copied {url}",
+      "updated": "Updated",
+      "copy": "Copy",
+      "edit": "Edit",
+      "delete": "Delete",
+      "cancel": "Cancel",
+      "save": "Save",
+      "table": {
+        "slug": "Short link",
+        "target": "Target",
+        "note": "Note",
+        "clicks": "Clicks",
+        "recent": "Last 7 days",
+        "created": "Created",
+        "actions": "Actions"
+      },
+      "form": {
+        "newTitle": "New short link",
+        "editTitle": "Edit short link",
+        "target": "Target URL",
+        "targetInvalid": "The target must be an http or https URL",
+        "slug": "Custom short link",
+        "slugHelper": "Leave blank for a random 6-character one. Lowercase letters, numbers and - only.",
+        "slugInvalid": "Use lowercase letters, numbers and - only, and don't start with api, auth or trpc",
+        "slugTaken": "That short link is already taken",
+        "shortUrl": "Short link",
+        "note": "Note"
+      },
+      "deleteTitle": "Delete short link",
+      "deleteMessage": "Delete {slug}? Its click history goes with it, and links you've shared will stop working.",
+      "detail": {
+        "back": "Back to short links",
+        "notFound": "Short link not found.",
+        "total": "Total clicks",
+        "last30": "Last 30 days",
+        "last7": "Last 7 days",
+        "daily": "Daily clicks, last 90 days",
+        "referrers": "Referrers",
+        "countries": "Countries and regions",
+        "direct": "Direct or unknown",
+        "unknown": "Unknown",
+        "noClicks": "No clicks in the last 90 days.",
+        "footnote": "Link preview bots aren't counted. Clicks record only the time, referring site and country."
       }
     },
     "schedule": {

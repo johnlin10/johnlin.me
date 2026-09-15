@@ -85,3 +85,14 @@ export function subdomainOf(host: string | null): Subdomain | null {
   const sub = host?.split('.')[0]
   return sub === 'admin' || sub === 'tools' ? sub : null
 }
+
+/**
+ * 是否為短網址子網域（正式站 go.johnlin.me、本機 go.localhost:3000）。
+ * @param host 請求的 Host 標頭
+ * @returns 以 go. 開頭才回 true
+ */
+export function isGoHost(host: string | null): boolean {
+  return host?.split('.')[0] === 'go'
+}
+
+export const SHORT_LINK_BASE = SITE_CONFIG.url.replace('://', '://go.')

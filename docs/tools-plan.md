@@ -53,11 +53,12 @@
 
 ### proxy 的改法
 
-`isAdminHost` 改成一個回傳子網域種類的函式：
+`isAdminHost` 改成一個回傳子網域種類的函式。短網址沒有頁面，也不需要語系和登入，另外用 `isGoHost` 判斷：
 
 ```ts
 // app/lib/siteConfigs.ts
-export function subdomainOf(host: string | null): 'admin' | 'tools' | 'go' | null
+export function subdomainOf(host: string | null): 'admin' | 'tools' | null
+export function isGoHost(host: string | null): boolean
 ```
 
 [`proxy.ts`](../proxy.ts) 依種類分流：
@@ -305,9 +306,9 @@ export function randomSlug(length = 6) {
 
 ### 管理頁
 
-- `/links` 上方一列用來建立：目標網址、自訂 slug（留空就自動產生）、備註。建好直接顯示 `go.johnlin.me/xxx` 並複製。
+- `/links` 右上角「新增短網址」開 Modal：目標網址、自訂 slug（留空就自動產生）、備註。目標網址沒寫協定會自動補 `https://`；建好直接複製 `go.johnlin.me/xxx`。
 - 目標網址存檔前用 `new URL()` 檢查，只接受 http 和 https，資料庫也有 check 再擋一次。
-- 清單用後台的 DataTable，欄位有 slug、目標、備註、總點擊、近 7 天點擊、建立日期。可以改目標和備註，也可以刪除（點擊紀錄一起刪）。
+- 清單用後台的 DataTable，欄位有 slug（旁邊有複製鈕）、目標、備註、總點擊、近 7 天點擊、建立日期。點整列進統計頁；編輯和刪除收在每列的「⋯」選單，刪除時點擊紀錄一起刪。目標和備註太長就單行截斷。
 - `/links/{slug}`：近 90 天每日點擊、來源網域排行、國家排行。先用簡單的長條列表，不裝圖表套件。
 
 ### 已知限制
@@ -323,7 +324,7 @@ export function randomSlug(length = 6) {
 |---|---|---|
 | 1. tools 地基 ✅ | `subdomainOf`、proxy 分流、共用登入、manifest、Header／Footer 隱藏、工具首頁 | v1.5 Beta 1 |
 | 2. 課表 ✅ | 0004 migration、節次表、課程顏色、學期切換、ScheduleGrid、編輯 Modal、課程與老師面板 | v1.5 Beta 2 |
-| 3. 短網址 | 0005 migration、proxy 的 go 分支、slug 產生、管理頁、統計頁 | v1.5 Beta 3 |
+| 3. 短網址 ✅ | 0005 migration、proxy 的 go 分支、slug 產生、管理頁、統計頁 | v1.5 Beta 3 |
 
 開發在 `feat/tools` 分支，每個階段一個 commit，版本號用 v1.5 Beta x；整批併回 main 時才是 v1.5.0。
 

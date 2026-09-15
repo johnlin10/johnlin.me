@@ -8,6 +8,7 @@ import style from './tools.module.scss'
 
 const TOOLS: { href: string; key: string; icon: IconName }[] = [
   { href: '/schedule', key: 'schedule', icon: 'calendar' },
+  { href: '/links', key: 'links', icon: 'link' },
 ]
 
 export default function ToolsHomePage() {

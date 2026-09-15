@@ -77,6 +77,7 @@ const TOOLS_NAV_GROUPS: NavGroup[] = [
     items: [
       { href: '/', labelKey: 'home', icon: 'table-cells-large' },
       { href: '/schedule', labelKey: 'schedule', icon: 'calendar' },
+      { href: '/links', labelKey: 'links', icon: 'link' },
     ],
   },
 ]

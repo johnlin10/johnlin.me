@@ -1,0 +1,171 @@
+@use '@/app/styles/design' as *;
+
+.page {
+  max-width: 1000px;
+  margin: 0 auto;
+  @include flexbox(column, flex-start, stretch);
+  gap: var(--space-6);
+}
+
+.muted {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-4);
+
+  @include respond-to('phone') {
+    gap: var(--space-3);
+  }
+}
+
+.statCard,
+.panel {
+  min-width: 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
+
+.statCard {
+  @include flexbox(column, flex-start, flex-start);
+  gap: var(--space-1);
+  padding: var(--space-5);
+
+  @include respond-to('phone') {
+    padding: var(--space-4);
+  }
+}
+
+.statValue {
+  font-family: var(--font-serif);
+  font-size: var(--text-3xl);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+
+  @include respond-to('phone') {
+    font-size: var(--text-2xl);
+  }
+}
+
+.statLabel {
+  font-size: var(--text-2xs);
+  color: var(--text-muted);
+}
+
+.panel {
+  @include flexbox(column, flex-start, stretch);
+  gap: var(--space-4);
+  padding: var(--space-5);
+}
+
+.sectionTitle {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: var(--text-md);
+  font-weight: 600;
+  color: var(--text);
+}
+
+.columns {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 8rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-bottom: 1px solid var(--border);
+
+  @include respond-to('phone') {
+    gap: 1px;
+  }
+}
+
+.column {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  display: flex;
+  align-items: flex-end;
+
+  &:hover .columnFill {
+    background: var(--accent-hover);
+  }
+}
+
+.columnFill {
+  width: 100%;
+  border-radius: 4px 4px 0 0;
+  background: var(--accent);
+}
+
+.axis {
+  @include flexbox(row, space-between, center);
+  font-size: var(--text-3xs);
+  font-variant-numeric: tabular-nums;
+  color: var(--text-muted);
+}
+
+.pair {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+  gap: var(--space-6);
+}
+
+.barList {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr) max-content;
+  gap: var(--space-2) var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.barRow {
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: subgrid;
+  align-items: center;
+}
+
+.barLabel {
+  max-width: 10rem;
+  overflow: hidden;
+  font-size: var(--text-2xs);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--text-secondary);
+}
+
+.barTrack {
+  height: 6px;
+  overflow: hidden;
+  background: var(--surface-3);
+  border-radius: 3px;
+}
+
+.barFill {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+  border-radius: 3px;
+}
+
+.barCount {
+  font-size: var(--text-2xs);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  color: var(--text-secondary);
+}
+
+.footnote {
+  margin: 0;
+  font-size: var(--text-3xs);
+  color: var(--text-muted);
+}

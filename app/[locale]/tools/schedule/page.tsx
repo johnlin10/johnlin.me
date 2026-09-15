@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormatter, useTranslations } from 'next-intl'
 import { createClient } from '@/app/lib/supabase/client'
+import { isUniqueViolation } from '@/app/lib/supabase/errors'
 import {
   deleteRow,
   getCourses,
@@ -52,15 +53,6 @@ function parseCredits(value: string): number | null | undefined {
   if (value.trim() === '') return null
   const credits = Number(value)
   return Number.isInteger(credits) && credits >= 0 ? credits : undefined
-}
-
-/**
- * 是否為 unique 衝突（Postgres 23505）。
- * @param error 丟出來的錯誤
- * @returns 是就回 true
- */
-function isDuplicate(error: unknown): boolean {
-  return (error as { code?: string } | null)?.code === '23505'
 }
 
 /**
@@ -207,7 +199,7 @@ export default function SchedulePage() {
       setSemesters(await getSemesters(supabase))
       setSemesterForm(null)
     } catch (error) {
-      toast.error(isDuplicate(error) ? t('semester.duplicate') : t('saveError'))
+      toast.error(isUniqueViolation(error) ? t('semester.duplicate') : t('saveError'))
     }
   }
 
@@ -336,7 +328,7 @@ export default function SchedulePage() {
       setCourseForm(null)
       await refresh(semesterId)
     } catch (error) {
-      toast.error(isDuplicate(error) ? t('course.duplicate') : t('saveError'))
+      toast.error(isUniqueViolation(error) ? t('course.duplicate') : t('saveError'))
     }
   }
 
@@ -369,7 +361,7 @@ export default function SchedulePage() {
       setTeacherForm(null)
       await refresh(semesterId)
     } catch (error) {
-      toast.error(isDuplicate(error) ? t('teacher.duplicate') : t('saveError'))
+      toast.error(isUniqueViolation(error) ? t('teacher.duplicate') : t('saveError'))
     }
   }
 

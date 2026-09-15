@@ -657,7 +657,8 @@
     },
     "nav": {
       "home": "總覽",
-      "schedule": "課表"
+      "schedule": "課表",
+      "links": "短網址"
     },
     "home": {
       "title": "總覽",
@@ -666,7 +667,68 @@
         "schedule": {
           "name": "課表",
           "description": "每學期的課、老師和教室"
+        },
+        "links": {
+          "name": "短網址",
+          "description": "go.johnlin.me 的轉址和點擊統計"
         }
+      }
+    },
+    "links": {
+      "title": "短網址",
+      "subtitle": "{count} 個短網址",
+      "new": "新增短網址",
+      "loading": "載入中…",
+      "loadError": "短網址載入失敗",
+      "saveError": "儲存失敗，請稍後再試",
+      "deleteError": "刪除失敗，請稍後再試",
+      "copyError": "複製失敗，請手動複製",
+      "empty": "還沒有短網址。",
+      "copied": "已複製 {url}",
+      "created": "已建立 {url}",
+      "createdCopied": "已建立並複製 {url}",
+      "updated": "已更新",
+      "copy": "複製",
+      "edit": "編輯",
+      "delete": "刪除",
+      "cancel": "取消",
+      "save": "儲存",
+      "table": {
+        "slug": "短網址",
+        "target": "目標",
+        "note": "備註",
+        "clicks": "點擊",
+        "recent": "近 7 天",
+        "created": "建立",
+        "actions": "操作"
+      },
+      "form": {
+        "newTitle": "新增短網址",
+        "editTitle": "編輯短網址",
+        "target": "目標網址",
+        "targetInvalid": "目標網址要是 http 或 https 的網址",
+        "slug": "自訂短網址",
+        "slugHelper": "留空會自動產生 6 碼；只能用小寫英文、數字和 -",
+        "slugInvalid": "只能用小寫英文、數字和 -，也不能用 api、auth、trpc 開頭",
+        "slugTaken": "這個短網址已經用過了",
+        "shortUrl": "短網址",
+        "note": "備註"
+      },
+      "deleteTitle": "刪除短網址",
+      "deleteMessage": "確定要刪除 {slug} 嗎？點擊紀錄會一起刪掉，發出去的連結也會失效。",
+      "detail": {
+        "back": "回到短網址列表",
+        "notFound": "找不到這個短網址。",
+        "total": "總點擊",
+        "last30": "近 30 天",
+        "last7": "近 7 天",
+        "daily": "近 90 天每日點擊",
+        "referrers": "來源",
+        "countries": "國家／地區",
+        "direct": "直接開啟或未知",
+        "unknown": "未知",
+        "noClicks": "近 90 天還沒有點擊。",
+        "footnote": "連結預覽爬蟲不算在內；點擊只記時間、來源網域和國家。"
       }
     },
     "schedule": {
