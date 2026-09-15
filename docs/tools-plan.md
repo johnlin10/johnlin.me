@@ -327,6 +327,7 @@ export function randomSlug(length = 6) {
 | 2. 課表 ✅ | 0004 migration、節次表、課程顏色、學期切換、ScheduleGrid、編輯 Modal、課程與老師面板 | v1.5 Beta 2 |
 | 3. 短網址 ✅ | 0005 migration、proxy 的 go 分支、slug 產生、管理頁、統計頁 | v1.5 Beta 3 |
 | 課表介面調整 ✅ | 手機滿版、管理區收合、整列點擊編輯 | v1.5 Beta 4 |
+| 表格去外框 ✅ | DataTable 無外框、捲動延伸到頁面內距、圓角 hover | v1.5 Beta 5 |
 
 開發在 `feat/tools` 分支，每個階段一個 commit，版本號用 v1.5 Beta x；整批併回 main 時才是 v1.5.0。
 
