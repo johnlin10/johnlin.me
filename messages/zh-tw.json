@@ -740,7 +740,7 @@
       "deleteError": "刪除失敗，請稍後再試",
       "busy": "有課",
       "noSemester": "還沒有學期，先新增一個。",
-      "edit": "編輯",
+      "manage": "管理課程、老師與學期",
       "delete": "刪除",
       "cancel": "取消",
       "save": "儲存",
@@ -776,7 +776,7 @@
         "deleteMessage": "確定要刪除這個時段嗎？"
       },
       "course": {
-        "title": "這學期的課程",
+        "title": "課程",
         "new": "新增課程",
         "empty": "還沒有課程。",
         "newTitle": "新增課程",
@@ -785,7 +785,6 @@
         "credits": "學分",
         "creditsHelper": "可以先不填",
         "creditsUnit": "{count} 學分",
-        "creditsEmpty": "學分未填",
         "creditsInvalid": "學分要是 0 以上的整數",
         "color": "顏色",
         "nameRequired": "要填課名",

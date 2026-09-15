@@ -26,17 +26,20 @@ const WEEKDAYS = [1, 2, 3, 4, 5]
  * @param props.busyLabel course 是 null 時色塊上的文字
  * @param props.onCellClick 點空格時呼叫，不給就不能點
  * @param props.onSlotClick 點時段時呼叫，不給就不能點
+ * @param props.className 外框的額外 class
  */
 export default function ScheduleGrid({
   slots,
   busyLabel,
   onCellClick,
   onSlotClick,
+  className = '',
 }: {
   slots: GridSlot[]
   busyLabel: string
   onCellClick?: (day: number, period: string) => void
   onSlotClick?: (id: string) => void
+  className?: string
 }) {
   const format = useFormatter()
   const days = [...WEEKDAYS, ...[6, 7].filter((day) => slots.some((slot) => slot.day === day))]
@@ -47,7 +50,7 @@ export default function ScheduleGrid({
 
   return (
     <div
-      className={style.grid}
+      className={`${style.grid} ${className}`}
       style={{ '--days': days.length, '--periods': PERIODS.length } as CSSProperties}
     >
       <div className={style.corner} />

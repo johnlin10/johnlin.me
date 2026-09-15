@@ -20,6 +20,7 @@ import {
 import { PERIODS, overlaps, periodIndex } from '@/app/lib/schedule/periods'
 import { COURSE_COLORS, courseColorStyle, leastUsedColor } from '@/app/lib/schedule/colors'
 import ScheduleGrid, { type GridSlot } from '@/app/components/schedule/ScheduleGrid/ScheduleGrid'
+import Icon from '@/app/components/Icon/Icon'
 import PageHeader from '@/app/components/admin/PageHeader/PageHeader'
 import Button from '@/app/components/admin/Button/Button'
 import Input from '@/app/components/admin/Input/Input'
@@ -215,6 +216,7 @@ export default function SchedulePage() {
     try {
       await deleteRow(supabase, 'semesters', semester.id)
       const list = await getSemesters(supabase)
+      setSemesterForm(null)
       setSemesters(list)
       setSemesterId(list[0]?.id ?? '')
     } catch {
@@ -332,7 +334,9 @@ export default function SchedulePage() {
     }
   }
 
-  const deleteCourse = async (course: Course) => {
+  const deleteCourse = async () => {
+    const course = courseForm?.id ? courseById.get(courseForm.id) : undefined
+    if (!course) return
     const count = slots.filter((slot) => slot.course_id === course.id).length
     if (count > 0) return toast.error(t('course.inUse', { count }))
     const ok = await confirm({
@@ -343,6 +347,7 @@ export default function SchedulePage() {
     if (!ok) return
     try {
       await deleteRow(supabase, 'courses', course.id)
+      setCourseForm(null)
       await refresh(semesterId)
     } catch {
       toast.error(t('deleteError'))
@@ -365,7 +370,9 @@ export default function SchedulePage() {
     }
   }
 
-  const deleteTeacher = async (teacher: Teacher) => {
+  const deleteTeacher = async () => {
+    const teacher = teacherForm?.id ? teacherById.get(teacherForm.id) : undefined
+    if (!teacher) return
     const ok = await confirm({
       title: t('teacher.deleteTitle'),
       message: t('teacher.deleteMessage', { name: teacher.name }),
@@ -374,6 +381,7 @@ export default function SchedulePage() {
     if (!ok) return
     try {
       await deleteRow(supabase, 'teachers', teacher.id)
+      setTeacherForm(null)
       await refresh(semesterId)
     } catch {
       toast.error(t('deleteError'))
@@ -421,101 +429,107 @@ export default function SchedulePage() {
               busyLabel={t('busy')}
               onCellClick={openNewSlot}
               onSlotClick={openSlot}
+              className={style.grid}
             />
 
-            <div className={style.manage}>
-              <section className={style.panel}>
-                <div className={style.panelHead}>
-                  <h2 className={style.panelTitle}>{t('course.title')}</h2>
-                  <Button size="small" variant="secondary" onClick={openNewCourse}>
-                    {t('course.new')}
-                  </Button>
-                </div>
-                {courses.length === 0 ? (
-                  <p className={style.hint}>{t('course.empty')}</p>
-                ) : (
-                  <ul className={style.list}>
-                    {courses.map((course) => (
-                      <li key={course.id} className={style.item}>
-                        <span className={style.dot} style={courseColorStyle(course.color)} />
-                        <span className={style.itemName}>{course.name}</span>
-                        <span className={style.itemMeta}>
-                          {course.credits === null
-                            ? t('course.creditsEmpty')
-                            : t('course.creditsUnit', { count: course.credits })}
-                        </span>
-                        <Button
-                          size="small"
-                          variant="ghost"
-                          onClick={() =>
-                            setCourseForm({
-                              id: course.id,
-                              name: course.name,
-                              credits: course.credits?.toString() ?? '',
-                              color: course.color,
-                            })
-                          }
-                        >
-                          {t('edit')}
-                        </Button>
-                        <Button size="small" variant="ghost" onClick={() => deleteCourse(course)}>
-                          {t('delete')}
-                        </Button>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </section>
+            <details className={style.manage}>
+              <summary className={style.manageSummary}>
+                {t('manage')}
+                <Icon name="chevron-down" size="xs" className={style.chevron} />
+              </summary>
 
-              <section className={style.panel}>
-                <div className={style.panelHead}>
-                  <h2 className={style.panelTitle}>{t('teacher.title')}</h2>
-                  <Button size="small" variant="secondary" onClick={() => setTeacherForm({ value: '' })}>
-                    {t('teacher.new')}
-                  </Button>
-                </div>
-                {teachers.length === 0 ? (
-                  <p className={style.hint}>{t('teacher.empty')}</p>
-                ) : (
-                  <ul className={style.list}>
-                    {teachers.map((teacher) => (
-                      <li key={teacher.id} className={style.item}>
-                        <span className={style.itemName}>{teacher.name}</span>
-                        <Button
-                          size="small"
-                          variant="ghost"
-                          onClick={() => setTeacherForm({ id: teacher.id, value: teacher.name })}
-                        >
-                          {t('edit')}
-                        </Button>
-                        <Button size="small" variant="ghost" onClick={() => deleteTeacher(teacher)}>
-                          {t('delete')}
-                        </Button>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </section>
-
-              <section className={style.panel}>
-                <h2 className={style.panelTitle}>{t('semester.title')}</h2>
-                <ul className={style.list}>
-                  <li className={style.item}>
-                    <span className={style.itemName}>{semester.code}</span>
-                    <Button
-                      size="small"
-                      variant="ghost"
-                      onClick={() => setSemesterForm({ id: semester.id, value: semester.code })}
+              <div className={style.manageBody}>
+                <section className={style.group}>
+                  <div className={style.groupHead}>
+                    <h2 className={style.groupTitle}>{t('course.title')}</h2>
+                    <button
+                      type="button"
+                      className={style.addButton}
+                      aria-label={t('course.new')}
+                      title={t('course.new')}
+                      onClick={openNewCourse}
                     >
-                      {t('edit')}
-                    </Button>
-                    <Button size="small" variant="ghost" onClick={deleteSemester}>
-                      {t('delete')}
-                    </Button>
-                  </li>
-                </ul>
-              </section>
-            </div>
+                      <Icon name="plus" />
+                    </button>
+                  </div>
+                  {courses.length === 0 ? (
+                    <p className={style.hint}>{t('course.empty')}</p>
+                  ) : (
+                    <ul className={style.list}>
+                      {courses.map((course) => (
+                        <li key={course.id}>
+                          <button
+                            type="button"
+                            className={style.item}
+                            onClick={() =>
+                              setCourseForm({
+                                id: course.id,
+                                name: course.name,
+                                credits: course.credits?.toString() ?? '',
+                                color: course.color,
+                              })
+                            }
+                          >
+                            <span className={style.dot} style={courseColorStyle(course.color)} />
+                            <span className={style.itemName}>{course.name}</span>
+                            {course.credits !== null && (
+                              <span className={style.itemMeta}>
+                                {t('course.creditsUnit', { count: course.credits })}
+                              </span>
+                            )}
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </section>
+
+                <section className={style.group}>
+                  <div className={style.groupHead}>
+                    <h2 className={style.groupTitle}>{t('teacher.title')}</h2>
+                    <button
+                      type="button"
+                      className={style.addButton}
+                      aria-label={t('teacher.new')}
+                      title={t('teacher.new')}
+                      onClick={() => setTeacherForm({ value: '' })}
+                    >
+                      <Icon name="plus" />
+                    </button>
+                  </div>
+                  {teachers.length === 0 ? (
+                    <p className={style.hint}>{t('teacher.empty')}</p>
+                  ) : (
+                    <ul className={style.list}>
+                      {teachers.map((teacher) => (
+                        <li key={teacher.id}>
+                          <button
+                            type="button"
+                            className={style.item}
+                            onClick={() => setTeacherForm({ id: teacher.id, value: teacher.name })}
+                          >
+                            <span className={style.itemName}>{teacher.name}</span>
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </section>
+
+                <section className={style.group}>
+                  <div className={style.groupHead}>
+                    <h2 className={style.groupTitle}>{t('semester.title')}</h2>
+                  </div>
+                  <button
+                    type="button"
+                    className={style.item}
+                    onClick={() => setSemesterForm({ id: semester.id, value: semester.code })}
+                  >
+                    <span className={style.itemName}>{semester.code}</span>
+                  </button>
+                </section>
+              </div>
+            </details>
           </>
         )}
 
@@ -632,6 +646,11 @@ export default function SchedulePage() {
                 onChange={(color) => setCourseForm({ ...courseForm, color })}
               />
               <div className={style.form_actions}>
+                {courseForm.id && (
+                  <Button variant="danger" className={style.pushStart} onClick={deleteCourse}>
+                    {t('delete')}
+                  </Button>
+                )}
                 <Button variant="secondary" onClick={() => setCourseForm(null)}>
                   {t('cancel')}
                 </Button>
@@ -656,6 +675,11 @@ export default function SchedulePage() {
                 required
               />
               <div className={style.form_actions}>
+                {teacherForm.id && (
+                  <Button variant="danger" className={style.pushStart} onClick={deleteTeacher}>
+                    {t('delete')}
+                  </Button>
+                )}
                 <Button variant="secondary" onClick={() => setTeacherForm(null)}>
                   {t('cancel')}
                 </Button>
@@ -682,6 +706,11 @@ export default function SchedulePage() {
                 required
               />
               <div className={style.form_actions}>
+                {semesterForm.id && (
+                  <Button variant="danger" className={style.pushStart} onClick={deleteSemester}>
+                    {t('delete')}
+                  </Button>
+                )}
                 <Button variant="secondary" onClick={() => setSemesterForm(null)}>
                   {t('cancel')}
                 </Button>

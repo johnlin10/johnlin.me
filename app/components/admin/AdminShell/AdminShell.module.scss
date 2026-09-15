@@ -418,19 +418,19 @@ $sidebarWidth: 232px;
   z-index: var(--z-sticky);
 }
 
-// 上緣讓開 fixed 的主列。
+// 上緣讓開 fixed 的主列。--page-gutter／--page-top-gap 給想貼齊邊緣的內容抵銷內距用。
 .page {
-  padding: calc(
-      var(--admin-header-height) + clamp(var(--space-6), 4vw, var(--space-12))
-    )
-    clamp(var(--space-5), 4vw, var(--space-16))
+  --page-gutter: clamp(var(--space-5), 4vw, var(--space-16));
+  --page-top-gap: clamp(var(--space-6), 4vw, var(--space-12));
+  padding: calc(var(--admin-header-height) + var(--page-top-gap))
+    var(--page-gutter)
     clamp(var(--space-6), 4vw, var(--space-12));
 }
 
 // 有副控制欄的頁面再讓開那一列。
 .main:has(.headerSubSlot:not(:empty)) .page {
+  --page-top-gap: clamp(var(--space-2), 2vw, var(--space-4));
   padding-top: calc(
-    var(--admin-header-height) + var(--admin-subbar-height) +
-      clamp(var(--space-2), 2vw, var(--space-4))
+    var(--admin-header-height) + var(--admin-subbar-height) + var(--page-top-gap)
   );
 }

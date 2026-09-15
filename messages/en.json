@@ -739,7 +739,7 @@
       "deleteError": "Couldn't delete. Please try again.",
       "busy": "Class",
       "noSemester": "No semesters yet. Add one to start.",
-      "edit": "Edit",
+      "manage": "Courses, teachers & semester",
       "delete": "Delete",
       "cancel": "Cancel",
       "save": "Save",
@@ -775,7 +775,7 @@
         "deleteMessage": "Delete this class time?"
       },
       "course": {
-        "title": "Courses this semester",
+        "title": "Courses",
         "new": "New course",
         "empty": "No courses yet.",
         "newTitle": "New course",
@@ -784,7 +784,6 @@
         "credits": "Credits",
         "creditsHelper": "Optional",
         "creditsUnit": "{count, plural, one {# credit} other {# credits}}",
-        "creditsEmpty": "No credits set",
         "creditsInvalid": "Credits must be a whole number, 0 or more",
         "color": "Color",
         "nameRequired": "Enter a name",

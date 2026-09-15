@@ -45,6 +45,7 @@ import {
   faLink,
   faCopy,
   faEllipsis,
+  faPlus,
 } from '@fortawesome/free-solid-svg-icons'
 import { faGithub } from '@fortawesome/free-brands-svg-icons'
 
@@ -92,6 +93,7 @@ export type IconName =
   | 'link'
   | 'copy'
   | 'ellipsis'
+  | 'plus'
   | 'github'
 
 //* 圖標映射表
@@ -138,6 +140,7 @@ const iconMap: Record<IconName, IconProp> = {
   link: faLink,
   copy: faCopy,
   ellipsis: faEllipsis,
+  plus: faPlus,
   github: faGithub,
 }
 

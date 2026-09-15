@@ -204,10 +204,11 @@ export const PERIODS = [
 - **學期切換**：頁首一個下拉選單，列出 `semesters` 表裡的所有學期，新到舊排，預設選最新的。選單最下面是「新增學期」，輸入代號就建好並切過去。切到舊學期就能調閱當時的課表。
 - **網格元件 `ScheduleGrid`**：放在 `app/components/schedule/ScheduleGrid`，不放在 tools 底下，因為之後主站的課表展示要直接拿去用。它吃 `{ day, start, end, course, teacher, location, color }[]`，每個欄位都可以是 `null`，是 `null` 就不顯示。可不可以點由 props 決定。
 - **點空格**：開 Modal，從選單選課程（只列這學期的）和老師（可以不指定），再填教室、星期、起訖節次。星期和開始節預設帶你點的那格；選了課程之後，老師預設帶這門課上一次的老師。
-  - 課程和老師都要先在下方面板建好，時段裡只能選，不能打字新增。這學期還沒有課程時，Modal 會提示先新增。
+  - 課程和老師都要先在下方管理區建好，時段裡只能選，不能打字新增。這學期還沒有課程時，Modal 會提示先新增。
 - **點已有的格子**：同一個 Modal，多一個刪除（ConfirmDialog）。
 - 存檔前檢查同一學期、同一天的節次有沒有重疊，重疊就擋下來提示。
-- **「課程與老師」面板**：新增、編輯、刪除這學期的課程（課名、學分、顏色）和老師；學期改代號、刪除（底下還有課程就刪不掉）。不另開頁面。
+- **顯示優先**：課表在手機上撐滿螢幕寬。課程、老師、學期收在課表下方的管理區（原生 `<details>`，預設收起），跟課表用分隔線隔開。
+- **管理區**：每組一個「＋」新增；點整列開編輯 Modal，刪除放在 Modal 裡。學期可以改代號、刪除（底下還有課程就刪不掉）。不另開頁面。
 
 寫入照後台現在的做法：讀寫函式放 `app/lib/supabase/schedule.ts`，client 端直接用 Supabase，RLS 擋掉非管理員。後台的 Modal、Selector、Input、ConfirmDialog、Toast 直接拿來用。
 
@@ -325,6 +326,7 @@ export function randomSlug(length = 6) {
 | 1. tools 地基 ✅ | `subdomainOf`、proxy 分流、共用登入、manifest、Header／Footer 隱藏、工具首頁 | v1.5 Beta 1 |
 | 2. 課表 ✅ | 0004 migration、節次表、課程顏色、學期切換、ScheduleGrid、編輯 Modal、課程與老師面板 | v1.5 Beta 2 |
 | 3. 短網址 ✅ | 0005 migration、proxy 的 go 分支、slug 產生、管理頁、統計頁 | v1.5 Beta 3 |
+| 課表介面調整 ✅ | 手機滿版、管理區收合、整列點擊編輯 | v1.5 Beta 4 |
 
 開發在 `feat/tools` 分支，每個階段一個 commit，版本號用 v1.5 Beta x；整批併回 main 時才是 v1.5.0。
 

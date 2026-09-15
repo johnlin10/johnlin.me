@@ -10,52 +10,125 @@
   width: 7.5rem;
 }
 
-.manage {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
-  gap: var(--space-6);
-
+// 課表資訊密度高，手機上撐滿螢幕寬、上緣貼齊頁首
+.schedule_page .grid {
   @include respond-to('phone') {
-    gap: var(--space-4);
+    margin-top: calc(-1 * var(--page-top-gap));
+    margin-inline: calc(-1 * var(--page-gutter));
+    border-top: 0;
+    border-inline: 0;
+    border-radius: 0;
   }
 }
 
-.panel {
-  @include flexbox(column, flex-start, stretch);
-  gap: var(--space-3);
-  padding: var(--space-5);
-  background: var(--surface-2);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
+//* 資料管理：預設收起
+
+.manageSummary {
+  @include flexbox(row, flex-start, center);
+  gap: var(--space-2);
+  width: fit-content;
+  padding: var(--space-2) 0;
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  list-style: none;
+  cursor: pointer;
+  transition: color var(--duration-fast) var(--ease);
+  @include focus-ring;
+
+  &::-webkit-details-marker {
+    display: none;
+  }
+
+  &:hover {
+    color: var(--text);
+  }
 }
 
-.panelHead {
+.chevron {
+  transition: transform var(--duration-fast) var(--ease);
+
+  .manage[open] & {
+    transform: rotate(180deg);
+  }
+}
+
+.manageBody {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  gap: var(--space-8);
+  padding-top: var(--space-4);
+
+  @include respond-to('phone') {
+    gap: var(--space-6);
+  }
+}
+
+.group {
+  min-width: 0;
+}
+
+.groupHead {
   @include flexbox(row, space-between, center);
   gap: var(--space-3);
+  min-height: 2rem;
+  margin-bottom: var(--space-1);
+  padding-left: var(--space-2);
+  border-bottom: 1px solid var(--border);
 }
 
-.panelTitle {
+.groupTitle {
   margin: 0;
-  font-size: var(--text-sm);
+  font-family: var(--font-sans);
+  font-size: var(--text-xs);
   font-weight: 600;
-  color: var(--text);
+  color: var(--text-secondary);
+}
+
+.addButton {
+  @include flexbox(row, center, center);
+  width: 1.75rem;
+  height: 1.75rem;
+  padding: 0;
+  color: var(--text-muted);
+  background: none;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition:
+    color var(--duration-fast) var(--ease),
+    background var(--duration-fast) var(--ease);
+  @include focus-ring;
+
+  &:hover {
+    color: var(--text);
+    background: var(--surface-2);
+  }
 }
 
 .list {
-  @include flexbox(column, flex-start, stretch);
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
+// 整列可點，點了開編輯視窗；刪除在視窗裡
 .item {
   @include flexbox(row, flex-start, center);
-  gap: var(--space-2);
-  padding: var(--space-2) 0;
-  border-top: 1px solid var(--border);
+  gap: var(--space-3);
+  width: 100%;
+  padding: var(--space-2);
+  font: inherit;
+  text-align: left;
+  color: var(--text);
+  background: none;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background var(--duration-fast) var(--ease);
+  @include focus-ring;
 
-  &:first-child {
-    border-top: 0;
+  &:hover {
+    background: var(--surface-2);
   }
 }
 
@@ -66,10 +139,10 @@
   font-size: var(--text-sm);
   white-space: nowrap;
   text-overflow: ellipsis;
-  color: var(--text);
 }
 
 .itemMeta {
+  flex-shrink: 0;
   font-size: var(--text-2xs);
   white-space: nowrap;
   color: var(--text-muted);
@@ -83,15 +156,18 @@
 }
 
 .dot {
-  width: 0.75rem;
-  height: 0.75rem;
+  width: 0.625rem;
+  height: 0.625rem;
 }
 
 .hint {
   margin: 0;
+  padding: var(--space-2);
   font-size: var(--text-2xs);
   color: var(--text-muted);
 }
+
+//* 表單
 
 .field {
   @include field-shell();
@@ -109,6 +185,10 @@
   padding: var(--space-4);
   border: 1px dashed var(--border-strong);
   border-radius: var(--radius-md);
+
+  .hint {
+    padding: 0;
+  }
 }
 
 .swatches {
