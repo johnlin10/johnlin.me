@@ -1,6 +1,6 @@
 # johnlin.me
 
-個人網站，包含部落格、短文、攝影作品集、自建後台 CMS，以及私人工具（課表、短網址）。
+個人網站，包含部落格、短文、攝影作品集、自建後台 CMS，以及私人工具（課表、短網址、完善就學排程）。
 
 - 網址：<https://johnlin.me>
 - 子網域：`admin.johnlin.me`（後台）、`tools.johnlin.me`（私人工具）、`go.johnlin.me`（短網址）
@@ -51,6 +51,7 @@
 | `/photography/[slug]`                | 單張作品頁。拍攝時間、相機鏡頭、地點、HDR                                                             | ISR + `generateStaticParams`；LCP 圖以 `fetchPriority="high"` 載入，聚焦時載原檔                                           |
 | `/about`                         | 分章節自介，切章節不換網址                                                                            | `content/about/<slug>.<locale>.md` + react-markdown                                                                        |
 | `/lab/design`                    | 設計系統活頁，即時渲染 CSS 變數為色票／間距／字級，可點擊複製                                         | `getComputedStyle` 解析實際計算值                                                                                          |
+| `/tutoring/[token]`              | 完善就學的公開唯讀頁，給一起參加的同學看。週時間軸、疊課表比對、這週時段列表與該月時數；只能翻前後一個月 | 不登入，資料走 SECURITY DEFINER 函式 `get_tutoring_board`，token 不對或連結關閉回 404；`noindex`、不帶 Referer，不套主站 Header／Footer |
 | `/rss/blog.xml` `/rss/notes.xml` | 兩支獨立 RSS feed                                                                                     | `force-dynamic`，目前僅中文版                                                                                              |
 
 ### 後台（`admin.johnlin.me`，需管理員身分）
@@ -78,12 +79,13 @@
 | 路由            | 說明                                                                                                                                         |
 | --------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
 | `/`             | 工具總覽                                                                                                                                     |
-| `/schedule`     | 週課表，依學期切換。點空格新增時段、點課程編輯，同一天節次重疊會擋下；課程、老師、學期收在課表下方的管理區。課程有 15 種預設顏色與選填學分 |
+| `/schedule`     | 週課表，依成員與學期切換，每個人一份課表，課程與老師跨人共用。點空格新增時段、點課程編輯，同一天節次重疊會擋下；可整份複製別人的課表。學期有起訖日期，課程有 15 種預設顏色與選填學分 |
+| `/tutoring`     | 完善就學排程。月份與週次切換、週一到週五的時間軸，點空白新增輔導時段（任意開始時間、1–8 小時每 0.5 一階）；存檔前檢查週末、參與者與老師的課、重複排程。疊一個人的課表找空檔，下方是每人該月時數（受 40 小時上限的三個方案合計、證照輔導另計）。管理區放成員、課表以外的忙碌時間與公開連結 |
 | `/links`        | 短網址管理。沒填 slug 時自動產生 6 碼（避開 l／o／0／1），建立後自動複製；列出總點擊與近 7 天點擊                                           |
 | `/links/[slug]` | 單一短網址統計：總計／30 天／7 天點擊、90 天每日長條圖、來源網域與國家排行                                                                  |
 | `/login`        | 與後台相同的 Google 登入                                                                                                                     |
 
-週課表的網格是獨立元件 `app/components/schedule/ScheduleGrid`，之後主站要展示課表時直接沿用。
+週課表的網格是獨立元件 `app/components/schedule/ScheduleGrid`，之後主站要展示課表時直接沿用。完善就學的時間軸是 `WeekTimeline`，時間軸、比對與時數表整組是 `TutoringBoard`，編輯頁與公開頁共用；課表的節次經 `app/lib/schedule/periods.ts` 換算成時間（目前仍是暫定節次時間）。方案名稱學校沒有官方英文，英文介面也用中文。
 
 本機開發開 `http://tools.localhost:3000`。
 
@@ -109,7 +111,7 @@
 Request
  └─ proxy.ts（Next 16 的 middleware）
      ├─ go.* 子網域：rpc('resolve_short_link') → 307 轉址或 404，不進 App Router
-     ├─ 主站：next-intl 語系處理；/admin/*、/tools/* 回 404
+     ├─ 主站：next-intl 語系處理；/admin/*、/tools/* 回 404；/tutoring/[token] 照一般頁面處理
      └─ admin.*／tools.* 子網域：next-intl 語系處理 → 改寫到 /[locale]/admin/*、/[locale]/tools/*
          └─ /login 以外 → Supabase getUser() + rpc('is_admin')，未通過導向 /login
  └─ app/[locale]/layout.tsx（字體、i18n provider、主題、Header/Footer）
@@ -122,7 +124,7 @@ Request
 
 - 三種 Supabase client 分工：`client.ts`（瀏覽器）、`server.ts`（帶 cookie、受 RLS 約束）、`public.ts`（匿名、可進 `unstable_cache`）。
 - **無 service-role key。** 所有寫入均使用 anon key 加呼叫者 session，權限由 Postgres RLS 決定。
-- 課表與短網址的資料表只有管理員能讀寫；訪客只能透過 SECURITY DEFINER 函式 `resolve_short_link` 解析已知的 slug，無法列出連結或點擊紀錄。
+- 課表、短網址與完善就學的資料表只有管理員能讀寫；訪客只能透過 SECURITY DEFINER 函式存取：`resolve_short_link` 解析已知的 slug，無法列出連結或點擊紀錄；`get_tutoring_board` 要 token 對上已開啟的公開連結才回資料，而且不回時段備註。時薪與身分別不存。
 - 媒體分流：文章與短文圖片存 Supabase Storage；攝影作品存 Cloudflare R2，物件 key 使用不可變的 UUID 前綴。
 
 ---
@@ -151,7 +153,7 @@ npm run dev      # predev 會先執行字型子集化
 | `npm run lint` / `npm run lint:fix` | ESLint                                                 |
 | `npm run generate:fonts`            | 產生中文字型子集至 `fonts/`；dev 與 build 前會自動執行 |
 | `node scripts/generate-og.mjs`      | 重新產生預設 OG 圖                                     |
-| `node --test <路徑>.test.mjs`       | 單元測試（課表節次、短網址 slug）；要給檔案路徑，不能給資料夾，且需 Node 22.18+ 才能直接載入 `.ts` |
+| `node --test <路徑>.test.mjs`       | 單元測試（課表節次、短網址 slug、完善就學時數與學期判斷）；要給檔案路徑，不能給資料夾，且需 Node 22.18+ 才能直接載入 `.ts` |
 
 ### 環境變數
 
@@ -171,7 +173,7 @@ npm run dev      # predev 會先執行字型子集化
 
 ### 資料庫
 
-`supabase/migrations/` 目前涵蓋攝影、文章每日瀏覽數、課表與短網址的資料表；文章等較早建立的資料表與 RPC 函式尚未納入版控，詳見 [`supabase/README.md`](supabase/README.md)。套用方式為手動執行 SQL，未接 Supabase CLI 流程。
+`supabase/migrations/` 目前涵蓋攝影、文章每日瀏覽數、課表、短網址與完善就學的資料表；文章等較早建立的資料表與 RPC 函式尚未納入版控，詳見 [`supabase/README.md`](supabase/README.md)。套用方式為手動執行 SQL，未接 Supabase CLI 流程。
 
 ---
 
@@ -179,10 +181,10 @@ npm run dev      # predev 會先執行字型子集化
 
 ```txt
 app/
-  [locale]/          # 前台頁面、admin/ 後台（admin.johnlin.me）、tools/ 工具（tools.johnlin.me）
+  [locale]/          # 前台頁面、tutoring/ 完善就學公開頁、admin/ 後台（admin.johnlin.me）、tools/ 工具（tools.johnlin.me）
   api/               # /api/admin/ai、/api/admin/photos/*、/api/views
   components/        # 依區塊分組：home / blog / gallery / notes / admin / schedule
-  lib/               # supabase / r2 / blog / notes / photos / images / ai / schedule / shortLinks …
+  lib/               # supabase / r2 / blog / notes / photos / images / ai / schedule / shortLinks / tutoring …
   styles/            # 設計系統 token：_tokens / _theme / _mixins / _breakpoints
   rss/               # blog.xml、notes.xml
 content/about/       # 關於頁 Markdown（<slug>.<locale>.md）
@@ -202,6 +204,7 @@ scripts/             # 字型子集化、OG 圖產生
 | [`docs/blueprint.md`](docs/blueprint.md)         | 路由地圖、資料層、認證流程、已知落差與待辦。修改程式前建議先讀 |
 | [`docs/design-system.md`](docs/design-system.md) | 設計原則與 token 規範；活頁版見 `/lab/design`                  |
 | [`docs/tools-plan.md`](docs/tools-plan.md)       | tools 子網域、課表與短網址的規劃與決策                         |
+| [`docs/tutoring-plan.md`](docs/tutoring-plan.md) | 完善就學排程與公開頁的規劃、資料表設計與隱私考量               |
 | [`supabase/README.md`](supabase/README.md)       | migration 慣例與套用方式                                       |
 
 上述文件會隨程式演進而過期，每輪較大的改動後請一併更新。
