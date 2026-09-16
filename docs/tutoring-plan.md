@@ -195,7 +195,7 @@ create table if not exists public.tutoring_share (
 
 ## 六、公開頁（`johnlin.me/tutoring/{token}`）
 
-路由在主站的 `app/[locale]/tutoring/[token]/`，但**不帶個人網站的 Header 和 Footer**（`Header` 和 `FooterGate` 看到 `tutoring` 這個 segment 就不畫），分頁標題也不加網站名稱——它是給同學看的輔導時間表，不是在推銷網站。主題跟著瀏覽者存過的設定或系統，因為切換鈕在 Header 裡。`noIndex`、`referrer: no-referrer`（token 就在網址上，點出去的連結不能把它帶走）。token 不對或連結關掉就 404，而且 404 頁不帶這頁的標題。
+路由在主站的 `app/[locale]/tutoring/[token]/`，但**不帶個人網站的 Header 和 Footer**（`Header` 和 `FooterGate` 看到 `tutoring` 這個 segment 就不畫），分頁標題也不加網站名稱——它是給同學看的輔導時間表，不是在推銷網站。主題跟著瀏覽者存過的設定或系統，因為切換鈕在 Header 裡。`noIndex`、`referrer: no-referrer`（token 就在網址上，點出去的連結不能把它帶走）。分享預覽用自己的封面（`public/assets/og/tutoring.png`、`tutoring-en.png`，由 `scripts/generate-og.mjs` 產生，不帶 logo 和網域），`og:site_name` 也改成頁面名稱，`og:url` 指回這頁本身。token 不對或連結關掉就 404，而且 404 頁不帶這頁的標題。
 
 編輯頁和公開頁共用 `app/components/schedule/TutoringBoard/`：`useWeekPicker`（月份和週的狀態）、`WeekPicker`（月份切換加週次滾動選擇器）、`TutoringBoard`（時間軸、疊課表比對、該月時數）。編輯頁多傳 `onItemClick` 和 `onEmptyClick`，公開頁不傳，時段就不能點。
 

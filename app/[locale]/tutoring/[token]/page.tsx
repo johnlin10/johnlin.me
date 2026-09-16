@@ -21,13 +21,20 @@ export async function generateMetadata({ params }: TutoringPublicPageProps): Pro
   // token 不對的 404 頁不帶這頁的標題，不透露這個網址底下有東西
   if (!(await loadBoard(token))) return {}
   const t = await getTranslations({ locale, namespace: 'ToolsPage.tutoring.public' })
+  const base = await metadata({
+    title: t('title'),
+    description: t('lead'),
+    // 自己的封面，不用個人網站的預設圖（scripts/generate-og.mjs 產生）
+    image: locale === 'en' ? '/assets/og/tutoring-en.png' : '/assets/og/tutoring.png',
+    // 沒給 url 的話 og:url 會指到首頁，有些平台會照它抓成首頁的預覽
+    url: `/tutoring/${token}`,
+    noIndex: true,
+    appendSiteName: false,
+  })
   return {
-    ...(await metadata({
-      title: t('title'),
-      description: t('lead'),
-      noIndex: true,
-      appendSiteName: false,
-    })),
+    ...base,
+    // 分享預覽上的網站名稱也不掛個人網站
+    openGraph: { ...base.openGraph, siteName: t('title') },
     // 網址上的 token 就是鑰匙，點出去的連結不帶 Referer
     referrer: 'no-referrer',
   }

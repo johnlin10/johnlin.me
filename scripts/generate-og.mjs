@@ -1,5 +1,6 @@
 // 生成分享用的預設 Open Graph 圖（public/assets/og/default.png 中文版、
-// default-en.png 英文版，皆 1920×1080）。
+// default-en.png 英文版，皆 1920×1080），以及完善就學公開頁自己的一組
+// （tutoring.png、tutoring-en.png）。
 //
 // 為何存在：app/lib/metadata.ts 的 image 預設值要指到一張真的圖，否則首頁、
 // /blog、/notes、/gallery、/about 這些沒有自己封面的頁面分享出去全是破圖。
@@ -48,9 +49,22 @@ const VARIANTS = [
       'building order in code.',
     ],
   },
+  // 完善就學公開頁是給同學的，不帶 logo 和網域，看起來不像在推銷個人網站
+  {
+    out: join(ROOT, 'public/assets/og/tutoring.png'),
+    brand: false,
+    name: '完善就學輔導時間',
+    tagline: ['輔導時段、課表比對、', '每個月的時數。'],
+  },
+  {
+    out: join(ROOT, 'public/assets/og/tutoring-en.png'),
+    brand: false,
+    name: '完善就學 schedule',
+    tagline: ['Tutoring sessions, timetables,', 'and monthly hours.'],
+  },
 ]
 
-for (const { out, name, tagline } of VARIANTS) {
+for (const { out, brand = true, name, tagline } of VARIANTS) {
   const image = new ImageResponse(
     {
       type: 'div',
@@ -66,7 +80,7 @@ for (const { out, name, tagline } of VARIANTS) {
           fontFamily: 'GenKiMin',
         },
         children: [
-          {
+          brand && {
             type: 'div',
             props: {
               style: {
@@ -121,7 +135,7 @@ for (const { out, name, tagline } of VARIANTS) {
               })),
             },
           },
-        ],
+        ].filter(Boolean),
       },
     },
     {
