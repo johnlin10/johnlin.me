@@ -82,10 +82,11 @@ button.cell {
 }
 
 .slot {
+  position: relative;
   z-index: 1;
   min-width: 0;
   margin: 2px;
-  padding: var(--space-1) var(--space-2);
+  padding: var(--space-1) var(--space-2) var(--space-1) 12px;
   @include flexbox(column, flex-start, stretch);
   gap: 2px;
   font: inherit;
@@ -93,18 +94,38 @@ button.cell {
   color: oklch(0.36 calc(0.08 * var(--course-chroma)) var(--course-hue));
   background: oklch(0.93 calc(0.045 * var(--course-chroma)) var(--course-hue));
   border: 0;
-  border-left: 3px solid oklch(0.62 calc(0.14 * var(--course-chroma)) var(--course-hue));
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-xs);
   overflow: hidden;
 
+  // 內縮的圓頭色條，跟完善就學的時間軸同一套
+  &::before {
+    content: '';
+    position: absolute;
+    top: 4px;
+    bottom: 4px;
+    left: 4px;
+    width: 3px;
+    background: oklch(0.62 calc(0.14 * var(--course-chroma)) var(--course-hue));
+    border-radius: var(--radius-pill);
+  }
+
   @include respond-to('phone') {
-    padding: var(--space-1);
+    padding: var(--space-1) var(--space-1) var(--space-1) 10px;
+
+    &::before {
+      left: 3px;
+    }
   }
 
   :global(.dark) & {
     color: oklch(0.9 calc(0.05 * var(--course-chroma)) var(--course-hue));
     background: oklch(0.33 calc(0.05 * var(--course-chroma)) var(--course-hue));
-    border-left-color: oklch(0.7 calc(0.13 * var(--course-chroma)) var(--course-hue));
+
+    &::before {
+      background: oklch(
+        0.7 calc(0.13 * var(--course-chroma)) var(--course-hue)
+      );
+    }
   }
 }
 
@@ -119,6 +140,13 @@ button.slot {
     outline: 2px solid var(--accent);
     outline-offset: 1px;
   }
+}
+
+.time {
+  font-size: var(--text-3xs);
+  font-weight: 600;
+  line-height: 1.2;
+  font-variant-numeric: tabular-nums;
 }
 
 .course {

@@ -657,6 +657,7 @@
     "nav": {
       "home": "總覽",
       "schedule": "課表",
+      "tutoring": "完善就學",
       "links": "短網址"
     },
     "home": {
@@ -666,6 +667,10 @@
         "schedule": {
           "name": "課表",
           "description": "每學期的課、老師和教室"
+        },
+        "tutoring": {
+          "name": "完善就學",
+          "description": "輔導時段、課表比對和每月時數"
         },
         "links": {
           "name": "短網址",
@@ -747,14 +752,18 @@
         "title": "學期",
         "new": "新增學期",
         "newTitle": "新增學期",
-        "editTitle": "修改學期代號",
+        "editTitle": "編輯學期",
         "codeLabel": "學期代號",
         "codeHelper": "格式像 114-1、114-2",
         "codeInvalid": "學期代號要像 114-1 這樣",
         "duplicate": "這個學期已經有了",
         "deleteBlocked": "這學期還有課程，要先刪掉課程",
         "deleteTitle": "刪除學期",
-        "deleteMessage": "確定要刪除 {code} 嗎？"
+        "deleteMessage": "確定要刪除 {code} 嗎？",
+        "start": "開學日",
+        "end": "結束日",
+        "rangeInvalid": "結束日不能早於開學日",
+        "rangeHelper": "課表只在這段期間有效，開學前和寒暑假不算有課。最新的學期沒填的那一邊不設限；舊學期要兩個日期都填了才會套用。"
       },
       "slot": {
         "newTitle": "新增時段",
@@ -820,6 +829,142 @@
         "purple": "紫",
         "pink": "粉紅",
         "gray": "灰"
+      },
+      "person": {
+        "title": "誰的課表",
+        "new": "新增成員",
+        "newTitle": "新增成員",
+        "name": "名字",
+        "role": "身分",
+        "student": "同學",
+        "teacher": "老師",
+        "empty": "還沒有成員。課表要先知道是誰的，才記得起來。",
+        "nameRequired": "請填名字",
+        "duplicate": "這個名字已經有了"
+      },
+      "copy": {
+        "title": "複製課表",
+        "action": "從別人複製",
+        "prompt": "這個人還沒有課表。同班的話，可以直接從別人複製過來再微調。",
+        "from": "複製誰的課表",
+        "hint": "跟現有時段重疊的會跳過。複製完兩份各自獨立，之後改一邊不會動到另一邊。",
+        "done": "複製了 {count} 個時段",
+        "none": "沒有可以複製的時段",
+        "required": "請選一個人"
+      }
+    },
+    "tutoring": {
+      "title": "完善就學",
+      "subtitle": "這個月 {count} 場",
+      "loading": "載入中…",
+      "loadError": "資料載入失敗",
+      "saveError": "儲存失敗，請稍後再試",
+      "deleteError": "刪除失敗，請稍後再試",
+      "manage": "成員與課表",
+      "save": "儲存",
+      "cancel": "取消",
+      "delete": "刪除",
+      "month": {
+        "prev": "上個月",
+        "next": "下個月"
+      },
+      "week": {
+        "label": "選擇週次"
+      },
+      "overlay": {
+        "title": "疊課表比對"
+      },
+      "programs": {
+        "after_class": "課後輔導",
+        "peer": "課業共學",
+        "contest": "競賽輔導",
+        "license": "證照輔導"
+      },
+      "session": {
+        "new": "新增時段",
+        "newTitle": "新增輔導時段",
+        "editTitle": "編輯輔導時段",
+        "program": "方案",
+        "date": "日期",
+        "start": "開始",
+        "attendees": "參與的同學",
+        "teacher": "指導老師",
+        "teacherPlaceholder": "不指定",
+        "location": "地點",
+        "note": "備註",
+        "noteHelper": "只有你看得到，不會出現在公開頁",
+        "attendeesRequired": "至少要有一位參與的同學",
+        "busyClash": "{name} 這個時間有課（{time}）",
+        "sessionClash": "{name} 這個時間已經排了{program}",
+        "deleteTitle": "刪除時段",
+        "deleteMessage": "確定要刪除這個輔導時段嗎？",
+        "duration": "時長",
+        "durationValue": "{hours} 小時",
+        "endsAt": "結束 {time}",
+        "overnight": "結束時間跨過午夜了",
+        "weekend": "週末不能排輔導",
+        "hoursBadge": "{hours}h"
+      },
+      "person": {
+        "title": "成員",
+        "new": "新增成員",
+        "newTitle": "新增成員",
+        "editTitle": "編輯成員",
+        "name": "名字",
+        "role": "身分",
+        "student": "同學",
+        "teacher": "老師",
+        "empty": "還沒有成員。先把一起參加的同學和指導老師加進來，他們的課表建在課表工具裡。",
+        "nameRequired": "請填名字",
+        "duplicate": "這個名字已經有了",
+        "deleteTitle": "刪除成員",
+        "deleteMessage": "確定要刪除 {name} 嗎？這個人的課表和參加紀錄會一起刪掉。"
+      },
+      "busy": {
+        "title": "忙碌時間",
+        "new": "新增忙碌時間",
+        "newTitle": "新增忙碌時間",
+        "editTitle": "編輯忙碌時間",
+        "pickPerson": "選一個人",
+        "forPerson": "{name} 的課表",
+        "day": "星期",
+        "start": "開始",
+        "end": "結束",
+        "labelField": "備註",
+        "labelHelper": "選填，像「打工」或「社團」",
+        "empty": "這個人沒有課表以外的忙碌時間。",
+        "noPeople": "先新增成員，才能記錄忙碌時間。",
+        "noSemester": "還沒有學期。先到課表建一個學期。",
+        "rangeInvalid": "結束時間要晚於開始時間",
+        "deleteTitle": "刪除課表時段",
+        "deleteMessage": "確定要刪除這個時段嗎？",
+        "fromSchedule": "帶課名的那幾條來自課表工具，要改請去課表那邊改。其他的是課表以外的時間，可以在這裡編輯。"
+      },
+      "hours": {
+        "person": "成員",
+        "total": "合計",
+        "note": "合計是課後輔導、課業共學、競賽輔導這個月的總和，上限 40 小時。證照輔導顯示「這個月／累計」，不進合計。"
+      },
+      "public": {
+        "title": "完善就學輔導時間",
+        "lead": "排定的輔導時段和每個人這個月的時數。點名字可以疊上那個人的課表比對。",
+        "weekList": "這週的時段",
+        "weekEmpty": "這週沒有排輔導。",
+        "teacher": "{name} 老師"
+      },
+      "share": {
+        "title": "公開連結",
+        "hint": "拿到連結的人不用登入就看得到時段、課表和時數，看不到備註。只貼在群組裡。",
+        "create": "建立連結",
+        "copy": "複製連結",
+        "copied": "已複製",
+        "copyError": "複製失敗，請手動選取",
+        "enable": "開啟",
+        "disable": "關閉",
+        "off": "已關閉",
+        "regenerate": "重新產生",
+        "regenerateTitle": "重新產生連結",
+        "regenerateMessage": "舊連結會立刻失效，要把新的連結重新傳給大家。"
       }
     }
   },

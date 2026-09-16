@@ -1,0 +1,92 @@
+@use '@/app/styles/design' as *;
+
+// 沒有個人網站的 Header 和 Footer，上下留白不用再讓開浮動頁首
+.shell {
+  width: 100%;
+  max-width: var(--width-wide);
+  margin: 0 auto;
+  padding: var(--space-12) var(--page-gutter) var(--space-16);
+
+  @include respond-to('phone') {
+    padding-top: var(--space-8);
+  }
+}
+
+.page {
+  @include flexbox(column, flex-start, stretch);
+  gap: var(--space-6);
+
+  @include respond-to('phone') {
+    gap: var(--space-5);
+  }
+}
+
+// 手機上時間軸滿版，月份和週次也直接貼著它
+.picker {
+  margin-bottom: calc(-1 * var(--space-4));
+
+  @include respond-to('phone') {
+    margin-bottom: calc(-1 * var(--space-5));
+  }
+}
+
+//* 這週的時段
+
+.list {
+  ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+}
+
+.listTitle {
+  margin: 0 0 var(--space-2);
+  padding-bottom: var(--space-2);
+  font-family: var(--font-sans);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border);
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 11rem 6rem minmax(0, 1fr);
+  gap: var(--space-3);
+  align-items: baseline;
+  padding: var(--space-2) 0;
+  font-size: var(--text-sm);
+  border-bottom: 1px solid var(--border);
+
+  // 手機上時間和方案一列，細節換到下一列
+  @include respond-to('phone') {
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 2px var(--space-3);
+  }
+}
+
+.when {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.program {
+  font-weight: 600;
+}
+
+.details {
+  color: var(--text-muted);
+  font-size: var(--text-xs);
+
+  @include respond-to('phone') {
+    grid-column: 1 / -1;
+  }
+}
+
+.empty {
+  margin: 0;
+  padding: var(--space-2) 0;
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+}

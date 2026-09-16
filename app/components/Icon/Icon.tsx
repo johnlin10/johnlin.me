@@ -6,6 +6,7 @@ import {
   faHome,
   faNewspaper,
   faUser,
+  faUsers,
   faSun,
   faMoon,
   faDesktop,
@@ -54,6 +55,7 @@ export type IconName =
   | 'home'
   | 'newspaper'
   | 'user'
+  | 'users'
   | 'sun'
   | 'moon'
   | 'desktop'
@@ -101,6 +103,7 @@ const iconMap: Record<IconName, IconProp> = {
   home: faHome,
   newspaper: faNewspaper,
   user: faUser,
+  users: faUsers,
   sun: faSun,
   moon: faMoon,
   desktop: faDesktop,

@@ -5,6 +5,7 @@ import { useFormatter, useTranslations } from 'next-intl'
 import { createClient } from '@/app/lib/supabase/client'
 import { isUniqueViolation } from '@/app/lib/supabase/errors'
 import {
+  copySlots,
   deleteRow,
   getCourses,
   getSemesters,
@@ -17,6 +18,7 @@ import {
   type Slot,
   type Teacher,
 } from '@/app/lib/supabase/schedule'
+import { getPeople, savePerson, type Person } from '@/app/lib/supabase/tutoring'
 import { PERIODS, overlaps, periodIndex } from '@/app/lib/schedule/periods'
 import { COURSE_COLORS, courseColorStyle, leastUsedColor } from '@/app/lib/schedule/colors'
 import ScheduleGrid, { type GridSlot } from '@/app/components/schedule/ScheduleGrid/ScheduleGrid'
@@ -32,6 +34,7 @@ import style from './schedule.module.scss'
 
 const SEMESTER_CODE = /^\d{3}-[12]$/
 const NEW_SEMESTER = '__new'
+const NEW_PERSON = '__new'
 
 type SlotForm = {
   id?: string
@@ -44,6 +47,9 @@ type SlotForm = {
 }
 type CourseForm = { id?: string; name: string; credits: string; color: string }
 type NameForm = { id?: string; value: string }
+type SemesterForm = { id?: string; code: string; start: string; end: string }
+type PersonForm = { name: string; role: string }
+type CopyForm = { fromId: string }
 
 /**
  * 把學分欄位轉成資料庫的值。
@@ -115,6 +121,10 @@ export default function SchedulePage() {
 
   const [semesters, setSemesters] = useState<Semester[]>([])
   const [semesterId, setSemesterId] = useState('')
+  const [people, setPeople] = useState<Person[]>([])
+  const [personId, setPersonId] = useState('')
+  const [personForm, setPersonForm] = useState<PersonForm | null>(null)
+  const [copyForm, setCopyForm] = useState<CopyForm | null>(null)
   const [teachers, setTeachers] = useState<Teacher[]>([])
   const [courses, setCourses] = useState<Course[]>([])
   const [slots, setSlots] = useState<Slot[]>([])
@@ -122,14 +132,14 @@ export default function SchedulePage() {
   const [slotForm, setSlotForm] = useState<SlotForm | null>(null)
   const [courseForm, setCourseForm] = useState<CourseForm | null>(null)
   const [teacherForm, setTeacherForm] = useState<NameForm | null>(null)
-  const [semesterForm, setSemesterForm] = useState<NameForm | null>(null)
+  const [semesterForm, setSemesterForm] = useState<SemesterForm | null>(null)
 
   const refresh = useCallback(
-    async (id: string) => {
+    async (id: string, person: string) => {
       const [teacherList, courseList, slotList] = await Promise.all([
         getTeachers(supabase),
         id ? getCourses(supabase, id) : [],
-        id ? getSlots(supabase, id) : [],
+        id && person ? getSlots(supabase, id, person) : [],
       ])
       setTeachers(teacherList)
       setCourses(courseList)
@@ -139,18 +149,20 @@ export default function SchedulePage() {
   )
 
   useEffect(() => {
-    getSemesters(supabase)
-      .then((list) => {
-        setSemesters(list)
-        setSemesterId(list[0]?.id ?? '')
+    Promise.all([getSemesters(supabase), getPeople(supabase)])
+      .then(([semesterList, peopleList]) => {
+        setSemesters(semesterList)
+        setSemesterId(semesterList[0]?.id ?? '')
+        setPeople(peopleList)
+        setPersonId(peopleList[0]?.id ?? '')
       })
       .catch(() => toast.error(t('loadError')))
       .finally(() => setLoading(false))
   }, [supabase])
 
   useEffect(() => {
-    refresh(semesterId).catch(() => toast.error(t('loadError')))
-  }, [semesterId, refresh])
+    refresh(semesterId, personId).catch(() => toast.error(t('loadError')))
+  }, [semesterId, personId, refresh])
 
   const semester = semesters.find((s) => s.id === semesterId)
   const courseById = new Map(courses.map((course) => [course.id, course]))
@@ -181,20 +193,60 @@ export default function SchedulePage() {
 
   //* 學期
 
+  const changePerson = (value: string) => {
+    if (value === NEW_PERSON) return setPersonForm({ name: '', role: 'student' })
+    // 先清空，不然新的課表載進來之前，畫面上還留著上一個人的課
+    setSlots([])
+    setPersonId(value)
+  }
+
+  const submitPerson = async () => {
+    if (!personForm) return
+    const name = personForm.name.trim()
+    if (!name) return toast.error(t('person.nameRequired'))
+    try {
+      await savePerson(supabase, { name, role: personForm.role })
+      const list = await getPeople(supabase)
+      setPeople(list)
+      setPersonId(list.find((person) => person.name === name)?.id ?? personId)
+      setPersonForm(null)
+    } catch (error) {
+      toast.error(isUniqueViolation(error) ? t('person.duplicate') : t('saveError'))
+    }
+  }
+
+  const submitCopy = async () => {
+    if (!copyForm) return
+    if (!copyForm.fromId) return toast.error(t('copy.required'))
+    try {
+      const count = await copySlots(supabase, semesterId, copyForm.fromId, personId)
+      setCopyForm(null)
+      if (count === 0) return toast.error(t('copy.none'))
+      toast.success(t('copy.done', { count }))
+      await refresh(semesterId, personId)
+    } catch {
+      toast.error(t('saveError'))
+    }
+  }
+
   const changeSemester = (value: string) => {
-    if (value === NEW_SEMESTER) setSemesterForm({ value: '' })
-    else setSemesterId(value)
+    if (value === NEW_SEMESTER) return setSemesterForm({ code: '', start: '', end: '' })
+    setSlots([])
+    setSemesterId(value)
   }
 
   const saveSemester = async () => {
     if (!semesterForm) return
-    const code = semesterForm.value.trim()
+    const code = semesterForm.code.trim()
     if (!SEMESTER_CODE.test(code)) return toast.error(t('semester.codeInvalid'))
+    const { start, end } = semesterForm
+    if (start && end && end < start) return toast.error(t('semester.rangeInvalid'))
     try {
+      const fields = { code, start_date: start || null, end_date: end || null }
       if (semesterForm.id) {
-        await updateRow(supabase, 'semesters', semesterForm.id, { code })
+        await updateRow(supabase, 'semesters', semesterForm.id, fields)
       } else {
-        const created = await insertRow(supabase, 'semesters', { code })
+        const created = await insertRow(supabase, 'semesters', fields)
         setSemesterId(created.id)
       }
       setSemesters(await getSemesters(supabase))
@@ -275,6 +327,7 @@ export default function SchedulePage() {
       const row = {
         course_id: slotForm.courseId,
         teacher_id: slotForm.teacherId || null,
+        person_id: personId,
         day: time.day,
         start_period: time.start,
         end_period: time.end,
@@ -283,7 +336,7 @@ export default function SchedulePage() {
       if (slotForm.id) await updateRow(supabase, 'schedule_slots', slotForm.id, row)
       else await insertRow(supabase, 'schedule_slots', row)
       setSlotForm(null)
-      await refresh(semesterId)
+      await refresh(semesterId, personId)
     } catch {
       toast.error(t('saveError'))
     }
@@ -300,7 +353,7 @@ export default function SchedulePage() {
     try {
       await deleteRow(supabase, 'schedule_slots', slotForm.id)
       setSlotForm(null)
-      await refresh(semesterId)
+      await refresh(semesterId, personId)
     } catch {
       toast.error(t('deleteError'))
     }
@@ -328,7 +381,7 @@ export default function SchedulePage() {
       if (courseForm.id) await updateRow(supabase, 'courses', courseForm.id, fields)
       else await insertRow(supabase, 'courses', { semester_id: semesterId, ...fields })
       setCourseForm(null)
-      await refresh(semesterId)
+      await refresh(semesterId, personId)
     } catch (error) {
       toast.error(isUniqueViolation(error) ? t('course.duplicate') : t('saveError'))
     }
@@ -348,7 +401,7 @@ export default function SchedulePage() {
     try {
       await deleteRow(supabase, 'courses', course.id)
       setCourseForm(null)
-      await refresh(semesterId)
+      await refresh(semesterId, personId)
     } catch {
       toast.error(t('deleteError'))
     }
@@ -364,7 +417,7 @@ export default function SchedulePage() {
       if (teacherForm.id) await updateRow(supabase, 'teachers', teacherForm.id, { name })
       else await insertRow(supabase, 'teachers', { name })
       setTeacherForm(null)
-      await refresh(semesterId)
+      await refresh(semesterId, personId)
     } catch (error) {
       toast.error(isUniqueViolation(error) ? t('teacher.duplicate') : t('saveError'))
     }
@@ -382,7 +435,7 @@ export default function SchedulePage() {
     try {
       await deleteRow(supabase, 'teachers', teacher.id)
       setTeacherForm(null)
-      await refresh(semesterId)
+      await refresh(semesterId, personId)
     } catch {
       toast.error(t('deleteError'))
     }
@@ -396,18 +449,33 @@ export default function SchedulePage() {
           subtitle={semester ? t('subtitle', { count: courses.length }) : undefined}
           action={
             semesters.length > 0 && (
-              <div className={style.semesterSelect}>
-                <DropdownSelect
-                  compact
-                  clearable={false}
-                  value={semesterId}
-                  onChange={changeSemester}
-                  placeholder={t('semester.title')}
-                  options={[
-                    ...semesters.map((s) => ({ value: s.id, label: s.code })),
-                    { value: NEW_SEMESTER, label: t('semester.new') },
-                  ]}
-                />
+              <div className={style.headerSelects}>
+                <div className={style.personSelect}>
+                  <DropdownSelect
+                    compact
+                    clearable={false}
+                    value={personId}
+                    onChange={changePerson}
+                    placeholder={t('person.title')}
+                    options={[
+                      ...people.map((person) => ({ value: person.id, label: person.name })),
+                      { value: NEW_PERSON, label: t('person.new') },
+                    ]}
+                  />
+                </div>
+                <div className={style.semesterSelect}>
+                  <DropdownSelect
+                    compact
+                    clearable={false}
+                    value={semesterId}
+                    onChange={changeSemester}
+                    placeholder={t('semester.title')}
+                    options={[
+                      ...semesters.map((s) => ({ value: s.id, label: s.code })),
+                      { value: NEW_SEMESTER, label: t('semester.new') },
+                    ]}
+                  />
+                </div>
               </div>
             )
           }
@@ -420,10 +488,28 @@ export default function SchedulePage() {
         ) : !semester ? (
           <div className={style.empty}>
             <p>{t('noSemester')}</p>
-            <Button onClick={() => setSemesterForm({ value: '' })}>{t('semester.new')}</Button>
+            <Button onClick={() => setSemesterForm({ code: '', start: '', end: '' })}>
+              {t('semester.new')}
+            </Button>
+          </div>
+        ) : people.length === 0 ? (
+          <div className={style.empty}>
+            <p>{t('person.empty')}</p>
+            <Button onClick={() => setPersonForm({ name: '', role: 'student' })}>
+              {t('person.new')}
+            </Button>
           </div>
         ) : (
           <>
+            {slots.length === 0 && people.length > 1 && (
+              <div className={style.notice}>
+                <p className={style.hint}>{t('copy.prompt')}</p>
+                <Button size="small" onClick={() => setCopyForm({ fromId: '' })}>
+                  {t('copy.action')}
+                </Button>
+              </div>
+            )}
+
             <ScheduleGrid
               slots={gridSlots}
               busyLabel={t('busy')}
@@ -516,6 +602,21 @@ export default function SchedulePage() {
                   )}
                 </section>
 
+                {people.length > 1 && (
+                  <section className={style.group}>
+                    <div className={style.groupHead}>
+                      <h2 className={style.groupTitle}>{t('copy.title')}</h2>
+                    </div>
+                    <button
+                      type="button"
+                      className={style.item}
+                      onClick={() => setCopyForm({ fromId: '' })}
+                    >
+                      <span className={style.itemName}>{t('copy.action')}</span>
+                    </button>
+                  </section>
+                )}
+
                 <section className={style.group}>
                   <div className={style.groupHead}>
                     <h2 className={style.groupTitle}>{t('semester.title')}</h2>
@@ -523,7 +624,14 @@ export default function SchedulePage() {
                   <button
                     type="button"
                     className={style.item}
-                    onClick={() => setSemesterForm({ id: semester.id, value: semester.code })}
+                    onClick={() =>
+                      setSemesterForm({
+                        id: semester.id,
+                        code: semester.code,
+                        start: semester.start_date ?? '',
+                        end: semester.end_date ?? '',
+                      })
+                    }
                   >
                     <span className={style.itemName}>{semester.code}</span>
                   </button>
@@ -690,6 +798,72 @@ export default function SchedulePage() {
         </Modal>
 
         <Modal
+          isOpen={copyForm !== null}
+          onClose={() => setCopyForm(null)}
+          title={t('copy.title')}
+          size="small"
+        >
+          {copyForm && (
+            <div className={style.form}>
+              <Field label={t('copy.from')}>
+                <DropdownSelect
+                  clearable={false}
+                  value={copyForm.fromId}
+                  onChange={(fromId) => setCopyForm({ fromId })}
+                  options={people
+                    .filter((person) => person.id !== personId)
+                    .map((person) => ({ value: person.id, label: person.name }))}
+                  placeholder={t('copy.from')}
+                />
+              </Field>
+              <p className={style.hint}>{t('copy.hint')}</p>
+              <div className={style.form_actions}>
+                <Button variant="secondary" onClick={() => setCopyForm(null)}>
+                  {t('cancel')}
+                </Button>
+                <Button onClick={submitCopy}>{t('copy.action')}</Button>
+              </div>
+            </div>
+          )}
+        </Modal>
+
+        <Modal
+          isOpen={personForm !== null}
+          onClose={() => setPersonForm(null)}
+          title={t('person.newTitle')}
+          size="small"
+        >
+          {personForm && (
+            <div className={style.form}>
+              <Input
+                label={t('person.name')}
+                value={personForm.name}
+                onChange={(name) => setPersonForm({ ...personForm, name })}
+                required
+              />
+              <Field label={t('person.role')}>
+                <DropdownSelect
+                  clearable={false}
+                  value={personForm.role}
+                  onChange={(role) => setPersonForm({ ...personForm, role })}
+                  options={[
+                    { value: 'student', label: t('person.student') },
+                    { value: 'teacher', label: t('person.teacher') },
+                  ]}
+                  placeholder={t('person.role')}
+                />
+              </Field>
+              <div className={style.form_actions}>
+                <Button variant="secondary" onClick={() => setPersonForm(null)}>
+                  {t('cancel')}
+                </Button>
+                <Button onClick={submitPerson}>{t('save')}</Button>
+              </div>
+            </div>
+          )}
+        </Modal>
+
+        <Modal
           isOpen={semesterForm !== null}
           onClose={() => setSemesterForm(null)}
           title={semesterForm?.id ? t('semester.editTitle') : t('semester.newTitle')}
@@ -699,12 +873,27 @@ export default function SchedulePage() {
             <div className={style.form}>
               <Input
                 label={t('semester.codeLabel')}
-                value={semesterForm.value}
-                onChange={(value) => setSemesterForm({ ...semesterForm, value })}
+                value={semesterForm.code}
+                onChange={(code) => setSemesterForm({ ...semesterForm, code })}
                 placeholder="114-1"
                 helper={t('semester.codeHelper')}
                 required
               />
+              <div className={style.pair}>
+                <Input
+                  label={t('semester.start')}
+                  type="date"
+                  value={semesterForm.start}
+                  onChange={(start) => setSemesterForm({ ...semesterForm, start })}
+                />
+                <Input
+                  label={t('semester.end')}
+                  type="date"
+                  value={semesterForm.end}
+                  onChange={(end) => setSemesterForm({ ...semesterForm, end })}
+                />
+              </div>
+              <p className={style.hint}>{t('semester.rangeHelper')}</p>
               <div className={style.form_actions}>
                 {semesterForm.id && (
                   <Button variant="danger" className={style.pushStart} onClick={deleteSemester}>

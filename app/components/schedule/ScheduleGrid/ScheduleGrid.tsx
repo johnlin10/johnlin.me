@@ -103,6 +103,7 @@ export default function ScheduleGrid({
         }
         const content = (
           <>
+            <span className={style.time}>{PERIODS[top].start}</span>
             <span className={style.course}>{slot.course ?? busyLabel}</span>
             {slot.teacher && <span className={style.meta}>{slot.teacher}</span>}
             {slot.location && <span className={style.meta}>{slot.location}</span>}

@@ -656,6 +656,7 @@
     "nav": {
       "home": "Overview",
       "schedule": "Timetable",
+      "tutoring": "完善就學",
       "links": "Short links"
     },
     "home": {
@@ -665,6 +666,10 @@
         "schedule": {
           "name": "Timetable",
           "description": "Courses, teachers and rooms for each semester"
+        },
+        "tutoring": {
+          "name": "完善就學",
+          "description": "Sessions, timetable overlays and monthly hours"
         },
         "links": {
           "name": "Short links",
@@ -746,14 +751,18 @@
         "title": "Semester",
         "new": "New semester",
         "newTitle": "New semester",
-        "editTitle": "Rename semester",
+        "editTitle": "Edit semester",
         "codeLabel": "Semester code",
         "codeHelper": "Like 114-1 or 114-2",
         "codeInvalid": "Semester codes look like 114-1",
         "duplicate": "That semester already exists",
         "deleteBlocked": "This semester still has courses. Delete them first.",
         "deleteTitle": "Delete semester",
-        "deleteMessage": "Delete {code}?"
+        "deleteMessage": "Delete {code}?",
+        "start": "First day",
+        "end": "Last day",
+        "rangeInvalid": "The last day cannot come before the first",
+        "rangeHelper": "The timetable only counts between these dates, so the weeks before term and the breaks are free. For the latest semester an empty side means no limit; an older semester only counts once both dates are filled in."
       },
       "slot": {
         "newTitle": "New class time",
@@ -819,6 +828,142 @@
         "purple": "Purple",
         "pink": "Pink",
         "gray": "Gray"
+      },
+      "person": {
+        "title": "Whose timetable",
+        "new": "Add someone",
+        "newTitle": "Add someone",
+        "name": "Name",
+        "role": "Role",
+        "student": "Student",
+        "teacher": "Teacher",
+        "empty": "Nobody here yet. A timetable has to belong to someone.",
+        "nameRequired": "A name is required",
+        "duplicate": "That name is already taken"
+      },
+      "copy": {
+        "title": "Copy a timetable",
+        "action": "Copy from someone",
+        "prompt": "No classes yet. If they are in your class, copy someone else’s timetable and adjust it.",
+        "from": "Copy whose timetable",
+        "hint": "Anything clashing with what is already here is skipped. The two timetables are independent afterwards — changing one does not touch the other.",
+        "done": "Copied {count} class times",
+        "none": "Nothing to copy",
+        "required": "Pick someone"
+      }
+    },
+    "tutoring": {
+      "title": "完善就學",
+      "subtitle": "{count} sessions this month",
+      "loading": "Loading…",
+      "loadError": "Could not load the data",
+      "saveError": "Could not save, please try again",
+      "deleteError": "Could not delete, please try again",
+      "manage": "People and timetables",
+      "save": "Save",
+      "cancel": "Cancel",
+      "delete": "Delete",
+      "month": {
+        "prev": "Previous month",
+        "next": "Next month"
+      },
+      "week": {
+        "label": "Pick a week"
+      },
+      "overlay": {
+        "title": "Overlay timetables"
+      },
+      "programs": {
+        "after_class": "課後輔導",
+        "peer": "課業共學",
+        "contest": "競賽輔導",
+        "license": "證照輔導"
+      },
+      "session": {
+        "new": "Add a session",
+        "newTitle": "Add a session",
+        "editTitle": "Edit session",
+        "program": "Program",
+        "date": "Date",
+        "start": "Start",
+        "attendees": "Who is attending",
+        "teacher": "Teacher",
+        "teacherPlaceholder": "None",
+        "location": "Location",
+        "note": "Note",
+        "noteHelper": "Only you can see this; it never reaches the public page",
+        "attendeesRequired": "Pick at least one person",
+        "busyClash": "{name} has class then ({time})",
+        "sessionClash": "{name} is already booked then for {program}",
+        "deleteTitle": "Delete session",
+        "deleteMessage": "Delete this tutoring session?",
+        "duration": "Duration",
+        "durationValue": "{hours} hr",
+        "endsAt": "Ends {time}",
+        "overnight": "That runs past midnight",
+        "weekend": "Sessions cannot be scheduled at the weekend",
+        "hoursBadge": "{hours}h"
+      },
+      "person": {
+        "title": "People",
+        "new": "Add someone",
+        "newTitle": "Add someone",
+        "editTitle": "Edit person",
+        "name": "Name",
+        "role": "Role",
+        "student": "Student",
+        "teacher": "Teacher",
+        "empty": "Nobody here yet. Add the students taking part and the teachers to avoid; their classes live in the timetable tool.",
+        "nameRequired": "A name is required",
+        "duplicate": "That name is already taken",
+        "deleteTitle": "Delete person",
+        "deleteMessage": "Delete {name}? Their timetable and attendance go with them."
+      },
+      "busy": {
+        "title": "Busy hours",
+        "new": "Add busy hours",
+        "newTitle": "Add busy hours",
+        "editTitle": "Edit busy hours",
+        "pickPerson": "Pick someone",
+        "forPerson": "{name}'s timetable",
+        "day": "Day",
+        "start": "Start",
+        "end": "End",
+        "labelField": "Label",
+        "labelHelper": "Optional, such as a part-time shift or a club",
+        "empty": "Nothing outside this person’s classes.",
+        "noPeople": "Add someone first.",
+        "noSemester": "No semester yet. Create one on the timetable page first.",
+        "rangeInvalid": "The end must come after the start",
+        "deleteTitle": "Delete class time",
+        "deleteMessage": "Delete this class time?",
+        "fromSchedule": "The ones with a course name come from the timetable tool — change them there. The rest is everything outside class, editable here."
+      },
+      "hours": {
+        "person": "Person",
+        "total": "Total",
+        "note": "The total covers 課後輔導, 課業共學, and 競賽輔導 for the month, capped at 40 hours. 證照輔導 shows this month and the running total, and stays out of the cap."
+      },
+      "public": {
+        "title": "完善就學 schedule",
+        "lead": "Scheduled tutoring sessions and everyone’s hours this month. Pick a name to lay their timetable over the week.",
+        "weekList": "This week’s sessions",
+        "weekEmpty": "No sessions this week.",
+        "teacher": "with {name}"
+      },
+      "share": {
+        "title": "Public link",
+        "hint": "Anyone with the link can see sessions, timetables, and hours without signing in. Notes stay private. Share it only in the group chat.",
+        "create": "Create link",
+        "copy": "Copy link",
+        "copied": "Copied",
+        "copyError": "Couldn’t copy. Select it by hand.",
+        "enable": "Turn on",
+        "disable": "Turn off",
+        "off": "Off",
+        "regenerate": "Regenerate",
+        "regenerateTitle": "Regenerate link",
+        "regenerateMessage": "The old link stops working right away, so you’ll need to send everyone the new one."
       }
     }
   },

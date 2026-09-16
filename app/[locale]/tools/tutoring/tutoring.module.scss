@@ -1,24 +1,33 @@
 @use '@/app/styles/design' as *;
 @use '../../admin/entityPage' as entity;
 
-.schedule_page {
+.tutoring_page {
   @include entity.entity-page;
   @include entity.entity-form;
 }
 
-.semesterSelect {
-  width: 7.5rem;
+//* 月份與週
+
+// 頁首的第二層：跟頁首主列同底色、同寬、貼齊它的底緣，看起來是同一組；
+// 但它不是 PageHeader 的 subbar（那個 fixed），就是頁面最上面的一般區塊，會跟著內容捲走
+.subhead {
+  margin: calc(-1 * var(--page-top-gap)) calc(-1 * var(--page-gutter)) var(--space-4);
+  padding: var(--space-2) var(--page-gutter);
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+
+  // 手機上時間軸也是滿版，直接接在底下，不留一條空白
+  @include respond-to('phone') {
+    margin-bottom: 0;
+  }
 }
 
-// 課表資訊密度高，手機上撐滿螢幕寬、上緣貼齊頁首
-.schedule_page .grid {
-  @include respond-to('phone') {
-    margin-top: calc(-1 * var(--page-top-gap));
-    margin-inline: calc(-1 * var(--page-gutter));
-    border-top: 0;
-    border-inline: 0;
-    border-radius: 0;
-  }
+//* 表單裡的參與者 chip，樣式跟時間軸底下的比對 chip 同一套（TutoringBoard）
+
+.chips {
+  @include flexbox(row, flex-start, center);
+  flex-wrap: wrap;
+  gap: var(--space-2);
 }
 
 //* 資料管理：預設收起
@@ -65,6 +74,8 @@
 
 .group {
   min-width: 0;
+  @include flexbox(column, flex-start, stretch);
+  gap: var(--space-2);
 }
 
 .groupHead {
@@ -77,11 +88,23 @@
 }
 
 .groupTitle {
+  @include flexbox(row, flex-start, center);
+  gap: var(--space-2);
   margin: 0;
   font-family: var(--font-sans);
   font-size: var(--text-xs);
   font-weight: 600;
   color: var(--text-secondary);
+}
+
+.badge {
+  padding: 1px var(--space-2);
+  font-size: var(--text-3xs);
+  font-weight: 500;
+  color: var(--text-muted);
+  background: var(--surface-2);
+  border-radius: var(--radius-pill);
+  font-variant-numeric: tabular-nums;
 }
 
 .addButton {
@@ -102,6 +125,11 @@
   &:hover {
     color: var(--text);
     background: var(--surface-2);
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
   }
 }
 
@@ -139,6 +167,7 @@
   font-size: var(--text-sm);
   white-space: nowrap;
   text-overflow: ellipsis;
+  font-variant-numeric: tabular-nums;
 }
 
 .itemMeta {
@@ -148,16 +177,20 @@
   color: var(--text-muted);
 }
 
-.dot,
-.swatch {
-  flex-shrink: 0;
-  border-radius: 50%;
-  background: oklch(0.7 calc(0.13 * var(--course-chroma)) var(--course-hue));
+.shareUrl {
+  display: block;
+  padding: var(--space-2);
+  font-size: var(--text-2xs);
+  color: var(--text-secondary);
+  background: var(--surface-2);
+  border-radius: var(--radius-sm);
+  overflow-wrap: anywhere;
 }
 
-.dot {
-  width: 0.625rem;
-  height: 0.625rem;
+.shareActions {
+  @include flexbox(row, flex-start, center);
+  flex-wrap: wrap;
+  gap: var(--space-2);
 }
 
 .hint {
@@ -177,41 +210,9 @@
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: var(--space-3);
-}
 
-.notice {
-  @include flexbox(row, space-between, center);
-  gap: var(--space-3);
-  padding: var(--space-4);
-  border: 1px dashed var(--border-strong);
-  border-radius: var(--radius-md);
-
-  .hint {
-    padding: 0;
-  }
-}
-
-.swatches {
-  @include flexbox(row, flex-start, center);
-  flex-wrap: wrap;
-  gap: var(--space-2);
-}
-
-.swatch {
-  width: 1.75rem;
-  height: 1.75rem;
-  padding: 0;
-  border: 2px solid transparent;
-  box-shadow: inset 0 0 0 1px var(--border);
-  cursor: pointer;
-
-  &.swatchActive {
-    border-color: var(--text);
-  }
-
-  &:focus-visible {
-    outline: 2px solid var(--accent);
-    outline-offset: 2px;
+  @include respond-to('phone') {
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 
@@ -223,14 +224,20 @@
   }
 }
 
-// 頁首兩個下拉：誰的課表、哪個學期
-.headerSelects {
-  @include flexbox(row, flex-start, center);
-  gap: var(--space-2);
+// 表單裡的補充說明：推算出來的結束時間、開關的解釋
+.endHint {
+  font-size: var(--text-2xs);
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
 }
 
-.personSelect {
-  width: 7rem;
+// 唯讀的列：長得跟可點的一樣，只是不能點
+.itemStatic {
+  @include flexbox(row, flex-start, center);
+  gap: var(--space-3);
+  width: 100%;
+  padding: var(--space-2);
+  color: var(--text-secondary);
 }
 
 .pair {

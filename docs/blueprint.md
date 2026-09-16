@@ -29,7 +29,9 @@
  └─ proxy.ts（Next 16 前稱 middleware.ts），先看 Host
      ├─ 主站（johnlin.me）
      │   ├─ next-intl 語系處理（決定 /zh-tw or /en 前綴、寫 locale cookie）
-     │   └─ /admin/*、/tools/* 一律 404（不轉址，避免洩漏子網域位置）
+     │   ├─ /admin/*、/tools/* 一律 404（不轉址，避免洩漏子網域位置）
+     │   └─ /tutoring/{token} 是完善就學的公開唯讀頁：不登入，資料走 security definer 函式
+     │      get_tutoring_board，token 不對就 404；不套主站的 Header 和 Footer
      └─ 子網域：後台 admin.johnlin.me、工具 tools.johnlin.me（本機 admin.localhost:3000、tools.localhost:3000）
          ├─ 同一套 next-intl 語系處理；要轉址就照轉
          ├─ 改寫到 /[locale]/<子網域>/*（admin 的 /posts → /zh-tw/admin/posts）

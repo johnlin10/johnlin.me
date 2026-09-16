@@ -16,7 +16,8 @@ export default function FooterGate({
   const pathname = usePathname()
   const segment = useSelectedLayoutSegment()
   // 看路由 segment 而不是網址：子網域的網址裡沒有 /admin、/tools。
-  if (segment === 'admin' || segment === 'tools') return null
+  // 完善就學公開頁是給同學看的單頁，不帶個人網站的 Footer。
+  if (segment === 'admin' || segment === 'tools' || segment === 'tutoring') return null
   // 攝影牆是滿版沉浸式（fixed），不要 footer；但單張頁 /photography/[slug] 是一般頁面要保留。
   if (pathname.startsWith('/photography')) return null
   return <>{children}</>

@@ -1,6 +1,13 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
+import { periodIndex } from '@/app/lib/schedule/periods'
 
-export type Semester = { id: string; code: string }
+export type Semester = {
+  id: string
+  code: string
+  // 課表只在這段期間有效；null 當作那一邊不設限
+  start_date: string | null
+  end_date: string | null
+}
 export type Teacher = { id: string; name: string }
 export type Course = {
   id: string
@@ -13,6 +20,8 @@ export type Slot = {
   id: string
   course_id: string
   teacher_id: string | null
+  // 這一格是誰的課表（0008 加的）
+  person_id: string | null
   day: number
   start_period: string
   end_period: string
@@ -34,7 +43,7 @@ type Tables = {
 export async function getSemesters(supabase: SupabaseClient): Promise<Semester[]> {
   const { data, error } = await supabase
     .from('semesters')
-    .select('id, code')
+    .select('id, code, start_date, end_date')
     .order('code', { ascending: false })
   if (error) throw error
   return data
@@ -74,23 +83,75 @@ export async function getCourses(
 }
 
 /**
- * 某個學期的所有時段。
+ * 某個學期的時段。
  * @param supabase Supabase client
  * @param semesterId 學期 id
+ * @param personId 只要這個人的課表；不給就是全部人的
  * @returns 時段清單
  */
 export async function getSlots(
   supabase: SupabaseClient,
   semesterId: string,
+  personId?: string,
 ): Promise<Slot[]> {
-  const { data, error } = await supabase
+  const query = supabase
     .from('schedule_slots')
     .select(
-      'id, course_id, teacher_id, day, start_period, end_period, location, courses!inner(semester_id)',
+      'id, course_id, teacher_id, person_id, day, start_period, end_period, location, courses!inner(semester_id)',
     )
     .eq('courses.semester_id', semesterId)
+  const { data, error } = await (personId ? query.eq('person_id', personId) : query)
   if (error) throw error
-  return data
+  // courses 只是用來篩學期的，剝掉再回傳；跟著資料跑的話，
+  // 拿這些列去 insert 會被 PostgREST 當成不存在的欄位擋下來
+  return (data as unknown as (Slot & { courses: unknown })[]).map(
+    ({ courses, ...slot }) => slot,
+  )
+}
+
+/**
+ * 把一個人的整份課表複製給另一個人。跟現有時段重疊的跳過，
+ * 所以複製第二次不會疊出一堆垃圾。
+ * @param supabase Supabase client
+ * @param semesterId 學期 id
+ * @param fromPersonId 來源
+ * @param toPersonId 目的地
+ * @returns 實際複製了幾筆
+ */
+export async function copySlots(
+  supabase: SupabaseClient,
+  semesterId: string,
+  fromPersonId: string,
+  toPersonId: string,
+): Promise<number> {
+  const [source, existing] = await Promise.all([
+    getSlots(supabase, semesterId, fromPersonId),
+    getSlots(supabase, semesterId, toPersonId),
+  ])
+  const rows = source
+    .filter(
+      (slot) =>
+        !existing.some(
+          (mine) =>
+            mine.day === slot.day &&
+            periodIndex(mine.start_period) <= periodIndex(slot.end_period) &&
+            periodIndex(slot.start_period) <= periodIndex(mine.end_period),
+        ),
+    )
+    .map((slot) => ({
+      course_id: slot.course_id,
+      teacher_id: slot.teacher_id,
+      day: slot.day,
+      start_period: slot.start_period,
+      end_period: slot.end_period,
+      location: slot.location,
+      person_id: toPersonId,
+    }))
+
+  if (rows.length === 0) return 0
+  const { error } = await supabase.from('schedule_slots').insert(rows)
+  if (error) throw error
+  return rows.length
 }
 
 /**

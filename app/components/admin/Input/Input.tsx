@@ -7,7 +7,7 @@ interface InputProps {
   value: string
   onChange: (value: string) => void
   placeholder?: string
-  type?: 'text' | 'email' | 'password' | 'number' | 'url'
+  type?: 'text' | 'email' | 'password' | 'number' | 'url' | 'date' | 'time'
   required?: boolean
   disabled?: boolean
   error?: string
