@@ -29,12 +29,16 @@ function isTopLanguageChinese(acceptLanguage: string | null) {
   return /^zh\b/i.test(top?.tag ?? '')
 }
 
-// 社群平台抓取連結預覽用的爬蟲 UA。這些請求不代表真人的語言偏好——
-// User-Agent 幾乎都寫死、跟分享者實際使用的瀏覽器語言無關；如果讓它們
-// 也吃 Accept-Language 判斷，分享 https://johnlin.me（無前綴）時常常會
-// 被爬蟲自己的 Accept-Language 導去 /en，抓回英文標題/描述/OG 圖，跟
-// 使用者實際貼出去的網址對不上。
-const LINK_PREVIEW_BOT = /facebookexternalhit|Twitterbot|Slackbot|LinkedInBot|Discordbot|TelegramBot|WhatsApp|SkypeUriPreview|Pinterest|redditbot|Googlebot/i
+// 機器人 UA。這些請求不代表真人的語言偏好——User-Agent 幾乎都寫死、
+// 跟分享者實際使用的瀏覽器語言無關；如果讓它們也吃 Accept-Language 判斷：
+// 分享 https://johnlin.me（無前綴）時會被爬蟲自己的 Accept-Language 導去
+// /en，抓回英文標題/描述/OG 圖，跟使用者實際貼出去的網址對不上；搜尋引擎
+// 則會把 sitemap 裡的每一條 zh 正規網址都看成轉址，索引不到。
+//
+// 用 bot/crawler/spider/slurp 這幾個通用字眼涵蓋，不逐一列舉——爬蟲列不完，
+// 而真人瀏覽器的 UA 不會出現這些字。bot 後面要 \b 才不會漏掉 Googlebot-Image
+// 這種帶後綴的。其餘是 UA 不含通用字眼的社群爬蟲，只能列名。
+const BOT = /bot\b|crawler|spider|slurp|facebookexternalhit|WhatsApp|SkypeUriPreview|Pinterest/i
 
 /**
  * 語系判斷優先序：網址前綴 > NEXT_LOCALE cookie（使用者用 LanguageSwitch
@@ -42,13 +46,13 @@ const LINK_PREVIEW_BOT = /facebookexternalhit|Twitterbot|Slackbot|LinkedInBot|Di
  * 真人瀏覽器：預設中文，Accept-Language 最高權重語言非中文（不分繁簡）就
  * 自動導去 /en，next-intl 會順便把選擇寫回 NEXT_LOCALE cookie，效果等同
  * 使用者手動切換過一次。
- * 連結預覽爬蟲：只看網址是否已經帶 /en，完全不採信它自己的 Accept-Language，
- * 避免分享出去的網址跟抓回來的語言對不上。
+ * 爬蟲：只看網址是否已經帶 /en，完全不採信它自己的 Accept-Language，避免
+ * 分享出去的網址跟抓回來的語言對不上，也讓 sitemap 的 zh 網址直接回 200。
  */
 function normalizeAcceptLanguage(request: NextRequest) {
   if (request.cookies.has('NEXT_LOCALE')) return request
 
-  const isBot = LINK_PREVIEW_BOT.test(request.headers.get('user-agent') ?? '')
+  const isBot = BOT.test(request.headers.get('user-agent') ?? '')
   const preferred = isBot
     ? routing.defaultLocale
     : isTopLanguageChinese(request.headers.get('accept-language'))
@@ -133,7 +137,7 @@ async function redirectShortLink(request: NextRequest) {
     p_country: request.headers.get('x-vercel-ip-country'),
     p_log:
       request.method === 'GET' &&
-      !LINK_PREVIEW_BOT.test(request.headers.get('user-agent') ?? ''),
+      !BOT.test(request.headers.get('user-agent') ?? ''),
   })
   if (error) console.error('resolve_short_link 失敗:', error)
 

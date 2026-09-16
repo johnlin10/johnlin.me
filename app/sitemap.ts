@@ -2,7 +2,6 @@ import type { MetadataRoute } from 'next'
 import { createPublicClient } from '@/app/lib/supabase/public'
 import { getPublishedPosts } from '@/app/lib/supabase/posts'
 import { getPublishedNotes } from '@/app/lib/supabase/notes'
-import { getPublishedPhotos } from '@/app/lib/supabase/photos'
 import { SITE_CONFIG } from '@/app/lib/siteConfigs'
 
 // 每次爬取都直接查 DB，不快取，確保新發表的文章/短文立刻出現在 sitemap 上。
@@ -47,7 +46,9 @@ function localizedEntry(
   priority: number
 ): MetadataRoute.Sitemap {
   const zhUrl = `${SITE_URL}${path}`
-  const enUrl = `${SITE_URL}/en${path}`
+  // 首頁的 path 是 '/'，直接串會得到 /en/ —— 那個網址會 308 到 /en，
+  // 跟頁面自己的 canonical 對不上。
+  const enUrl = `${SITE_URL}/en${path === '/' ? '' : path}`
   const alternates = { languages: { 'zh-TW': zhUrl, en: enUrl } }
 
   return [
@@ -55,6 +56,12 @@ function localizedEntry(
     { url: enUrl, lastModified, changeFrequency, priority, alternates },
   ]
 }
+
+// ponytail: 攝影單張頁暫時不進 sitemap。原檔目前是公開的全解析度檔案、
+// EXIF 含精確 GPS，在收掉之前不主動請搜尋引擎來索引 98 張照片。
+// 恢復條件：非 HDR 不再送 urlOriginal、原檔剝掉 GPS、寫入 Copyright 之後，
+// 把 photoEntries 加回來（連同 localizedEntry 的 images 參數，指向最大衍生階
+// 而非原檔，選法同 PhotoJsonLd）。
 
 // /lab 底下是設計系統與漸層曲線這類自用工具，頁面照樣公開可連，
 // 但不進 sitemap、metadata 也標 noIndex，不佔搜尋結果版面。
@@ -70,11 +77,9 @@ const STATIC_PAGES: Array<{
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const supabase = createPublicClient()
 
-  const [posts, notes, photos] = await Promise.all([
+  const [posts, notes] = await Promise.all([
     fetchAll((page) => getPublishedPosts(supabase, { page, pageSize: 100 })),
     fetchAll((page) => getPublishedNotes(supabase, { page, pageSize: 100 })),
-    // 攝影一次全取（版面本來就要全部照片，也沒有分頁 API）
-    getPublishedPhotos(supabase),
   ])
 
   const now = new Date()
@@ -112,15 +117,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     )
   )
 
-  const photoEntries = photos.flatMap((photo) =>
-    localizedEntry(
-      `/photography/${photo.slug}`,
-      new Date(photo.updatedAt || photo.createdAt),
-      'monthly',
-      0.5
-    )
-  )
-
   return [
     ...homeEntry,
     ...blogListEntry,
@@ -128,6 +124,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...staticEntries,
     ...postEntries,
     ...noteEntries,
-    ...photoEntries,
   ]
 }
