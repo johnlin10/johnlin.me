@@ -1,6 +1,6 @@
 import createIntlMiddleware from 'next-intl/middleware'
 import { NextResponse, NextRequest } from 'next/server'
-import { createServerClient } from '@supabase/ssr'
+import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import { routing } from './i18n/routing'
 import { SITE_CONFIG, isGoHost, subdomainOf } from './app/lib/siteConfigs'
 import { createPublicClient } from './app/lib/supabase/public'
@@ -14,6 +14,8 @@ const intlMiddleware = createIntlMiddleware(routing)
 const LOCALE_PREFIX = /^\/(en|zh-tw)(?=\/|$)/
 
 const SUBDOMAIN_PATH = /^\/(admin|tools)(?=\/|$)/
+
+type CookieToSet = { name: string; value: string; options: CookieOptions }
 
 // Accept-Language 裡權重最高的語言標籤是否為中文（不分繁簡：zh、zh-TW、zh-CN、zh-Hans...）。
 function isTopLanguageChinese(acceptLanguage: string | null) {
@@ -65,12 +67,13 @@ function normalizeAcceptLanguage(request: NextRequest) {
 }
 
 /**
- * 目前登入者是否為管理員（getUser + is_admin RPC）。
- * @param request 進來的請求，從這裡讀 Supabase session cookie
- * @param response 準備回傳的回應，session 換新時把 cookie 寫回這裡
+ * 目前登入者是否為管理員（is_admin RPC）。
+ * 不另外 getUser：PostgREST 會先驗 JWT，跟 RLS 的判斷一致；proxy 離 Supabase 遠，少一趟約省 150ms。
+ * @param request 進來的請求，從這裡讀 Supabase session cookie；session 換新時也寫回這裡，頁面在伺服器端才讀得到新的
+ * @param refreshed 換新的 cookie 收在這裡，之後寫進回應
  * @returns 已登入且為管理員才回 true
  */
-async function isAdmin(request: NextRequest, response: NextResponse) {
+async function isAdmin(request: NextRequest, refreshed: CookieToSet[]) {
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -80,18 +83,13 @@ async function isAdmin(request: NextRequest, response: NextResponse) {
           return request.cookies.getAll()
         },
         setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) =>
-            response.cookies.set(name, value, options),
-          )
+          cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
+          refreshed.push(...cookiesToSet)
         },
       },
     },
   )
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-  if (!user) return false
   const { data } = await supabase.rpc('is_admin')
   return data === true
 }
@@ -153,7 +151,7 @@ async function redirectShortLink(request: NextRequest) {
  * - 主站：只跑 next-intl，完全不碰 Supabase。/admin、/tools 回 404，不轉址到子網域——
  *   轉址等於把位置告訴對方。
  * - 子網域：語系沿用主站同一套 next-intl 規則，再把 /posts 對應到
- *   app/[locale]/<子網域>/posts；除了 /login 都要通過 getUser + is_admin。
+ *   app/[locale]/<子網域>/posts；除了 /login 都要通過 is_admin。
  * 真正的資料安全底線是 RLS，這裡只是提前把未授權者導回登入頁。
  */
 export default async function proxy(request: NextRequest) {
@@ -178,7 +176,13 @@ export default async function proxy(request: NextRequest) {
   const intlResponse = intlMiddleware(normalizeAcceptLanguage(request))
   if (intlResponse.headers.has('location')) return intlResponse
 
+  const refreshed: CookieToSet[] = []
+  if (stripped !== '/login' && !(await isAdmin(request, refreshed))) {
+    return NextResponse.redirect(new URL(`${prefix}/login`, request.url))
+  }
+
   // 沒轉址代表語系已定：有前綴就是前綴的語系，沒前綴就是預設語系（as-needed）。
+  // headers 要在 isAdmin 之後才複製，才帶得到換新的 session cookie
   const headers = new Headers(request.headers)
   headers.set('X-NEXT-INTL-LOCALE', locale)
   const response = NextResponse.rewrite(
@@ -186,10 +190,7 @@ export default async function proxy(request: NextRequest) {
     { request: { headers } },
   )
   intlResponse.cookies.getAll().forEach((cookie) => response.cookies.set(cookie))
-
-  if (stripped !== '/login' && !(await isAdmin(request, response))) {
-    return NextResponse.redirect(new URL(`${prefix}/login`, request.url))
-  }
+  refreshed.forEach(({ name, value, options }) => response.cookies.set(name, value, options))
 
   return response
 }

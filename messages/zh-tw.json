@@ -738,7 +738,6 @@
     "schedule": {
       "title": "課表",
       "subtitle": "這學期 {count} 門課",
-      "loading": "載入中…",
       "loadError": "課表載入失敗",
       "saveError": "儲存失敗，請稍後再試",
       "deleteError": "刪除失敗，請稍後再試",

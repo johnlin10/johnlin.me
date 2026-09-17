@@ -1,3 +1,6 @@
+// 詳細頁統計最近幾天的點擊
+export const STATS_DAYS = 90
+
 // 去掉 l、o、0、1，剩 32 個字元；256 是 32 的倍數，取餘數不會偏向某些字元
 const ALPHABET = 'abcdefghijkmnpqrstuvwxyz23456789'
 

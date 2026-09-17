@@ -737,7 +737,6 @@
     "schedule": {
       "title": "Timetable",
       "subtitle": "{count, plural, one {# course} other {# courses}} this semester",
-      "loading": "Loading…",
       "loadError": "Couldn't load the timetable",
       "saveError": "Couldn't save. Please try again.",
       "deleteError": "Couldn't delete. Please try again.",

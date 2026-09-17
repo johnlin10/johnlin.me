@@ -141,8 +141,9 @@ export default function AdminShell({
 
   useEffect(() => {
     const supabase = createClient()
-    supabase.auth.getUser().then(({ data }) => {
-      const user = data.user
+    // 只拿來顯示，讀本機 session 就好；getUser 要打網路，還會占住 auth 鎖，頁面資料得排在它後面
+    supabase.auth.getSession().then(({ data }) => {
+      const user = data.session?.user
       if (user) {
         const meta = user.user_metadata || {}
         const name =

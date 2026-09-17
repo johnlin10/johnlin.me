@@ -1,6 +1,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { PERIODS, periodIndex } from '@/app/lib/schedule/periods'
-import { getCourses, getSlots } from './schedule'
+import { addDays, dateKey, weeksOfMonth } from '@/app/lib/tutoring'
+import { getCourses, getSemesters, getSlots, type Semester } from './schedule'
 
 export type Person = { id: string; name: string; role: 'student' | 'teacher' }
 
@@ -50,6 +51,14 @@ export type Board = {
 }
 
 export type Share = { token: string; enabled: boolean }
+
+export type Members = { people: Person[]; busy: BusySlot[]; scheduleBusy: BusySlot[] }
+
+export type MonthSessions = { sessions: Session[]; license: Session[] }
+
+// 管理頁的首屏資料
+export type Tutoring = Members &
+  MonthSessions & { month: string; semesters: Semester[]; share: Share | null }
 
 const SESSION_COLUMNS =
   'id, program, date, start_time, end_time, location, teacher_id, note, tutoring_attendees(person_id)'
@@ -131,6 +140,61 @@ export async function getSessionsOf(
     ...session,
     attendees: tutoring_attendees.map((row) => row.person_id),
   }))
+}
+
+/**
+ * 一個月畫面上看得到的時段（跨月的頭尾兩週也算），加上證照輔導不分月份的全部時段。
+ * @param supabase Supabase client
+ * @param month 'YYYY-MM'
+ * @returns 這個月的時段和證照輔導的時段
+ */
+export async function getMonthSessions(
+  supabase: SupabaseClient,
+  month: string,
+): Promise<MonthSessions> {
+  const weeks = weeksOfMonth(month)
+  const [sessions, license] = await Promise.all([
+    getSessions(supabase, dateKey(weeks[0]), dateKey(addDays(weeks[weeks.length - 1], 6))),
+    getSessionsOf(supabase, 'license'),
+  ])
+  return { sessions, license }
+}
+
+/**
+ * 成員和他們的忙碌時段。每個學期的課表都讀進來，哪一天套哪一份由學期的起訖日期決定。
+ * @param supabase Supabase client
+ * @param semesterIds 全部學期 id
+ * @returns 成員、自己維護的忙碌時段、課表換算來的忙碌時段
+ */
+export async function getMembers(
+  supabase: SupabaseClient,
+  semesterIds: string[],
+): Promise<Members> {
+  const [people, busy, scheduleLists] = await Promise.all([
+    getPeople(supabase),
+    getBusy(supabase),
+    Promise.all(semesterIds.map((id) => getScheduleBusy(supabase, id))),
+  ])
+  return { people, busy, scheduleBusy: scheduleLists.flat() }
+}
+
+/**
+ * 管理頁的首屏資料。
+ * @param supabase Supabase client
+ * @param month 先載入哪個月 'YYYY-MM'
+ * @returns 首屏資料
+ */
+export async function getTutoring(supabase: SupabaseClient, month: string): Promise<Tutoring> {
+  const [semesters, monthSessions, share] = await Promise.all([
+    getSemesters(supabase),
+    getMonthSessions(supabase, month),
+    getShare(supabase),
+  ])
+  const members = await getMembers(
+    supabase,
+    semesters.map((semester) => semester.id),
+  )
+  return { month, semesters, share, ...members, ...monthSessions }
 }
 
 /**
