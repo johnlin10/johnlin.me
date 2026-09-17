@@ -8,6 +8,8 @@ import style from './Selector.module.scss'
 export interface DropdownOption {
   value: string
   label: string
+  /** 這一項底下畫一條分隔線，跟後面的選項分開 */
+  divider?: boolean
 }
 
 interface DropdownSelectProps {
@@ -113,7 +115,12 @@ export default function DropdownSelect({
             </li>
           )}
           {options.map((option) => (
-            <li key={option.value} role="option" aria-selected={option.value === value}>
+            <li
+              key={option.value}
+              role="option"
+              aria-selected={option.value === value}
+              className={option.divider ? style.option_divider : undefined}
+            >
               <button
                 type="button"
                 className={`${style.option} ${

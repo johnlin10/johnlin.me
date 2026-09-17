@@ -140,6 +140,14 @@ $tab-width: 7.5rem;
   }
 }
 
+// 自己跟其他人中間的分隔線
+.chipDivider {
+  align-self: stretch;
+  width: 1px;
+  margin-block: var(--space-1);
+  background: var(--border);
+}
+
 .chipOn {
   color: var(--text);
   background: var(--accent-soft);

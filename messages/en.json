@@ -838,7 +838,8 @@
         "teacher": "Teacher",
         "empty": "Nobody here yet. A timetable has to belong to someone.",
         "nameRequired": "A name is required",
-        "duplicate": "That name is already taken"
+        "duplicate": "That name is already taken",
+        "me": "{name} (me)"
       },
       "copy": {
         "title": "Copy a timetable",
@@ -904,6 +905,7 @@
       },
       "person": {
         "title": "People",
+        "me": "{name} (me)",
         "new": "Add someone",
         "newTitle": "Add someone",
         "editTitle": "Edit person",

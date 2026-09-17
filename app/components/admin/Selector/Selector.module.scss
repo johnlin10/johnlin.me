@@ -107,6 +107,11 @@
   }
 }
 
+.option_divider {
+  padding-bottom: var(--space-1);
+  border-bottom: 1px solid var(--border);
+}
+
 .tag_list {
   @include flexbox(row, flex-start, center);
   flex-wrap: wrap;

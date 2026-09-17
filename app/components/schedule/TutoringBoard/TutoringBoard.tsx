@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState, useSyncExternalStore } from 'react'
+import { Fragment, useEffect, useRef, useState, useSyncExternalStore } from 'react'
 import { useFormatter, useTranslations } from 'next-intl'
 import type { BusySlot, Person, PublicSession } from '@/app/lib/supabase/tutoring'
 import {
@@ -259,6 +259,7 @@ export function WeekPicker({
  * @param props.onItemClick 點時段時呼叫，不給就不能點
  * @param props.onEmptyClick 點空白時呼叫，不給就不能點
  * @param props.children 放在時間軸和時數表之間
+ * @param props.pickMe 後台用：一進來疊上自己的課表，自己跟其他人中間畫線；分享頁不給，讓看的人自己選
  */
 export default function TutoringBoard({
   picker,
@@ -270,6 +271,7 @@ export default function TutoringBoard({
   onItemClick,
   onEmptyClick,
   children,
+  pickMe = false,
 }: {
   picker: WeekPickerState
   people: Person[]
@@ -280,11 +282,14 @@ export default function TutoringBoard({
   onItemClick?: (id: string) => void
   onEmptyClick?: (date: string, time: string) => void
   children?: React.ReactNode
+  pickMe?: boolean
 }) {
   const t = useTranslations('ToolsPage.tutoring')
   const format = useFormatter()
   // 一次只疊一個人的課表；分左右欄會跟「不同天也是左右排」混在一起
-  const [overlay, setOverlay] = useState('')
+  const [overlay, setOverlay] = useState(() =>
+    pickMe ? (people.find((person) => person.is_me)?.id ?? '') : '',
+  )
   const { month, weeks, weekIndex, weekDates } = picker
   if (!month) return null
 
@@ -351,15 +356,17 @@ export default function TutoringBoard({
           <div className={style.overlayBar}>
             <span className={style.overlayLabel}>{t('overlay.title')}</span>
             {people.map((person) => (
-              <button
-                key={person.id}
-                type="button"
-                aria-pressed={overlay === person.id}
-                className={`${style.chip} ${overlay === person.id ? style.chipOn : ''}`}
-                onClick={() => setOverlay(overlay === person.id ? '' : person.id)}
-              >
-                {person.name}
-              </button>
+              <Fragment key={person.id}>
+                <button
+                  type="button"
+                  aria-pressed={overlay === person.id}
+                  className={`${style.chip} ${overlay === person.id ? style.chipOn : ''}`}
+                  onClick={() => setOverlay(overlay === person.id ? '' : person.id)}
+                >
+                  {person.name}
+                </button>
+                {pickMe && person.is_me && <span className={style.chipDivider} aria-hidden />}
+              </Fragment>
             ))}
           </div>
         )}

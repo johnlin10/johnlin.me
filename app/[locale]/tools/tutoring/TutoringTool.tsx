@@ -110,7 +110,9 @@ export default function TutoringTool({ initial }: { initial: Tutoring | null }) 
   const [sessions, setSessions] = useState<Session[]>(initial?.sessions ?? [])
   // 畫面上的時段是哪個月的，首屏那個月已經隨 initial 帶來了
   const loadedMonth = useRef(initial?.month)
-  const [busyPerson, setBusyPerson] = useState('')
+  const [busyPerson, setBusyPerson] = useState(
+    initial?.people.find((person) => person.is_me)?.id ?? '',
+  )
   const [share, setShare] = useState<Share | null>(initial?.share ?? null)
   const [sessionForm, setSessionForm] = useState<SessionForm | null>(null)
   const [personForm, setPersonForm] = useState<PersonForm | null>(null)
@@ -444,6 +446,7 @@ export default function TutoringTool({ initial }: { initial: Tutoring | null }) 
               licenseHours={licenseHours}
               onItemClick={openSession}
               onEmptyClick={students.length > 0 ? openNewSession : undefined}
+              pickMe
             />
 
             <details className={style.manage}>
@@ -532,7 +535,8 @@ export default function TutoringTool({ initial }: { initial: Tutoring | null }) 
                         placeholder={t('busy.pickPerson')}
                         options={people.map((person) => ({
                           value: person.id,
-                          label: person.name,
+                          label: person.is_me ? t('person.me', { name: person.name }) : person.name,
+                          divider: person.is_me,
                         }))}
                       />
                       {hasScheduleBusy && <p className={style.hint}>{t('busy.fromSchedule')}</p>}

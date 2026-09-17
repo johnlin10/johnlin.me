@@ -3,7 +3,13 @@ import { PERIODS, periodIndex } from '@/app/lib/schedule/periods'
 import { addDays, dateKey, weeksOfMonth } from '@/app/lib/tutoring'
 import { getCourses, getSemesters, getSlots, type Semester } from './schedule'
 
-export type Person = { id: string; name: string; role: 'student' | 'teacher' }
+export type Person = {
+  id: string
+  name: string
+  role: 'student' | 'teacher'
+  // 站主自己，永遠排第一（0012）
+  is_me: boolean
+}
 
 export type BusySlot = {
   id: string
@@ -66,14 +72,15 @@ const SESSION_COLUMNS =
 type SessionRow = Omit<Session, 'attendees'> & { tutoring_attendees: { person_id: string }[] }
 
 /**
- * 全部成員，老師排在學生後面，各自依名字排序。
+ * 全部成員，自己排第一，老師排在學生後面，各自依名字排序。
  * @param supabase Supabase client
  * @returns 成員清單
  */
 export async function getPeople(supabase: SupabaseClient): Promise<Person[]> {
   const { data, error } = await supabase
     .from('people')
-    .select('id, name, role')
+    .select('id, name, role, is_me')
+    .order('is_me', { ascending: false })
     .order('role')
     .order('name')
   if (error) throw error

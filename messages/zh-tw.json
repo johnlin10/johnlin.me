@@ -839,7 +839,8 @@
         "teacher": "老師",
         "empty": "還沒有成員。課表要先知道是誰的，才記得起來。",
         "nameRequired": "請填名字",
-        "duplicate": "這個名字已經有了"
+        "duplicate": "這個名字已經有了",
+        "me": "{name}（我）"
       },
       "copy": {
         "title": "複製課表",
@@ -905,6 +906,7 @@
       },
       "person": {
         "title": "成員",
+        "me": "{name}（我）",
         "new": "新增成員",
         "newTitle": "新增成員",
         "editTitle": "編輯成員",

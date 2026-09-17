@@ -193,6 +193,13 @@ export default function ScheduleTool({ initial }: { initial: Bootstrap | null })
     label: `${period.code} · ${period.start}`,
   }))
 
+  // 自己排第一，底下畫線跟其他人分開
+  const personOption = (person: Person) => ({
+    value: person.id,
+    label: person.is_me ? t('person.me', { name: person.name }) : person.name,
+    divider: person.is_me,
+  })
+
   //* 學期
 
   const changePerson = (value: string) => {
@@ -460,7 +467,7 @@ export default function ScheduleTool({ initial }: { initial: Bootstrap | null })
                     onChange={changePerson}
                     placeholder={t('person.title')}
                     options={[
-                      ...people.map((person) => ({ value: person.id, label: person.name })),
+                      ...people.map(personOption),
                       { value: NEW_PERSON, label: t('person.new') },
                     ]}
                   />
@@ -810,7 +817,7 @@ export default function ScheduleTool({ initial }: { initial: Bootstrap | null })
                   onChange={(fromId) => setCopyForm({ fromId })}
                   options={people
                     .filter((person) => person.id !== personId)
-                    .map((person) => ({ value: person.id, label: person.name }))}
+                    .map(personOption)}
                   placeholder={t('copy.from')}
                 />
               </Field>
