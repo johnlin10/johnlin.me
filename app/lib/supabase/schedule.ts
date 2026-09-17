@@ -1,5 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { periodIndex } from '@/app/lib/schedule/periods'
+import type { Person } from './tutoring'
 
 export type Semester = {
   id: string
@@ -33,6 +34,26 @@ type Tables = {
   teachers: Teacher
   courses: Course
   schedule_slots: Slot
+}
+
+export type Bootstrap = {
+  semesters: Semester[]
+  people: Person[]
+  teachers: Teacher[]
+  courses: Course[]
+  slots: Slot[]
+}
+
+/**
+ * 課表頁首屏要的東西，一趟撈完。最新的學期和排最前面的人在資料庫裡挑，
+ * 連同他們的課程和時段一起回來，省掉「先問學期、再問課表」的第二趟往返。
+ * @param supabase Supabase client
+ * @returns 學期、成員、老師，以及最新學期第一個人的課程與時段
+ */
+export async function getBootstrap(supabase: SupabaseClient): Promise<Bootstrap> {
+  const { data, error } = await supabase.rpc('get_schedule_bootstrap')
+  if (error) throw error
+  return data as Bootstrap
 }
 
 /**

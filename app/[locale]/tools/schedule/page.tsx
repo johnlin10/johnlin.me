@@ -1,12 +1,13 @@
 'use client'
 
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useFormatter, useTranslations } from 'next-intl'
 import { createClient } from '@/app/lib/supabase/client'
 import { isUniqueViolation } from '@/app/lib/supabase/errors'
 import {
   copySlots,
   deleteRow,
+  getBootstrap,
   getCourses,
   getSemesters,
   getSlots,
@@ -134,6 +135,10 @@ export default function SchedulePage() {
   const [teacherForm, setTeacherForm] = useState<NameForm | null>(null)
   const [semesterForm, setSemesterForm] = useState<SemesterForm | null>(null)
 
+  // 目前畫面上是哪個學期、哪個人的課表。掛載時的空值組合先當作已載入，
+  // 首屏資料由 getBootstrap 一次帶回來，不必再問第二趟。
+  const loaded = useRef('|')
+
   const refresh = useCallback(
     async (id: string, person: string) => {
       const [teacherList, courseList, slotList] = await Promise.all([
@@ -144,23 +149,33 @@ export default function SchedulePage() {
       setTeachers(teacherList)
       setCourses(courseList)
       setSlots(slotList)
+      loaded.current = `${id}|${person}`
     },
     [supabase],
   )
 
   useEffect(() => {
-    Promise.all([getSemesters(supabase), getPeople(supabase)])
-      .then(([semesterList, peopleList]) => {
-        setSemesters(semesterList)
-        setSemesterId(semesterList[0]?.id ?? '')
-        setPeople(peopleList)
-        setPersonId(peopleList[0]?.id ?? '')
+    getBootstrap(supabase)
+      .then((data) => {
+        const id = data.semesters[0]?.id ?? ''
+        const person = data.people[0]?.id ?? ''
+        setSemesters(data.semesters)
+        setPeople(data.people)
+        setTeachers(data.teachers)
+        setCourses(data.courses)
+        setSlots(data.slots)
+        loaded.current = `${id}|${person}`
+        setSemesterId(id)
+        setPersonId(person)
       })
       .catch(() => toast.error(t('loadError')))
       .finally(() => setLoading(false))
   }, [supabase])
 
+  // 首屏那一組已經隨 getBootstrap 一起回來了，掛載時的空值組合也不必去查，
+  // 只有使用者換學期或換人才重新載入。
   useEffect(() => {
+    if (loaded.current === `${semesterId}|${personId}`) return
     refresh(semesterId, personId).catch(() => toast.error(t('loadError')))
   }, [semesterId, personId, refresh])
 
