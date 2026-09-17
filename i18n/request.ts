@@ -10,6 +10,8 @@ export default getRequestConfig(async ({ requestLocale }) => {
 
   return {
     locale,
+    // 沒設的話會用 server 的時區，Vercel 是 UTC，client 的 format.dateTime 也跟著用 UTC
+    timeZone: 'Asia/Taipei',
     messages: (await import(`../messages/${locale}.json`)).default,
   }
 })
