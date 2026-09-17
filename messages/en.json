@@ -657,7 +657,11 @@
       "home": "Overview",
       "schedule": "Timetable",
       "tutoring": "完善就學",
-      "links": "Short links"
+      "links": "Short links",
+      "groups": {
+        "personal": "Personal",
+        "school": "School"
+      }
     },
     "home": {
       "title": "Overview",

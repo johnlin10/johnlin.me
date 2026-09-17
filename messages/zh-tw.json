@@ -658,7 +658,11 @@
       "home": "總覽",
       "schedule": "課表",
       "tutoring": "完善就學",
-      "links": "短網址"
+      "links": "短網址",
+      "groups": {
+        "personal": "個人",
+        "school": "學校"
+      }
     },
     "home": {
       "title": "總覽",

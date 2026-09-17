@@ -74,11 +74,17 @@ const NAV_GROUPS: NavGroup[] = [
 
 const TOOLS_NAV_GROUPS: NavGroup[] = [
   {
+    items: [{ href: '/', labelKey: 'home', icon: 'table-cells-large' }],
+  },
+  {
+    labelKey: 'groups.personal',
+    items: [{ href: '/links', labelKey: 'links', icon: 'link' }],
+  },
+  {
+    labelKey: 'groups.school',
     items: [
-      { href: '/', labelKey: 'home', icon: 'table-cells-large' },
       { href: '/schedule', labelKey: 'schedule', icon: 'calendar' },
       { href: '/tutoring', labelKey: 'tutoring', icon: 'users' },
-      { href: '/links', labelKey: 'links', icon: 'link' },
     ],
   },
 ]
