@@ -1,16 +1,17 @@
-// ponytail: 常見制度佔位，之後換成學校的節次表；代號不變的話舊資料不用動
+// 學校的節次表。A 是午休、B 是傍晚，排在前後兩節之間
 export const PERIODS = [
-  { code: '1', start: '08:10', end: '09:00' },
-  { code: '2', start: '09:10', end: '10:00' },
-  { code: '3', start: '10:10', end: '11:00' },
+  { code: '1', start: '08:20', end: '09:10' },
+  { code: '2', start: '09:15', end: '10:05' },
+  { code: '3', start: '10:15', end: '11:05' },
   { code: '4', start: '11:10', end: '12:00' },
-  { code: 'N', start: '12:10', end: '13:00' },
+  { code: 'A', start: '12:00', end: '13:10' },
   { code: '5', start: '13:10', end: '14:00' },
-  { code: '6', start: '14:10', end: '15:00' },
-  { code: '7', start: '15:10', end: '16:00' },
-  { code: '8', start: '16:10', end: '17:00' },
-  { code: '9', start: '17:10', end: '18:00' },
-  { code: '10', start: '18:10', end: '19:00' },
+  { code: '6', start: '14:05', end: '14:55' },
+  { code: '7', start: '15:05', end: '15:55' },
+  { code: '8', start: '16:00', end: '16:50' },
+  { code: 'B', start: '17:10', end: '18:00' },
+  { code: '9', start: '18:20', end: '19:05' },
+  { code: '10', start: '19:10', end: '20:00' },
 ] as const
 
 export type SlotTime = { day: number; start: string; end: string }
