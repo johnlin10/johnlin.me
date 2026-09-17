@@ -1,8 +1,5 @@
-'use client'
-
-import { useEffect, useMemo, useState } from 'react'
-import { useTranslations, useFormatter } from 'next-intl'
-import { createClient } from '@/app/lib/supabase/client'
+import { getFormatter, getTranslations } from 'next-intl/server'
+import { createClient } from '@/app/lib/supabase/server'
 import {
   getDashboardData,
   type Bucket,
@@ -42,21 +39,16 @@ const ACTIVITY_ICON: Record<string, IconName> = {
   photo: 'camera',
 }
 
-export default function AdminPage() {
-  const t = useTranslations('AdminPage.dashboard')
-  const format = useFormatter()
-  const supabase = useMemo(() => createClient(), [])
-  const [data, setData] = useState<DashboardData | null>(null)
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    getDashboardData(supabase)
-      .then(setData)
-      .catch((error) => console.error('總覽資料載入失敗:', error))
-      .finally(() => setLoading(false))
-  }, [supabase])
-
-  const dash = loading || !data ? null : data
+/**
+ * 後台總覽。整頁在伺服器端抓資料、算統計，瀏覽器只收算好的結果。
+ */
+export default async function AdminPage() {
+  const t = await getTranslations('AdminPage.dashboard')
+  const format = await getFormatter()
+  const dash = await getDashboardData(await createClient()).catch((error) => {
+    console.error('總覽資料載入失敗:', error)
+    return null
+  })
 
   const cards = [
     {
@@ -141,7 +133,7 @@ export default function AdminPage() {
             <ul className={style.rankList}>
               {dash.topPosts.map((post) => (
                 <li key={post.id}>
-                  <Link href={`/posts/${post.id}`} className={style.rankRow}>
+                  <Link href={`/posts/${post.id}/write`} className={style.rankRow}>
                     <span className={style.rankTitle}>{post.title}</span>
                     <span className={style.rankTrack}>
                       <span
@@ -162,7 +154,7 @@ export default function AdminPage() {
               ))}
             </ul>
           ) : (
-            <p className={style.empty}>{loading ? t('loading') : t('topPosts.empty')}</p>
+            <p className={style.empty}>{t('topPosts.empty')}</p>
           )}
           <p className={style.footnote}>
             {dash?.trendSince
@@ -203,7 +195,7 @@ export default function AdminPage() {
               ))}
             </ol>
           ) : (
-            <p className={style.empty}>{loading ? t('loading') : t('activity.empty')}</p>
+            <p className={style.empty}>{t('activity.empty')}</p>
           )}
         </section>
       </div>
@@ -235,9 +227,7 @@ export default function AdminPage() {
             </div>
           </div>
         ) : (
-          <p className={style.empty}>
-            {loading ? t('loading') : t('photoArchive.empty')}
-          </p>
+          <p className={style.empty}>{t('photoArchive.empty')}</p>
         )}
       </section>
     </div>

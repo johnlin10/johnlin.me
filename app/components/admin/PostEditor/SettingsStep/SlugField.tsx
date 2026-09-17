@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
-import { useLocale, useTranslations } from 'next-intl'
+import { useFormatter, useTranslations } from 'next-intl'
 import { createClient } from '@/app/lib/supabase/client'
 import { isSlugExists, isPlaceholderSlug } from '@/app/lib/supabase/posts'
 import Input from '@/app/components/admin/Input/Input'
@@ -17,7 +17,7 @@ import style from './SettingsStep.module.scss'
  */
 export default function SlugField() {
   const t = useTranslations('AdminPage.postEditor.slugField')
-  const locale = useLocale()
+  const format = useFormatter()
   const { postId, draft, createdAt, publishedAt } = usePostEditorState()
   const { setField } = usePostEditorActions()
   const { request, pending } = useAiAssist()
@@ -61,8 +61,9 @@ export default function SlugField() {
     }
   }, [draft.slug, postId, supabase])
 
+  // 走 next-intl 的時區設定，伺服器（UTC）和瀏覽器印出來的日期才會一樣
   const formatDate = (iso: string): string =>
-    new Date(iso).toLocaleDateString(locale === 'zh-tw' ? 'zh-TW' : 'en-US', {
+    format.dateTime(new Date(iso), {
       year: 'numeric',
       month: '2-digit',
       day: '2-digit',

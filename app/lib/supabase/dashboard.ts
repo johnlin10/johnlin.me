@@ -134,7 +134,7 @@ function daysAgo(days: number): string {
 }
 
 /**
- * 後台總覽的全部數據。四個查詢併發，統計在 client 端算完。
+ * 後台總覽的全部數據。四個查詢併發，統計在伺服器端算完。
  *
  * ponytail: 聚合在 JS 裡做，內容量到數千筆才需要改成 Postgres 端的
  * materialized view 或 RPC。屆時換的是這個函式的內部，回傳型別不動。
@@ -238,7 +238,7 @@ export async function getDashboardData(
       kind: 'post' as const,
       at: p.publishedAt ?? p.createdAt,
       title: p.locales['zh-tw']?.title || p.slug,
-      href: `/posts/${p.id}`,
+      href: `/posts/${p.id}/write`,
     })),
     ...notes.map((n) => ({
       kind: 'note' as const,
