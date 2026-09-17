@@ -666,18 +666,37 @@
     "home": {
       "title": "Overview",
       "subtitle": "Small tools just for me",
+      "loadError": "The overview didn't load. The tools below still work.",
+      "agenda": {
+        "title": "Coming up",
+        "today": "Today",
+        "tomorrow": "Tomorrow",
+        "empty": "No classes or sessions in the next 30 days.",
+        "period": "Period {period}",
+        "periods": "Periods {start}–{end}"
+      },
+      "term": {
+        "title": "Semester",
+        "week": "Week {week}",
+        "left": "{weeks} weeks in all, {days, plural, one {# day} other {# days}} left",
+        "before": "{code} starts in {days, plural, one {# day} other {# days}}",
+        "none": "No semester with dates yet."
+      },
       "tools": {
         "schedule": {
           "name": "Timetable",
-          "description": "Courses, teachers and rooms for each semester"
+          "description": "Courses, teachers and rooms for each semester",
+          "summary": "{count, plural, =0 {No classes today} one {# class today} other {# classes today}}"
         },
         "tutoring": {
           "name": "完善就學",
-          "description": "Sessions, timetable overlays and monthly hours"
+          "description": "Sessions, timetable overlays and monthly hours",
+          "summary": "{hours} / {cap} hours this month"
         },
         "links": {
           "name": "Short links",
-          "description": "Redirects on go.johnlin.me with click stats"
+          "description": "Redirects on go.johnlin.me with click stats",
+          "summary": "{count, plural, one {# click} other {# clicks}} in the last 7 days"
         }
       }
     },

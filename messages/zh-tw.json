@@ -667,18 +667,37 @@
     "home": {
       "title": "總覽",
       "subtitle": "只給自己用的小工具",
+      "loadError": "總覽資料載入失敗，工具還是可以直接點進去。",
+      "agenda": {
+        "title": "接下來",
+        "today": "今天",
+        "tomorrow": "明天",
+        "empty": "接下來 30 天沒有課也沒有輔導。",
+        "period": "第 {period} 節",
+        "periods": "第 {start}–{end} 節"
+      },
+      "term": {
+        "title": "學期",
+        "week": "第 {week} 週",
+        "left": "共 {weeks} 週，還有 {days} 天結束",
+        "before": "{code} 還有 {days} 天開學",
+        "none": "還沒有排定日期的學期。"
+      },
       "tools": {
         "schedule": {
           "name": "課表",
-          "description": "每學期的課、老師和教室"
+          "description": "每學期的課、老師和教室",
+          "summary": "{count, plural, =0 {今天沒有課} other {今天 # 堂課}}"
         },
         "tutoring": {
           "name": "完善就學",
-          "description": "輔導時段、課表比對和每月時數"
+          "description": "輔導時段、課表比對和每月時數",
+          "summary": "本月 {hours} / {cap} 小時"
         },
         "links": {
           "name": "短網址",
-          "description": "go.johnlin.me 的轉址和點擊統計"
+          "description": "go.johnlin.me 的轉址和點擊統計",
+          "summary": "近 7 天 {count} 次點擊"
         }
       }
     },

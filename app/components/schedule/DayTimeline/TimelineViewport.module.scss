@@ -1,0 +1,41 @@
+@use '@/app/styles/design' as *;
+
+.clickable {
+  cursor: pointer;
+  @include focus-ring;
+}
+
+.content {
+  padding-block: var(--pad);
+}
+
+.collapsible {
+  max-height: var(--collapsed);
+  overflow-y: auto;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  // 上面或底下還有行程就淡出，兩邊各自開關
+  --fade-top: 0rem;
+  --fade-bottom: 0rem;
+  // 淡出曲線跟全站一樣（_mixins.scss 的 $fade-curve）；寬度 0 時整段不透明
+  @include edge-fade-mask($start: var(--fade-top), $end: var(--fade-bottom), $direction: to bottom);
+
+  &[data-before='true'] {
+    --fade-top: var(--fade);
+  }
+
+  &[data-more='true'] {
+    --fade-bottom: var(--fade);
+  }
+
+  // 寫在後面、權重跟上面一樣，才蓋得過淡出
+  &.expanded {
+    max-height: none;
+    overflow: hidden;
+    mask-image: none;
+  }
+}
