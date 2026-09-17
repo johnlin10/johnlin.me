@@ -142,18 +142,29 @@ export function weekStart(date: Date): Date {
 }
 
 /**
- * 月份裡的每一週，跨月的頭尾兩週也算進去。
+ * 月份裡的每一週，跨月的頭尾兩週也算進去。只有週末落在這個月的那一週不算。
  * @param month 'YYYY-MM'
  * @returns 每一週的週一
  */
 export function weeksOfMonth(month: string): Date[] {
   const [year, index] = month.split('-').map(Number)
+  const first = new Date(year, index - 1, 1)
   const last = new Date(year, index, 0)
+  let day = weekStart(first)
+  // 1 號是週六、週日的話，那一週的週一到週五全在上個月
+  if (addDays(day, 4) < first) day = addDays(day, 7)
   const weeks: Date[] = []
-  for (let day = weekStart(new Date(year, index - 1, 1)); day <= last; day = addDays(day, 7)) {
-    weeks.push(day)
-  }
+  for (; day <= last; day = addDays(day, 7)) weeks.push(day)
   return weeks
+}
+
+/**
+ * 一週歸哪個月。跨月的那一週兩個月都列得到，但只能算一個：看週三，週一到週五多數落在哪就是哪。
+ * @param week 那一週的週一
+ * @returns 'YYYY-MM'
+ */
+export function monthOfWeek(week: Date): string {
+  return dateKey(addDays(week, 2)).slice(0, 7)
 }
 
 /**

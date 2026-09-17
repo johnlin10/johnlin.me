@@ -1,7 +1,7 @@
 @use '@/app/styles/design' as *;
 
-// 週次格子的寬度，padding-inline 要拿它算才能停在正中間
-$week-tab-width: 7.5rem;
+// 月份、週次格子的寬度，padding-inline 要拿它算才能停在正中間
+$tab-width: 7.5rem;
 
 //* 月份與週
 
@@ -16,51 +16,12 @@ $week-tab-width: 7.5rem;
   gap: var(--space-1);
 }
 
-.monthBar {
-  @include flexbox(row, center, center);
-  gap: var(--space-1);
-}
-
-.arrow {
-  @include flexbox(row, center, center);
-  width: 1.75rem;
-  height: 1.75rem;
-  padding: 0;
-  color: var(--text-muted);
-  background: none;
-  border: none;
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  transition:
-    color var(--duration-fast) var(--ease),
-    background var(--duration-fast) var(--ease);
-  @include focus-ring;
-
-  &:hover:not(:disabled) {
-    color: var(--text);
-    background: var(--surface-2);
-  }
-
-  &:disabled {
-    opacity: 0.35;
-    cursor: not-allowed;
-  }
-}
-
-.monthLabel {
-  min-width: 5.5rem;
-  font-size: var(--text-xs);
-  font-weight: 600;
-  text-align: center;
-  font-variant-numeric: tabular-nums;
-}
-
-// 捲到哪一格，哪一格就是選的那一週；兩側遮罩淡出，暗示還有更多週
-.weekTabs {
+// 捲到哪一格就選哪一格；兩側遮罩淡出，暗示還有更多
+.tabs {
   @include flexbox(row, flex-start, stretch);
   gap: var(--space-1);
-  // 第一週和最後一週也要停得到正中間
-  padding-inline: calc(50% - #{$week-tab-width} / 2);
+  // 第一格和最後一格也要停得到正中間
+  padding-inline: calc(50% - #{$tab-width} / 2);
   overflow-x: auto;
   scroll-snap-type: x mandatory;
   overscroll-behavior-x: contain;
@@ -85,8 +46,8 @@ $week-tab-width: 7.5rem;
   }
 }
 
-.weekTab {
-  flex: 0 0 $week-tab-width;
+.tab {
+  flex: 0 0 $tab-width;
   scroll-snap-align: center;
   padding: var(--space-1) var(--space-2);
   font: inherit;
@@ -108,10 +69,28 @@ $week-tab-width: 7.5rem;
   }
 }
 
-.weekTabActive {
+// 月份是上層：字大一點，選中的只靠字色和粗細，底線留給週次
+// 今年的月份不寫年份，字數不一，寬度跟著字走，間距才一致
+.monthTabs {
+  // 格子寬度不一，改留半個容器寬，頭尾一樣停得到中間
+  padding-inline: 50%;
+  gap: var(--space-4);
+
+  .tab {
+    flex-basis: auto;
+    font-size: var(--text-sm);
+  }
+}
+
+.tabActive {
   color: var(--text);
   font-weight: 600;
   border-bottom-color: var(--accent);
+
+  .monthTabs & {
+    font-size: var(--text-md);
+    border-bottom-color: transparent;
+  }
 }
 
 //* 時間軸和比對
@@ -171,9 +150,17 @@ $week-tab-width: 7.5rem;
 
 // 跟後台 DataTable 同一套：捲動區撐到頁面內距，靜止時表格仍對齊內容欄，
 // 橫向捲動時內容一路滑到內距邊緣才被切掉，不會在內容欄邊緣硬切
+.hoursTitle {
+  margin: var(--space-6) 0 0;
+  font-family: var(--font-sans);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
 .hoursWrap {
   --bleed: var(--page-gutter, 0px);
-  margin: var(--space-6) calc(-1 * var(--bleed)) 0;
+  margin: var(--space-2) calc(-1 * var(--bleed)) 0;
   padding-inline: var(--bleed);
   overflow-x: auto;
 }

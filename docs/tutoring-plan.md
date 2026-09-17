@@ -199,7 +199,7 @@ create table if not exists public.tutoring_share (
 
 編輯頁和公開頁共用 `app/components/schedule/TutoringBoard/`：`useWeekPicker`（月份和週的狀態）、`WeekPicker`（月份切換加週次滾動選擇器）、`TutoringBoard`（時間軸、疊課表比對、該月時數）。編輯頁多傳 `onItemClick` 和 `onEmptyClick`，公開頁不傳，時段就不能點。
 
-- 上面：月份和週的切換，只能翻到上個月和下個月，超出範圍的箭頭停用。
+- 上面：月份和週的滾動選擇器，月份只有上個月、這個月、下個月；在時間軸上左右滑也能換週，滑到範圍外拉不動。
 - 中間：時間軸和比對，下面接這週的時段列表（日期、時間、方案、地點、指導老師、參與者），手機上比時間軸好讀。
 - 下面：該月時數，跟編輯頁同一張表。
 

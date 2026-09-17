@@ -6,6 +6,7 @@ import {
   endOf,
   inTerm,
   layoutLanes,
+  monthOfWeek,
   slotInEffect,
   sumHours,
   timeOverlaps,
@@ -63,6 +64,13 @@ test('月份的週從跨月的那一週算起', () => {
   // 2026-09-01 是週二，所以第一週的週一是 8/31
   const weeks = weeksOfMonth('2026-09').map((date) => date.getDate())
   assert.deepEqual(weeks, [31, 7, 14, 21, 28])
+  // 2026-11-01 是週日，10/26 那一週的平日全在十月，不算十一月的
+  assert.equal(weeksOfMonth('2026-11')[0].getDate(), 2)
+})
+
+test('跨月的那一週看週三歸月', () => {
+  assert.equal(monthOfWeek(new Date(2026, 8, 28)), '2026-09') // 9/28–10/2，三天在九月
+  assert.equal(monthOfWeek(new Date(2026, 5, 29)), '2026-07') // 6/29–7/3，三天在七月
 })
 
 test('結束時間由開始時間加時長推算，跨午夜回 null', () => {

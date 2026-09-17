@@ -3,15 +3,27 @@
 .timeline {
   display: grid;
   grid-template-columns: 3.25rem repeat(5, minmax(0, 1fr));
+  grid-template-rows: auto auto;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   overflow: hidden;
 
+  // 左右滑是換週，不再橫捲，五天擠進一個螢幕寬
   @include respond-to('phone') {
-    grid-template-columns: 2.25rem repeat(5, minmax(3.75rem, 1fr));
-    overflow: auto hidden;
+    grid-template-columns: 2.25rem repeat(5, minmax(0, 1fr));
   }
+}
+
+// 五天的表頭和欄位包成一塊，換週時整塊滑動；subgrid 讓它們照樣對齊外層的格線
+.days {
+  grid-column: 2 / -1;
+  grid-row: 1 / -1;
+  display: grid;
+  grid-template-columns: subgrid;
+  grid-template-rows: subgrid;
+  // 直的交給頁面捲動，橫的留給換週
+  touch-action: pan-y;
 }
 
 .corner,
@@ -20,11 +32,10 @@
   background: var(--surface-2);
 }
 
-// 橫捲時時間軸跟著留在原地
+// 蓋在滑動中的五天上面，時間軸留在原地
 .corner,
 .axis {
-  position: sticky;
-  left: 0;
+  position: relative;
   z-index: 2;
 }
 
@@ -53,6 +64,7 @@
 }
 
 .axis {
+  grid-row: 2;
   @include flexbox(column, flex-start, stretch);
 }
 

@@ -21,9 +21,17 @@
   }
 }
 
-// 手機上時間軸滿版，月份和週次也直接貼著它
+// 手機上時間軸滿版，月份和週次也直接貼著它。往下捲時黏在視窗頂端，看統計時也能換月份
 .picker {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-sticky);
+  margin-inline: calc(-1 * var(--page-gutter));
   margin-bottom: calc(-1 * var(--space-4));
+  padding: var(--space-2) var(--page-gutter);
+  background-color: var(--background-color);
+  background-image: var(--background-texture);
+  border-bottom: 1px solid var(--border);
 
   @include respond-to('phone') {
     margin-bottom: calc(-1 * var(--space-5));

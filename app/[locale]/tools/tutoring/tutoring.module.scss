@@ -9,8 +9,11 @@
 //* 月份與週
 
 // 頁首的第二層：跟頁首主列同底色、同寬、貼齊它的底緣，看起來是同一組；
-// 但它不是 PageHeader 的 subbar（那個 fixed），就是頁面最上面的一般區塊，會跟著內容捲走
+// 但它不是 PageHeader 的 subbar（那個 fixed），往下捲時才黏在頁首底下，看統計時也能換月份
 .subhead {
+  position: sticky;
+  top: var(--admin-header-height);
+  z-index: var(--z-sticky);
   margin: calc(-1 * var(--page-top-gap)) calc(-1 * var(--page-gutter)) var(--space-4);
   padding: var(--space-2) var(--page-gutter);
   background: var(--surface);

@@ -864,8 +864,7 @@
       "cancel": "Cancel",
       "delete": "Delete",
       "month": {
-        "prev": "Previous month",
-        "next": "Next month"
+        "label": "Choose a month"
       },
       "week": {
         "label": "Pick a week"
@@ -940,6 +939,7 @@
         "fromSchedule": "The ones with a course name come from the timetable tool — change them there. The rest is everything outside class, editable here."
       },
       "hours": {
+        "title": "Hours in {month}",
         "person": "Person",
         "total": "Total",
         "note": "The total covers 課後輔導, 課業共學, and 競賽輔導 for the month, capped at 40 hours. 證照輔導 shows this month and the running total, and stays out of the cap."
