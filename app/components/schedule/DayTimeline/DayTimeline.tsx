@@ -1,6 +1,9 @@
-import type { CSSProperties } from 'react'
+'use client'
+
+import { useEffect, useState, type CSSProperties } from 'react'
 import { courseColorStyle } from '@/app/lib/schedule/colors'
 import { layoutLanes, minutesOf } from '@/app/lib/tutoring'
+import { HOUR_REM, hourRange } from './range'
 import style from './DayTimeline.module.scss'
 
 export type DayItem = {
@@ -10,32 +13,47 @@ export type DayItem = {
   title: string
   meta: string
   color: string
-  // 今天已經結束的淡掉
-  done?: boolean
 }
 
-// 一小時的高度（rem）；50 分鐘的一節課也放得下標題和時間兩行
-export const HOUR_REM = 3.5
+// 現在時間多久重算一次；只到分鐘，不用太密
+const TICK_MS = 5000
 
 /**
- * 時間軸涵蓋的整點範圍：第一件行程的開始往前取整，最後一件的結束往後取整。
- * @param items 這一天的行程
- * @returns 起訖的小時
+ * 現在時間，每 5 秒重算一次，整頁不用重新整理。
+ * @param initial 伺服器算好的 'HH:MM'；沒給表示畫的不是今天，不用跑
+ * @returns 'HH:MM'，或 undefined
  */
-export function hourRange(items: { start: string; end: string }[]) {
-  return {
-    first: Math.floor(Math.min(...items.map((item) => minutesOf(item.start))) / 60),
-    last: Math.ceil(Math.max(...items.map((item) => minutesOf(item.end))) / 60),
-  }
+function useNow(initial?: string) {
+  const [now, setNow] = useState(initial)
+  useEffect(() => {
+    if (!initial) return
+    const id = setInterval(() => {
+      setNow(
+        new Date().toLocaleTimeString('sv-SE', {
+          timeZone: 'Asia/Taipei',
+          hour: '2-digit',
+          minute: '2-digit',
+        }),
+      )
+    }, TICK_MS)
+    return () => clearInterval(id)
+  }, [initial])
+  return now
 }
 
 /**
  * 單日時間軸：縱軸只涵蓋第一件到最後一件行程的整點範圍，時段依長短畫成色塊，重疊就並排。
- * 不需要互動，伺服器端畫完就好。
  * @param props.items 這一天的行程
- * @param props.now 現在時間 'HH:MM'；給了而且落在範圍內就畫一條線
+ * @param props.now 現在時間 'HH:MM'；給了就畫線、淡掉結束的行程，之後每 5 秒自己更新
  */
-export default function DayTimeline({ items, now }: { items: DayItem[]; now?: string }) {
+export default function DayTimeline({
+  items,
+  now: initialNow,
+}: {
+  items: DayItem[]
+  now?: string
+}) {
+  const now = useNow(initialNow)
   const { first, last } = hourRange(items)
   const from = first * 60
   const span = (last - first) * 60
@@ -62,7 +80,7 @@ export default function DayTimeline({ items, now }: { items: DayItem[]; now?: st
           return (
             <div
               key={item.id}
-              className={`${style.item} ${item.done ? style.done : ''}`}
+              className={`${style.item} ${now && item.end <= now ? style.done : ''}`}
               style={
                 {
                   top: at(start),

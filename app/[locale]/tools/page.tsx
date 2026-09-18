@@ -14,11 +14,8 @@ import {
 } from '@/app/lib/tutoring'
 import Icon, { type IconName } from '@/app/components/Icon/Icon'
 import PageHeader from '@/app/components/admin/PageHeader/PageHeader'
-import DayTimeline, {
-  HOUR_REM,
-  hourRange,
-  type DayItem,
-} from '@/app/components/schedule/DayTimeline/DayTimeline'
+import DayTimeline, { type DayItem } from '@/app/components/schedule/DayTimeline/DayTimeline'
+import { HOUR_REM, hourRange } from '@/app/components/schedule/DayTimeline/range'
 import TimelineViewport from '@/app/components/schedule/DayTimeline/TimelineViewport'
 import style from './tools.module.scss'
 
@@ -149,13 +146,7 @@ export default async function ToolsHomePage() {
               hours={range.last - range.first}
               topRem={topRem}
             >
-              <DayTimeline
-                items={agenda.items.map((item) => ({
-                  ...item,
-                  done: agenda.date === today && item.end <= now,
-                }))}
-                now={agenda.date === today ? now : undefined}
-              />
+              <DayTimeline items={agenda.items} now={agenda.date === today ? now : undefined} />
             </TimelineViewport>
           ) : (
             <section className={style.panel}>

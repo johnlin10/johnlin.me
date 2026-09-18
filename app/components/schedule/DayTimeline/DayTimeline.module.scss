@@ -37,7 +37,8 @@
   gap: 1px;
   padding: 4px var(--space-2) 4px 12px;
   color: oklch(0.36 calc(0.08 * var(--course-chroma)) var(--course-hue));
-  background: oklch(0.93 calc(0.045 * var(--course-chroma)) var(--course-hue)) padding-box;
+  background: oklch(0.93 calc(0.045 * var(--course-chroma)) var(--course-hue))
+    padding-box;
   // 透明外框留出間隙，上下相接的區塊才分得開
   border: 1px solid transparent;
   border-top-width: 2px;
@@ -57,10 +58,14 @@
 
   :global(.dark) & {
     color: oklch(0.9 calc(0.05 * var(--course-chroma)) var(--course-hue));
-    background-color: oklch(0.33 calc(0.05 * var(--course-chroma)) var(--course-hue));
+    background-color: oklch(
+      0.33 calc(0.05 * var(--course-chroma)) var(--course-hue)
+    );
 
     &::before {
-      background: oklch(0.7 calc(0.13 * var(--course-chroma)) var(--course-hue));
+      background: oklch(
+        0.7 calc(0.13 * var(--course-chroma)) var(--course-hue)
+      );
     }
   }
 }
@@ -94,6 +99,8 @@
   left: 0;
   right: 0;
   border-top: 2px solid var(--accent);
+  // 課程色塊的色條跟強調色很近，用底色暈開一圈把線襯出來
+  box-shadow: 0 0 18px 2px var(--surface);
 
   // 線頭的圓點
   &::before {
@@ -105,5 +112,6 @@
     height: 8px;
     background: var(--accent);
     border-radius: 50%;
+    box-shadow: 0 0 18px 2px var(--surface);
   }
 }

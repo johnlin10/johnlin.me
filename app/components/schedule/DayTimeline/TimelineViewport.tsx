@@ -2,7 +2,7 @@
 
 import { useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import { flushSync } from 'react-dom'
-import { HOUR_REM } from './DayTimeline'
+import { HOUR_REM } from './range'
 import style from './TimelineViewport.module.scss'
 
 // 收合時的高度，大約四個小時
