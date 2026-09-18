@@ -63,6 +63,30 @@
   opacity: 0.75;
 }
 
+// 一欄只有五十幾 px，放假的名字擠不下就截掉，滑過看 title
+.dayNote {
+  max-width: 100%;
+  overflow: hidden;
+  font-size: 0.625rem;
+  line-height: 1.2;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--text-muted);
+}
+
+// 放假那一欄整欄淡掉，一眼看得出不是空堂而是沒有那一天
+.offHead {
+  color: var(--text-muted);
+
+  .dayNote {
+    color: inherit;
+  }
+}
+
+.column.off {
+  background: color-mix(in oklch, var(--text-muted) 8%, transparent);
+}
+
 .axis {
   grid-row: 2;
   @include flexbox(column, flex-start, stretch);

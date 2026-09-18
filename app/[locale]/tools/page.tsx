@@ -6,7 +6,8 @@ import { pickAgenda, shiftDate, termProgress } from '@/app/lib/overview'
 import { PERIODS, periodIndex } from '@/app/lib/schedule/periods'
 import {
   MONTHLY_CAP,
-  dayOfWeek,
+  calendarMap,
+  classDay,
   minutesOf,
   programColor,
   slotInEffect,
@@ -56,13 +57,15 @@ export default async function ToolsHomePage() {
     return null
   })
 
+  const calendar = calendarMap(data?.calendar ?? [])
+
   const itemsOn = (date: string): AgendaItem[] =>
     data
       ? [
           ...data.classes
             .filter(
               (slot) =>
-                slot.day === dayOfWeek(date) &&
+                slot.day === classDay(date, calendar) &&
                 slotInEffect(slot.semester_id, date, data.semesters),
             )
             .map((slot) => ({

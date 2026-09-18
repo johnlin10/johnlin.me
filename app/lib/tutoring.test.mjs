@@ -2,6 +2,8 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import {
+  calendarMap,
+  classDay,
   durationHours,
   endOf,
   inTerm,
@@ -104,4 +106,19 @@ test('舊學期沒填日期就不算，最新學期沒填日期照算', () => {
   assert.equal(slotInEffect('dated', '2026-03-02', terms), true)
   assert.equal(slotInEffect('missing', '2026-03-02', terms), false)
   assert.equal(slotInEffect('new', '2026-09-16', [{ id: 'new', start_date: null, end_date: null }]), true)
+})
+
+test('放假的日子不套課表，補課日套被補的那一天', () => {
+  // 2026-10-09（五）補假、10-24（六）補那天的課
+  const calendar = calendarMap([
+    { date: '2026-10-09', source_day: null, label: '補假' },
+    { date: '2026-10-24', source_day: 5, label: '補 10/9 的課' },
+  ])
+  assert.equal(classDay('2026-10-08', calendar), 4)
+  assert.equal(classDay('2026-10-09', calendar), null)
+  assert.equal(classDay('2026-10-24', calendar), 5)
+  // 表裡沒有的日子照星期幾算，週末還是週末
+  assert.equal(classDay('2026-10-10', calendar), 6)
+  assert.equal(classDay('2026-10-11', calendar), 7)
+  assert.equal(classDay('2026-10-12', new Map()), 1)
 })

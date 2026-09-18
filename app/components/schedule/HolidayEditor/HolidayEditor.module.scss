@@ -1,0 +1,113 @@
+@use '@/app/styles/design' as *;
+
+// 彈窗裡的表單，間距跟其他管理頁的表單（_entityPage 的 entity-form）一致
+.form {
+  @include flexbox(column, flex-start, stretch);
+  gap: var(--space-6);
+
+  @include respond-to('phone') {
+    gap: var(--space-5);
+  }
+}
+
+.form_actions {
+  @include flexbox(row, flex-end, center);
+  gap: var(--space-3);
+  padding-top: var(--space-2);
+
+  @include respond-to('phone') {
+    @include flexbox(column-reverse, stretch, stretch);
+    gap: var(--space-2);
+  }
+}
+
+.pushStart {
+  margin-right: auto;
+
+  @include respond-to('phone') {
+    margin-right: 0;
+  }
+}
+
+.body {
+  @include flexbox(column, flex-start, stretch);
+  gap: var(--space-4);
+}
+
+.field {
+  @include field-shell();
+}
+
+.hint,
+.empty {
+  margin: 0;
+  font-size: var(--text-2xs);
+  color: var(--text-muted);
+}
+
+.empty {
+  padding: var(--space-8) 0;
+  text-align: center;
+}
+
+.list {
+  @include flexbox(column, flex-start, stretch);
+  gap: 2px;
+  max-height: 22rem;
+  overflow-y: auto;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.row {
+  @include flexbox(row, flex-start, center);
+  gap: var(--space-3);
+  width: 100%;
+  padding: var(--space-2);
+  font: inherit;
+  text-align: left;
+  color: var(--text);
+  background: none;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background var(--duration-fast) var(--ease);
+  @include focus-ring;
+
+  &:hover {
+    background: var(--surface-2);
+  }
+}
+
+.date {
+  flex-shrink: 0;
+  font-size: var(--text-sm);
+  font-variant-numeric: tabular-nums;
+}
+
+.name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  font-size: var(--text-sm);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--text-secondary);
+}
+
+.tag {
+  flex-shrink: 0;
+  padding: 2px var(--space-2);
+  font-size: var(--text-3xs);
+  white-space: nowrap;
+  color: var(--text-muted);
+  background: var(--surface-2);
+  border-radius: var(--radius-pill);
+}
+
+// 放假跟補課一眼要分得開：放假才是「那天沒有課」
+.tagOff {
+  color: var(--accent);
+  background: var(--accent-soft);
+}

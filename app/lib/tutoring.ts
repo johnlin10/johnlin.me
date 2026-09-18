@@ -81,6 +81,29 @@ export function dayOfWeek(date: string): number {
   return day === 0 ? 7 : day
 }
 
+export type CalendarDay = { date: string; source_day: number | null; label: string }
+
+/**
+ * 那一天要套哪一天的課表。課表是週課表，放假和補課都是靠這裡換算出來的。
+ * @param date 'YYYY-MM-DD'
+ * @param calendar 日期對照表，只有例外的日子在裡面
+ * @returns 1 = 週一 … 7 = 週日；放假回 null
+ */
+export function classDay(date: string, calendar: Map<string, CalendarDay>): number | null {
+  const day = calendar.get(date)
+  // 放假的 source_day 就是 null，補課日是被補的那天
+  return day ? day.source_day : dayOfWeek(date)
+}
+
+/**
+ * 日期對照表。
+ * @param days 資料庫回來的列
+ * @returns 日期 → 設定
+ */
+export function calendarMap(days: CalendarDay[]): Map<string, CalendarDay> {
+  return new Map(days.map((day) => [day.date, day]))
+}
+
 /**
  * 某一天在不在學期期間。課表只在這段期間有效，開學前和寒暑假不算有課。
  * @param date 'YYYY-MM-DD'

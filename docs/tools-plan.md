@@ -217,6 +217,55 @@ export const PERIODS = [
 
 寫入照後台現在的做法：讀寫函式放 `app/lib/supabase/schedule.ts`，client 端直接用 Supabase，RLS 擋掉非管理員。後台的 Modal、Selector、Input、ConfirmDialog、Toast 直接拿來用。
 
+### 假日與補課（`supabase/migrations/0013_calendar_days.sql`，v1.9.0）
+
+課表是週課表，沒有日期，所以國定假日照樣長出課來；完善就學也擋不掉假日排程。
+`calendar_days` 就是那份例外清單，一天一列：
+
+```sql
+date date primary key,
+source_day smallint,   -- null = 放假；1..7 = 那天改上這個星期幾的課
+label text not null    -- '孔子誕辰紀念日' / '補 10/9 的課'
+```
+
+判斷全部收在 `classDay(date, calendar)`（`app/lib/tutoring.ts`）一個函式裡：平常日回自己的星期幾、
+放假回 `null`、補課日回被補的那天。`null` 不會等於任何 `slot.day`，所以三個判斷點都只要把
+`dayOfWeek(date)` 換成它：
+
+- `app/[locale]/tools/page.tsx` 的總覽（`pickAgenda` 會自動跳到下一個有課的日子）
+- `app/components/schedule/TutoringBoard` 的週看板（含公開頁）
+- `TutoringTool` 的 `findClash`：`day === null` 擋假日、`day > 5` 擋週末。
+  補課的週六回的是被補的那天（1 或 5），兩關都過，所以補課日照常排得了輔導。
+
+補假幾乎都落在週一或週五 —— 節日在週二或週四，順著週末放四天連假，補的就是被放掉的那一天。
+週三的節日只放一天，不補課。
+
+**沒有「補班日」這種列**：2025 年修法後政府已經取消補班，[開放資料](https://data.gov.tw/dataset/14718)
+的辦公日曆表裡查不到（2026 全年 0 筆），學校要補哪一天是學校自己決定的，一律手動填。
+
+**匯入**（`app/lib/holidays.ts` + `app/api/admin/holidays/route.ts`）：讀 Google 的「台灣的節慶假日」
+ics，抓今年和明年的國定假日。政府開放資料只有 CSV，而且每年一份、要先抓 150KB 的 metadata
+再用中文標題比對當年度的資源，改個名就壞；ics 是固定網址、一次涵蓋 2021–2027。
+
+要濾掉兩種東西才會對：
+
+- `DESCRIPTION` 是「假日節慶」的（元宵、冬至、婦女節…不放假），只留「國定假日」
+- 落在週末的（2/14、10/10 那種本來就不上課）
+
+濾完 2026 剩 16 筆，跟辦公日曆表的「平日放假」逐筆相同，而且名稱更完整
+（政府版 4 筆只寫「補假」，ics 寫「和平紀念日 補假」）。
+
+寫入走 `importCalendarDays()` 的 `ignoreDuplicates` —— 已經有的日子完全不動，
+自己改過的標籤不會被蓋掉，重按也安全。跨站抓取要走 route handler，瀏覽器直接抓會被 CORS 擋。
+解析放在 `app/lib/holidays.ts` 而不是 route 裡，是為了 `.mjs` 測試能 import 得到；
+同樣的理由，那裡的週末判斷沒有共用 `tutoring.ts` 的 `dayOfWeek`。
+
+**編輯頁**：`app/components/schedule/HolidayEditor`，一個 Modal，沒有路由也不進側邊欄 ——
+它是課表和完善就學的擴充，不是獨立的功能。兩頁的管理區（`<details>`）各掛一個「假日」group
+開它。課表頁用不到假日資料，所以只在開啟時才去讀；完善就學隨首屏一起帶下來。
+
+一年只有十幾列，所以 `getCalendarDays()` 一次全撈，切月份、翻頁都不重抓。
+
 ---
 
 ## 五、短網址

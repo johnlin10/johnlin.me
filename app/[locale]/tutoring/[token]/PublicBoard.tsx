@@ -2,7 +2,7 @@
 
 import { useFormatter, useTranslations } from 'next-intl'
 import type { BusySlot, Person, PublicSession } from '@/app/lib/supabase/tutoring'
-import { shiftMonth, type Term } from '@/app/lib/tutoring'
+import { calendarMap, shiftMonth, type CalendarDay, type Term } from '@/app/lib/tutoring'
 import TutoringBoard, {
   WeekPicker,
   useWeekPicker,
@@ -18,6 +18,7 @@ export default function PublicBoard({
   people,
   busy,
   terms,
+  calendar,
   sessions,
   licenseHours,
 }: {
@@ -25,6 +26,7 @@ export default function PublicBoard({
   people: Person[]
   busy: BusySlot[]
   terms: Term[]
+  calendar: CalendarDay[]
   sessions: PublicSession[]
   licenseHours: Record<string, number>
 }) {
@@ -43,6 +45,7 @@ export default function PublicBoard({
         people={people}
         busy={busy}
         terms={terms}
+        calendar={calendarMap(calendar)}
         sessions={sessions}
         licenseHours={licenseHours}
       >

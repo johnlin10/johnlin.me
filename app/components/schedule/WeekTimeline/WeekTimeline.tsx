@@ -21,6 +21,9 @@ import {
 } from '@/app/lib/tutoring'
 import style from './WeekTimeline.module.scss'
 
+// 那一天的注記：放假或補課，畫在欄頭上；off 的整欄灰掉，也不能點
+export type DayNote = { text: string; off: boolean }
+
 export type TimelineItem = {
   id: string
   day: number // 1 = 週一 … 7 = 週日
@@ -52,6 +55,7 @@ const SLIDE = 40
  * 輔導時段照顏色畫、重疊就並排；忙碌時段鋪滿整欄墊在底下，沒有灰塊的地方就是有空。
  * @param props.weekStart 這一週的週一
  * @param props.items 要畫的時段
+ * @param props.dayNotes 日期 → 放假或補課的注記，沒有的日子照常
  * @param props.onItemClick 點時段時呼叫，不給就不能點
  * @param props.onEmptyClick 點空白時呼叫，帶那一格的日期和時間，不給就不能點
  * @param props.onPrev 手指往右滑時呼叫，不給就滑不過去
@@ -61,6 +65,7 @@ const SLIDE = 40
 export default function WeekTimeline({
   weekStart,
   items,
+  dayNotes,
   onItemClick,
   onEmptyClick,
   onPrev,
@@ -69,6 +74,7 @@ export default function WeekTimeline({
 }: {
   weekStart: Date
   items: TimelineItem[]
+  dayNotes?: Map<string, DayNote>
   onItemClick?: (id: string) => void
   onEmptyClick?: (date: string, time: string) => void
   onPrev?: () => void
@@ -195,28 +201,39 @@ export default function WeekTimeline({
           event.stopPropagation()
         }}
       >
-        {days.map((date) => (
-          <div
-            key={date.getTime()}
-            className={`${style.dayHead} ${dateKey(date) === today ? style.today : ''}`}
-          >
-            <span className={style.dayName}>{format.dateTime(date, { weekday: 'short' })}</span>
-            <span className={style.dayDate}>
-              {format.dateTime(date, { month: 'numeric', day: 'numeric' })}
-            </span>
-          </div>
-        ))}
+        {days.map((date) => {
+          const note = dayNotes?.get(dateKey(date))
+          return (
+            <div
+              key={date.getTime()}
+              className={`${style.dayHead} ${dateKey(date) === today ? style.today : ''} ${
+                note?.off ? style.offHead : ''
+              }`}
+            >
+              <span className={style.dayName}>{format.dateTime(date, { weekday: 'short' })}</span>
+              <span className={style.dayDate}>
+                {format.dateTime(date, { month: 'numeric', day: 'numeric' })}
+              </span>
+              {note && (
+                <span className={style.dayNote} title={note.text}>
+                  {note.text}
+                </span>
+              )}
+            </div>
+          )
+        })}
 
         {days.map((date, index) => {
           const day = index + 1
           const dayItems = items.filter((item) => item.day === day)
           const lanes = layoutLanes(dayItems.filter((item) => !item.muted))
+          const off = dayNotes?.get(dateKey(date))?.off ?? false
 
           return (
-            <div key={date.getTime()} className={style.column}>
+            <div key={date.getTime()} className={`${style.column} ${off ? style.off : ''}`}>
               {Array.from({ length: CELLS }, (_, cell) => {
                 const time = timeLabel(DAY_START + cell * STEP)
-                return onEmptyClick ? (
+                return onEmptyClick && !off ? (
                   <button
                     key={time}
                     type="button"

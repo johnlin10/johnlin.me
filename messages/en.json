@@ -102,7 +102,10 @@
     "posts": {
       "title": "Posts",
       "description": "Create, edit, and delete posts",
-      "post_count": { "total": "Total ", "unit": " posts" },
+      "post_count": {
+        "total": "Total ",
+        "unit": " posts"
+      },
       "new_post": "New Post",
       "filter": {
         "all": "All",
@@ -177,7 +180,10 @@
       "deleteSuccess": "Deleted",
       "deleteError": "Failed to delete",
       "heading": "Categories",
-      "count": { "total": "Total ", "unit": " categories" },
+      "count": {
+        "total": "Total ",
+        "unit": " categories"
+      },
       "newCategory": "New Category",
       "loading": "Loading...",
       "empty": "No categories yet",
@@ -220,7 +226,10 @@
       "deleteSuccess": "Deleted",
       "deleteError": "Failed to delete",
       "heading": "Series",
-      "count": { "total": "Total ", "unit": " series" },
+      "count": {
+        "total": "Total ",
+        "unit": " series"
+      },
       "newSeries": "New Series",
       "loading": "Loading...",
       "empty": "No series yet",
@@ -266,7 +275,10 @@
       "deleteSuccess": "Deleted",
       "deleteError": "Failed to delete",
       "heading": "Tags",
-      "count": { "total": "Total ", "unit": " tags" },
+      "count": {
+        "total": "Total ",
+        "unit": " tags"
+      },
       "newTag": "New Tag",
       "loading": "Loading...",
       "empty": "No tags yet",
@@ -305,7 +317,10 @@
       "deleteSuccess": "Deleted",
       "deleteError": "Failed to delete",
       "heading": "Notes",
-      "count": { "total": "Total ", "unit": " notes" },
+      "count": {
+        "total": "Total ",
+        "unit": " notes"
+      },
       "placeholder": "What's on your mind right now?",
       "removeImageAriaLabel": "Remove image",
       "uploading": "Uploading…",
@@ -875,6 +890,35 @@
         "required": "Pick someone"
       }
     },
+    "holidays": {
+      "title": "Holidays",
+      "entryHint": "Public holidays and make-up days. The timetable and the tutoring board share this list: a day off has no classes and takes no sessions.",
+      "manage": "Edit holidays",
+      "hint": "Substitute days off almost always land on a Monday or a Friday; make-up classes are usually on a Saturday.",
+      "empty": "No holidays yet",
+      "new": "Add",
+      "date": "Date",
+      "kind": "What happens that day",
+      "off": "Day off",
+      "makeupOf": "{day}'s classes",
+      "label": "Name",
+      "labelPlaceholderOff": "Mid-Autumn Festival",
+      "labelPlaceholderMakeup": "Make-up for 4/3",
+      "dateRequired": "Pick a date",
+      "labelRequired": "Enter a name",
+      "saveError": "Could not save",
+      "deleteError": "Could not delete",
+      "deleteTitle": "Delete",
+      "deleteMessage": "Delete {date}?",
+      "delete": "Delete",
+      "cancel": "Cancel",
+      "save": "Save",
+      "import": "Import from public calendar",
+      "importing": "Importing…",
+      "imported": "Added {added}, skipped {skipped}",
+      "importError": "Import failed, try again later",
+      "importHint": "Adds this year's and next year's public holidays; days already listed stay as they are. Make-up classes and school events are still manual."
+    },
     "tutoring": {
       "title": "完善就學",
       "subtitle": "{count} sessions this month",
@@ -924,7 +968,8 @@
         "endsAt": "Ends {time}",
         "overnight": "That runs past midnight",
         "weekend": "Sessions cannot be scheduled at the weekend",
-        "hoursBadge": "{hours}h"
+        "hoursBadge": "{hours}h",
+        "holiday": "{label} — no sessions that day"
       },
       "person": {
         "title": "People",
@@ -988,6 +1033,9 @@
         "regenerate": "Regenerate",
         "regenerateTitle": "Regenerate link",
         "regenerateMessage": "The old link stops working right away, so you’ll need to send everyone the new one."
+      },
+      "board": {
+        "makeup": "{day}'s classes"
       }
     }
   },

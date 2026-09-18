@@ -7,6 +7,7 @@ import {
   MONTHLY_CAP,
   PROGRAMS,
   addDays,
+  classDay,
   dateKey,
   dayOfWeek,
   emptyHours,
@@ -17,9 +18,10 @@ import {
   slotInEffect,
   sumHours,
   weeksOfMonth,
+  type CalendarDay,
   type Term,
 } from '@/app/lib/tutoring'
-import WeekTimeline, { type TimelineItem } from '../WeekTimeline/WeekTimeline'
+import WeekTimeline, { type DayNote, type TimelineItem } from '../WeekTimeline/WeekTimeline'
 import style from './TutoringBoard.module.scss'
 
 /**
@@ -254,6 +256,7 @@ export function WeekPicker({
  * @param props.people 全部成員
  * @param props.busy 所有人的忙碌時段，含課表換算來的
  * @param props.terms 全部學期，最新的排第一個
+ * @param props.calendar 放假和補課的日子
  * @param props.sessions 這個月前後的輔導時段
  * @param props.licenseHours 每人證照輔導的累計時數
  * @param props.onItemClick 點時段時呼叫，不給就不能點
@@ -266,6 +269,7 @@ export default function TutoringBoard({
   people,
   busy,
   terms,
+  calendar,
   sessions,
   licenseHours,
   onItemClick,
@@ -277,6 +281,7 @@ export default function TutoringBoard({
   people: Person[]
   busy: BusySlot[]
   terms: Term[]
+  calendar: Map<string, CalendarDay>
   sessions: PublicSession[]
   licenseHours: Record<string, number>
   onItemClick?: (id: string) => void
@@ -303,23 +308,27 @@ export default function TutoringBoard({
       .join('、')
 
   const items: TimelineItem[] = [
-    ...busy
-      .filter((slot) => {
-        const date = weekDates[slot.day - 1]
-        return (
-          slot.person_id === overlay && !!date && slotInEffect(slot.semester_id, date, terms)
+    ...weekDates.flatMap((date, index) => {
+      const day = classDay(date, calendar)
+      if (day === null) return []
+      return busy
+        .filter(
+          (slot) =>
+            slot.person_id === overlay &&
+            slot.day === day &&
+            slotInEffect(slot.semester_id, date, terms),
         )
-      })
-      .map((slot) => ({
-        id: `busy-${slot.id}`,
-        day: slot.day,
-        start: slot.start_time,
-        end: slot.end_time,
-        title: personById.get(slot.person_id)?.name ?? '',
-        meta: slot.label ?? undefined,
-        color: null,
-        muted: true,
-      })),
+        .map((slot) => ({
+          id: `busy-${slot.id}`,
+          day: index + 1,
+          start: slot.start_time,
+          end: slot.end_time,
+          title: personById.get(slot.person_id)?.name ?? '',
+          meta: slot.label ?? undefined,
+          color: null,
+          muted: true,
+        }))
+    }),
     ...sessions
       .filter((session) => weekDates.includes(session.date))
       .map((session) => ({
@@ -336,6 +345,21 @@ export default function TutoringBoard({
       })),
   ]
 
+  const dayNotes = new Map<string, DayNote>(
+    weekDates.flatMap((date) => {
+      const day = calendar.get(date)
+      if (!day) return []
+      const text =
+        day.source_day === null
+          ? day.label
+          : // 2024-01-01 是週一
+            t('board.makeup', {
+              day: format.dateTime(new Date(2024, 0, day.source_day, 12), { weekday: 'short' }),
+            })
+      return [[date, { text, off: day.source_day === null }] as const]
+    }),
+  )
+
   const monthHours = sumHours(sessions.filter((session) => session.date.slice(0, 7) === month))
   const cappedPrograms = PROGRAMS.filter((program) => program.capped)
 
@@ -345,6 +369,7 @@ export default function TutoringBoard({
         <WeekTimeline
           weekStart={weeks[weekIndex]}
           items={items}
+          dayNotes={dayNotes}
           onItemClick={onItemClick}
           onEmptyClick={onEmptyClick}
           onPrev={picker.prevWeek}

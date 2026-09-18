@@ -21,11 +21,13 @@ import {
   type Share,
   type Tutoring,
 } from '@/app/lib/supabase/tutoring'
+import type { CalendarDay } from '@/app/lib/supabase/calendar'
 import { SITE_CONFIG } from '@/app/lib/siteConfigs'
 import {
   DURATION_OPTIONS,
   PROGRAMS,
-  dayOfWeek,
+  calendarMap,
+  classDay,
   durationHours,
   endOf,
   minutesOf,
@@ -33,6 +35,7 @@ import {
   sumHours,
   timeOverlaps,
 } from '@/app/lib/tutoring'
+import HolidayEditor from '@/app/components/schedule/HolidayEditor/HolidayEditor'
 import TutoringBoard, {
   WeekPicker,
   useWeekPicker,
@@ -90,6 +93,7 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
  */
 export default function TutoringTool({ initial }: { initial: Tutoring | null }) {
   const t = useTranslations('ToolsPage.tutoring')
+  const tHolidays = useTranslations('ToolsPage.holidays')
   const format = useFormatter()
   const toast = useToast()
   const confirm = useConfirm()
@@ -114,9 +118,13 @@ export default function TutoringTool({ initial }: { initial: Tutoring | null }) 
     initial?.people.find((person) => person.is_me)?.id ?? '',
   )
   const [share, setShare] = useState<Share | null>(initial?.share ?? null)
+  const [calendarDays, setCalendarDays] = useState<CalendarDay[]>(initial?.calendar ?? [])
   const [sessionForm, setSessionForm] = useState<SessionForm | null>(null)
   const [personForm, setPersonForm] = useState<PersonForm | null>(null)
   const [busyForm, setBusyForm] = useState<BusyForm | null>(null)
+  const [holidaysOpen, setHolidaysOpen] = useState(false)
+
+  const calendar = useMemo(() => calendarMap(calendarDays), [calendarDays])
 
   const refreshSessions = useCallback(
     async (target: string) => {
@@ -193,13 +201,15 @@ export default function TutoringTool({ initial }: { initial: Tutoring | null }) 
   }
 
   /**
-   * 存檔前的檢查：有沒有人這個時間有課或已經排了別場。
+   * 存檔前的檢查：那天排不排得了、有沒有人這個時間有課或已經排了別場。
    * @param form 表單內容
    * @param end 推算出來的結束時間
    * @returns 擋下來的理由；沒問題回 null
    */
   const findClash = async (form: SessionForm, end: string): Promise<string | null> => {
-    if (dayOfWeek(form.date) > 5) return t('session.weekend')
+    const day = classDay(form.date, calendar)
+    if (day === null) return t('session.holiday', { label: calendar.get(form.date)!.label })
+    if (day > 5) return t('session.weekend')
     if (form.attendees.length === 0) return t('session.attendeesRequired')
 
     const range = { start: form.start, end }
@@ -208,7 +218,7 @@ export default function TutoringTool({ initial }: { initial: Tutoring | null }) 
     const classClash = allBusy.find(
       (slot) =>
         involved.includes(slot.person_id) &&
-        slot.day === dayOfWeek(form.date) &&
+        slot.day === day &&
         inEffect(slot, form.date) &&
         timeOverlaps(range, { start: slot.start_time, end: slot.end_time }),
     )
@@ -442,6 +452,7 @@ export default function TutoringTool({ initial }: { initial: Tutoring | null }) 
               people={people}
               busy={allBusy}
               terms={semesters}
+              calendar={calendar}
               sessions={sessions}
               licenseHours={licenseHours}
               onItemClick={openSession}
@@ -584,6 +595,16 @@ export default function TutoringTool({ initial }: { initial: Tutoring | null }) 
                         ))}
                     </>
                   )}
+                </section>
+
+                <section className={style.group}>
+                  <div className={style.groupHead}>
+                    <h2 className={style.groupTitle}>{tHolidays('title')}</h2>
+                  </div>
+                  <p className={style.hint}>{tHolidays('entryHint')}</p>
+                  <Button size="small" variant="secondary" onClick={() => setHolidaysOpen(true)}>
+                    {tHolidays('manage')}
+                  </Button>
                 </section>
 
                 <section className={style.group}>
@@ -842,6 +863,12 @@ export default function TutoringTool({ initial }: { initial: Tutoring | null }) 
             </div>
           )}
         </Modal>
+        <HolidayEditor
+          isOpen={holidaysOpen}
+          onClose={() => setHolidaysOpen(false)}
+          days={calendarDays}
+          onChange={setCalendarDays}
+        />
       </div>
     </div>
   )

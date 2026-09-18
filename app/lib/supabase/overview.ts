@@ -1,5 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { getSemesters, type Semester } from './schedule'
+import { getCalendarDays, type CalendarDay } from './calendar'
 
 export type MyClass = {
   id: string
@@ -23,6 +24,7 @@ export type MySession = {
 
 export type Overview = {
   semesters: Semester[]
+  calendar: CalendarDay[]
   classes: MyClass[]
   sessions: MySession[]
   // 近 7 天全部短網址的點擊
@@ -47,8 +49,9 @@ export async function getOverview(
   to: string,
   since: string,
 ): Promise<Overview> {
-  const [semesters, classes, sessions, clicks] = await Promise.all([
+  const [semesters, calendar, classes, sessions, clicks] = await Promise.all([
     getSemesters(supabase),
+    getCalendarDays(supabase),
     supabase
       .from('schedule_slots')
       .select('id, day, start_period, end_period, location, courses!inner(name, semester_id, color), people!inner()')
@@ -72,6 +75,7 @@ export async function getOverview(
 
   return {
     semesters,
+    calendar,
     classes: (classes.data as unknown as ClassRow[]).map(({ courses, ...slot }) => ({
       ...slot,
       semester_id: courses.semester_id,

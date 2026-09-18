@@ -103,7 +103,10 @@
     "posts": {
       "title": "文章管理",
       "description": "新增、編輯、刪除文章",
-      "post_count": { "total": "共 ", "unit": " 篇文章" },
+      "post_count": {
+        "total": "共 ",
+        "unit": " 篇文章"
+      },
       "new_post": "新增文章",
       "filter": {
         "all": "全部",
@@ -178,7 +181,10 @@
       "deleteSuccess": "刪除成功",
       "deleteError": "刪除失敗",
       "heading": "分類管理",
-      "count": { "total": "共 ", "unit": " 個分類" },
+      "count": {
+        "total": "共 ",
+        "unit": " 個分類"
+      },
       "newCategory": "新增分類",
       "loading": "載入中...",
       "empty": "尚無分類",
@@ -221,7 +227,10 @@
       "deleteSuccess": "刪除成功",
       "deleteError": "刪除失敗",
       "heading": "系列管理",
-      "count": { "total": "共 ", "unit": " 個系列" },
+      "count": {
+        "total": "共 ",
+        "unit": " 個系列"
+      },
       "newSeries": "新增系列",
       "loading": "載入中...",
       "empty": "尚無系列",
@@ -267,7 +276,10 @@
       "deleteSuccess": "刪除成功",
       "deleteError": "刪除失敗",
       "heading": "標籤管理",
-      "count": { "total": "共 ", "unit": " 個標籤" },
+      "count": {
+        "total": "共 ",
+        "unit": " 個標籤"
+      },
       "newTag": "新增標籤",
       "loading": "載入中...",
       "empty": "尚無標籤",
@@ -306,7 +318,10 @@
       "deleteSuccess": "已刪除",
       "deleteError": "刪除失敗",
       "heading": "短文管理",
-      "count": { "total": "共 ", "unit": " 則" },
+      "count": {
+        "total": "共 ",
+        "unit": " 則"
+      },
       "placeholder": "此刻在想些什麼？",
       "removeImageAriaLabel": "移除圖片",
       "uploading": "上傳中…",
@@ -876,6 +891,35 @@
         "required": "請選一個人"
       }
     },
+    "holidays": {
+      "title": "假日",
+      "entryHint": "國定假日和補課日。課表和完善就學共用同一份，放假的日子不算有課，也排不了輔導。",
+      "manage": "編輯假日",
+      "hint": "補假幾乎都落在週一或週五（節日在週二或週四，順著週末放四天），補課則多半排在週六。",
+      "empty": "還沒有任何假日",
+      "new": "新增",
+      "date": "日期",
+      "kind": "那天怎麼上",
+      "off": "放假",
+      "makeupOf": "補{day}的課",
+      "label": "名稱",
+      "labelPlaceholderOff": "中秋節",
+      "labelPlaceholderMakeup": "補 4/3 的課",
+      "dateRequired": "要選日期",
+      "labelRequired": "要填名稱",
+      "saveError": "存檔失敗",
+      "deleteError": "刪除失敗",
+      "deleteTitle": "刪除",
+      "deleteMessage": "確定要刪除 {date} 嗎？",
+      "delete": "刪除",
+      "cancel": "取消",
+      "save": "儲存",
+      "import": "從公開行事曆匯入",
+      "importing": "匯入中…",
+      "imported": "匯入 {added} 筆，略過 {skipped} 筆",
+      "importError": "匯入失敗，請稍後再試",
+      "importHint": "只會補上今年和明年的國定假日，已經有的日子不動。學校自己的補課和校慶要手動加。"
+    },
     "tutoring": {
       "title": "完善就學",
       "subtitle": "這個月 {count} 場",
@@ -925,7 +969,8 @@
         "endsAt": "結束 {time}",
         "overnight": "結束時間跨過午夜了",
         "weekend": "週末不能排輔導",
-        "hoursBadge": "{hours}h"
+        "hoursBadge": "{hours}h",
+        "holiday": "{label}，不能排輔導"
       },
       "person": {
         "title": "成員",
@@ -989,6 +1034,9 @@
         "regenerate": "重新產生",
         "regenerateTitle": "重新產生連結",
         "regenerateMessage": "舊連結會立刻失效，要把新的連結重新傳給大家。"
+      },
+      "board": {
+        "makeup": "補{day}"
       }
     }
   },

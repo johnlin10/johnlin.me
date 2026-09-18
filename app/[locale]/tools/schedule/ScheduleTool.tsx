@@ -20,9 +20,11 @@ import {
   type Teacher,
 } from '@/app/lib/supabase/schedule'
 import { getPeople, savePerson, type Person } from '@/app/lib/supabase/tutoring'
+import { getCalendarDays, type CalendarDay } from '@/app/lib/supabase/calendar'
 import { PERIODS, overlaps, periodIndex } from '@/app/lib/schedule/periods'
 import { COURSE_COLORS, courseColorStyle, leastUsedColor } from '@/app/lib/schedule/colors'
 import ScheduleGrid, { type GridSlot } from '@/app/components/schedule/ScheduleGrid/ScheduleGrid'
+import HolidayEditor from '@/app/components/schedule/HolidayEditor/HolidayEditor'
 import Icon from '@/app/components/Icon/Icon'
 import PageHeader from '@/app/components/admin/PageHeader/PageHeader'
 import Button from '@/app/components/admin/Button/Button'
@@ -119,6 +121,7 @@ function ColorSwatches({
  */
 export default function ScheduleTool({ initial }: { initial: Bootstrap | null }) {
   const t = useTranslations('ToolsPage.schedule')
+  const tHolidays = useTranslations('ToolsPage.holidays')
   const format = useFormatter()
   const toast = useToast()
   const confirm = useConfirm()
@@ -137,6 +140,17 @@ export default function ScheduleTool({ initial }: { initial: Bootstrap | null })
   const [courseForm, setCourseForm] = useState<CourseForm | null>(null)
   const [teacherForm, setTeacherForm] = useState<NameForm | null>(null)
   const [semesterForm, setSemesterForm] = useState<SemesterForm | null>(null)
+  // 課表是週課表，用不到假日；只有開編輯器時才去讀
+  const [holidays, setHolidays] = useState<CalendarDay[] | null>(null)
+
+  const openHolidays = async () => {
+    setHolidays([])
+    try {
+      setHolidays(await getCalendarDays(supabase))
+    } catch {
+      toast.error(t('loadError'))
+    }
+  }
 
   // 目前畫面上是哪個學期、哪個人的課表，首屏那一組已經隨 initial 帶來了
   const loaded = useRef(`${semesterId}|${personId}`)
@@ -641,6 +655,16 @@ export default function ScheduleTool({ initial }: { initial: Bootstrap | null })
                     <span className={style.itemName}>{semester.code}</span>
                   </button>
                 </section>
+
+                <section className={style.group}>
+                  <div className={style.groupHead}>
+                    <h2 className={style.groupTitle}>{tHolidays('title')}</h2>
+                  </div>
+                  <p className={style.hint}>{tHolidays('entryHint')}</p>
+                  <Button size="small" variant="secondary" onClick={openHolidays}>
+                    {tHolidays('manage')}
+                  </Button>
+                </section>
               </div>
             </details>
           </>
@@ -913,6 +937,13 @@ export default function ScheduleTool({ initial }: { initial: Bootstrap | null })
             </div>
           )}
         </Modal>
+
+        <HolidayEditor
+          isOpen={holidays !== null}
+          onClose={() => setHolidays(null)}
+          days={holidays ?? []}
+          onChange={setHolidays}
+        />
       </div>
     </div>
   )

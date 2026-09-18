@@ -2,6 +2,7 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 import { PERIODS, periodIndex } from '@/app/lib/schedule/periods'
 import { addDays, dateKey, weeksOfMonth } from '@/app/lib/tutoring'
 import { getCourses, getSemesters, getSlots, type Semester } from './schedule'
+import { getCalendarDays, type CalendarDay } from './calendar'
 
 export type Person = {
   id: string
@@ -50,6 +51,7 @@ export type Board = {
   month: string
   people: Person[]
   semesters: { id: string; code: string; start_date: string | null; end_date: string | null }[]
+  calendar: CalendarDay[]
   slots: (ScheduleSlot & { semester_id: string; course: string })[]
   busy: BusySlot[]
   sessions: PublicSession[]
@@ -64,7 +66,12 @@ export type MonthSessions = { sessions: Session[]; license: Session[] }
 
 // 管理頁的首屏資料
 export type Tutoring = Members &
-  MonthSessions & { month: string; semesters: Semester[]; share: Share | null }
+  MonthSessions & {
+    month: string
+    semesters: Semester[]
+    share: Share | null
+    calendar: CalendarDay[]
+  }
 
 const SESSION_COLUMNS =
   'id, program, date, start_time, end_time, location, teacher_id, note, tutoring_attendees(person_id)'
@@ -192,16 +199,17 @@ export async function getMembers(
  * @returns 首屏資料
  */
 export async function getTutoring(supabase: SupabaseClient, month: string): Promise<Tutoring> {
-  const [semesters, monthSessions, share] = await Promise.all([
+  const [semesters, monthSessions, share, calendar] = await Promise.all([
     getSemesters(supabase),
     getMonthSessions(supabase, month),
     getShare(supabase),
+    getCalendarDays(supabase),
   ])
   const members = await getMembers(
     supabase,
     semesters.map((semester) => semester.id),
   )
-  return { month, semesters, share, ...members, ...monthSessions }
+  return { month, semesters, share, calendar, ...members, ...monthSessions }
 }
 
 /**

@@ -58,6 +58,7 @@ export default async function TutoringPublicPage({ params }: TutoringPublicPageP
         people={board.people}
         busy={[...board.busy, ...slotsToBusy(board.slots)]}
         terms={board.semesters}
+        calendar={board.calendar}
         sessions={board.sessions}
         licenseHours={board.license_hours}
       />
