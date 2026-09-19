@@ -13,7 +13,6 @@ type ChapterMeta = {
 type Props = {
   chapters: ChapterMeta[]
   panels: ReactNode[] // 與 chapters 同序，皆為 server 端渲染好的內容
-  initialChapterId: string
   sidebar: ReactNode
   pageTitle: string
   navLabel: string
@@ -23,6 +22,25 @@ type Props = {
 // 章節次導覽列高度（見 HeaderSubNav），所以留得比純 header 高一些。
 const HEADER_OFFSET = 132
 
+/** 網址 ?chapter= 指定的章節；沒指定或不存在就是第一章 */
+function chapterFromUrl(chapters: ChapterMeta[]) {
+  const first = chapters[0]?.id ?? ''
+  if (typeof window === 'undefined') return first
+  const id = new URLSearchParams(window.location.search).get('chapter')
+  return chapters.some((c) => c.id === id) ? id! : first
+}
+
+// 頁面是共用快取，伺服器一律輸出第一章。硬載入帶 ?chapter= 時，這段在畫面
+// 顯示前把桌機章節列與內容區（class 與 motion 寫的 inline style）換成指定章節，
+// hydration 時 DOM 就跟 state 一致。
+const PRESELECT = `(function(){
+var id=new URLSearchParams(location.search).get('chapter');
+var p=id&&document.getElementById('chapter-panel-'+id);
+if(!p||p.classList.contains('${style.panelActive}'))return;
+[].forEach.call(document.querySelectorAll('[role=tabpanel]'),function(e){var on=e===p;e.classList.toggle('${style.panelActive}',on);e.style.opacity=on?'1':'0';e.style.transform=on?'none':'scale(0.95)';e.inert=!on;e.tabIndex=on?0:-1});
+[].forEach.call(document.querySelectorAll('[id^=chapter-tab-desktop-]'),function(e){var on=e.id==='chapter-tab-desktop-'+id;e.classList.toggle('${style.chapterTabActive}',on);e.setAttribute('aria-selected',on);e.tabIndex=on?0:-1});
+})()`
+
 /**
  * About 頁章節切換器。所有章節皆由 server 渲染進 HTML（SEO），
  * 這裡只負責用 class + motion 做「只顯示作用中章節」的淡入淡出＋縮放，
@@ -31,13 +49,12 @@ const HEADER_OFFSET = 132
 export default function ChapterShell({
   chapters,
   panels,
-  initialChapterId,
   sidebar,
   pageTitle,
   navLabel,
 }: Props) {
   const reduce = useReducedMotion()
-  const [active, setActive] = useState(initialChapterId)
+  const [active, setActive] = useState(() => chapterFromUrl(chapters))
   const stageRef = useRef<HTMLDivElement>(null)
   // 手機/平板（橫向捲動 pill）與桌機（sidebar 直排清單）各自獨立渲染一份導覽
   // （見下方 renderTabs），key 用 "variant:id" 區分，避免兩份 ref 互相覆蓋。
@@ -128,6 +145,7 @@ export default function ChapterShell({
             aria-controls={`chapter-panel-${c.id}`}
             aria-selected={isActive}
             tabIndex={isActive ? 0 : -1}
+            suppressHydrationWarning
             className={`${style.chapterTab} ${
               isActive ? style.chapterTabActive : ''
             }`}
@@ -163,6 +181,7 @@ export default function ChapterShell({
               tabIndex={isActive ? 0 : -1}
               inert={!isActive}
               className={`${style.panel} ${isActive ? style.panelActive : ''}`}
+              suppressHydrationWarning
               initial={false}
               animate={{
                 opacity: isActive ? 1 : 0,
@@ -178,6 +197,7 @@ export default function ChapterShell({
           )
         })}
       </div>
+      <script dangerouslySetInnerHTML={{ __html: PRESELECT }} />
     </div>
   )
 }

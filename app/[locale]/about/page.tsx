@@ -12,9 +12,6 @@ type Props = {
   params: Promise<{
     locale: string
   }>
-  searchParams: Promise<{
-    chapter?: string | string[]
-  }>
 }
 
 import { metadata } from '@/app/lib/metadata'
@@ -34,22 +31,16 @@ const EMAIL = 'johnlin@johnlin.me'
 const SUBSTACK_URL = 'https://johnlin10.substack.com'
 const GITHUB_URL = 'https://github.com/johnlin10'
 
-async function AboutPage({ params, searchParams }: Props) {
+async function AboutPage({ params }: Props) {
   const { locale } = await params
-  const { chapter } = await searchParams
   const t = await getTranslations({ locale, namespace: 'AboutPage' })
   const chapters = await getAboutChapters(locale)
-
-  const requested = Array.isArray(chapter) ? chapter[0] : chapter
-  const initialChapterId =
-    chapters.find((c) => c.id === requested)?.id ?? chapters[0]?.id ?? ''
 
   const displayName = authorName(locale)
 
   return (
     <main className={style.about}>
       <ChapterShell
-        initialChapterId={initialChapterId}
         chapters={chapters.map(({ id, title }) => ({ id, title }))}
         pageTitle={t('page_title')}
         navLabel={t('chapterNavLabel')}
