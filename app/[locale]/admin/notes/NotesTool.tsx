@@ -62,6 +62,9 @@ export default function NotesTool({ initial }: { initial: Note[] | null }) {
           note.images.map((img) => img.url),
         )
       }
+      await fetch('/api/admin/notes/revalidate', { method: 'POST' }).catch(
+        () => {},
+      )
       toast.success(t('deleteSuccess'))
       load()
     } catch {
@@ -86,6 +89,9 @@ export default function NotesTool({ initial }: { initial: Note[] | null }) {
         )
         await updateNote(supabase, { id: n.id, images })
       }
+      await fetch('/api/admin/notes/revalidate', { method: 'POST' }).catch(
+        () => {},
+      )
       toast.success(t('backfillDone', { count: needsBackfill.length }))
       load()
     } catch {

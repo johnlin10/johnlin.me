@@ -1,5 +1,5 @@
 import { getTranslations } from 'next-intl/server'
-import { createClient } from '@/app/lib/supabase/server'
+import { createPublicClient } from '@/app/lib/supabase/public'
 import { getPublishedNotes } from '@/app/lib/supabase/notes'
 import PageContainer from '@/app/components/PageContainer/PageContainer'
 import PageHeader from '@/app/components/PageHeader/PageHeader'
@@ -8,6 +8,8 @@ import type { SupportedLocale } from '@/app/types/blog'
 import style from './notes.module.scss'
 
 import { metadata } from '@/app/lib/metadata'
+
+export const revalidate = 300
 
 export async function generateMetadata({
   params,
@@ -32,8 +34,9 @@ export default async function NotesPage({
   const locale = localeParam as SupportedLocale
   const t = await getTranslations({ locale, namespace: 'NotesPage' })
 
-  const supabase = await createClient()
-  const { data: notes } = await getPublishedNotes(supabase, { pageSize: 50 })
+  const { data: notes } = await getPublishedNotes(createPublicClient(), {
+    pageSize: 50,
+  })
 
   return (
     <PageContainer maxWidth="notes">

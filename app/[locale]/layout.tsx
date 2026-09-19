@@ -27,7 +27,13 @@ export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }))
 }
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>
+}): Promise<Metadata> {
+  // 快取頁面呼叫 notFound() 時這裡另外跑一次，沒設語系會去讀 headers 變成 500
+  setRequestLocale((await params).locale)
   const baseMetadata = await createMetadata({
     title: 'John Lin | 林昌龍',
     description: 'A web developer, photographer, and thinker.',

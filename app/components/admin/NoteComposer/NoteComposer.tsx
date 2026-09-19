@@ -153,6 +153,9 @@ export default function NoteComposer({
         if (removedUrls.length > 0) await deleteImages(supabase, removedUrls)
         toast.success(targetStatus === 'published' ? t('publishSuccess') : t('saveSuccess'))
       }
+      await fetch('/api/admin/notes/revalidate', { method: 'POST' }).catch(
+        () => {},
+      )
       onSaved()
     } catch {
       toast.error(mode === 'create' ? t('publishError') : t('saveError'))

@@ -3,6 +3,7 @@ import { Link } from '@/i18n/navigation'
 import type { Note } from '@/app/types/note'
 import type { SupportedLocale } from '@/app/types/blog'
 import NoteMedia from '@/app/components/notes/NoteMedia/NoteMedia'
+import { getTaipeiYear } from '@/app/lib/blog/formatPostDate'
 import style from './NoteCard.module.scss'
 
 /**
@@ -15,10 +16,11 @@ function formatDate(iso: string, locale: SupportedLocale) {
   const date = new Date(iso)
   return {
     day: date.toLocaleDateString(locale === 'zh-tw' ? 'zh-TW' : 'en-US', {
+      timeZone: 'Asia/Taipei',
       month: locale === 'zh-tw' ? 'long' : 'short',
       day: 'numeric',
     }),
-    year: String(date.getFullYear()),
+    year: String(getTaipeiYear(iso)),
   }
 }
 

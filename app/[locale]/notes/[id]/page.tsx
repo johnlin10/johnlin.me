@@ -2,7 +2,7 @@ import Image from 'next/image'
 import { notFound } from 'next/navigation'
 import { getTranslations } from 'next-intl/server'
 import { Link } from '@/i18n/navigation'
-import { createClient } from '@/app/lib/supabase/server'
+import { createPublicClient } from '@/app/lib/supabase/public'
 import { SITE_CONFIG, authorName } from '@/app/lib/siteConfigs'
 import { getNoteById } from '@/app/lib/supabase/notes'
 import PageContainer from '@/app/components/PageContainer/PageContainer'
@@ -17,6 +17,13 @@ interface NotePageProps {
 
 import { metadata } from '@/app/lib/metadata'
 
+export const revalidate = 300
+
+// 建置時不先產生，第一次有人看時才產生並快取
+export function generateStaticParams() {
+  return []
+}
+
 const clip = (s: string, max: number) =>
   s.length > max ? `${s.slice(0, max - 1)}…` : s
 
@@ -25,8 +32,7 @@ export async function generateMetadata({
 }: NotePageProps): Promise<Metadata> {
   const { locale, id } = await params
   const t = await getTranslations({ locale, namespace: 'NotesPage' })
-  const supabase = await createClient()
-  const note = await getNoteById(supabase, id)
+  const note = await getNoteById(createPublicClient(), id)
   if (!note) return metadata({ title: t('page_title'), description: '' })
 
   // 短文沒有標題：第一句當標題，其餘當描述，兩欄才不會重複
@@ -37,7 +43,12 @@ export async function generateMetadata({
   const iso = note.publishedAt ?? note.createdAt
   const dateline = `${t('page_title')} · ${new Date(iso).toLocaleDateString(
     locale === 'en' ? 'en-US' : 'zh-TW',
-    { year: 'numeric', month: 'long', day: 'numeric' },
+    {
+      timeZone: 'Asia/Taipei',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    },
   )}`
 
   return metadata({
@@ -58,8 +69,7 @@ export default async function NotePage({ params }: NotePageProps) {
   const locale = localeParam as SupportedLocale
   const t = await getTranslations({ locale, namespace: 'NotesPage' })
 
-  const supabase = await createClient()
-  const note = await getNoteById(supabase, id)
+  const note = await getNoteById(createPublicClient(), id)
   if (!note || note.status !== 'published') notFound()
 
   const author = authorName(locale)

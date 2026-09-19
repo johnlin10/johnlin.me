@@ -74,6 +74,10 @@ export async function getNoteById(
   supabase: SupabaseClient,
   id: string
 ): Promise<Note | null> {
+  // 不是 UUID 的網址資料庫會直接報錯（22P02），當作找不到
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)) {
+    return null
+  }
   const { data, error } = await supabase
     .from('notes')
     .select('*')
