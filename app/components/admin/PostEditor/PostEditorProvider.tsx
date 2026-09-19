@@ -82,6 +82,10 @@ interface PostEditorProviderProps {
   children: ReactNode
 }
 
+/** 文章頁、列表與首頁是快取頁面，改到網站上看得到的內容後要叫它們重產 */
+const revalidateSite = () =>
+  fetch('/api/admin/posts/revalidate', { method: 'POST' }).catch(() => {})
+
 /**
  * Substack 式分步編輯流程的狀態核心。context 是快路徑，DB 才是真相來源：
  * 每次切步驟/離開都會先 flush() 待寫入的變更，settings 頁硬重整一樣拿得到最新資料。
@@ -270,6 +274,7 @@ export function PostEditorProvider({
         ...toCreateInput(finalDraft),
         status: 'published',
       })
+      await revalidateSite()
       draftRef.current = { ...finalDraft, status: 'published' }
       setDraft(draftRef.current)
       toast.success(t('publishSuccess'))
@@ -294,6 +299,7 @@ export function PostEditorProvider({
         ...toCreateInput(finalDraft),
         status: 'draft',
       })
+      await revalidateSite()
       toast.success(t('draftSaveSuccess'))
       router.push('/posts')
     } catch {
@@ -311,6 +317,7 @@ export function PostEditorProvider({
         ...toCreateInput(finalDraft),
         status: 'published',
       })
+      await revalidateSite()
       draftRef.current = finalDraft
       setDraft(finalDraft)
       markClean()
@@ -329,6 +336,7 @@ export function PostEditorProvider({
     if (!ok) return
     await flush()
     await updatePost(supabase, { id: postId, status: 'draft' })
+    await revalidateSite()
     draftRef.current = { ...draftRef.current, status: 'draft' }
     setDraft(draftRef.current)
     toast.success(t('unpublishSuccess'))

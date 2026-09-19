@@ -18,6 +18,6 @@ export function revalidatePhotos(): void {
   revalidatePath('/[locale]/photography', 'page')
   revalidatePath('/[locale]/photography/[slug]', 'page')
   revalidatePath('/[locale]', 'page')
-  // 第二個參數是 Next 16 起的必填：'max' 標記為過期但先送舊的、背景換新
-  revalidateTag('photos', 'max')
+  // 'max' 會先送舊的、背景才換新，發布後第一次打開首頁還是舊照片；立刻過期要用 expire: 0
+  revalidateTag('photos', { expire: 0 })
 }

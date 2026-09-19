@@ -208,6 +208,8 @@ Notes 沒有標題、沒有 slug、沒有雙語、沒有草稿流程（一律直
 - **目錄（TOC）不是即時從頁面 DOM 產生的**，是編輯器儲存時就寫進 `locales.<lang>.toc` 的預先計算資料，前台只是拿現成資料配 `IntersectionObserver` 做捲動高亮。
 - **Notes 前台**：單欄 feed，卡片是純文字+最多 3 張圖網格，用原生 `<img>`（不是 `next/image`，這點跟 `PostCard` 不同）。
 - **Gallery**：ISR 5 分鐘。後台改動狀態後會打 `/api/admin/photos/revalidate` 讓兩個 gallery 路由立刻失效，不必等那 5 分鐘。前台三個視圖全部用原生 `<img srcSet>`，刻意繞開 Vercel 的圖片最佳化（R2 已備好各階，出站免費），所以 `next.config.ts` 的 `remotePatterns` 不需要加 R2 網域。
+- **日期一律用台北時區（2026-09-19 決定）**：文章、短文的日期與年份分組都固定用 `Asia/Taipei` 格式化（`formatPostDate.ts`、`NoteCard`），所有訪客看到同一個日期，不換算成讀者當地時間。頁面是伺服器產生並共用快取，伺服器不知道讀者的時區；要換算只能在瀏覽器載入後換掉，海外讀者會看到日期跳動，年份分組與分享預覽也跟不上。只顯示日期、不顯示時分，兩者只在一天中少數幾個小時會差一天，所以不做讀者時區切換器。
+  - **後路**：將來在台北以外的時區發文時，再讓每篇文章各自存發布時的時區——`posts`、`notes` 加 `timezone` 欄位（舊資料預設 `Asia/Taipei`），後台發布時由瀏覽器的 `Intl.DateTimeFormat().resolvedOptions().timeZone` 寫入，顯示時改讀文章自己的時區。要改的只有上面兩處格式化。讀者時區切換器解決不了這個問題（它只能在「一個固定的作者時區」跟讀者時區之間切），兩件事互不相干。
 - **Lab**：只有一個連到 `/lab/design`（設計系統活頁）的入口。
 
 ---

@@ -1,18 +1,19 @@
 import { Fragment } from 'react'
-import { cookies } from 'next/headers'
 import { getTranslations } from 'next-intl/server'
-import { createClient } from '@/app/lib/supabase/server'
+import { createPublicClient } from '@/app/lib/supabase/public'
 import { getPublishedPosts } from '@/app/lib/supabase/posts'
 import { getTaipeiYear } from '@/app/lib/blog/formatPostDate'
 import PageContainer from '@/app/components/PageContainer/PageContainer'
 import PageHeader from '@/app/components/PageHeader/PageHeader'
 import PostCard from '@/app/components/blog/PostCard/PostCard'
-import PostList, { type BlogView } from '@/app/components/blog/PostList'
+import PostList from '@/app/components/blog/PostList'
 import YearDivider from '@/app/components/blog/PostList/YearDivider'
 import type { Post, SupportedLocale } from '@/app/types/blog'
 import style from './blog.module.scss'
 
 import { metadata } from '@/app/lib/metadata'
+
+export const revalidate = 300
 
 export async function generateMetadata({
   params,
@@ -50,14 +51,9 @@ export default async function BlogPage({
   const locale = localeParam as SupportedLocale
   const t = await getTranslations({ locale, namespace: 'BlogPage' })
 
-  const supabase = await createClient()
-  const { data: posts } = await getPublishedPosts(supabase, { pageSize: 30 })
-
-  // 本頁本來就是動態渲染（Supabase client 綁 cookie），順手讀偏好就能在 SSR
-  // 決定版型，不會有先渲染卡片再跳成列表的閃爍。
-  const cookieStore = await cookies()
-  const view: BlogView =
-    cookieStore.get('blog-view')?.value === 'list' ? 'list' : 'card'
+  const { data: posts } = await getPublishedPosts(createPublicClient(), {
+    pageSize: 30,
+  })
 
   const groups = groupByYear(posts)
 
@@ -69,7 +65,7 @@ export default async function BlogPage({
       {posts.length === 0 ? (
         <div className={style.empty}>{t('noPosts')}</div>
       ) : (
-        <PostList initialView={view}>
+        <PostList>
           {groups.map((group) => (
             // Fragment 不產生 DOM 節點，YearDivider 與 PostCard 都還是容器的
             // 直接子元素 —— 卡片模式的 grid-column: 1 / -1 才有效。

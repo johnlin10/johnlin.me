@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation'
 import { getTranslations } from 'next-intl/server'
 import { Link } from '@/i18n/navigation'
-import { createClient } from '@/app/lib/supabase/server'
+import { createPublicClient } from '@/app/lib/supabase/public'
 import { getPostBySlug } from '@/app/lib/supabase/posts'
 import { formatPostDate } from '@/app/lib/blog/formatPostDate'
 import { readingTimeMinutes } from '@/app/lib/blog/readingTime'
@@ -31,12 +31,19 @@ function localized<T extends { name: string }>(
 
 import { metadata } from '@/app/lib/metadata'
 
+export const revalidate = 300
+
+// 建置時不先產生，第一次有人看時才產生並快取
+export function generateStaticParams() {
+  return []
+}
+
 export async function generateMetadata({
   params,
 }: PostPageProps): Promise<Metadata> {
   const { locale: localeParam, slug } = await params
   const locale = localeParam as SupportedLocale
-  const supabase = await createClient()
+  const supabase = createPublicClient()
   const post = await getPostBySlug(supabase, slug)
   if (!post) return metadata({ title: 'Post Not Found', description: '' })
 
@@ -65,7 +72,7 @@ export default async function PostPage({ params }: PostPageProps) {
   const { locale: localeParam, slug } = await params
   const locale = localeParam as SupportedLocale
 
-  const supabase = await createClient()
+  const supabase = createPublicClient()
   const post = await getPostBySlug(supabase, slug)
   if (!post || post.status !== 'published') notFound()
 

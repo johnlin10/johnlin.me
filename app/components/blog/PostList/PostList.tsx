@@ -1,11 +1,16 @@
 'use client'
 
-import { useState, type ReactNode } from 'react'
+import { useLayoutEffect, useState, type ReactNode } from 'react'
 import { useTranslations } from 'next-intl'
 import Icon, { type IconName } from '@/app/components/Icon/Icon'
 import style from './PostList.module.scss'
 
 export type BlogView = 'card' | 'list'
+
+const PREFERS_LIST = /(?:^|; )blog-view=list(?:;|$)/
+
+// 頁面是共用快取，伺服器不讀 cookie：硬載入時由這段在卡片畫出來前設好版型
+const APPLY_VIEW = `if(${PREFERS_LIST}.test(document.cookie))document.currentScript.parentElement.dataset.view='list'`
 
 const VIEWS: { value: BlogView; icon: IconName }[] = [
   { value: 'card', icon: 'table-cells-large' },
@@ -18,20 +23,17 @@ const VIEWS: { value: BlogView; icon: IconName }[] = [
  * 卡片本身仍然是伺服器元件，用 children 傳進來（RSC 合法用法），
  * 這裡只負責換容器的 data-view，版型全交給 CSS。
  */
-export default function PostList({
-  initialView,
-  children,
-}: {
-  initialView: BlogView
-  children: ReactNode
-}) {
-  const [view, setView] = useState<BlogView>(initialView)
+export default function PostList({ children }: { children: ReactNode }) {
+  const [view, setView] = useState<BlogView>('card')
   const t = useTranslations('BlogPage.viewMode')
+
+  // 站內導覽時上面那段 script 不會執行，改在畫面顯示前讀
+  useLayoutEffect(() => {
+    if (PREFERS_LIST.test(document.cookie)) setView('list')
+  }, [])
 
   const handleChange = (next: BlogView) => {
     setView(next)
-    // 存 cookie 是為了讓下一次 SSR 就吐出正確版型（不會閃）；
-    // 當下畫面直接由 state 更新，不呼叫 router.refresh()，免得重打一次資料。
     document.cookie = `blog-view=${next};path=/;max-age=31536000;samesite=lax`
   }
 
@@ -55,7 +57,8 @@ export default function PostList({
         </div>
       </div>
 
-      <div className={style.list} data-view={view}>
+      <div className={style.list} data-view={view} suppressHydrationWarning>
+        <script dangerouslySetInnerHTML={{ __html: APPLY_VIEW }} />
         {children}
       </div>
     </>

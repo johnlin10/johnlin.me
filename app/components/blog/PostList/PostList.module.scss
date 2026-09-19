@@ -75,7 +75,7 @@
     background: var(--border);
   }
 
-  &:not(:first-child) {
+  &:not(:first-of-type) {
     margin-top: var(--space-10);
   }
 }

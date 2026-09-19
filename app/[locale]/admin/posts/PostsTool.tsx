@@ -32,6 +32,10 @@ export type PostsData = { posts: Post[]; categories: Category[]; tags: Tag[] }
  * 文章列表管理頁面，首屏資料由 page.tsx 在伺服器端抓好帶進來。
  * @param props.initial 文章、分類、標籤；伺服器端沒抓到是 null
  */
+/** 文章頁、列表與首頁是快取頁面，改到網站上看得到的內容後要叫它們重產 */
+const revalidateSite = () =>
+  fetch('/api/admin/posts/revalidate', { method: 'POST' }).catch(() => {})
+
 export default function PostsTool({ initial }: { initial: PostsData | null }) {
   const t = useTranslations('AdminPage.posts')
   const locale = useLocale()
@@ -78,6 +82,7 @@ export default function PostsTool({ initial }: { initial: PostsData | null }) {
     )
     try {
       await updatePost(supabase, { id: post.id, categoryId })
+      if (post.status === 'published') await revalidateSite()
     } catch (error) {
       console.error('更新分類失敗:', error)
       toast.error(t('categoryUpdateError'))
@@ -96,6 +101,7 @@ export default function PostsTool({ initial }: { initial: PostsData | null }) {
     )
     try {
       await updatePost(supabase, { id: post.id, tagIds })
+      if (post.status === 'published') await revalidateSite()
     } catch (error) {
       console.error('更新標籤失敗:', error)
       toast.error(t('tagsUpdateError'))
@@ -170,6 +176,7 @@ export default function PostsTool({ initial }: { initial: PostsData | null }) {
 
     try {
       await deletePost(supabase, post.id)
+      if (post.status === 'published') await revalidateSite()
       toast.success(t('deleteSuccess'))
       loadPosts()
     } catch (error) {
