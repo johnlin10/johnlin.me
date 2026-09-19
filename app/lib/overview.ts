@@ -46,14 +46,70 @@ export function pickAgenda<T extends { end: string }>(
   return null
 }
 
-type TermDates = { code: string; start_date: string | null; end_date: string | null }
+type TermDates = {
+  code: string
+  start_date: string | null
+  end_date: string | null
+  midterm_week?: string | null
+  final_week?: string | null
+}
+
+export type ExamWeek = {
+  kind: 'midterm' | 'final'
+  monday: string
+  friday: string
+  // upcoming 是兩週以上，soon 是下週，now 是正在那一週（含週末），done 是考完了
+  status: 'upcoming' | 'soon' | 'now' | 'done'
+  // 這週到那一週隔幾週，下週是 1
+  weeksUntil: number
+  // 離那一週的週一還有幾天
+  daysUntil: number
+}
 
 export type TermProgress =
-  | { kind: 'in'; code: string; week: number; weeks: number; daysLeft: number; ratio: number }
+  | {
+      kind: 'in'
+      code: string
+      week: number
+      weeks: number
+      daysLeft: number
+      ratio: number
+      exams: ExamWeek[]
+    }
   | { kind: 'before'; code: string; daysUntil: number }
 
 /**
- * 學期進度。在學期中就是第幾週、還剩幾天；放假中就是離下學期開學幾天。
+ * 那一天所在那週的週一。
+ * @param date 'YYYY-MM-DD'
+ * @returns 'YYYY-MM-DD'
+ */
+export function mondayOf(date: string): string {
+  // getUTCDay 週日是 0，推回週一要退 6 天
+  return shiftDate(date, -((new Date(`${date}T00:00:00Z`).getUTCDay() + 6) % 7))
+}
+
+/**
+ * 考試週：填的那一天推回週一，算出週一到週五，以及從這週算起還有幾週、幾天。
+ * @param today 'YYYY-MM-DD'
+ * @param kind 期中或期末
+ * @param date 考試週裡的任一天
+ * @returns 考試週
+ */
+export function examWeek(today: string, kind: ExamWeek['kind'], date: string): ExamWeek {
+  const monday = mondayOf(date)
+  const weeksUntil = daysBetween(mondayOf(today), monday) / 7
+  return {
+    kind,
+    monday,
+    friday: shiftDate(monday, 4),
+    status: weeksUntil > 1 ? 'upcoming' : weeksUntil === 1 ? 'soon' : weeksUntil === 0 ? 'now' : 'done',
+    weeksUntil,
+    daysUntil: daysBetween(today, monday),
+  }
+}
+
+/**
+ * 學期進度。在學期中就是第幾週、還剩幾天和考試週；放假中就是離下學期開學幾天。
  * 起訖日期沒填齊的學期算不出來，跳過。
  * @param today 'YYYY-MM-DD'
  * @param terms 全部學期
@@ -75,6 +131,10 @@ export function termProgress(today: string, terms: TermDates[]): TermProgress | 
       weeks: Math.ceil(length / 7),
       daysLeft: daysBetween(today, current.end_date),
       ratio: (passed + 1) / length,
+      exams: [
+        current.midterm_week && examWeek(today, 'midterm', current.midterm_week),
+        current.final_week && examWeek(today, 'final', current.final_week),
+      ].filter((exam): exam is ExamWeek => !!exam),
     }
   }
   const next = dated

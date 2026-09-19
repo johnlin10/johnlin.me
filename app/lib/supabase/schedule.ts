@@ -8,6 +8,9 @@ export type Semester = {
   // 課表只在這段期間有效；null 當作那一邊不設限
   start_date: string | null
   end_date: string | null
+  // 考試週裡的任一天；null = 還不知道
+  midterm_week: string | null
+  final_week: string | null
 }
 export type Teacher = { id: string; name: string }
 export type Course = {
@@ -64,7 +67,7 @@ export async function getBootstrap(supabase: SupabaseClient): Promise<Bootstrap>
 export async function getSemesters(supabase: SupabaseClient): Promise<Semester[]> {
   const { data, error } = await supabase
     .from('semesters')
-    .select('id, code, start_date, end_date')
+    .select('id, code, start_date, end_date, midterm_week, final_week')
     .order('code', { ascending: false })
   if (error) throw error
   return data

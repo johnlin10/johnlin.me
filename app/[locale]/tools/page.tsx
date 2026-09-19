@@ -30,7 +30,7 @@ const TOOLS: { href: string; key: 'links' | 'schedule' | 'tutoring'; icon: IconN
 type AgendaItem = DayItem & { kind: 'class' | 'session' }
 
 /**
- * 工具總覽：今天（或下一個有安排的日子）要做什麼、學期走到哪，卡片上帶各工具的摘要。
+ * 工具總覽：今天（或下一個有安排的日子）要做什麼、學期走到哪、離考試週多久，卡片上帶各工具的摘要。
  * 整頁在伺服器端算，時間一律看台灣。
  */
 export default async function ToolsHomePage() {
@@ -171,6 +171,29 @@ export default async function ToolsHomePage() {
                 <p className={style.hint}>
                   {t('term.left', { weeks: term.weeks, days: term.daysLeft })}
                 </p>
+                {term.exams.length > 0 && (
+                  <ul className={style.exams}>
+                    {term.exams.map((exam) => (
+                      <li
+                        key={exam.kind}
+                        className={style.exam}
+                        data-status={exam.status}
+                      >
+                        <span className={style.examName}>{t(`term.exam.${exam.kind}`)}</span>
+                        <span className={style.examDates}>
+                          {format.dateTimeRange(
+                            new Date(`${exam.monday}T12:00:00+08:00`),
+                            new Date(`${exam.friday}T12:00:00+08:00`),
+                            { month: 'numeric', day: 'numeric' },
+                          )}
+                        </span>
+                        <span className={style.examStatus}>
+                          {t(`term.exam.${exam.status}`, { weeks: exam.weeksUntil, days: exam.daysUntil })}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </>
             ) : term?.kind === 'before' ? (
               <p className={style.termValue}>

@@ -695,6 +695,14 @@
         "week": "Week {week}",
         "left": "{weeks} weeks in all, {days, plural, one {# day} other {# days}} left",
         "before": "{code} starts in {days, plural, one {# day} other {# days}}",
+        "exam": {
+          "midterm": "Midterms",
+          "final": "Finals",
+          "upcoming": "in {weeks, plural, one {# week} other {# weeks}}",
+          "soon": "in {days, plural, one {# day} other {# days}}",
+          "now": "this week",
+          "done": "done"
+        },
         "none": "No semester with dates yet."
       },
       "tools": {
@@ -798,6 +806,10 @@
         "deleteMessage": "Delete {code}?",
         "start": "First day",
         "end": "Last day",
+        "midterm": "Midterm week",
+        "final": "Finals week",
+        "examInvalid": "Finals week can't come before midterm week",
+        "examHelper": "Any day in that week works. Only used for the countdown on the tools overview.",
         "rangeInvalid": "The last day cannot come before the first",
         "rangeHelper": "The timetable only counts between these dates, so the weeks before term and the breaks are free. For the latest semester an empty side means no limit; an older semester only counts once both dates are filled in."
       },

@@ -696,6 +696,14 @@
         "week": "第 {week} 週",
         "left": "共 {weeks} 週，還有 {days} 天結束",
         "before": "{code} 還有 {days} 天開學",
+        "exam": {
+          "midterm": "期中考",
+          "final": "期末考",
+          "upcoming": "還有 {weeks} 週",
+          "soon": "還有 {days} 天",
+          "now": "就是這週",
+          "done": "考完了"
+        },
         "none": "還沒有排定日期的學期。"
       },
       "tools": {
@@ -799,6 +807,10 @@
         "deleteMessage": "確定要刪除 {code} 嗎？",
         "start": "開學日",
         "end": "結束日",
+        "midterm": "期中考週",
+        "final": "期末考週",
+        "examInvalid": "期末考週不能早於期中考週",
+        "examHelper": "填那一週的任何一天都可以，只會用在工具總覽的倒數。",
         "rangeInvalid": "結束日不能早於開學日",
         "rangeHelper": "課表只在這段期間有效，開學前和寒暑假不算有課。最新的學期沒填的那一邊不設限；舊學期要兩個日期都填了才會套用。"
       },

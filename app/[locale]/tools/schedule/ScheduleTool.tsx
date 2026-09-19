@@ -50,7 +50,14 @@ type SlotForm = {
 }
 type CourseForm = { id?: string; name: string; credits: string; color: string }
 type NameForm = { id?: string; value: string }
-type SemesterForm = { id?: string; code: string; start: string; end: string }
+type SemesterForm = {
+  id?: string
+  code: string
+  start: string
+  end: string
+  midterm: string
+  final: string
+}
 type PersonForm = { name: string; role: string }
 type CopyForm = { fromId: string }
 
@@ -253,7 +260,7 @@ export default function ScheduleTool({ initial }: { initial: Bootstrap | null })
   }
 
   const changeSemester = (value: string) => {
-    if (value === NEW_SEMESTER) return setSemesterForm({ code: '', start: '', end: '' })
+    if (value === NEW_SEMESTER) return setSemesterForm({ code: '', start: '', end: '', midterm: '', final: '' })
     setSlots([])
     setSemesterId(value)
   }
@@ -262,10 +269,17 @@ export default function ScheduleTool({ initial }: { initial: Bootstrap | null })
     if (!semesterForm) return
     const code = semesterForm.code.trim()
     if (!SEMESTER_CODE.test(code)) return toast.error(t('semester.codeInvalid'))
-    const { start, end } = semesterForm
+    const { start, end, midterm, final } = semesterForm
     if (start && end && end < start) return toast.error(t('semester.rangeInvalid'))
+    if (midterm && final && final < midterm) return toast.error(t('semester.examInvalid'))
     try {
-      const fields = { code, start_date: start || null, end_date: end || null }
+      const fields = {
+        code,
+        start_date: start || null,
+        end_date: end || null,
+        midterm_week: midterm || null,
+        final_week: final || null,
+      }
       if (semesterForm.id) {
         await updateRow(supabase, 'semesters', semesterForm.id, fields)
       } else {
@@ -507,7 +521,7 @@ export default function ScheduleTool({ initial }: { initial: Bootstrap | null })
         {!semester ? (
           <div className={style.empty}>
             <p>{t('noSemester')}</p>
-            <Button onClick={() => setSemesterForm({ code: '', start: '', end: '' })}>
+            <Button onClick={() => setSemesterForm({ code: '', start: '', end: '', midterm: '', final: '' })}>
               {t('semester.new')}
             </Button>
           </div>
@@ -649,6 +663,8 @@ export default function ScheduleTool({ initial }: { initial: Bootstrap | null })
                         code: semester.code,
                         start: semester.start_date ?? '',
                         end: semester.end_date ?? '',
+                        midterm: semester.midterm_week ?? '',
+                        final: semester.final_week ?? '',
                       })
                     }
                   >
@@ -923,6 +939,21 @@ export default function ScheduleTool({ initial }: { initial: Bootstrap | null })
                 />
               </div>
               <p className={style.hint}>{t('semester.rangeHelper')}</p>
+              <div className={style.pair}>
+                <Input
+                  label={t('semester.midterm')}
+                  type="date"
+                  value={semesterForm.midterm}
+                  onChange={(midterm) => setSemesterForm({ ...semesterForm, midterm })}
+                />
+                <Input
+                  label={t('semester.final')}
+                  type="date"
+                  value={semesterForm.final}
+                  onChange={(final) => setSemesterForm({ ...semesterForm, final })}
+                />
+              </div>
+              <p className={style.hint}>{t('semester.examHelper')}</p>
               <div className={style.form_actions}>
                 {semesterForm.id && (
                   <Button variant="danger" className={style.pushStart} onClick={deleteSemester}>
