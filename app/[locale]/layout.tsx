@@ -23,6 +23,10 @@ const notoSansTC = Noto_Sans_TC({
 
 import { metadata as createMetadata } from '@/app/lib/metadata'
 
+export function generateStaticParams() {
+  return routing.locales.map((locale) => ({ locale }))
+}
+
 export async function generateMetadata(): Promise<Metadata> {
   const baseMetadata = await createMetadata({
     title: 'John Lin | 林昌龍',

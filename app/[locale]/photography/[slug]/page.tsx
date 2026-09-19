@@ -28,9 +28,7 @@ export const dynamicParams = true
 
 export async function generateStaticParams() {
   const photos = await getPublishedPhotos(createPublicClient())
-  return routing.locales.flatMap((locale) =>
-    photos.map((photo) => ({ locale, slug: photo.slug }))
-  )
+  return photos.map((photo) => ({ slug: photo.slug }))
 }
 
 export async function generateMetadata({

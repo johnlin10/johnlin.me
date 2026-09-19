@@ -1,6 +1,7 @@
 import PageContainer from '@/app/components/PageContainer/PageContainer'
 import PageHeader from '@/app/components/PageHeader/PageHeader'
 import ColorDisplay from '@/app/components/ColorDisplay/ColorDisplay'
+import { use } from 'react'
 import { useTranslations } from 'next-intl'
 import styles from './design.module.scss'
 
@@ -100,7 +101,7 @@ const zScale = [
   ['--z-toast', '1100', 'toast'],
 ] as const
 
-import { getTranslations } from 'next-intl/server'
+import { getTranslations, setRequestLocale } from 'next-intl/server'
 import { metadata } from '@/app/lib/metadata'
 
 export async function generateMetadata({
@@ -121,7 +122,12 @@ export async function generateMetadata({
   })
 }
 
-function DesignSystemPage() {
+function DesignSystemPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>
+}) {
+  setRequestLocale(use(params).locale)
   const t = useTranslations('LabPage.DesignPage')
 
   return (
