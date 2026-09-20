@@ -674,6 +674,7 @@
       "schedule": "課表",
       "tutoring": "完善就學",
       "links": "短網址",
+      "qr": "QR Code",
       "groups": {
         "personal": "個人",
         "school": "學校"
@@ -721,6 +722,11 @@
           "name": "短網址",
           "description": "go.johnlin.me 的轉址和點擊統計",
           "summary": "近 7 天 {count} 次點擊"
+        },
+        "qr": {
+          "name": "QR Code",
+          "description": "網址、Wi-Fi、聯絡人都能變成一張碼",
+          "summary": "{count, plural, =0 {還沒存任何一個} other {存了 # 個}}"
         }
       }
     },
@@ -779,6 +785,94 @@
         "unknown": "未知",
         "noClicks": "近 90 天還沒有點擊。",
         "footnote": "連結預覽爬蟲不算在內；點擊只記時間、來源網域和國家。"
+      }
+    },
+    "qr": {
+      "title": "QR Code",
+      "subtitle": "{count, plural, =0 {還沒存任何 QR Code} other {存了 # 個}}",
+      "new": "新增 QR Code",
+      "empty": "還沒存任何 QR Code。按右上角新增，產生的圖不存也能直接下載。",
+      "loadError": "QR Code 清單載入失敗",
+      "saveError": "存檔失敗，再試一次。",
+      "deleteError": "刪除失敗，再試一次。",
+      "created": "已存下",
+      "updated": "已更新",
+      "downloadPng": "下載 PNG",
+      "downloadSvg": "下載 SVG",
+      "edit": "編輯",
+      "delete": "刪除",
+      "cancel": "取消",
+      "save": "儲存",
+      "deleteTitle": "刪除 QR Code",
+      "deleteMessage": "刪除「{label}」？已經印出去的還是掃得到，只是這裡不再留著。",
+      "table": {
+        "label": "名稱",
+        "kind": "類型",
+        "content": "內容",
+        "created": "建立時間",
+        "actions": "操作"
+      },
+      "kinds": {
+        "url": "網址",
+        "text": "純文字",
+        "wifi": "Wi-Fi",
+        "vcard": "聯絡人",
+        "email": "Email",
+        "sms": "簡訊",
+        "tel": "電話",
+        "geo": "位置"
+      },
+      "fields": {
+        "url": "網址",
+        "text": "文字",
+        "ssid": "網路名稱（SSID）",
+        "password": "密碼",
+        "name": "姓名",
+        "org": "公司／單位",
+        "title": "職稱",
+        "phone": "電話",
+        "email": "Email",
+        "subject": "主旨",
+        "body": "內文",
+        "message": "簡訊內容",
+        "lat": "緯度",
+        "lng": "經度"
+      },
+      "placeholders": {
+        "url": "johnlin.me",
+        "phone": "0912345678",
+        "lat": "25.033",
+        "lng": "121.565"
+      },
+      "levels": {
+        "L": "L · 7%",
+        "M": "M · 15%",
+        "Q": "Q · 25%",
+        "H": "H · 30%"
+      },
+      "form": {
+        "newTitle": "新增 QR Code",
+        "editTitle": "編輯 QR Code",
+        "label": "名稱",
+        "labelPlaceholder": "下載時的檔名",
+        "labelRequired": "先取個名字",
+        "tabs": {
+          "content": "內容",
+          "style": "樣式"
+        },
+        "kind": "資料類型",
+        "level": "容錯等級",
+        "corner": "點陣圓角",
+        "eye": "定位點圓角",
+        "foreground": "本體",
+        "background": "背景",
+        "transparent": "透明背景",
+        "contrastWarning": "明暗差太小，可能掃不出來",
+        "invertedWarning": "淺色碼配深色底，有些掃描器讀不到",
+        "preview": "QR Code 預覽",
+        "empty": "必填欄位填完就會出現 QR Code。",
+        "tooLong": "資料太長，一個 QR Code 裝不下。刪掉一些欄位，或把容錯等級調低。",
+        "info": "版本 {version} · {size}×{size} 格 · {bytes} 個字元"
       }
     },
     "schedule": {

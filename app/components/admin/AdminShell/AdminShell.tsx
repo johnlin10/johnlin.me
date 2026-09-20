@@ -78,7 +78,10 @@ const TOOLS_NAV_GROUPS: NavGroup[] = [
   },
   {
     labelKey: 'groups.personal',
-    items: [{ href: '/links', labelKey: 'links', icon: 'link' }],
+    items: [
+      { href: '/links', labelKey: 'links', icon: 'link' },
+      { href: '/qr', labelKey: 'qr', icon: 'qrcode' },
+    ],
   },
   {
     labelKey: 'groups.school',

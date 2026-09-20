@@ -2,7 +2,7 @@
 
 課表和短網址這兩個工具的實作規劃，2026-09-15 定案。同一天修訂過兩次：tools 整個改成私人使用、課程顏色改成自己選；學期獨立成一張表，課程加上學分。做完一個階段就回來更新這份，跟 [`blueprint.md`](blueprint.md) 一樣，別讓它跟程式脫節。
 
-第三個工具「完善就學」的規劃另外一份：[`tutoring-plan.md`](tutoring-plan.md)。
+第三個工具「完善就學」的規劃另外一份：[`tutoring-plan.md`](tutoring-plan.md)。第四個工具 QR Code 在第六節。
 
 ---
 
@@ -50,6 +50,7 @@
 | `tools.johnlin.me/schedule` | `app/[locale]/tools/schedule` | 你 |
 | `tools.johnlin.me/links` | `app/[locale]/tools/links` | 你 |
 | `tools.johnlin.me/links/{slug}` | `app/[locale]/tools/links/[slug]` | 你（單一連結的統計） |
+| `tools.johnlin.me/qr` | `app/[locale]/tools/qr` | 你 |
 | `go.johnlin.me/{slug}` | 不進 app 路由，proxy 直接回 307 | 所有人 |
 | `johnlin.me/tools` | 回 404，跟 `/admin` 一樣 | 沒有人 |
 
@@ -373,7 +374,60 @@ export function randomSlug(length = 6) {
 
 ---
 
-## 六、分階段
+## 六、QR Code
+
+2026-09-20 加的第四個工具，`tools.johnlin.me/qr`。
+
+### 機制備忘（免得下次又忘記）
+
+QR Code 裡面只有一串文字，沒有別的。所謂支援很多種資料，是掃描器看開頭的前綴決定要做什麼：`https://` 開網頁、`WIFI:` 問要不要連網路、`BEGIN:VCARD` 問要不要存聯絡人、`mailto:` `SMSTO:` `tel:` `geo:` 各自開對應的 App。所以這個工具的本體是「表單 → 組出正確格式的字串 → 畫成圖」，真正容易出錯的是跳脫字元（Wi-Fi 密碼裡的 `;`、vCard 值裡的 `,`），不是編碼。
+
+另外兩件事會影響 UI：資料越多格子越密（版本越高），太密會掃不動；容錯等級 L/M/Q/H 決定最多能遮掉多少（7%／15%／25%／30%），等級越高格子越密。預設 M。
+
+### 決定
+
+| 項目 | 決定 |
+|---|---|
+| 支援格式 | 網址、純文字、Wi-Fi、聯絡人（vCard 3.0）、Email、簡訊、電話、位置，共 8 種 |
+| 編碼 | 用 `qrcode` 套件（自己寫要三百行 Reed-Solomon）。畫圖不用它的 renderer，`create()` 拿模組矩陣自己畫成 SVG path，React 才能直接渲染、也不必 `dangerouslySetInnerHTML` |
+| 存不存 | 存。`qr_codes` 一張表，存的是**表單欄位**不是編碼後的字串，這樣叫回表單還能改 |
+| 外觀 | 不放 logo。顏色、圓角可以調，但預設值是最好掃的那組 |
+| 圓角 | 點陣和定位點分開設，各一根無級滑桿（0–100%）。點陣只倒外側的角，連成一條的模組中間不會斷開；定位點是三層同心方形，半徑往內每層減一格，拉到底變成三個同心圓 |
+| 顏色 | 本體和背景各一個色票，背景可以設成透明。明暗差不夠或反白時出警告，但不擋 |
+| 表單 | 分「內容」和「樣式」兩個分頁，右邊的預覽兩個分頁都看得到 |
+| 介面文案 | 欄位底下不放說明文字。這份文件才是說明書，介面只留「做錯了會怎樣」的即時警告（目前只有顏色對比那兩條） |
+| 控制項 | 樣式分頁一律是「左標題、右控制項」的列。離散選項用藥丸（容錯等級）、連續值用膠囊滑桿、顏色用圓色票、開關用 switch——不同性質的東西不共用同一種樣子 |
+| 下載 | PNG（1024px）和 SVG 兩種，不存也能直接下載 |
+
+### 資料表（`0015_qr_codes.sql`、`0016_qr_radius.sql`、`0017_qr_style.sql`）
+
+`id`、`label`、`kind`、`fields`（jsonb）、`level`、`radius`、`eye_radius`、`foreground`、`background`、`created_at`、`updated_at`。每個樣式欄位都有 check 擋值（色碼是 `^#[0-9a-f]{6}$`，`background` 為 null 表示透明），RLS 一樣只給 `is_admin()`。欄位名用 `fields` 不用 `values`，後者是 SQL 保留字。
+
+樣式跟著資料走而不是當介面設定，因為從清單直接下載時也要跟當初看到的長一樣。
+
+兩種圓角的單位不同，別搞混：`radius` 是一格的邊長比例（0–0.5，0.5 是圓點），`eye_radius` 是整個 7 格定位點的圓角程度（0–1，1 是圓環）。
+
+### 程式
+
+- `app/lib/qr.ts`：欄位定義 `QR_FIELDS` 和 `buildPayload()`（組字串＋跳脫）、`modulesPath()`（矩陣畫成 path）。純函式，沒有任何 import，測試在 `qr.test.mjs`。
+- 網址的正規化沿用短網址的 `normalizeTarget()`，在元件層呼叫——`qr.ts` 一旦 import 別的檔案，`node --test` 就跑不動（它不認得沒有副檔名的相對路徑）。
+- 表單是資料驅動的：`QR_FIELDS[kind]` 列出欄位，元件照著渲染 Input／Textarea，加一種格式只要加一組欄位定義和翻譯。
+- 預覽、PNG、SVG 都從 `figureOf()` 出來，三邊不會長得不一樣。PNG 是把同一條 path 丟進 `new Path2D()` 用 canvas 畫的——套件自己的 canvas renderer 只畫得出方格，畫不出圓角。
+- 點陣和定位點是兩條 path：`withoutFinders()` 把三個 7×7 挖掉之後才畫點陣，定位點由 `finderPath()` 自己畫成三層同心方形。定位點那條要配 `fill-rule="evenodd"`，中間那圈才是真的洞——背景透明時不能靠塗背景色蓋掉。
+- 定位點三層的半徑是**往內減**，不是按各自尺寸等比例縮：每內縮一格，半徑減一格。等比例縮的話環在轉角會胖一圈（外圈半徑 1.58 時，轉角環寬 1.23 格、直線邊 1 格），看起來就像每層圓角一樣大。減到 0 的那層就是直角，這是對的。
+- 兩根滑桿對外都是 0–100%，實際單位在呼叫端換算（點陣乘 `QR_MAX_RADIUS`，定位點直接用）。滑桿是原生 `<input type="range">` 改的，照 iOS 的標準滑桿長：細軌道（5px）＋ 圓形旋鈕，hover／拖曳時旋鈕放大 1.12 倍。軌道用 `linear-gradient` 上色，切點是 `calc(var(--p) * (100% - 旋鈕寬) / 100 + 旋鈕寬 / 2)`——直接用百分比的話，填色邊緣會跟旋鈕中心差半個旋鈕。旋鈕在兩個主題都是白的（深色主題用 `--surface` 會跟面板同色，變成空心圈）。
+- 明暗差用既有的 `srgbToOklch()` 算（在元件裡呼叫，理由同上）。差距小於 0.4 或本體比背景亮就出警告。
+
+### 已知限制
+
+- 換資料類型會清掉已填的欄位。不同類型的同名欄位意思不一樣，留著更容易搞混。
+- 資料太長（超過版本 40 的容量）會出提示，要自己刪欄位或降容錯等級。
+- 沒有掃描功能，只有產生。
+- 圓角是 0.5 的圓點配低容錯時，掃描成功率會掉，提示文字有寫，但沒有擋。
+
+---
+
+## 七、分階段
 
 | 階段 | 內容 | 建議版本 |
 |---|---|---|
@@ -383,6 +437,7 @@ export function randomSlug(length = 6) {
 | 課表介面調整 ✅ | 手機滿版、管理區收合、整列點擊編輯 | v1.5 Beta 4 |
 | 表格去外框 ✅ | DataTable 無外框、捲動延伸到頁面內距、圓角 hover | v1.5 Beta 5 |
 | 後台列表操作收進選單 ✅ | 標籤整列點擊編輯、標籤與文章的刪除收進「⋯」選單 | v1.5 Beta 6 |
+| 4. QR Code ✅ | 0015 migration、8 種資料格式、即時預覽、PNG／SVG 下載、存成清單 | v1.11.0 |
 
 開發在 `feat/tools` 分支，每個階段一個 commit，版本號用 v1.5 Beta x；整批併回 main 時才是 v1.5.0。
 
@@ -390,7 +445,7 @@ export function randomSlug(length = 6) {
 
 ---
 
-## 七、之後再做（這次不做）
+## 八、之後再做（這次不做）
 
 ### 學分統計
 
@@ -406,6 +461,6 @@ export function randomSlug(length = 6) {
 
 ---
 
-## 八、順手發現的
+## 九、順手發現的
 
 - proxy 的 matcher 用 `(?!api|trpc|_next|_vercel|auth|...)`，會讓主站所有開頭是 api、auth、trpc 的路徑跳過 next-intl，像將來如果有 `/authors` 這種頁面就會出問題。現在沒有這種頁面，先記著。

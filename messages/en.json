@@ -673,6 +673,7 @@
       "schedule": "Timetable",
       "tutoring": "完善就學",
       "links": "Short links",
+      "qr": "QR codes",
       "groups": {
         "personal": "Personal",
         "school": "School"
@@ -720,6 +721,11 @@
           "name": "Short links",
           "description": "Redirects on go.johnlin.me with click stats",
           "summary": "{count, plural, one {# click} other {# clicks}} in the last 7 days"
+        },
+        "qr": {
+          "name": "QR codes",
+          "description": "Turn a URL, Wi-Fi or contact into a code",
+          "summary": "{count, plural, =0 {Nothing saved yet} one {# saved} other {# saved}}"
         }
       }
     },
@@ -778,6 +784,94 @@
         "unknown": "Unknown",
         "noClicks": "No clicks in the last 90 days.",
         "footnote": "Link preview bots aren't counted. Clicks record only the time, referring site and country."
+      }
+    },
+    "qr": {
+      "title": "QR codes",
+      "subtitle": "{count, plural, =0 {Nothing saved yet} one {# saved} other {# saved}}",
+      "new": "New QR code",
+      "empty": "Nothing saved yet. Add one from the top right — you can also generate and download without saving.",
+      "loadError": "Couldn't load your QR codes",
+      "saveError": "Couldn't save. Please try again.",
+      "deleteError": "Couldn't delete. Please try again.",
+      "created": "Saved",
+      "updated": "Updated",
+      "downloadPng": "Download PNG",
+      "downloadSvg": "Download SVG",
+      "edit": "Edit",
+      "delete": "Delete",
+      "cancel": "Cancel",
+      "save": "Save",
+      "deleteTitle": "Delete QR code",
+      "deleteMessage": "Delete “{label}”? Codes already printed keep working, they just won't be kept here.",
+      "table": {
+        "label": "Name",
+        "kind": "Type",
+        "content": "Content",
+        "created": "Created",
+        "actions": "Actions"
+      },
+      "kinds": {
+        "url": "URL",
+        "text": "Text",
+        "wifi": "Wi-Fi",
+        "vcard": "Contact",
+        "email": "Email",
+        "sms": "SMS",
+        "tel": "Phone",
+        "geo": "Location"
+      },
+      "fields": {
+        "url": "URL",
+        "text": "Text",
+        "ssid": "Network name (SSID)",
+        "password": "Password",
+        "name": "Name",
+        "org": "Organisation",
+        "title": "Job title",
+        "phone": "Phone",
+        "email": "Email",
+        "subject": "Subject",
+        "body": "Body",
+        "message": "Message",
+        "lat": "Latitude",
+        "lng": "Longitude"
+      },
+      "placeholders": {
+        "url": "johnlin.me",
+        "phone": "0912345678",
+        "lat": "25.033",
+        "lng": "121.565"
+      },
+      "levels": {
+        "L": "L · 7%",
+        "M": "M · 15%",
+        "Q": "Q · 25%",
+        "H": "H · 30%"
+      },
+      "form": {
+        "newTitle": "New QR code",
+        "editTitle": "Edit QR code",
+        "label": "Name",
+        "labelPlaceholder": "Used as the filename",
+        "labelRequired": "Give it a name first",
+        "tabs": {
+          "content": "Content",
+          "style": "Style"
+        },
+        "kind": "Data type",
+        "level": "Error correction",
+        "corner": "Module corners",
+        "eye": "Finder corners",
+        "foreground": "Code",
+        "background": "Background",
+        "transparent": "Transparent",
+        "contrastWarning": "Too little contrast to scan reliably",
+        "invertedWarning": "A light code on a dark background may not scan",
+        "preview": "QR code preview",
+        "empty": "Fill in the required fields and the code appears here.",
+        "tooLong": "Too much data for one QR code. Drop a few fields or lower the error correction.",
+        "info": "Version {version} · {size}×{size} modules · {bytes} characters"
       }
     },
     "schedule": {
