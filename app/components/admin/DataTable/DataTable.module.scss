@@ -178,6 +178,7 @@
 }
 
 .menu_popover {
+  min-width: 112px;
   padding: var(--space-2);
 }
 
@@ -195,6 +196,7 @@
   font-family: var(--font-sans);
   font-size: var(--text-sm);
   text-align: left;
+  white-space: nowrap;
   color: var(--text);
   background: none;
   border: none;

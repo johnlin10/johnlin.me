@@ -12,7 +12,7 @@ export interface PopoverProps {
   title?: string
   children: React.ReactNode
   placement?: 'top' | 'bottom'
-  width?: number
+  width?: number | 'max-content'
   className?: string
 }
 
@@ -62,7 +62,7 @@ export default function Popover({
       const popoverRect = popover.getBoundingClientRect()
 
       const gutter = 12
-      const pWidth = popoverRect.width || width
+      const pWidth = popoverRect.width || (typeof width === 'number' ? width : 0)
       const pHeight = popoverRect.height || 120
 
       const anchorCenterX = anchorRect.left + anchorRect.width / 2
@@ -154,7 +154,7 @@ export default function Popover({
       style={{
         top: `${coords.top}px`,
         left: `${coords.left}px`,
-        width: `${width}px`,
+        width: typeof width === 'number' ? `${width}px` : width,
       }}
       onPointerDown={(e) => e.stopPropagation()}
       onClick={(e) => e.stopPropagation()}

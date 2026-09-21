@@ -25,6 +25,7 @@ import DataTable, {
 } from '@/app/components/admin/DataTable/DataTable'
 import { useToast } from '@/app/components/admin/Toast/ToastProvider'
 import { useConfirm } from '@/app/components/admin/ConfirmDialog/ConfirmDialog'
+import QrEditor, { newDraft, type Draft } from '../qr/QrEditor'
 import style from './links.module.scss'
 
 type LinkForm = { slug?: string; target: string; customSlug: string; note: string }
@@ -54,6 +55,7 @@ export default function LinksTool({ initial }: { initial: ShortLink[] | null }) 
   const supabase = useMemo(() => createClient(), [])
   const [links, setLinks] = useState<ShortLink[]>(initial ?? [])
   const [form, setForm] = useState<LinkForm | null>(null)
+  const [qr, setQr] = useState<Draft | null>(null)
 
   const load = useCallback(async () => setLinks(await getShortLinks(supabase)), [supabase])
 
@@ -178,11 +180,15 @@ export default function LinksTool({ initial }: { initial: ShortLink[] | null }) 
     },
   ]
 
+  const edit = (link: ShortLink) =>
+    setForm({ slug: link.slug, target: link.target_url, customSlug: '', note: link.note ?? '' })
+
   const actions: DataTableAction<ShortLink>[] = [
+    { label: t('stats'), onClick: (link) => router.push(`/links/${link.slug}`) },
     {
-      label: t('edit'),
+      label: t('qr'),
       onClick: (link) =>
-        setForm({ slug: link.slug, target: link.target_url, customSlug: '', note: link.note ?? '' }),
+        setQr(newDraft({ label: link.note || link.slug, fields: { url: shortUrl(link.slug) } })),
     },
     { label: t('delete'), variant: 'danger', onClick: remove },
   ]
@@ -209,7 +215,7 @@ export default function LinksTool({ initial }: { initial: ShortLink[] | null }) 
             actions={actions}
             actionsAs="menu"
             actionsHeader={t('table.actions')}
-            onRowClick={(link) => router.push(`/links/${link.slug}`)}
+            onRowClick={edit}
           />
         )}
 
@@ -258,6 +264,8 @@ export default function LinksTool({ initial }: { initial: ShortLink[] | null }) 
             </div>
           )}
         </Modal>
+
+        <QrEditor initial={qr} onClose={() => setQr(null)} locked />
       </div>
     </div>
   )
