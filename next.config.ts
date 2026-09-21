@@ -9,6 +9,19 @@ const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: false,
   },
+  // 全站禁止被別的網站用 iframe 嵌入（後台尤其怕點擊劫持）；沒有任何頁面需要被嵌入。
+  async headers() {
+    return [
+      {
+        source: '/:path*',
+        headers: [
+          { key: 'Content-Security-Policy', value: "frame-ancestors 'none'" },
+          { key: 'X-Frame-Options', value: 'DENY' },
+          { key: 'X-Content-Type-Options', value: 'nosniff' },
+        ],
+      },
+    ]
+  },
   // 攝影頁網址 /gallery → /photography（v1.2.2），舊連結轉過去。
   async redirects() {
     return [
