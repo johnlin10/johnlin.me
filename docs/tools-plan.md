@@ -2,7 +2,7 @@
 
 課表和短網址這兩個工具的實作規劃，2026-09-15 定案。同一天修訂過兩次：tools 整個改成私人使用、課程顏色改成自己選；學期獨立成一張表，課程加上學分。做完一個階段就回來更新這份，跟 [`blueprint.md`](blueprint.md) 一樣，別讓它跟程式脫節。
 
-第三個工具「完善就學」的規劃另外一份：[`tutoring-plan.md`](tutoring-plan.md)。第四個工具 QR Code 在第六節。
+第三個工具「完善就學」的規劃另外一份：[`tutoring-plan.md`](tutoring-plan.md)。第四個工具 QR Code 在第六節。知識庫也另外一份：[`kb-plan.md`](kb-plan.md)。
 
 ---
 

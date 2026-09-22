@@ -675,6 +675,7 @@
       "tutoring": "完善就學",
       "links": "短網址",
       "qr": "QR Code",
+      "kb": "知識庫",
       "groups": {
         "personal": "個人",
         "school": "學校"
@@ -727,6 +728,11 @@
           "name": "QR Code",
           "description": "網址、Wi-Fi、聯絡人都能變成一張碼",
           "summary": "{count, plural, =0 {還沒存任何一個} other {存了 # 個}}"
+        },
+        "kb": {
+          "name": "知識庫",
+          "description": "Obsidian 的筆記整包傳上來，之後可以分享",
+          "summary": "{count, plural, =0 {還沒上傳筆記} other {# 篇筆記}}"
         }
       }
     },
@@ -1145,6 +1151,23 @@
       "board": {
         "makeup": "補{day}"
       }
+    },
+    "kb": {
+      "title": "知識庫",
+      "subtitle": "{count, plural, =0 {還沒上傳筆記} other {# 篇筆記}}",
+      "upload": "上傳資料夾",
+      "uploading": "上傳中…",
+      "hint": "選 Obsidian vault 裡的「{roots}」資料夾，每次都整包選。只會送出改過的筆記，資料夾裡已經沒有的筆記會一起刪掉。",
+      "empty": "還沒上傳任何筆記。",
+      "loadError": "筆記清單載入失敗",
+      "wrongRoot": "要選的是「{roots}」資料夾本身，不是裡面的子資料夾。",
+      "noNotes": "這個資料夾裡沒有 .md 筆記。",
+      "noChanges": "筆記都是最新的，沒有要上傳的。",
+      "confirmTitle": "上傳筆記",
+      "confirmCounts": "新增 {added} 篇、更新 {changed} 篇、刪除 {removed} 篇。",
+      "confirmRemoved": "會刪掉的有：{names}{more, plural, =0 {} other {，還有另外 # 篇}}。",
+      "synced": "上傳好了",
+      "syncError": "上傳失敗，再試一次。檔案放在 iCloud 的話，先確認都已經下載到這台電腦。"
     }
   },
   "HomePage": {

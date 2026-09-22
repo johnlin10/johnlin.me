@@ -1,0 +1,63 @@
+@use '@/app/styles/design' as *;
+
+.page {
+  max-width: 1100px;
+  margin: 0 auto;
+  @include flexbox(column, flex-start, stretch);
+  gap: var(--space-6);
+}
+
+.hint {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: var(--text-2xs);
+  line-height: var(--leading-normal);
+}
+
+.tree {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  // 子層往內縮，並用一條細線標出屬於哪個資料夾
+  .tree {
+    margin-left: var(--space-2);
+    padding-left: var(--space-4);
+    border-left: 1px solid var(--border);
+  }
+}
+
+.folder {
+  @include flexbox(row, flex-start, center);
+  gap: var(--space-2);
+  padding: var(--space-2) 0;
+  font-weight: 600;
+  cursor: pointer;
+  list-style: none;
+
+  &::-webkit-details-marker {
+    display: none;
+  }
+}
+
+.folderIcon {
+  color: var(--accent);
+  font-size: var(--text-2xs);
+}
+
+.note {
+  @include flexbox(row, space-between, baseline);
+  gap: var(--space-4);
+  padding: var(--space-1) 0;
+}
+
+.noteName {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.noteDate {
+  flex-shrink: 0;
+  color: var(--text-muted);
+  font-size: var(--text-3xs);
+}

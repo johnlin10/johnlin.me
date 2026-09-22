@@ -674,6 +674,7 @@
       "tutoring": "完善就學",
       "links": "Short links",
       "qr": "QR codes",
+      "kb": "Knowledge base",
       "groups": {
         "personal": "Personal",
         "school": "School"
@@ -726,6 +727,11 @@
           "name": "QR codes",
           "description": "Turn a URL, Wi-Fi or contact into a code",
           "summary": "{count, plural, =0 {Nothing saved yet} one {# saved} other {# saved}}"
+        },
+        "kb": {
+          "name": "Knowledge base",
+          "description": "Upload Obsidian notes and share them later",
+          "summary": "{count, plural, =0 {No notes yet} one {# note} other {# notes}}"
         }
       }
     },
@@ -1144,6 +1150,23 @@
       "board": {
         "makeup": "{day}'s classes"
       }
+    },
+    "kb": {
+      "title": "Knowledge base",
+      "subtitle": "{count, plural, =0 {No notes yet} one {# note} other {# notes}}",
+      "upload": "Upload folder",
+      "uploading": "Uploading…",
+      "hint": "Pick the \"{roots}\" folder in your Obsidian vault, the whole folder every time. Only changed notes are sent, and notes no longer in the folder are deleted.",
+      "empty": "No notes uploaded yet.",
+      "loadError": "Couldn't load notes",
+      "wrongRoot": "Pick the \"{roots}\" folder itself, not a folder inside it.",
+      "noNotes": "There are no .md notes in this folder.",
+      "noChanges": "Everything is up to date. Nothing to upload.",
+      "confirmTitle": "Upload notes",
+      "confirmCounts": "{added} new, {changed} updated, {removed} deleted.",
+      "confirmRemoved": " Deleting: {names}{more, plural, =0 {} one {, and # more} other {, and # more}}.",
+      "synced": "Uploaded",
+      "syncError": "Upload failed. Try again. If the folder is in iCloud, make sure every file is downloaded to this computer first."
     }
   },
   "HomePage": {

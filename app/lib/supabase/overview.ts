@@ -31,6 +31,8 @@ export type Overview = {
   clicks: number
   // 存下來的 QR Code 數量
   qrCodes: number
+  // 知識庫筆記數量
+  kbNotes: number
 }
 
 type ClassRow = Omit<MyClass, 'semester_id' | 'course' | 'color'> & {
@@ -38,7 +40,7 @@ type ClassRow = Omit<MyClass, 'semester_id' | 'course' | 'color'> & {
 }
 
 /**
- * tools 總覽要的資料：自己每個學期的課、自己參加的輔導時段、近期點擊數、QR Code 數量。
+ * tools 總覽要的資料：自己每個學期的課、自己參加的輔導時段、近期點擊數、QR Code 和知識庫筆記數量。
  * @param supabase Supabase client
  * @param from 輔導時段起日 'YYYY-MM-DD'
  * @param to 輔導時段迄日 'YYYY-MM-DD'
@@ -51,7 +53,7 @@ export async function getOverview(
   to: string,
   since: string,
 ): Promise<Overview> {
-  const [semesters, calendar, classes, sessions, clicks, qrCodes] = await Promise.all([
+  const [semesters, calendar, classes, sessions, clicks, qrCodes, kbNotes] = await Promise.all([
     getSemesters(supabase),
     getCalendarDays(supabase),
     supabase
@@ -71,11 +73,13 @@ export async function getOverview(
       .select('*', { count: 'exact', head: true })
       .gte('clicked_at', since),
     supabase.from('qr_codes').select('*', { count: 'exact', head: true }),
+    supabase.from('kb_notes').select('*', { count: 'exact', head: true }),
   ])
   if (classes.error) throw classes.error
   if (sessions.error) throw sessions.error
   if (clicks.error) throw clicks.error
   if (qrCodes.error) throw qrCodes.error
+  if (kbNotes.error) throw kbNotes.error
 
   return {
     semesters,
@@ -91,5 +95,6 @@ export async function getOverview(
     ),
     clicks: clicks.count ?? 0,
     qrCodes: qrCodes.count ?? 0,
+    kbNotes: kbNotes.count ?? 0,
   }
 }
