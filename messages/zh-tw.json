@@ -1430,5 +1430,10 @@
     "home": "回首頁",
     "blog": "看文章",
     "gallery": "看攝影"
+  },
+  "KbShare": {
+    "description": "分享給你的筆記",
+    "contents": "目錄",
+    "updated": "更新於 {date}"
   }
 }

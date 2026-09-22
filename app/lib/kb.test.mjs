@@ -1,7 +1,7 @@
 // node --test app/lib/kb.test.mjs
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { buildTree, extractLinks, hashContent, isNotePath, planSync } from './kb.ts'
+import { buildTree, extractLinks, hashContent, isNotePath, linkify, planSync, splitNote } from './kb.ts'
 
 test('只收 .md，跳過隱藏資料夾和規則檔', () => {
   assert.equal(isNotePath('學校/115-1/行銷管理/行銷的定義.md'), true)
@@ -47,16 +47,41 @@ test('比對出新增、更新、刪除', () => {
   })
 })
 
-test('樹：資料夾在前，名稱自然排序', () => {
+test('樹：資料夾在前，名稱自然排序，最上層唯一的資料夾拆掉', () => {
   const tree = buildTree(['學校/第10週.md', '學校/第2週.md', '學校/資料庫/人物/Kotler.md'])
-  assert.equal(tree.length, 1)
   assert.deepEqual(
-    tree[0].children.map((n) => [n.name, n.path]),
+    tree.map((n) => [n.name, n.path]),
     [
       ['資料庫', '學校/資料庫/'],
       ['第2週', '學校/第2週.md'],
       ['第10週', '學校/第10週.md'],
     ],
   )
-  assert.equal(tree[0].children[0].children[0].children[0].path, '學校/資料庫/人物/Kotler.md')
+  assert.equal(tree[0].children[0].children[0].path, '學校/資料庫/人物/Kotler.md')
+})
+
+test('連結換成網址，看不到的只留文字', () => {
+  const visible = { 行銷: '/kb/t?p=a', 顧客價值: '/kb/t?p=b', 行銷與銷售: '/kb/t?p=c' }
+  const out = linkify(
+    '[[行銷]]、[[顧客價值\\|價值]]、[[行銷與銷售#差別]]、[[第2節]]、[[第2節|下一節]]、[[#本篇]]、![[行銷]]',
+    (target) => visible[target] ?? null,
+  )
+  assert.equal(
+    out,
+    '[行銷](</kb/t?p=a>)、[價值](</kb/t?p=b>)、[行銷與銷售 > 差別](</kb/t?p=c>)、第2節、下一節、本篇、[行銷](</kb/t?p=a>)',
+  )
+})
+
+test('路徑形式的連結只顯示檔名，文字裡的中括號跳脫', () => {
+  assert.equal(linkify('[[資料庫/框架/4C]]', () => '/x'), '[4C](</x>)')
+  assert.equal(linkify('[[a|[註]]', () => '/x'), '[\\[註](</x>)')
+})
+
+test('標題取檔名，去掉 frontmatter 和重複的 # 標題', () => {
+  assert.deepEqual(splitNote('學校/庫/顧客價值.md', '# 顧客價值\n\n定義'), { title: '顧客價值', body: '\n定義' })
+  assert.deepEqual(splitNote('學校/課/行銷的定義.md', '---\ntags: [a]\n---\n## 權威定義'), {
+    title: '行銷的定義',
+    body: '## 權威定義',
+  })
+  assert.equal(splitNote('x/別的.md', '# 不同標題\n內文').body, '# 不同標題\n內文')
 })

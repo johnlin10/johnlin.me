@@ -59,3 +59,44 @@ export async function syncKb(
   const { error } = await supabase.rpc('kb_sync', { p_root: root, p_notes: notes, p_paths: paths })
   if (error) throw error
 }
+
+export type KbShare = {
+  /** 筆記路徑（.md 結尾）或資料夾（/ 結尾） */
+  scope: string
+  notes: KbNote[]
+}
+
+export type KbSharedNote = KbNote & {
+  content: string
+  /** 連結目標 → 路徑，只有看得到的 */
+  links: Record<string, string>
+}
+
+/**
+ * 分享連結的範圍和看得到的筆記。
+ * @param supabase 公開 client
+ * @param token 分享 token
+ * @returns token 不對回 null
+ */
+export async function getKbShare(supabase: SupabaseClient, token: string): Promise<KbShare | null> {
+  const { data, error } = await supabase.rpc('get_kb_share', { p_token: token })
+  if (error) throw error
+  return data
+}
+
+/**
+ * 分享範圍內的一篇筆記。
+ * @param supabase 公開 client
+ * @param token 分享 token
+ * @param path 筆記路徑
+ * @returns 看不到回 null
+ */
+export async function getKbSharedNote(
+  supabase: SupabaseClient,
+  token: string,
+  path: string,
+): Promise<KbSharedNote | null> {
+  const { data, error } = await supabase.rpc('get_kb_note', { p_token: token, p_path: path })
+  if (error) throw error
+  return data
+}

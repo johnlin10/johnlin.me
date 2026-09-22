@@ -60,24 +60,37 @@ kb_shares (token text primary key, scope text, label text, created_at)
 - `get_kb_share(token)`：scope 和看得到的筆記清單（不含內容）。
 - `get_kb_note(token, path)`：一篇的內容，加上 `links`（目標名稱 → 路徑），只包含看得到的。不在 `links` 裡的連結，頁面就顯示成一般文字，連名稱都不會對到別的筆記。看不到的筆記回 null。
 - 範圍在打開時現場算，重新上傳後多連的節點，老師那邊也會跟著出現。
-- 分享頁每次都現場讀，不走快取：流量很小，而且撤銷之後必須立刻失效。
+- 分享頁每次都現場讀，不走快取：流量很小，而且撤銷之後必須立刻失效。`next build` 的路由表上要是 ƒ。
 
 ---
 
-## 五、階段
+## 五、分享頁（`app/[locale]/kb/[token]/`）
+
+- **筆記放在查詢字串**：`/kb/{token}?p=學校/資料庫/行銷管理/核心概念/顧客價值`（去掉 `.md`）。proxy 的 matcher 會跳過含「.」的路徑，路徑裡帶 `.md` 或檔名帶點就拿不到語系。沒給 `p` 就打開分享的那篇，資料夾分享則打開樹上第一篇。
+- **渲染**：react-markdown 加 remark-gfm、remark-math、rehype-katex，都是已經裝好的。`[[連結]]` 不寫 plugin，渲染前用 `linkify()` 換成一般的 Markdown 連結，對不到的直接換成文字。表格裡的 `[[a\|b]]` 換完就沒有 `|` 了，不會弄斷表格。
+- **換行**：vault 沒開嚴格換行，Obsidian 的單一換行就是換行。段落和清單加 `white-space: pre-line`，不用裝 remark-breaks。
+- **字型**：排版沿用文章內文（`PostContent.module.scss`），但內文改無襯線。源起明體只自架了一個字重又關掉假粗，筆記裡的粗體會跟內文一樣粗。標題照樣是襯線。
+- **標題**：用檔名；內文第一行是同名的 `# 標題` 就拿掉，不顯示兩次。frontmatter 不顯示。
+- **目錄**：看得到的筆記排成樹，最上層唯一的資料夾（學校）拆掉。桌機在左邊黏著，900px 以下接在內文後面。列印時只印內文。
+- 沒有個人網站的 Header 和 Footer，`noIndex`、`referrer: no-referrer`。token 不對或筆記在範圍外都是 404，404 頁不帶這頁的標題。
+
+---
+
+## 六、階段
 
 | 階段 | 內容 | 狀態 |
 |---|---|---|
-| 1 | migration、`app/lib/kb.ts`（含測試）、tools 上傳頁與檔案樹 | ✅ v1.13.0 |
-| 2 | 分享頁：Markdown 渲染（remark-gfm、remark-math、rehype-katex 加一個 wikilink plugin）、左側檔案樹、列印 CSS | |
+| 1 | migration、`app/lib/kb.ts`（含測試）、tools 上傳頁與檔案樹 | ✅ v1.13 Beta 1 |
+| 2 | 分享頁：Markdown 渲染、左側檔案樹、列印 CSS | ✅ v1.13 Beta 2 |
 | 3 | 分享管理：在檔案樹上選筆記或資料夾開連結、填 label、撤銷、標出失效的連結 | |
 | 4 | 懸停預覽 | |
 
 ---
 
-## 六、這次不做
+## 七、這次不做
 
 - **圖片。** 要做的話走 R2，已知代價是撤銷分享後，拿過圖片網址的人還是打得開。
 - **進階語法**：callout、嵌入整篇、Dataview。
 - **改名時自動修連結。** Obsidian 會自己改好，上傳的是改好之後的內容，所以只有網站這邊的分享連結會受影響。
+- **標題錨點**：`[[筆記#標題]]` 只連到那一篇，不會跳到那個標題。
 - **超過 1000 篇**：PostgREST 一次最多回 1000 列，到那時候再改成分頁。

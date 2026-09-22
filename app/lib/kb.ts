@@ -18,24 +18,69 @@ export function isNotePath(path: string): boolean {
   )
 }
 
+// ponytail: 程式碼區塊裡的 [[...]] 也會被當成連結，筆記裡真的出現再處理
+const WIKILINK = /!?\[\[([^\]\n]+)\]\]/g
+
+/**
+ * 拆開 [[目標#標題|別名]]。表格裡的 `\|` 也認得。
+ * @param inner 兩層中括號裡的文字
+ * @returns 目標（去掉 .md，本篇標題連結是空字串）、標題、別名
+ */
+function parseLink(inner: string) {
+  const [ref, alias] = inner.split(/\\?\|/)
+  const [target, heading] = ref.split('#')
+  return {
+    target: target.trim().replace(/\.md$/, ''),
+    heading: heading?.trim() || undefined,
+    alias: alias?.trim() || undefined,
+  }
+}
+
 /**
  * 取出內文所有 [[連結]] 的目標，去掉別名、#標題和 .md，不重複。
- * 表格裡的 `[[目標\|別名]]` 也認得。
- * ponytail: 程式碼區塊裡的 [[...]] 也會被算進去，筆記裡真的出現再處理
  * @param content Markdown 內文
  * @returns 連結目標
  */
 export function extractLinks(content: string): string[] {
   const targets = new Set<string>()
-  for (const [, inner] of content.normalize('NFC').matchAll(/\[\[([^\]\n]+)\]\]/g)) {
-    const target = inner
-      .split(/\\?\|/)[0]
-      .split('#')[0]
-      .trim()
-      .replace(/\.md$/, '')
+  for (const [, inner] of content.normalize('NFC').matchAll(WIKILINK)) {
+    const { target } = parseLink(inner)
     if (target) targets.add(target)
   }
   return [...targets]
+}
+
+/**
+ * 把 [[連結]] 換成 Markdown 連結；對不到的換成一般文字，不露出目標是哪篇。
+ * 顯示文字照 Obsidian：有別名用別名，否則是「名稱 > 標題」。
+ * @param content Markdown 內文
+ * @param hrefOf 目標名稱 → 網址；看不到的回 null
+ * @returns 可以直接給 Markdown 渲染的內文
+ */
+export function linkify(content: string, hrefOf: (target: string) => string | null): string {
+  return content.normalize('NFC').replace(WIKILINK, (_, inner: string) => {
+    const { target, heading, alias } = parseLink(inner)
+    const name = target.split('/').pop()
+    const text = (alias ?? [name, heading].filter(Boolean).join(' > ')).replace(/[[\]]/g, '\\$&')
+    const href = target && hrefOf(target)
+    return href ? `[${text}](<${href}>)` : text
+  })
+}
+
+/**
+ * 筆記的標題（檔名）和去掉 frontmatter 的內文。內文第一行就是同名的 # 標題時一起拿掉，免得顯示兩次。
+ * @param path 筆記路徑
+ * @param content Markdown 原文
+ * @returns 標題與內文
+ */
+export function splitNote(path: string, content: string): { title: string; body: string } {
+  const title = path.split('/').pop()!.replace(/\.md$/, '')
+  const body = content
+    .replace(/\r\n/g, '\n')
+    .replace(/^---\n[\s\S]*?\n---[ \t]*(\n|$)/, '')
+    .replace(/^\s+/, '')
+  const heading = body.match(/^# (.+)\n?/)
+  return { title, body: heading?.[1].trim() === title ? body.slice(heading[0].length) : body }
 }
 
 /**
@@ -110,5 +155,8 @@ export function buildTree(paths: string[]): NoteTreeNode[] {
     nodes.forEach((n) => sort(n.children))
   }
   sort(root.children)
-  return root.children
+  // 最上層只有一個資料夾（學校）就往下拆，分享頁不用多一層
+  let nodes = root.children
+  while (nodes.length === 1 && !nodes[0].path.endsWith('.md')) nodes = nodes[0].children
+  return nodes
 }

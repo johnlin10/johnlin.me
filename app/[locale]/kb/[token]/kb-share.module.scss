@@ -1,0 +1,136 @@
+@use '@/app/styles/design' as *;
+
+// 沒有個人網站的 Header 和 Footer。桌機目錄在左、內文在右；手機先內文，目錄接在後面
+.shell {
+  display: grid;
+  grid-template-columns: 15rem minmax(0, 1fr);
+  grid-template-areas: 'nav article';
+  gap: var(--space-12);
+  width: 100%;
+  max-width: var(--width-wide);
+  margin: 0 auto;
+  padding: var(--space-12) var(--page-gutter) var(--space-16);
+
+  @include respond-by-max-width($bp-md) {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: 'article' 'nav';
+    gap: var(--space-10);
+  }
+
+  @include respond-to('phone') {
+    padding-top: var(--space-8);
+  }
+}
+
+.article {
+  grid-area: article;
+  min-width: 0;
+}
+
+.title {
+  margin: 0;
+  font-size: var(--text-3xl);
+}
+
+.updated {
+  margin: var(--space-2) 0 var(--space-8);
+  color: var(--text-muted);
+  font-size: var(--text-2xs);
+}
+
+// 沿用文章內文的排版，但內文改無襯線：源起明體只有一個字重，筆記裡大量的粗體會跟內文一樣粗。
+// 標題照全域規則用襯線
+.content {
+  font-family: var(--font-sans);
+  font-size: var(--text-md);
+
+  // 全域的 p 字級比內文小，這裡跟著容器走，段落和清單才一樣大
+  p {
+    font-size: inherit;
+  }
+
+  // Obsidian 預設單一換行就是換行（vault 沒開嚴格換行），Markdown 輸出會留著換行字元
+  p,
+  li {
+    white-space: pre-line;
+  }
+}
+
+.nav {
+  grid-area: nav;
+  align-self: start;
+  position: sticky;
+  top: var(--space-8);
+  max-height: calc(100dvh - var(--space-16));
+  overflow-y: auto;
+  font-size: var(--text-2xs);
+
+  @include respond-by-max-width($bp-md) {
+    position: static;
+    max-height: none;
+    padding-top: var(--space-6);
+    border-top: 1px solid var(--border);
+  }
+}
+
+.navTitle {
+  margin: 0 0 var(--space-3);
+  color: var(--text-muted);
+  font-size: var(--text-3xs);
+  letter-spacing: 0.08em;
+}
+
+.tree {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  .tree {
+    margin: 0 0 var(--space-2) var(--space-1);
+    padding-left: var(--space-3);
+    border-left: 1px solid var(--border);
+  }
+}
+
+.treeFolder {
+  display: block;
+  padding: var(--space-1) 0;
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+.treeNote {
+  display: block;
+  padding: var(--space-1) var(--space-2);
+  margin-left: calc(-1 * var(--space-2));
+  color: var(--text);
+  text-decoration: none;
+  border-radius: var(--radius-sm);
+
+  &:hover {
+    background: var(--surface-2);
+  }
+
+  &[aria-current='page'] {
+    color: var(--accent);
+    font-weight: 600;
+    background: var(--surface-2);
+  }
+}
+
+// 老師要紙本時直接用瀏覽器列印，只印內文
+@media print {
+  .shell {
+    display: block;
+    padding: 0;
+  }
+
+  .nav {
+    display: none;
+  }
+
+  .content a {
+    color: inherit;
+    text-decoration: none;
+  }
+}

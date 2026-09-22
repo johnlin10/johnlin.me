@@ -1429,5 +1429,10 @@
     "home": "Back home",
     "blog": "Read my writing",
     "gallery": "See my photos"
+  },
+  "KbShare": {
+    "description": "Notes shared with you",
+    "contents": "Contents",
+    "updated": "Updated {date}"
   }
 }
