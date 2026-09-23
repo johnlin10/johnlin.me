@@ -8,6 +8,7 @@ import { getKbShare, getKbSharedNote } from '@/app/lib/supabase/kb'
 import { buildTree, shareHref, splitNote, type NoteTreeNode } from '@/app/lib/kb'
 import { metadata } from '@/app/lib/metadata'
 import Icon from '@/app/components/Icon/Icon'
+import ThemeToggle from '@/app/components/ThemeToggle/ThemeToggle'
 import postStyle from '@/app/components/blog/PostContent/PostContent.module.scss'
 import style from './kb-share.module.scss'
 import KbMarkdown from './KbMarkdown'
@@ -142,6 +143,7 @@ export default async function KbSharePage(props: KbSharePageProps) {
       {/* 手機上目錄是抽屜，用原生 popover：點外面或按 Esc 就收起，不用寫 JS。
           key 跟著筆記換，點了目錄裡的筆記、換頁之後抽屜會重新掛載而收起 */}
       <nav key={note.path} id="kb-nav" popover="auto" className={style.nav} aria-label={t('contents')}>
+        {/* 抽屜的標題列在捲動區外面，捲動區上緣才能淡出；桌機的標題跟著目錄捲，捲動區才能頂到視窗上緣 */}
         <div className={style.navHeader}>
           <p className={style.navTitle}>{t('contents')}</p>
           <button
@@ -154,7 +156,14 @@ export default async function KbSharePage(props: KbSharePageProps) {
             <Icon name="xmark" />
           </button>
         </div>
-        {renderTree(buildTree(share.notes.map((n) => n.path)))}
+        <div className={style.navScroll}>
+          <p className={`${style.navTitle} ${style.navScrollTitle}`}>{t('contents')}</p>
+          {renderTree(buildTree(share.notes.map((n) => n.path)))}
+        </div>
+        {/* 固定在目錄底部，不跟著目錄捲動 */}
+        <div className={style.navFooter}>
+          <ThemeToggle />
+        </div>
       </nav>
 
       <button type="button" popoverTarget="kb-nav" className={style.navToggle}>

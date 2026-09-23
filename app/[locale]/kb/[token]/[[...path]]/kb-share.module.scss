@@ -59,18 +59,21 @@
 
 .nav {
   // nav 帶 popover 屬性，瀏覽器預設會把它藏起來、置中加框；桌機照一般側欄顯示，全部蓋掉
-  display: block;
+  display: flex;
+  flex-direction: column;
   grid-area: nav;
   align-self: start;
   position: sticky;
   inset: auto;
-  top: var(--space-8);
+  top: 0;
   width: auto;
-  height: auto;
-  max-height: calc(100dvh - var(--space-16));
-  margin: 0;
+  height: 100dvh;
+  max-height: none;
+  // 抵掉 shell 的上下內距：捲動區一路到視窗頂端，捲上去的內容淡出消失，不會在半空中被切掉；
+  // 下面也抵掉，捲到頁尾時 sticky 才不會被內距頂上去
+  margin: calc(-1 * var(--space-12)) 0 calc(-1 * var(--space-16));
   padding: 0;
-  overflow-y: auto;
+  overflow: hidden;
   color: inherit;
   font-size: var(--text-2xs);
   background: none;
@@ -82,9 +85,7 @@
     inset: 0 auto 0 0;
     z-index: var(--z-drawer);
     width: min(20rem, 85vw);
-    height: 100dvh;
-    max-height: none;
-    padding: var(--space-6) var(--space-6) var(--space-12);
+    margin: 0;
     background: var(--surface-raised);
     border-right: 1px solid var(--border);
     box-shadow: var(--shadow-xl);
@@ -109,14 +110,44 @@
   }
 }
 
-.navHeader {
-  @include flexbox(row, space-between, center);
-  margin-bottom: var(--space-3);
+// 目錄的捲動區。上下內距就是淡出的長度：停著不動時什麼都不會被淡掉
+.navScroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: var(--space-12) 0 var(--space-8);
+  @include edge-fade-mask($start: var(--space-12), $end: var(--space-8), $direction: to bottom);
+
+  // 抽屜：標題列在捲動區外面，捲動區上下一樣淡出
+  @include respond-by-max-width($bp-md) {
+    padding: var(--space-6) var(--space-6) var(--space-8);
+    @include edge-fade-mask($start: var(--space-6), $end: var(--space-8), $direction: to bottom);
+  }
 }
 
-// 抽屜才需要關閉鈕，桌機的側欄不用
-.navClose {
+// 主題切換鈕固定在目錄底部，不跟著目錄捲動
+.navFooter {
+  flex: none;
+  padding: var(--space-2) 0 var(--space-8);
+
+  @include respond-by-max-width($bp-md) {
+    padding: var(--space-2) var(--space-6) calc(var(--space-6) + env(safe-area-inset-bottom));
+  }
+}
+
+// 抽屜才有的標題列（標題和關閉鈕），桌機的標題在捲動區裡
+.navHeader {
   display: none;
+
+  @include respond-by-max-width($bp-md) {
+    @include flexbox(row, space-between, center);
+    flex: none;
+    padding: var(--space-6) var(--space-6) 0;
+  }
+}
+
+.navClose {
   padding: var(--space-2);
   margin: calc(-1 * var(--space-2));
   color: var(--text-muted);
@@ -124,10 +155,6 @@
   background: none;
   border: 0;
   cursor: pointer;
-
-  @include respond-by-max-width($bp-md) {
-    display: block;
-  }
 }
 
 // 手機右下角的目錄按鈕。離底部留一段，貼底的 fixed 元素會讓 iOS Safari 工具列變成實色帶
@@ -158,6 +185,15 @@
   color: var(--text-muted);
   font-size: var(--text-3xs);
   letter-spacing: 0.08em;
+}
+
+// 桌機的標題跟著目錄捲；抽屜改用捲動區外的標題列
+.navScrollTitle {
+  margin-bottom: var(--space-3);
+
+  @include respond-by-max-width($bp-md) {
+    display: none;
+  }
 }
 
 .tree {
