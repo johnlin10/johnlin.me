@@ -138,6 +138,7 @@ kb_knowledge_folders (path text primary key)
 - **換行**：vault 沒開嚴格換行，Obsidian 的單一換行就是換行。段落和清單加 `white-space: pre-line`，不用裝 remark-breaks。
 - **字型**：排版沿用文章內文（`PostContent.module.scss`），但內文改無襯線。源起明體只自架了一個字重又關掉假粗，筆記裡的粗體會跟內文一樣粗。標題照樣是襯線。
 - **標題**：用檔名；內文第一行是同名的 `# 標題` 就拿掉，不顯示兩次。frontmatter 不顯示。
+- **複製連結**：更新日期旁邊有「複製連結」按鈕（樣式同手機的目錄按鈕，放不下就換到下一行），複製 `location.origin + location.pathname`，中文和全形標點都是編碼過的 `%XX`。網址列複製出來的是原字，LINE 碰到「、」這類全形標點就把網址切斷。
 - **分享預覽**：OG 圖每篇現場產生（`app/api/kb/og/route.ts`），網域後面接「・知識庫」（英文「 · KNOWLEDGE BASE」），再畫筆記所在的資料夾（分享路徑，跟網址一樣不露出 vault 的完整路徑）、筆記標題和「分享給你的筆記」，版面跟站上其他 OG 圖共用 `app/lib/og-card.mjs`。圖片路由也走 `get_kb_note`，token 不對、看不到那篇或撤銷後都是 404，不快取。字型直接讀 13MB 的源起明體（woff2 分片 satori 不吃），第一張約 0.2 秒、之後每張約 15 毫秒；`next.config.ts` 的 `outputFileTracingIncludes` 要帶上字型和 logo。
 - **與 AI 共同編輯**：frontmatter 有 `ai: true`（Obsidian 裡是勾選框）的筆記，更新日期後面多一句「與 AI 共同編輯」。懸停預覽不顯示。
 - **目錄**：看得到的筆記照分享路徑排成樹，跟網址一樣。React 的 `key` 也用分享路徑，原始碼裡看不到完整路徑。桌機在左邊黏著，高度撐滿整個視窗，捲動區上下用 `edge-fade-mask` 照站上的淡出曲線融進底色，不會在半空中被切掉。主題切換鈕（`ThemeToggle`）固定在目錄底部，不跟著捲。手機抽屜也一樣；抽屜的標題列放在捲動區外面，捲動區上下都淡出，桌機的標題則在捲動區裡。900px 以下改成從左邊滑出的抽屜，右下角的「目錄」按鈕打開。抽屜用原生 popover（點外面、按 Esc 收起，不用 JS），`key` 跟著筆記換，換頁就收起。收起時是 `display:none`，不留 iOS Safari 的常駐色帶；按鈕不貼底也是同一個原因。列印時只印內文。

@@ -1474,6 +1474,9 @@
   "KbShare": {
     "description": "分享給你的筆記",
     "ogBrand": "・知識庫",
+    "copyLink": "複製連結",
+    "copied": "已複製",
+    "error": "複製失敗",
     "contents": "目錄",
     "updated": "更新於 {date}",
     "close": "關閉目錄",

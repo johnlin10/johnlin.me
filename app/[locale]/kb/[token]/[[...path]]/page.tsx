@@ -13,6 +13,7 @@ import postStyle from '@/app/components/blog/PostContent/PostContent.module.scss
 import style from './kb-share.module.scss'
 import KbMarkdown from './KbMarkdown'
 import KbPreviewLink from './KbPreviewLink'
+import KbCopyLink from './KbCopyLink'
 
 interface KbSharePageProps {
   params: Promise<{ locale: string; token: string; path?: string[] }>
@@ -125,10 +126,13 @@ export default async function KbSharePage(props: KbSharePageProps) {
     <main className={style.shell}>
       <article className={style.article}>
         <h1 className={style.title}>{title}</h1>
-        <p className={style.updated}>
-          {t('updated', { date: format.dateTime(new Date(note.updated_at), { dateStyle: 'long' }) })}
-          {ai && ` · ${t('ai')}`}
-        </p>
+        <div className={style.meta}>
+          <p className={style.updated}>
+            {t('updated', { date: format.dateTime(new Date(note.updated_at), { dateStyle: 'long' }) })}
+            {ai && ` · ${t('ai')}`}
+          </p>
+          <KbCopyLink />
+        </div>
         <div className={`${postStyle.post_content} ${style.content}`}>
           <KbMarkdown
             token={token}

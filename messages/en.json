@@ -1473,6 +1473,9 @@
   "KbShare": {
     "description": "Notes shared with you",
     "ogBrand": " · KNOWLEDGE BASE",
+    "copyLink": "Copy link",
+    "copied": "Copied",
+    "error": "Couldn't copy",
     "contents": "Contents",
     "updated": "Updated {date}",
     "close": "Close contents",
