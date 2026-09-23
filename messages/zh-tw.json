@@ -1196,6 +1196,10 @@
         "revokeMessage": "撤銷之後「{name}」這條連結就打不開了，拿到連結的人也看不到。之後要分享得重新開一條新的。",
         "revoked": "連結已撤銷",
         "revokeError": "撤銷失敗，再試一次。",
+        "rename": "改名",
+        "renameTitle": "替連結改名",
+        "renameError": "改名失敗，再試一次。",
+        "save": "儲存",
         "existing": "已經有 {count} 條分享連結"
       },
       "knowledge": {

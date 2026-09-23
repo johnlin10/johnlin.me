@@ -1195,6 +1195,10 @@
         "revokeMessage": "Once revoked, the \"{name}\" link stops opening for everyone who has it. To share again you need a new link.",
         "revoked": "Link revoked",
         "revokeError": "Couldn't revoke. Try again.",
+        "rename": "Rename",
+        "renameTitle": "Rename link",
+        "renameError": "Couldn't rename. Try again.",
+        "save": "Save",
         "existing": "{count, plural, one {# share link} other {# share links}} already"
       },
       "knowledge": {

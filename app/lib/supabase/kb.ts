@@ -105,6 +105,21 @@ export async function createKbShareLink(
 }
 
 /**
+ * 改分享連結的名稱。
+ * @param supabase Supabase client
+ * @param token 分享 token
+ * @param label 新名稱；null 是改回用筆記名稱
+ */
+export async function renameKbShareLink(
+  supabase: SupabaseClient,
+  token: string,
+  label: string | null,
+): Promise<void> {
+  const { error } = await supabase.from('kb_shares').update({ label }).eq('token', token)
+  if (error) throw error
+}
+
+/**
  * 撤銷分享連結，刪掉就立刻打不開。
  * @param supabase Supabase client
  * @param token 分享 token

@@ -8,6 +8,7 @@ import {
   deleteKbShareLink,
   getKbHashes,
   getKbNotes,
+  renameKbShareLink,
   setKnowledgeFolder,
   syncKb,
   type KbNote,
@@ -77,6 +78,8 @@ export default function KbTool({ initial }: { initial: KbData | null }) {
   const [busy, setBusy] = useState(false)
   // 正在開分享連結的筆記或資料夾
   const [sharing, setSharing] = useState<{ scope: string; label: string } | null>(null)
+  // 正在改名的分享連結
+  const [renaming, setRenaming] = useState<{ share: KbShareLink; label: string } | null>(null)
 
   useEffect(() => {
     if (!initial) toast.error(t('loadError'))
@@ -181,6 +184,20 @@ export default function KbTool({ initial }: { initial: KbData | null }) {
     }
   }
 
+  const rename = async () => {
+    if (!renaming) return
+    const label = renaming.label.trim() || null
+    try {
+      await renameKbShareLink(supabase, renaming.share.token, label)
+      setShares((current) =>
+        current.map((s) => (s.token === renaming.share.token ? { ...s, label } : s)),
+      )
+      setRenaming(null)
+    } catch {
+      toast.error(t('shares.renameError'))
+    }
+  }
+
   const revoke = async (share: KbShareLink) => {
     const ok = await confirm({
       title: t('shares.revokeTitle'),
@@ -248,6 +265,10 @@ export default function KbTool({ initial }: { initial: KbData | null }) {
 
   const actions: DataTableAction<KbShareLink>[] = [
     { label: t('shares.copy'), onClick: (share) => copy(share.token) },
+    {
+      label: t('shares.rename'),
+      onClick: (share) => setRenaming({ share, label: share.label ?? '' }),
+    },
     { label: t('shares.revoke'), variant: 'danger', onClick: revoke },
   ]
 
@@ -423,6 +444,31 @@ export default function KbTool({ initial }: { initial: KbData | null }) {
                 {t('cancel')}
               </Button>
               <Button onClick={createShare}>{t('shares.create')}</Button>
+            </div>
+          </div>
+        )}
+      </Modal>
+
+      <Modal
+        isOpen={renaming !== null}
+        onClose={() => setRenaming(null)}
+        title={t('shares.renameTitle')}
+        size="small"
+      >
+        {renaming && (
+          <div className={style.form}>
+            <Input
+              label={t('shares.label')}
+              value={renaming.label}
+              onChange={(label) => setRenaming({ ...renaming, label })}
+              placeholder={nameOf(renaming.share.scope)}
+              helper={t('shares.labelHelper')}
+            />
+            <div className={style.form_actions}>
+              <Button variant="secondary" onClick={() => setRenaming(null)}>
+                {t('cancel')}
+              </Button>
+              <Button onClick={rename}>{t('shares.save')}</Button>
             </div>
           </div>
         )}
