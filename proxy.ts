@@ -196,5 +196,6 @@ export default async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: '/((?!api|trpc|_next|_vercel|auth|.*\\..*).*)',
+  // 知識庫分享頁的路徑是筆記名稱，檔名帶點（「1.2 定義」）也要拿到語系
+  matcher: ['/((?!api|trpc|_next|_vercel|auth|.*\\..*).*)', '/kb/:path*', '/en/kb/:path*'],
 }

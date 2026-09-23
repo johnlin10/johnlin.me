@@ -16,8 +16,7 @@ import postStyle from '@/app/components/blog/PostContent/PostContent.module.scss
 import style from './kb-share.module.scss'
 
 interface KbSharePageProps {
-  params: Promise<{ locale: string; token: string }>
-  searchParams: Promise<{ p?: string | string[] }>
+  params: Promise<{ locale: string; token: string; path?: string[] }>
 }
 
 // metadata 和頁面各要一次，同一個請求裡只打一次資料庫
@@ -27,17 +26,18 @@ const loadNote = cache((token: string, path: string) =>
 )
 
 /**
- * 筆記的網址。路徑放在查詢字串：proxy 的 matcher 會跳過含「.」的路徑，檔名帶點就進不來。
+ * 筆記的網址，網址上不帶 .md。
  * @param token 分享 token
- * @param path 筆記路徑
+ * @param path 分享路徑
  * @returns 站內網址
  */
 function hrefOf(token: string, path: string) {
-  return `/kb/${token}?p=${encodeURIComponent(path.replace(/\.md$/, ''))}`
+  const segments = path.replace(/\.md$/, '').split('/').map(encodeURIComponent)
+  return `/kb/${token}/${segments.join('/')}`
 }
 
 /**
- * 樹上第一篇筆記，資料夾分享沒指定筆記時打開它。
+ * 樹上第一篇筆記，網址沒指定筆記時打開分享範圍裡的第一篇。
  * @param nodes 樹
  * @returns 筆記路徑
  */
@@ -49,22 +49,30 @@ function firstNote(nodes: NoteTreeNode[]): string | undefined {
 }
 
 /**
+ * 網址的一段轉回文字。Next 給的有時已經解碼、有時沒有，所以一律再解一次。
+ * @param segment 網址的一段
+ * @returns 解碼後的文字，格式不對就原樣回傳
+ */
+// ponytail: 檔名裡有「%」的筆記可能被多解一次而打不開，真的出現再處理
+function decodeSegment(segment: string) {
+  try {
+    return decodeURIComponent(segment)
+  } catch {
+    return segment
+  }
+}
+
+/**
  * 這次要看哪篇：網址有指定就用它，否則是分享的那篇，或分享的資料夾裡第一篇。
  * @returns token 不對或看不到那篇回 null
  */
-async function load({ params, searchParams }: KbSharePageProps) {
-  const { token } = await params
-  const { p } = await searchParams
+async function load({ params }: KbSharePageProps) {
+  const { token, path: segments } = await params
   const share = await loadShare(token)
   if (!share) return null
-  const path =
-    typeof p === 'string'
-      ? `${p.normalize('NFC')}.md`
-      : share.scope.endsWith('.md')
-        ? share.scope
-        : firstNote(
-            buildTree(share.notes.map((n) => n.path).filter((n) => n.startsWith(share.scope))),
-          )
+  const path = segments
+    ? `${segments.map(decodeSegment).join('/').normalize('NFC')}.md`
+    : firstNote(buildTree(share.notes.filter((n) => n.in_scope).map((n) => n.path)))
   const note = path && (await loadNote(token, path))
   return note ? { token, share, note } : null
 }
@@ -87,8 +95,8 @@ export async function generateMetadata(props: KbSharePageProps): Promise<Metadat
 }
 
 /**
- * 知識庫的分享頁。看得到的是分享的筆記或資料夾，加上它們直接連到的筆記；
- * 範圍外的連結顯示成一般文字。token 不對或看不到那篇就 404。
+ * 知識庫的分享頁。看得到的是分享的筆記或資料夾，加上順著連結、只經過知識資料夾能連到的筆記；
+ * 範圍外的連結顯示成一般文字。路徑都是分享路徑。token 不對或看不到那篇就 404。
  * 每次都現場讀，撤銷連結要立刻生效。
  */
 export default async function KbSharePage(props: KbSharePageProps) {

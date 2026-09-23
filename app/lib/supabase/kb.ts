@@ -60,15 +60,14 @@ export async function syncKb(
   if (error) throw error
 }
 
+/** 路徑都是分享路徑，不是 vault 裡的完整路徑 */
 export type KbShare = {
-  /** 筆記路徑（.md 結尾）或資料夾（/ 結尾） */
-  scope: string
-  notes: KbNote[]
+  notes: (KbNote & { in_scope: boolean })[]
 }
 
 export type KbSharedNote = KbNote & {
   content: string
-  /** 連結目標 → 路徑，只有看得到的 */
+  /** 連結目標 → 分享路徑，只有看得到的 */
   links: Record<string, string>
 }
 
@@ -88,7 +87,7 @@ export async function getKbShare(supabase: SupabaseClient, token: string): Promi
  * 分享範圍內的一篇筆記。
  * @param supabase 公開 client
  * @param token 分享 token
- * @param path 筆記路徑
+ * @param path 分享路徑
  * @returns 看不到回 null
  */
 export async function getKbSharedNote(
@@ -96,7 +95,7 @@ export async function getKbSharedNote(
   token: string,
   path: string,
 ): Promise<KbSharedNote | null> {
-  const { data, error } = await supabase.rpc('get_kb_note', { p_token: token, p_path: path })
+  const { data, error } = await supabase.rpc('get_kb_note', { p_token: token, p_share_path: path })
   if (error) throw error
   return data
 }
