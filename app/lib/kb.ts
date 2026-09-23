@@ -79,19 +79,20 @@ export function shareHref(token: string, path: string): string {
 }
 
 /**
- * 筆記的標題（檔名）和去掉 frontmatter 的內文。內文第一行就是同名的 # 標題時一起拿掉，免得顯示兩次。
+ * 筆記的標題（檔名）、去掉 frontmatter 的內文，和 frontmatter 有沒有標 `ai: true`。
+ * 內文第一行就是同名的 # 標題時一起拿掉，免得顯示兩次。
  * @param path 筆記路徑
  * @param content Markdown 原文
- * @returns 標題與內文
+ * @returns 標題、內文、是否與 AI 共同編輯
  */
-export function splitNote(path: string, content: string): { title: string; body: string } {
+export function splitNote(path: string, content: string): { title: string; body: string; ai: boolean } {
   const title = path.split('/').pop()!.replace(/\.md$/, '')
-  const body = content
-    .replace(/\r\n/g, '\n')
-    .replace(/^---\n[\s\S]*?\n---[ \t]*(\n|$)/, '')
-    .replace(/^\s+/, '')
+  const text = content.replace(/\r\n/g, '\n')
+  const frontmatter = text.match(/^---\n([\s\S]*?)\n---[ \t]*(\n|$)/)
+  const ai = /^ai:[ \t]*true[ \t]*$/m.test(frontmatter?.[1] ?? '')
+  const body = text.slice(frontmatter?.[0].length ?? 0).replace(/^\s+/, '')
   const heading = body.match(/^# (.+)\n?/)
-  return { title, body: heading?.[1].trim() === title ? body.slice(heading[0].length) : body }
+  return { title, body: heading?.[1].trim() === title ? body.slice(heading[0].length) : body, ai }
 }
 
 /**

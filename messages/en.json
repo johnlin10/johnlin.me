@@ -1474,6 +1474,7 @@
     "description": "Notes shared with you",
     "contents": "Contents",
     "updated": "Updated {date}",
-    "close": "Close contents"
+    "close": "Close contents",
+    "ai": "Edited with AI"
   }
 }

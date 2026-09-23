@@ -80,10 +80,23 @@ test('路徑形式的連結只顯示檔名，文字裡的中括號跳脫', () =>
 })
 
 test('標題取檔名，去掉 frontmatter 和重複的 # 標題', () => {
-  assert.deepEqual(splitNote('學校/庫/顧客價值.md', '# 顧客價值\n\n定義'), { title: '顧客價值', body: '\n定義' })
+  assert.deepEqual(splitNote('學校/庫/顧客價值.md', '# 顧客價值\n\n定義'), {
+    title: '顧客價值',
+    body: '\n定義',
+    ai: false,
+  })
   assert.deepEqual(splitNote('學校/課/行銷的定義.md', '---\ntags: [a]\n---\n## 權威定義'), {
     title: '行銷的定義',
     body: '## 權威定義',
+    ai: false,
   })
   assert.equal(splitNote('x/別的.md', '# 不同標題\n內文').body, '# 不同標題\n內文')
+})
+
+test('frontmatter 標了 ai: true 才算與 AI 共同編輯，內文裡的不算', () => {
+  assert.equal(splitNote('a.md', '---\nai: true\n---\n# a\n內文').ai, true)
+  assert.equal(splitNote('a.md', '---\r\ntags: [x]\r\nai: true\r\n---\r\n內文').ai, true)
+  assert.equal(splitNote('a.md', '---\nai: false\n---\n內文').ai, false)
+  assert.equal(splitNote('a.md', '---\nmail: true\n---\n內文').ai, false)
+  assert.equal(splitNote('a.md', '內文\nai: true').ai, false)
 })

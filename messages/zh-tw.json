@@ -1475,6 +1475,7 @@
     "description": "分享給你的筆記",
     "contents": "目錄",
     "updated": "更新於 {date}",
-    "close": "關閉目錄"
+    "close": "關閉目錄",
+    "ai": "與 AI 共同編輯"
   }
 }

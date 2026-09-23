@@ -94,7 +94,7 @@ export default async function KbSharePage(props: KbSharePageProps) {
   const { locale } = await props.params
   const t = await getTranslations({ locale, namespace: 'KbShare' })
   const format = await getFormatter({ locale })
-  const { title, body } = splitNote(note.path, note.content)
+  const { title, body, ai } = splitNote(note.path, note.content)
 
   const renderTree = (nodes: NoteTreeNode[]) => (
     <ul className={style.tree}>
@@ -125,6 +125,7 @@ export default async function KbSharePage(props: KbSharePageProps) {
         <h1 className={style.title}>{title}</h1>
         <p className={style.updated}>
           {t('updated', { date: format.dateTime(new Date(note.updated_at), { dateStyle: 'long' }) })}
+          {ai && ` · ${t('ai')}`}
         </p>
         <div className={`${postStyle.post_content} ${style.content}`}>
           <KbMarkdown
