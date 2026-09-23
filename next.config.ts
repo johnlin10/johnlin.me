@@ -33,6 +33,8 @@ const nextConfig: NextConfig = {
   // 動態組出的路徑；沒有這行，正式站會安靜地讀不到檔案（About 頁變空白）。
   outputFileTracingIncludes: {
     '/[locale]/about': ['./content/about/**'],
+    // 知識庫分享頁的 OG 圖在執行期讀字型和 logo
+    '/api/kb/og': ['./fonts/src/GenKiMin2TW-SB.otf', './public/assets/icons/web-icons/johnlin-logo-256.png'],
   },
   images: {
     remotePatterns: [

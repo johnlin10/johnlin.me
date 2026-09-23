@@ -7,31 +7,18 @@
 // 內頁（文章、照片、短文）會用自己的封面覆蓋掉這張。
 //
 // 產物入庫，只在文案或配色改動時手動重跑：node scripts/generate-og.mjs
-// 字體用 fonts/src 那套源起明體，跟站上標題同一套，中英文共用。
+// 版面在 app/lib/og-card.mjs，知識庫分享頁現場產生的圖也用它。
 
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { ImageResponse } from 'next/og.js'
+import { OG_FONT, OG_HEIGHT, OG_LOGO, OG_WIDTH, ogCard } from '../app/lib/og-card.mjs'
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..')
-const FONT = join(ROOT, 'fonts/src/GenKiMin2TW-SB.otf')
-const LOGO = join(ROOT, 'public/assets/icons/web-icons/johnlin-logo-256.png')
 
-const logoDataUri = `data:image/png;base64,${readFileSync(LOGO).toString('base64')}`
-const fontData = readFileSync(FONT)
-
-// 尺寸沿用 app/lib/metadata.ts 的 imageWidth / imageHeight 預設值（16:9），
-// 改這裡就要一起改那邊，否則 og:image:width 會對不上實際圖檔。
-const WIDTH = 1920
-const HEIGHT = 1080
-
-// 對齊 _theme.scss 的深色主題：底色 --background-color、橘色 --accent、
-// 文字 --text / --text-secondary。satori 不吃 oklch，accent 換算成 hex。
-const BG = '#14110d'
-const ACCENT = '#e8964a'
-const TEXT = '#f2ece1'
-const TEXT_SECONDARY = '#c3b8a5'
+const logo = `data:image/png;base64,${readFileSync(join(ROOT, OG_LOGO)).toString('base64')}`
+const fontData = readFileSync(join(ROOT, OG_FONT))
 
 // 文案取自 messages/{locale}.json 的 HomePage.tagline，跟首頁保持一致。
 const VARIANTS = [
@@ -65,85 +52,11 @@ const VARIANTS = [
 ]
 
 for (const { out, brand = true, name, tagline } of VARIANTS) {
-  const image = new ImageResponse(
-    {
-      type: 'div',
-      props: {
-        style: {
-          width: '100%',
-          height: '100%',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center',
-          backgroundColor: BG,
-          padding: '154px',
-          fontFamily: 'GenKiMin',
-        },
-        children: [
-          brand && {
-            type: 'div',
-            props: {
-              style: {
-                display: 'flex',
-                alignItems: 'center',
-                marginBottom: 51,
-              },
-              children: [
-                {
-                  type: 'img',
-                  props: {
-                    src: logoDataUri,
-                    width: 64,
-                    height: 64,
-                    style: { marginRight: 28 },
-                  },
-                },
-                {
-                  type: 'div',
-                  props: {
-                    style: {
-                      fontSize: 48,
-                      color: ACCENT,
-                      letterSpacing: '0.18em',
-                    },
-                    children: 'JOHNLIN.ME',
-                  },
-                },
-              ],
-            },
-          },
-          {
-            type: 'div',
-            props: {
-              style: { fontSize: 109, color: TEXT, marginBottom: 64 },
-              children: name,
-            },
-          },
-          {
-            type: 'div',
-            props: {
-              style: {
-                display: 'flex',
-                flexDirection: 'column',
-                fontSize: 70,
-                color: TEXT_SECONDARY,
-                lineHeight: 1.5,
-              },
-              children: tagline.map((line) => ({
-                type: 'div',
-                props: { children: line },
-              })),
-            },
-          },
-        ].filter(Boolean),
-      },
-    },
-    {
-      width: WIDTH,
-      height: HEIGHT,
-      fonts: [{ name: 'GenKiMin', data: fontData, style: 'normal' }],
-    }
-  )
+  const image = new ImageResponse(ogCard({ name, tagline, logo: brand ? logo : undefined }), {
+    width: OG_WIDTH,
+    height: OG_HEIGHT,
+    fonts: [{ name: 'GenKiMin', data: fontData, style: 'normal' }],
+  })
 
   mkdirSync(dirname(out), { recursive: true })
   writeFileSync(out, Buffer.from(await image.arrayBuffer()))

@@ -74,6 +74,8 @@ export async function generateMetadata(props: KbSharePageProps): Promise<Metadat
   const base = await metadata({
     title: splitNote(data.note.path, data.note.content).title,
     description: t('description'),
+    // 每篇自己的封面，筆記標題加「分享給你的筆記」（app/api/kb/og/route.ts 現場產生）
+    image: `/api/kb/og?${new URLSearchParams({ token: data.token, path: data.note.path, locale })}`,
     url: `/kb/${data.token}`,
     noIndex: true,
     appendSiteName: false,

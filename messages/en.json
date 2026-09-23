@@ -1472,6 +1472,7 @@
   },
   "KbShare": {
     "description": "Notes shared with you",
+    "ogBrand": " · KNOWLEDGE BASE",
     "contents": "Contents",
     "updated": "Updated {date}",
     "close": "Close contents",
