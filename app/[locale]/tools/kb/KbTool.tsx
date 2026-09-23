@@ -280,12 +280,12 @@ export default function KbTool({ initial }: { initial: KbData | null }) {
       {nodes.map((node) => {
         if (node.path.endsWith('.md')) {
           return (
-            <li key={node.path} className={style.note}>
-              <span className={style.noteName}>{node.name}</span>
-              <span className={style.noteDate}>
+            <li key={node.path} className={style.row}>
+              <span className={style.rowName}>{node.name}</span>
+              <span className={style.rowMeta}>
                 {format.dateTime(new Date(dates.get(node.path)!), { dateStyle: 'medium' })}
               </span>
-              {shareButton(node.path)}
+              <span className={style.rowActions}>{shareButton(node.path)}</span>
             </li>
           )
         }
@@ -296,26 +296,32 @@ export default function KbTool({ initial }: { initial: KbData | null }) {
           <li key={node.path}>
             {/* 前三層（學校、學期與資料庫、科目）預設展開 */}
             <details open={depth < 3}>
-              <summary className={style.folder}>
-                <Icon name="folder" className={style.folderIcon} />
-                <span className={style.folderName}>{node.name}</span>
-                {listed && <span className={style.badge}>{t('knowledge.badge')}</span>}
-                {!covered && (
-                  <button
-                    type="button"
-                    className={`${style.rowAction} ${listed ? style.rowActionOn : ''}`}
-                    aria-pressed={listed}
-                    aria-label={t('knowledge.toggle', { name: node.name })}
-                    title={listed ? t('knowledge.off') : t('knowledge.on')}
-                    onClick={(event) => {
-                      event.preventDefault()
-                      toggleKnowledge(node.path)
-                    }}
-                  >
-                    <Icon name="book" />
-                  </button>
-                )}
-                {shareButton(node.path)}
+              <summary className={`${style.row} ${style.folder}`}>
+                <span className={style.rowName}>
+                  <Icon name="folder" className={style.folderIcon} />
+                  {node.name}
+                </span>
+                <span className={style.rowMeta}>
+                  {listed && <span className={style.badge}>{t('knowledge.badge')}</span>}
+                </span>
+                <span className={style.rowActions}>
+                  {!covered && (
+                    <button
+                      type="button"
+                      className={`${style.rowAction} ${listed ? style.rowActionOn : ''}`}
+                      aria-pressed={listed}
+                      aria-label={t('knowledge.toggle', { name: node.name })}
+                      title={listed ? t('knowledge.off') : t('knowledge.on')}
+                      onClick={(event) => {
+                        event.preventDefault()
+                        toggleKnowledge(node.path)
+                      }}
+                    >
+                      <Icon name="book" />
+                    </button>
+                  )}
+                  {shareButton(node.path)}
+                </span>
               </summary>
               {renderNodes(node.children, depth + 1)}
             </details>
