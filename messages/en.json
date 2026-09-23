@@ -1433,6 +1433,7 @@
   "KbShare": {
     "description": "Notes shared with you",
     "contents": "Contents",
-    "updated": "Updated {date}"
+    "updated": "Updated {date}",
+    "close": "Close contents"
   }
 }

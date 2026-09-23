@@ -1,6 +1,6 @@
 @use '@/app/styles/design' as *;
 
-// 沒有個人網站的 Header 和 Footer。桌機目錄在左、內文在右；手機先內文，目錄接在後面
+// 沒有個人網站的 Header 和 Footer。桌機目錄在左、內文在右；900px 以下目錄改成抽屜
 .shell {
   display: grid;
   grid-template-columns: 15rem minmax(0, 1fr);
@@ -13,8 +13,9 @@
 
   @include respond-by-max-width($bp-md) {
     grid-template-columns: minmax(0, 1fr);
-    grid-template-areas: 'article' 'nav';
-    gap: var(--space-10);
+    grid-template-areas: 'article';
+    // 留出浮動的目錄按鈕，最後一行不被蓋住
+    padding-bottom: calc(var(--space-16) + var(--space-12));
   }
 
   @include respond-to('phone') {
@@ -57,24 +58,103 @@
 }
 
 .nav {
+  // nav 帶 popover 屬性，瀏覽器預設會把它藏起來、置中加框；桌機照一般側欄顯示，全部蓋掉
+  display: block;
   grid-area: nav;
   align-self: start;
   position: sticky;
+  inset: auto;
   top: var(--space-8);
+  width: auto;
+  height: auto;
   max-height: calc(100dvh - var(--space-16));
+  margin: 0;
+  padding: 0;
   overflow-y: auto;
+  color: inherit;
   font-size: var(--text-2xs);
+  background: none;
+  border: 0;
+
+  // 從左邊滑出的抽屜。收起時是 display:none：淡掉但還在的 fixed 層會讓 iOS Safari 工具列一直有色帶
+  @include respond-by-max-width($bp-md) {
+    position: fixed;
+    inset: 0 auto 0 0;
+    z-index: var(--z-drawer);
+    width: min(20rem, 85vw);
+    height: 100dvh;
+    max-height: none;
+    padding: var(--space-6) var(--space-6) var(--space-12);
+    background: var(--surface-raised);
+    border-right: 1px solid var(--border);
+    box-shadow: var(--shadow-xl);
+    transform: translateX(0);
+    transition:
+      transform var(--duration) var(--ease-out),
+      overlay var(--duration) allow-discrete,
+      display var(--duration) allow-discrete;
+
+    &:not(:popover-open) {
+      display: none;
+      transform: translateX(-100%);
+    }
+
+    @starting-style {
+      transform: translateX(-100%);
+    }
+
+    &::backdrop {
+      background: rgb(0 0 0 / 0.4);
+    }
+  }
+}
+
+.navHeader {
+  @include flexbox(row, space-between, center);
+  margin-bottom: var(--space-3);
+}
+
+// 抽屜才需要關閉鈕，桌機的側欄不用
+.navClose {
+  display: none;
+  padding: var(--space-2);
+  margin: calc(-1 * var(--space-2));
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+  background: none;
+  border: 0;
+  cursor: pointer;
 
   @include respond-by-max-width($bp-md) {
-    position: static;
-    max-height: none;
-    padding-top: var(--space-6);
-    border-top: 1px solid var(--border);
+    display: block;
+  }
+}
+
+// 手機右下角的目錄按鈕。離底部留一段，貼底的 fixed 元素會讓 iOS Safari 工具列變成實色帶
+.navToggle {
+  display: none;
+  position: fixed;
+  right: var(--page-gutter);
+  bottom: calc(var(--space-6) + env(safe-area-inset-bottom));
+  z-index: var(--z-sticky);
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-5);
+  color: var(--text);
+  font-size: var(--text-2xs);
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  box-shadow: var(--shadow-md);
+  cursor: pointer;
+
+  @include respond-by-max-width($bp-md) {
+    display: flex;
   }
 }
 
 .navTitle {
-  margin: 0 0 var(--space-3);
+  margin: 0;
   color: var(--text-muted);
   font-size: var(--text-3xs);
   letter-spacing: 0.08em;
@@ -107,14 +187,15 @@
   text-decoration: none;
   border-radius: var(--radius-sm);
 
+  // 用半透明混色：桌機側欄在頁面底色上、抽屜在 surface-raised 上，兩種底都要分得出來
   &:hover {
-    background: var(--surface-2);
+    background: color-mix(in oklch, var(--text) 6%, transparent);
   }
 
   &[aria-current='page'] {
     color: var(--accent);
     font-weight: 600;
-    background: var(--surface-2);
+    background: color-mix(in oklch, var(--accent) 14%, transparent);
   }
 }
 
@@ -125,7 +206,8 @@
     padding: 0;
   }
 
-  .nav {
+  .nav,
+  .navToggle {
     display: none;
   }
 

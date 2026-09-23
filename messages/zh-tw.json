@@ -1434,6 +1434,7 @@
   "KbShare": {
     "description": "分享給你的筆記",
     "contents": "目錄",
-    "updated": "更新於 {date}"
+    "updated": "更新於 {date}",
+    "close": "關閉目錄"
   }
 }

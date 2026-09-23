@@ -11,6 +11,7 @@ import { createPublicClient } from '@/app/lib/supabase/public'
 import { getKbShare, getKbSharedNote } from '@/app/lib/supabase/kb'
 import { buildTree, linkify, splitNote, type NoteTreeNode } from '@/app/lib/kb'
 import { metadata } from '@/app/lib/metadata'
+import Icon from '@/app/components/Icon/Icon'
 import postStyle from '@/app/components/blog/PostContent/PostContent.module.scss'
 import style from './kb-share.module.scss'
 
@@ -152,10 +153,28 @@ export default async function KbSharePage(props: KbSharePageProps) {
         </div>
       </article>
 
-      <nav className={style.nav} aria-label={t('contents')}>
-        <p className={style.navTitle}>{t('contents')}</p>
+      {/* 手機上目錄是抽屜，用原生 popover：點外面或按 Esc 就收起，不用寫 JS。
+          key 跟著筆記換，點了目錄裡的筆記、換頁之後抽屜會重新掛載而收起 */}
+      <nav key={note.path} id="kb-nav" popover="auto" className={style.nav} aria-label={t('contents')}>
+        <div className={style.navHeader}>
+          <p className={style.navTitle}>{t('contents')}</p>
+          <button
+            type="button"
+            popoverTarget="kb-nav"
+            popoverTargetAction="hide"
+            className={style.navClose}
+            aria-label={t('close')}
+          >
+            <Icon name="xmark" />
+          </button>
+        </div>
         {renderTree(buildTree(share.notes.map((n) => n.path)))}
       </nav>
+
+      <button type="button" popoverTarget="kb-nav" className={style.navToggle}>
+        <Icon name="list" />
+        {t('contents')}
+      </button>
     </main>
   )
 }

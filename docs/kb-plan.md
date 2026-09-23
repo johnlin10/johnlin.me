@@ -71,7 +71,7 @@ kb_shares (token text primary key, scope text, label text, created_at)
 - **換行**：vault 沒開嚴格換行，Obsidian 的單一換行就是換行。段落和清單加 `white-space: pre-line`，不用裝 remark-breaks。
 - **字型**：排版沿用文章內文（`PostContent.module.scss`），但內文改無襯線。源起明體只自架了一個字重又關掉假粗，筆記裡的粗體會跟內文一樣粗。標題照樣是襯線。
 - **標題**：用檔名；內文第一行是同名的 `# 標題` 就拿掉，不顯示兩次。frontmatter 不顯示。
-- **目錄**：看得到的筆記排成樹，最上層唯一的資料夾（學校）拆掉。桌機在左邊黏著，900px 以下接在內文後面。列印時只印內文。
+- **目錄**：看得到的筆記排成樹，最上層唯一的資料夾（學校）拆掉。桌機在左邊黏著；900px 以下改成從左邊滑出的抽屜，右下角的「目錄」按鈕打開。抽屜用原生 popover（點外面、按 Esc 收起，不用 JS），`key` 跟著筆記換，換頁就收起。收起時是 `display:none`，不留 iOS Safari 的常駐色帶；按鈕不貼底也是同一個原因。列印時只印內文。
 - 沒有個人網站的 Header 和 Footer，`noIndex`、`referrer: no-referrer`。token 不對或筆記在範圍外都是 404，404 頁不帶這頁的標題。
 
 ---
