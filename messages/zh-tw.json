@@ -675,6 +675,7 @@
       "tutoring": "完善就學",
       "links": "短網址",
       "qr": "QR Code",
+      "kb": "知識庫",
       "groups": {
         "personal": "個人",
         "school": "學校"
@@ -727,6 +728,11 @@
           "name": "QR Code",
           "description": "網址、Wi-Fi、聯絡人都能變成一張碼",
           "summary": "{count, plural, =0 {還沒存任何一個} other {存了 # 個}}"
+        },
+        "kb": {
+          "name": "知識庫",
+          "description": "Obsidian 的筆記整包傳上來，之後可以分享",
+          "summary": "{count, plural, =0 {還沒上傳筆記} other {# 篇筆記}}"
         }
       }
     },
@@ -1145,6 +1151,63 @@
       "board": {
         "makeup": "補{day}"
       }
+    },
+    "kb": {
+      "title": "知識庫",
+      "subtitle": "{count, plural, =0 {還沒上傳筆記} other {# 篇筆記}}",
+      "upload": "上傳資料夾",
+      "uploading": "上傳中…",
+      "hint": "選 Obsidian vault 裡的「{roots}」資料夾，每次都整包選。只會送出改過的筆記，資料夾裡已經沒有的筆記會一起刪掉。",
+      "empty": "還沒上傳任何筆記。",
+      "loadError": "筆記清單載入失敗",
+      "wrongRoot": "要選的是「{roots}」資料夾本身，不是裡面的子資料夾。",
+      "noNotes": "這個資料夾裡沒有 .md 筆記。",
+      "noChanges": "筆記都是最新的，沒有要上傳的。",
+      "confirmTitle": "上傳筆記",
+      "confirmCounts": "新增 {added} 篇、更新 {changed} 篇、刪除 {removed} 篇。",
+      "confirmRemoved": "會刪掉的有：{names}{more, plural, =0 {} other {，還有另外 # 篇}}。",
+      "synced": "上傳好了",
+      "syncError": "上傳失敗，再試一次。檔案放在 iCloud 的話，先確認都已經下載到這台電腦。",
+      "notesTitle": "筆記",
+      "cancel": "取消",
+      "shares": {
+        "title": "分享連結",
+        "empty": "還沒有分享連結。在下面的筆記或資料夾上按連結圖示開一條。",
+        "name": "名稱",
+        "scope": "分享範圍",
+        "created": "建立",
+        "actions": "操作",
+        "broken": "失效",
+        "brokenHint": "分享的筆記或資料夾已經改名、搬走或刪掉，這條連結打不開了。",
+        "share": "分享",
+        "shareName": "分享「{name}」",
+        "newTitle": "分享「{name}」",
+        "noteScope": "拿到連結的人看得到這篇，還有順著連結能到的知識資料夾筆記。",
+        "folderScope": "拿到連結的人看得到這個資料夾裡的所有筆記，還有順著連結能到的知識資料夾筆記。",
+        "label": "名稱",
+        "labelHelper": "只有你看得到，用來認這條連結，例如「行銷管理 作業一」。沒填就用筆記名稱。",
+        "create": "建立並複製連結",
+        "createError": "開連結失敗，再試一次。",
+        "copy": "複製連結",
+        "copied": "連結已複製",
+        "copyError": "沒辦法複製，瀏覽器可能擋住了剪貼簿。",
+        "revoke": "撤銷",
+        "revokeTitle": "撤銷分享連結",
+        "revokeMessage": "撤銷之後「{name}」這條連結就打不開了，拿到連結的人也看不到。之後要分享得重新開一條新的。",
+        "revoked": "連結已撤銷",
+        "revokeError": "撤銷失敗，再試一次。",
+        "existing": "已經有 {count} 條分享連結"
+      },
+      "knowledge": {
+        "badge": "知識資料夾",
+        "hint": "書本圖示是知識資料夾：放通用知識的地方。分享時，連結可以一路帶出裡面的筆記。沒設定的資料夾，只有直接分享才看得到。",
+        "on": "設成知識資料夾",
+        "off": "取消知識資料夾",
+        "toggle": "「{name}」是不是知識資料夾",
+        "onTitle": "設成知識資料夾",
+        "onMessage": "設定之後，只要分享的筆記連得到「{name}」裡的筆記，拿到連結的人就看得到，現有的分享也一樣。裡面不要放私人的東西。",
+        "error": "設定失敗，再試一次。"
+      }
     }
   },
   "HomePage": {
@@ -1407,5 +1470,12 @@
     "home": "回首頁",
     "blog": "看文章",
     "gallery": "看攝影"
+  },
+  "KbShare": {
+    "description": "分享給你的筆記",
+    "contents": "目錄",
+    "updated": "更新於 {date}",
+    "close": "關閉目錄",
+    "ai": "與 AI 共同編輯"
   }
 }

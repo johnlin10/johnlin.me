@@ -1,0 +1,203 @@
+@use '@/app/styles/design' as *;
+@use '../../admin/entityPage' as entity;
+
+.page {
+  max-width: 1100px;
+  margin: 0 auto;
+  @include flexbox(column, flex-start, stretch);
+  gap: var(--space-8);
+  @include entity.entity-form;
+}
+
+.group {
+  min-width: 0;
+  @include flexbox(column, flex-start, stretch);
+  gap: var(--space-3);
+}
+
+.groupTitle {
+  margin: 0;
+  padding: 0 0 var(--space-2) var(--space-2);
+  border-bottom: 1px solid var(--border);
+  font-family: var(--font-sans);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.badge,
+.broken {
+  flex-shrink: 0;
+  padding: 1px var(--space-2);
+  font-size: var(--text-3xs);
+  font-weight: 500;
+  border-radius: var(--radius-pill);
+}
+
+.badge {
+  color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.broken {
+  color: var(--danger);
+  background: var(--danger-soft);
+}
+
+.shareName {
+  @include flexbox(row, flex-start, center);
+  gap: var(--space-2);
+}
+
+// 樹上每列右邊的小按鈕：分享、知識資料夾
+.rowAction {
+  @include flexbox(row, center, center);
+  flex-shrink: 0;
+  width: 1.75rem;
+  height: 1.75rem;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: var(--text-2xs);
+  cursor: pointer;
+
+  &:hover {
+    color: var(--text);
+    background: var(--surface-2);
+  }
+}
+
+.rowActionOn {
+  color: var(--accent);
+}
+
+.hint {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: var(--text-2xs);
+  line-height: var(--leading-normal);
+}
+
+.tree {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  // 子層往內縮，並用一條細線標出屬於哪個資料夾
+  .tree {
+    margin-left: var(--space-2);
+    padding-left: var(--space-4);
+    border-left: 1px solid var(--border);
+
+    @include respond-to('phone') {
+      margin-left: var(--space-1);
+      padding-left: var(--space-2);
+    }
+  }
+}
+
+// 樹的每一列：名稱｜資訊（知識資料夾標示或更新日期）｜操作。後兩欄固定寬度，每一列的按鈕才會上下對齊
+.row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 8rem 3.75rem;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-sm);
+
+  // 畫面寬的時候，靠底色才看得出右邊的按鈕屬於哪一列
+  &:hover {
+    background: color-mix(in oklch, var(--text) 6%, transparent);
+  }
+
+  // 手機放不下固定寬的資訊欄：改成跟著內容寬，筆記的更新日期不顯示
+  @include respond-to('phone') {
+    grid-template-columns: minmax(0, 1fr) auto auto;
+
+    &:not(.folder) > .rowMeta {
+      display: none;
+    }
+  }
+}
+
+.rowName {
+  @include flexbox(row, flex-start, center);
+  gap: var(--space-2);
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.rowMeta {
+  justify-self: end;
+  color: var(--text-muted);
+  font-size: var(--text-3xs);
+}
+
+// 靠右排：連結鈕永遠在最右邊，書本鈕在它左邊
+.rowActions {
+  @include flexbox(row, flex-end, center);
+  gap: var(--space-1);
+}
+
+.folder {
+  font-weight: 600;
+  cursor: pointer;
+  list-style: none;
+
+  &::-webkit-details-marker {
+    display: none;
+  }
+}
+
+// 收合是灰色，展開是橘色
+.folderIcon {
+  flex-shrink: 0;
+  color: var(--text-muted);
+  font-size: var(--text-2xs);
+
+  details[open] > .folder & {
+    color: var(--accent);
+  }
+}
+
+// 分享視窗裡「已經有的連結」用
+.noteName {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.noteDate {
+  flex-shrink: 0;
+  color: var(--text-muted);
+  font-size: var(--text-3xs);
+}
+
+// 分享視窗上方：這個筆記或資料夾已經開過的連結
+.existing {
+  @include flexbox(column, flex-start, stretch);
+  gap: var(--space-2);
+  padding-bottom: var(--space-5);
+  border-bottom: 1px solid var(--border);
+}
+
+.existingTitle {
+  margin: 0;
+  font-size: var(--text-2xs);
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.existingList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.existingItem {
+  @include flexbox(row, space-between, center);
+  gap: var(--space-3);
+  padding: var(--space-1) 0;
+}

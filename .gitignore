@@ -49,3 +49,6 @@ next-env.d.ts
 
 # HDR 格式驗證用的原始樣本（約 130MB，只在本機做管線測試用）
 /public/assets/images/hdr_images_test/
+
+# 每次 commit 前寫的訊息，自己用的
+COMMIT_MESSAGE.md

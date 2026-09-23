@@ -22,6 +22,7 @@ import {
   faGaugeHigh,
   faComment,
   faFolder,
+  faBook,
   faTag,
   faLayerGroup,
   faRightFromBracket,
@@ -72,6 +73,7 @@ export type IconName =
   | 'gauge-high'
   | 'comment'
   | 'folder'
+  | 'book'
   | 'tag'
   | 'layer-group'
   | 'right-from-bracket'
@@ -121,6 +123,7 @@ const iconMap: Record<IconName, IconProp> = {
   'gauge-high': faGaugeHigh,
   comment: faComment,
   folder: faFolder,
+  book: faBook,
   tag: faTag,
   'layer-group': faLayerGroup,
   'right-from-bracket': faRightFromBracket,

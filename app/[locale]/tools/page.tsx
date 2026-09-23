@@ -21,11 +21,12 @@ import TimelineViewport from '@/app/components/schedule/DayTimeline/TimelineView
 import style from './tools.module.scss'
 
 // 順序跟側邊欄一樣：個人在前，學校在後
-const TOOLS: { href: string; key: 'links' | 'qr' | 'schedule' | 'tutoring'; icon: IconName }[] = [
+const TOOLS: { href: string; key: 'links' | 'qr' | 'schedule' | 'tutoring' | 'kb'; icon: IconName }[] = [
   { href: '/links', key: 'links', icon: 'link' },
   { href: '/qr', key: 'qr', icon: 'qrcode' },
   { href: '/schedule', key: 'schedule', icon: 'calendar' },
   { href: '/tutoring', key: 'tutoring', icon: 'users' },
+  { href: '/kb', key: 'kb', icon: 'book' },
 ]
 
 type AgendaItem = DayItem & { kind: 'class' | 'session' }
@@ -136,6 +137,7 @@ export default async function ToolsHomePage() {
       count: itemsOn(today).filter((item) => item.kind === 'class').length,
     }),
     tutoring: t('tools.tutoring.summary', { hours: monthHours, cap: MONTHLY_CAP }),
+    kb: t('tools.kb.summary', { count: data.kbNotes }),
   }
 
   return (
