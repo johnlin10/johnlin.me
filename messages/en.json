@@ -1166,7 +1166,47 @@
       "confirmCounts": "{added} new, {changed} updated, {removed} deleted.",
       "confirmRemoved": " Deleting: {names}{more, plural, =0 {} one {, and # more} other {, and # more}}.",
       "synced": "Uploaded",
-      "syncError": "Upload failed. Try again. If the folder is in iCloud, make sure every file is downloaded to this computer first."
+      "syncError": "Upload failed. Try again. If the folder is in iCloud, make sure every file is downloaded to this computer first.",
+      "notesTitle": "Notes",
+      "cancel": "Cancel",
+      "shares": {
+        "title": "Share links",
+        "empty": "No share links yet. Use the link icon on a note or folder below to make one.",
+        "name": "Name",
+        "scope": "Shares",
+        "created": "Created",
+        "actions": "Actions",
+        "broken": "Broken",
+        "brokenHint": "The shared note or folder was renamed, moved or deleted, so this link no longer opens.",
+        "share": "Share",
+        "shareName": "Share \"{name}\"",
+        "newTitle": "Share \"{name}\"",
+        "noteScope": "Anyone with the link sees this note, plus the notes in knowledge folders its links lead to.",
+        "folderScope": "Anyone with the link sees every note in this folder, plus the notes in knowledge folders their links lead to.",
+        "label": "Name",
+        "labelHelper": "Only you see it. It tells your links apart, like \"Marketing assignment 1\". Leave it blank to use the note name.",
+        "create": "Create and copy link",
+        "createError": "Couldn't create the link. Try again.",
+        "copy": "Copy link",
+        "copied": "Link copied",
+        "copyError": "Couldn't copy. The browser may be blocking the clipboard.",
+        "revoke": "Revoke",
+        "revokeTitle": "Revoke share link",
+        "revokeMessage": "Once revoked, the \"{name}\" link stops opening for everyone who has it. To share again you need a new link.",
+        "revoked": "Link revoked",
+        "revokeError": "Couldn't revoke. Try again.",
+        "existing": "{count, plural, one {# share link} other {# share links}} already"
+      },
+      "knowledge": {
+        "badge": "Knowledge folder",
+        "hint": "The book icon marks a knowledge folder, a place for general knowledge. Links in a share can lead into its notes. Other folders are only visible when shared directly.",
+        "on": "Make knowledge folder",
+        "off": "Stop being a knowledge folder",
+        "toggle": "Whether \"{name}\" is a knowledge folder",
+        "onTitle": "Make knowledge folder",
+        "onMessage": "After this, anyone with a share link can see the notes in \"{name}\" whenever the shared notes link to them, existing shares included. Keep private notes out of it.",
+        "error": "Couldn't change it. Try again."
+      }
     }
   },
   "HomePage": {

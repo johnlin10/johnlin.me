@@ -155,8 +155,5 @@ export function buildTree(paths: string[]): NoteTreeNode[] {
     nodes.forEach((n) => sort(n.children))
   }
   sort(root.children)
-  // 最上層只有一個資料夾（學校）就往下拆，分享頁不用多一層
-  let nodes = root.children
-  while (nodes.length === 1 && !nodes[0].path.endsWith('.md')) nodes = nodes[0].children
-  return nodes
+  return root.children
 }

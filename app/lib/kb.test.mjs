@@ -47,8 +47,10 @@ test('比對出新增、更新、刪除', () => {
   })
 })
 
-test('樹：資料夾在前，名稱自然排序，最上層唯一的資料夾拆掉', () => {
-  const tree = buildTree(['學校/第10週.md', '學校/第2週.md', '學校/資料庫/人物/Kotler.md'])
+test('樹：資料夾在前，名稱自然排序，最上層資料夾照樣保留', () => {
+  const [school] = buildTree(['學校/第10週.md', '學校/第2週.md', '學校/資料庫/人物/Kotler.md'])
+  assert.equal(school.path, '學校/')
+  const tree = school.children
   assert.deepEqual(
     tree.map((n) => [n.name, n.path]),
     [

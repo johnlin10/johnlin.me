@@ -138,7 +138,7 @@ kb_knowledge_folders (path text primary key)
 - **換行**：vault 沒開嚴格換行，Obsidian 的單一換行就是換行。段落和清單加 `white-space: pre-line`，不用裝 remark-breaks。
 - **字型**：排版沿用文章內文（`PostContent.module.scss`），但內文改無襯線。源起明體只自架了一個字重又關掉假粗，筆記裡的粗體會跟內文一樣粗。標題照樣是襯線。
 - **標題**：用檔名；內文第一行是同名的 `# 標題` 就拿掉，不顯示兩次。frontmatter 不顯示。
-- **目錄**：看得到的筆記照分享路徑排成樹，最上層只有一個資料夾就拆掉。React 的 `key` 也用分享路徑，原始碼裡看不到完整路徑。桌機在左邊黏著；900px 以下改成從左邊滑出的抽屜，右下角的「目錄」按鈕打開。抽屜用原生 popover（點外面、按 Esc 收起，不用 JS），`key` 跟著筆記換，換頁就收起。收起時是 `display:none`，不留 iOS Safari 的常駐色帶；按鈕不貼底也是同一個原因。列印時只印內文。
+- **目錄**：看得到的筆記照分享路徑排成樹，跟網址一樣。React 的 `key` 也用分享路徑，原始碼裡看不到完整路徑。桌機在左邊黏著；900px 以下改成從左邊滑出的抽屜，右下角的「目錄」按鈕打開。抽屜用原生 popover（點外面、按 Esc 收起，不用 JS），`key` 跟著筆記換，換頁就收起。收起時是 `display:none`，不留 iOS Safari 的常駐色帶；按鈕不貼底也是同一個原因。列印時只印內文。
 - 沒有個人網站的 Header 和 Footer，`noIndex`、`referrer: no-referrer`。token 不對或筆記在範圍外都是 404，404 頁不帶這頁的標題。
 
 ---
@@ -150,7 +150,7 @@ kb_knowledge_folders (path text primary key)
 | 1 | migration、`app/lib/kb.ts`（含測試）、tools 上傳頁與檔案樹 | ✅ v1.13 Beta 1 |
 | 2 | 分享頁：Markdown 渲染、左側檔案樹、列印 CSS、手機目錄抽屜 | ✅ v1.13 Beta 2、Beta 3 |
 | 3 | 分享範圍與網址改版：知識資料夾、分享路徑、網址改成路徑（`0020_kb_share_view.sql`） | ✅ |
-| 4 | 分享管理：在檔案樹上選筆記或資料夾開連結、填 label、撤銷、標出失效的連結；勾選知識資料夾 | |
+| 4 | 分享管理：在檔案樹上選筆記或資料夾開連結、填 label、撤銷、標出失效的連結；勾選知識資料夾 | ✅ |
 | 5 | 懸停預覽 | |
 
 ---
