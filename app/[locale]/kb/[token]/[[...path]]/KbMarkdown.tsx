@@ -9,26 +9,26 @@ interface KbMarkdownProps {
   token: string
   /** 去掉標題和 frontmatter 的內文 */
   body: string
-  /** 連結目標 → 分享路徑，只有看得到的 */
+  /** 連結目標 → 代碼，只有看得到的 */
   links: Record<string, string>
   /** 站內筆記連結怎麼畫 */
-  renderLink: (href: string, children: ReactNode, path: string) => ReactNode
+  renderLink: (href: string, children: ReactNode, code: string) => ReactNode
 }
 
 /**
  * 筆記內文。分享頁和懸停預覽共用，[[連結]] 先換成 Markdown 連結，看不到的只留文字。
  */
 export default function KbMarkdown({ token, body, links, renderLink }: KbMarkdownProps) {
-  const paths = new Map(Object.values(links).map((path) => [shareHref(token, path), path]))
+  const codes = new Map(Object.values(links).map((code) => [shareHref(token, code), code]))
   return (
     <Markdown
       remarkPlugins={[remarkGfm, remarkMath]}
       rehypePlugins={[rehypeKatex]}
       components={{
         a: ({ href, children }) => {
-          const path = href && paths.get(href)
-          return path ? (
-            renderLink(href, children, path)
+          const code = href && codes.get(href)
+          return code ? (
+            renderLink(href, children, code)
           ) : (
             <a href={href} target="_blank" rel="noopener noreferrer">
               {children}

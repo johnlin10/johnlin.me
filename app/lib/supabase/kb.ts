@@ -142,14 +142,15 @@ export async function setKnowledgeFolder(
   if (error) throw error
 }
 
-/** 路徑都是分享路徑，不是 vault 裡的完整路徑 */
+/** 路徑都是分享路徑，不是 vault 裡的完整路徑；網址用的是代碼 */
 export type KbShare = {
-  notes: (KbNote & { in_scope: boolean })[]
+  notes: (KbNote & { code: string; in_scope: boolean })[]
 }
 
 export type KbSharedNote = KbNote & {
+  code: string
   content: string
-  /** 連結目標 → 分享路徑，只有看得到的 */
+  /** 連結目標 → 代碼，只有看得到的 */
   links: Record<string, string>
 }
 
@@ -169,15 +170,15 @@ export async function getKbShare(supabase: SupabaseClient, token: string): Promi
  * 分享範圍內的一篇筆記。
  * @param supabase 公開 client
  * @param token 分享 token
- * @param path 分享路徑
+ * @param code 筆記代碼
  * @returns 看不到回 null
  */
 export async function getKbSharedNote(
   supabase: SupabaseClient,
   token: string,
-  path: string,
+  code: string,
 ): Promise<KbSharedNote | null> {
-  const { data, error } = await supabase.rpc('get_kb_note', { p_token: token, p_share_path: path })
+  const { data, error } = await supabase.rpc('get_kb_shared_note', { p_token: token, p_code: code })
   if (error) throw error
   return data
 }

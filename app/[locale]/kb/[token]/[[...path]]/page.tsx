@@ -2,7 +2,7 @@ import { cache } from 'react'
 import { notFound } from 'next/navigation'
 import { getFormatter, getTranslations } from 'next-intl/server'
 import type { Metadata } from 'next'
-import { Link } from '@/i18n/navigation'
+import { Link, redirect } from '@/i18n/navigation'
 import { createPublicClient } from '@/app/lib/supabase/public'
 import { getKbShare, getKbSharedNote } from '@/app/lib/supabase/kb'
 import { buildTree, shareHref, splitNote, type NoteTreeNode } from '@/app/lib/kb'
@@ -13,7 +13,6 @@ import postStyle from '@/app/components/blog/PostContent/PostContent.module.scss
 import style from './kb-share.module.scss'
 import KbMarkdown from './KbMarkdown'
 import KbPreviewLink from './KbPreviewLink'
-import KbCopyLink from './KbCopyLink'
 
 interface KbSharePageProps {
   params: Promise<{ locale: string; token: string; path?: string[] }>
@@ -21,8 +20,8 @@ interface KbSharePageProps {
 
 // metadata 和頁面各要一次，同一個請求裡只打一次資料庫
 const loadShare = cache((token: string) => getKbShare(createPublicClient(), token))
-const loadNote = cache((token: string, path: string) =>
-  getKbSharedNote(createPublicClient(), token, path),
+const loadNote = cache((token: string, code: string) =>
+  getKbSharedNote(createPublicClient(), token, code),
 )
 
 /**
@@ -38,7 +37,7 @@ function firstNote(nodes: NoteTreeNode[]): string | undefined {
 }
 
 /**
- * 網址的一段轉回文字。Next 給的有時已經解碼、有時沒有，所以一律再解一次。
+ * 舊網址（v1.13.3 以前用分享路徑）的一段轉回文字。Next 給的有時已經解碼、有時沒有，所以一律再解一次。
  * @param segment 網址的一段
  * @returns 解碼後的文字，格式不對就原樣回傳
  */
@@ -52,17 +51,25 @@ function decodeSegment(segment: string) {
 }
 
 /**
- * 這次要看哪篇：網址有指定就用它，否則是分享的那篇，或分享的資料夾裡第一篇。
+ * 這次要看哪篇：網址有代碼就用它，否則是分享的那篇，或分享的資料夾裡第一篇。
+ * 已經傳出去的舊網址（分享路徑）轉到代碼網址。
  * @returns token 不對或看不到那篇回 null
  */
 async function load({ params }: KbSharePageProps) {
-  const { token, path: segments } = await params
+  const { locale, token, path: segments } = await params
   const share = await loadShare(token)
   if (!share) return null
-  const path = segments
-    ? `${segments.map(decodeSegment).join('/').normalize('NFC')}.md`
-    : firstNote(buildTree(share.notes.filter((n) => n.in_scope).map((n) => n.path)))
-  const note = path && (await loadNote(token, path))
+  let code = segments?.length === 1 ? segments[0] : undefined
+  if (!segments) {
+    const first = firstNote(buildTree(share.notes.filter((n) => n.in_scope).map((n) => n.path)))
+    code = share.notes.find((n) => n.path === first)?.code
+  } else if (!share.notes.some((n) => n.code === code)) {
+    const path = `${segments.map(decodeSegment).join('/').normalize('NFC')}.md`
+    const old = share.notes.find((n) => n.path === path)
+    if (old) redirect({ href: shareHref(token, old.code), locale })
+    return null
+  }
+  const note = code && (await loadNote(token, code))
   return note ? { token, share, note } : null
 }
 
@@ -76,8 +83,9 @@ export async function generateMetadata(props: KbSharePageProps): Promise<Metadat
     title: splitNote(data.note.path, data.note.content).title,
     description: t('description'),
     // 每篇自己的封面，筆記標題加「分享給你的筆記」（app/api/kb/og/route.ts 現場產生）
-    image: `/api/kb/og?${new URLSearchParams({ token: data.token, path: data.note.path, locale })}`,
-    url: `/kb/${data.token}`,
+    image: `/api/kb/og?${new URLSearchParams({ token: data.token, code: data.note.code, locale })}`,
+    // 網址沒帶代碼時打開的就是這篇，og:url 一律指到這篇，平台照 og:url 重抓也不會抓錯篇
+    url: shareHref(data.token, data.note.code),
     noIndex: true,
     appendSiteName: false,
   })
@@ -87,7 +95,7 @@ export async function generateMetadata(props: KbSharePageProps): Promise<Metadat
 
 /**
  * 知識庫的分享頁。看得到的是分享的筆記或資料夾，加上順著連結、只經過知識資料夾能連到的筆記；
- * 範圍外的連結顯示成一般文字。路徑都是分享路徑。token 不對或看不到那篇就 404。
+ * 範圍外的連結顯示成一般文字。網址用筆記代碼，目錄顯示分享路徑。token 不對或看不到那篇就 404。
  * 每次都現場讀，撤銷連結要立刻生效。
  */
 export default async function KbSharePage(props: KbSharePageProps) {
@@ -99,13 +107,14 @@ export default async function KbSharePage(props: KbSharePageProps) {
   const format = await getFormatter({ locale })
   const { title, body, ai } = splitNote(note.path, note.content)
 
+  const codes = new Map(share.notes.map((n) => [n.path, n.code]))
   const renderTree = (nodes: NoteTreeNode[]) => (
     <ul className={style.tree}>
       {nodes.map((node) => (
         <li key={node.path}>
           {node.path.endsWith('.md') ? (
             <Link
-              href={shareHref(token, node.path)}
+              href={shareHref(token, codes.get(node.path)!)}
               className={style.treeNote}
               aria-current={node.path === note.path ? 'page' : undefined}
             >
@@ -126,20 +135,17 @@ export default async function KbSharePage(props: KbSharePageProps) {
     <main className={style.shell}>
       <article className={style.article}>
         <h1 className={style.title}>{title}</h1>
-        <div className={style.meta}>
-          <p className={style.updated}>
-            {t('updated', { date: format.dateTime(new Date(note.updated_at), { dateStyle: 'long' }) })}
-            {ai && ` · ${t('ai')}`}
-          </p>
-          <KbCopyLink />
-        </div>
+        <p className={style.updated}>
+          {t('updated', { date: format.dateTime(new Date(note.updated_at), { dateStyle: 'long' }) })}
+          {ai && ` · ${t('ai')}`}
+        </p>
         <div className={`${postStyle.post_content} ${style.content}`}>
           <KbMarkdown
             token={token}
             body={body}
             links={note.links}
-            renderLink={(href, children, path) => (
-              <KbPreviewLink token={token} path={path} href={href}>
+            renderLink={(href, children, code) => (
+              <KbPreviewLink token={token} code={code} href={href}>
                 {children}
               </KbPreviewLink>
             )}

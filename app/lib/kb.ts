@@ -68,14 +68,13 @@ export function linkify(content: string, hrefOf: (target: string) => string | nu
 }
 
 /**
- * 分享頁上一篇筆記的網址，不帶 .md。
+ * 分享頁上一篇筆記的網址。
  * @param token 分享 token
- * @param path 分享路徑
+ * @param code 筆記代碼
  * @returns 站內網址
  */
-export function shareHref(token: string, path: string): string {
-  const segments = path.replace(/\.md$/, '').split('/').map(encodeURIComponent)
-  return `/kb/${token}/${segments.join('/')}`
+export function shareHref(token: string, code: string): string {
+  return `/kb/${token}/${code}`
 }
 
 /**

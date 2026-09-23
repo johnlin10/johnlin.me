@@ -28,13 +28,13 @@ const loaded = new Map<string, Promise<KbSharedNote | null>>()
 /**
  * 讀一篇筆記，同一篇只讀一次。
  * @param token 分享 token
- * @param path 分享路徑
+ * @param code 筆記代碼
  * @returns 看不到或讀不到回 null
  */
-function load(token: string, path: string) {
-  const key = `${token}/${path}`
+function load(token: string, code: string) {
+  const key = `${token}/${code}`
   if (!loaded.has(key)) {
-    loaded.set(key, getKbSharedNote(createPublicClient(), token, path).catch(() => null))
+    loaded.set(key, getKbSharedNote(createPublicClient(), token, code).catch(() => null))
   }
   return loaded.get(key)!
 }
@@ -58,17 +58,17 @@ function place(anchor: HTMLElement): CSSProperties {
 /**
  * 內文裡的筆記連結。滑鼠停一下就在旁邊跳出那一篇的預覽；觸控沒有懸停，點了直接跳頁。
  * @param props.token 分享 token
- * @param props.path 連到的筆記（分享路徑）
+ * @param props.code 連到的筆記代碼
  * @param props.href 連到的網址
  */
 export default function KbPreviewLink({
   token,
-  path,
+  code,
   href,
   children,
 }: {
   token: string
-  path: string
+  code: string
   href: string
   children: ReactNode
 }) {
@@ -84,7 +84,7 @@ export default function KbPreviewLink({
     clearTimeout(timer.current)
     if (open) return
     const id = ++hover.current
-    const note = load(token, path)
+    const note = load(token, code)
     timer.current = window.setTimeout(async () => {
       const result = await note
       if (result && hover.current === id && anchor.current) {

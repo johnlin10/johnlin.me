@@ -16,13 +16,13 @@ const logo = readFile(join(process.cwd(), OG_LOGO)).then(
 /**
  * 知識庫分享頁的 OG 圖：筆記所在的資料夾、筆記標題，加「分享給你的筆記」。
  * 跟分享頁一樣走分享函式，token 不對或看不到那篇就 404，撤銷後也拿不到。
- * @param request `?token=&path=&locale=`，path 是帶 .md 的分享路徑
+ * @param request `?token=&code=&locale=`，code 是筆記代碼
  */
 export async function GET(request: Request) {
   const params = new URL(request.url).searchParams
   const token = params.get('token')
-  const path = params.get('path')
-  const note = token && path && (await getKbSharedNote(createPublicClient(), token, path))
+  const code = params.get('code')
+  const note = token && code && (await getKbSharedNote(createPublicClient(), token, code))
   if (!note) return new Response(null, { status: 404 })
 
   const locale = params.get('locale') === 'en' ? 'en' : 'zh-tw'
