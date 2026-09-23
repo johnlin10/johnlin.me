@@ -2,18 +2,16 @@ import { cache } from 'react'
 import { notFound } from 'next/navigation'
 import { getFormatter, getTranslations } from 'next-intl/server'
 import type { Metadata } from 'next'
-import Markdown from 'react-markdown'
-import remarkGfm from 'remark-gfm'
-import remarkMath from 'remark-math'
-import rehypeKatex from 'rehype-katex'
 import { Link } from '@/i18n/navigation'
 import { createPublicClient } from '@/app/lib/supabase/public'
 import { getKbShare, getKbSharedNote } from '@/app/lib/supabase/kb'
-import { buildTree, linkify, splitNote, type NoteTreeNode } from '@/app/lib/kb'
+import { buildTree, shareHref, splitNote, type NoteTreeNode } from '@/app/lib/kb'
 import { metadata } from '@/app/lib/metadata'
 import Icon from '@/app/components/Icon/Icon'
 import postStyle from '@/app/components/blog/PostContent/PostContent.module.scss'
 import style from './kb-share.module.scss'
+import KbMarkdown from './KbMarkdown'
+import KbPreviewLink from './KbPreviewLink'
 
 interface KbSharePageProps {
   params: Promise<{ locale: string; token: string; path?: string[] }>
@@ -24,17 +22,6 @@ const loadShare = cache((token: string) => getKbShare(createPublicClient(), toke
 const loadNote = cache((token: string, path: string) =>
   getKbSharedNote(createPublicClient(), token, path),
 )
-
-/**
- * 筆記的網址，網址上不帶 .md。
- * @param token 分享 token
- * @param path 分享路徑
- * @returns 站內網址
- */
-function hrefOf(token: string, path: string) {
-  const segments = path.replace(/\.md$/, '').split('/').map(encodeURIComponent)
-  return `/kb/${token}/${segments.join('/')}`
-}
 
 /**
  * 樹上第一篇筆記，網址沒指定筆記時打開分享範圍裡的第一篇。
@@ -114,7 +101,7 @@ export default async function KbSharePage(props: KbSharePageProps) {
         <li key={node.path}>
           {node.path.endsWith('.md') ? (
             <Link
-              href={hrefOf(token, node.path)}
+              href={shareHref(token, node.path)}
               className={style.treeNote}
               aria-current={node.path === note.path ? 'page' : undefined}
             >
@@ -139,25 +126,16 @@ export default async function KbSharePage(props: KbSharePageProps) {
           {t('updated', { date: format.dateTime(new Date(note.updated_at), { dateStyle: 'long' }) })}
         </p>
         <div className={`${postStyle.post_content} ${style.content}`}>
-          <Markdown
-            remarkPlugins={[remarkGfm, remarkMath]}
-            rehypePlugins={[rehypeKatex]}
-            components={{
-              a: ({ href, children }) =>
-                href?.startsWith('/kb/') ? (
-                  <Link href={href}>{children}</Link>
-                ) : (
-                  <a href={href} target="_blank" rel="noopener noreferrer">
-                    {children}
-                  </a>
-                ),
-            }}
-          >
-            {linkify(body, (target) => {
-              const path = note.links[target]
-              return path ? hrefOf(token, path) : null
-            })}
-          </Markdown>
+          <KbMarkdown
+            token={token}
+            body={body}
+            links={note.links}
+            renderLink={(href, children, path) => (
+              <KbPreviewLink token={token} path={path} href={href}>
+                {children}
+              </KbPreviewLink>
+            )}
+          />
         </div>
       </article>
 

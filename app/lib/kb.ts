@@ -68,6 +68,17 @@ export function linkify(content: string, hrefOf: (target: string) => string | nu
 }
 
 /**
+ * 分享頁上一篇筆記的網址，不帶 .md。
+ * @param token 分享 token
+ * @param path 分享路徑
+ * @returns 站內網址
+ */
+export function shareHref(token: string, path: string): string {
+  const segments = path.replace(/\.md$/, '').split('/').map(encodeURIComponent)
+  return `/kb/${token}/${segments.join('/')}`
+}
+
+/**
  * 筆記的標題（檔名）和去掉 frontmatter 的內文。內文第一行就是同名的 # 標題時一起拿掉，免得顯示兩次。
  * @param path 筆記路徑
  * @param content Markdown 原文
