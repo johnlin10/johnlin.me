@@ -228,10 +228,10 @@
     background: color-mix(in oklch, var(--text) 6%, transparent);
   }
 
+  // 目前這篇只換字色，不加底色，側欄才不會搶走內文的注意
   &[aria-current='page'] {
     color: var(--accent);
     font-weight: 600;
-    background: color-mix(in oklch, var(--accent) 14%, transparent);
   }
 }
 
