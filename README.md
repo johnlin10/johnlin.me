@@ -1,6 +1,6 @@
 # johnlin.me
 
-個人網站，包含部落格、短文、攝影作品集、自建後台 CMS，以及私人工具（課表、短網址、完善就學排程）。
+個人網站，包含部落格、短文、攝影作品集、自建後台 CMS，以及私人工具（課表、完善就學排程、知識庫、短網址、QR Code）。
 
 - 網址：<https://johnlin.me>
 - 子網域：`studio.johnlin.me`（後台）、`tools.johnlin.me`（私人工具）、`go.johnlin.me`（短網址）
@@ -43,7 +43,7 @@
 
 | 路由                             | 說明                                                                                                  | 關鍵實作                                                                                                                   |
 | -------------------------------- | ----------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
-| `/`                              | 首頁。Hero、自介、精選作品、最新文章、攝影入口                                                        | ISR 300s；Hero 的程式碼視窗於執行期以 `fs.readFile` 讀取自身元件原始碼                                                     |
+| `/`                              | 首頁。Hero、自介、精選作品、最新文章、攝影入口                                                        | 快取頁；Hero 的程式碼視窗於執行期以 `fs.readFile` 讀取自身元件原始碼                                                     |
 | `/blog`                          | 文章列表                                                                                              | `getPublishedPosts()`，單頁 30 篇                                                                                          |
 | `/blog/[slug]`                   | 文章內頁。雙語內容獨立撰寫，缺英文版時退回中文並提示                                                  | Tiptap 產出的 HTML 直接注入；目錄於儲存時預先計算，前台以 `IntersectionObserver` 高亮；KaTeX 補渲染；瀏覽數走 Postgres RPC |
 | `/notes` `/notes/[id]`           | 短文動態牆。純文字加最多數張圖，無標題／草稿／分類                                                    | 與文章完全獨立的資料流；原生 `<img>` 圖片網格 + 自製燈箱                                                                   |
@@ -52,7 +52,10 @@
 | `/about`                         | 分章節自介，切章節不換網址                                                                            | `content/about/<slug>.<locale>.md` + react-markdown                                                                        |
 | `/lab/design`                    | 設計系統活頁，即時渲染 CSS 變數為色票／間距／字級，可點擊複製                                         | `getComputedStyle` 解析實際計算值                                                                                          |
 | `/tutoring/[token]`              | 完善就學的公開唯讀頁，給一起參加的同學看。週時間軸、疊課表比對、這週時段列表與該月時數；只能翻前後一個月 | 不登入，資料走 SECURITY DEFINER 函式 `get_tutoring_board`，token 不對或連結關閉回 404；`noindex`、不帶 Referer，不套主站 Header／Footer |
+| `/kb/[token]/[代碼]`              | 知識庫分享頁。顯示分享的筆記或資料夾，加上順著連結、經過「知識資料夾」連得到的筆記；滑過連結可預覽該篇 | 每篇筆記一組 6 碼代碼，網址不帶中文；資料走 SECURITY DEFINER 函式 `get_kb_share`、`get_kb_shared_note`，只回分享範圍內的路徑；OG 圖由 `/api/kb/og` 即時產生；`noindex`、不帶 Referer，不套主站 Header／Footer |
 | `/rss/blog.xml` `/rss/notes.xml` | 兩支獨立 RSS feed                                                                                     | `force-dynamic`，目前僅中文版                                                                                              |
+
+公開頁全部走快取：資料用不帶 cookie 的 `createPublicClient()`、每 300 秒重新產生，後台一寫入就打 `/api/admin/{posts,notes,photos}/revalidate` 立即清掉。頁面不能讀 cookie、header 或查詢字串，讀者偏好（Blog 卡片／列表、About 的章節）改由 inline script 在畫面顯示前套用。改完公開頁要跑 `next build`，看路由表有沒有變成 ƒ（每次請求才算）。
 
 ### 後台（`studio.johnlin.me`，需管理員身分）
 
@@ -60,7 +63,7 @@
 
 | 路由                                  | 說明                                                                                                                                                                 |
 | ------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `/`                                   | 儀表板，文章與短文的數量統計                                                                                                                                         |
+| `/`                                   | 儀表板：總數與瀏覽數、熱門文章、相機／焦段／年份分布、近期動態，以及待補的項目（缺英文版、久沒動的草稿、照片缺說明或地點）                                         |
 | `/posts`                              | 文章 CRUD。Tiptap 編輯器；草稿階段自動存檔（1.2s debounce／8s 上限），發布後改為手動更新；離開未編輯過的空草稿會自動刪除                                             |
 | `/photos`                             | 依年份分段的縮圖牆 + 檢閱欄，支援鍵盤巡覽與批次操作；欄位自動存檔                                                                                                    |
 | `/photos/upload`                      | 上傳預檢。瀏覽器端解 EXIF 並產生 slug，確認後才上傳；原檔以 presigned PUT 直傳 R2（避開函式 4.5 MB body 上限），再由 ingest 端點以 sharp 產出各尺寸、OG 圖與模糊佔位 |
@@ -68,7 +71,9 @@
 | `/categories` `/tags` `/series`       | 分類／標籤／系列管理（系列前台頁面尚未實作）                                                                                                                         |
 | `/login`                              | Google OAuth 單一登入方式                                                                                                                                            |
 
-後台使用自行實作的元件庫（`Button`／`Input`／`Modal`／`ConfirmDialog`／`Toast`／`DataTable` 等），未引入外部 UI 套件；tools 子網域共用同一套元件與外殼。
+後台使用自行實作的元件庫（`Button`／`Input`／`Modal`／`ConfirmDialog`／`Toast`／`DataTable` 等），未引入外部 UI 套件；tools 子網域共用同一套元件與外殼。側邊欄上方有「返回首頁」和切到另一個子網域的連結。
+
+登入 cookie（`sb-johnlin-auth`）寫在整個 `.johnlin.me`，studio 和 tools 登入一次就通用，登出也一起登出，設定在 `app/lib/supabase/authCookie.ts`。本機 `*.localhost` 設不了共用網域，兩邊要各登入一次。
 
 本機開發用 Chrome 開 `http://studio.localhost:3000`（Safari 不一定解析得到 `*.localhost`）。
 
@@ -78,14 +83,16 @@
 
 | 路由            | 說明                                                                                                                                         |
 | --------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| `/`             | 工具總覽                                                                                                                                     |
-| `/schedule`     | 週課表，依成員與學期切換，每個人一份課表，課程與老師跨人共用。點空格新增時段、點課程編輯，同一天節次重疊會擋下；可整份複製別人的課表。學期有起訖日期，課程有 15 種預設顏色與選填學分 |
+| `/`             | 工具總覽：今天（或下一個有課的日子）的課和輔導時間軸、學期進度與期中期末倒數，每張工具卡片帶一行即時摘要                                     |
+| `/schedule`     | 週課表，依成員與學期切換，每個人一份課表，課程與老師跨人共用。點空格新增時段、點課程編輯，同一天節次重疊會擋下；可整份複製別人的課表。學期有起訖日期與期中、期末週，課程有 15 種預設顏色與選填學分。國定假日可從 Google 台灣假日行事曆匯入，補課日手動填；放假那天不長課 |
 | `/tutoring`     | 完善就學排程。月份與週次切換、週一到週五的時間軸，點空白新增輔導時段（任意開始時間、1–8 小時每 0.5 一階）；存檔前檢查週末、參與者與老師的課、重複排程。疊一個人的課表找空檔，下方是每人該月時數（受 40 小時上限的三個方案合計、證照輔導另計）。管理區放成員、課表以外的忙碌時間與公開連結 |
-| `/links`        | 短網址管理。沒填 slug 時自動產生 6 碼（避開 l／o／0／1），建立後自動複製；列出總點擊與近 7 天點擊                                           |
+| `/links`        | 短網址管理。沒填 slug 時自動產生 6 碼（避開 l／o／0／1），建立後自動複製；列出總點擊與近 7 天點擊。每列的選單可直接開 QR Code 編輯器       |
 | `/links/[slug]` | 單一短網址統計：總計／30 天／7 天點擊、90 天每日長條圖、來源網域與國家排行                                                                  |
+| `/qr`           | QR Code 產生器。網址、文字、Wi-Fi、聯絡人、Email、簡訊、電話、位置 8 種格式；可調容錯等級、點陣與定位點圓角、顏色（背景可透明），下載 PNG 或 SVG，存的是表單欄位，叫回來還能改 |
+| `/kb`           | 知識庫。選 Obsidian 的頂層資料夾（目前只收 `學校/`）整包上傳，只送新增和改過的筆記；標記知識資料夾、對任一篇或資料夾開分享連結，可改名、撤銷。上傳要用電腦，iPhone Safari 不能選資料夾 |
 | `/login`        | 與後台相同的 Google 登入                                                                                                                     |
 
-週課表的網格是獨立元件 `app/components/schedule/ScheduleGrid`，之後主站要展示課表時直接沿用。完善就學的時間軸是 `WeekTimeline`，時間軸、比對與時數表整組是 `TutoringBoard`，編輯頁與公開頁共用；課表的節次經 `app/lib/schedule/periods.ts` 換算成時間（目前仍是暫定節次時間）。方案名稱學校沒有官方英文，英文介面也用中文。
+週課表的網格是獨立元件 `app/components/schedule/ScheduleGrid`，之後主站要展示課表時直接沿用。完善就學的時間軸是 `WeekTimeline`，時間軸、比對與時數表整組是 `TutoringBoard`，編輯頁與公開頁共用；課表的節次經 `app/lib/schedule/periods.ts` 換算成學校的上課時間（1–10 節，加午休 A、第 8、9 節之間的 B）。放假與補課由 `classDay()` 判斷，總覽、週看板和排程檢查都走它。方案名稱學校沒有官方英文，英文介面也用中文。
 
 本機開發開 `http://tools.localhost:3000`。
 
@@ -93,7 +100,7 @@
 
 `go.johnlin.me/<slug>` 由 proxy 直接處理，不進 App Router：呼叫 `resolve_short_link` 查目標並記一筆點擊，查到就 307 轉址（不用 301，改了目標網址馬上生效），查不到回簡單的 404 頁，根路徑轉回主站。slug 不分大小寫。
 
-連結預覽爬蟲與 HEAD 請求照轉但不計點擊；點擊只記來源網域與國家（`x-vercel-ip-country`），不存完整 referrer、IP 或 user agent。
+連結預覽爬蟲與 HEAD 請求照轉但不計點擊；點擊只記來源網域與國家（`x-vercel-ip-country`），不存完整 referrer、IP 或 user agent。每個 slug 每小時最多記 200 筆，超過照樣轉址，只是不再記錄。
 
 本機開發開 `http://go.localhost:3000/<slug>`。
 
@@ -111,7 +118,7 @@
 Request
  └─ proxy.ts（Next 16 的 middleware）
      ├─ go.* 子網域：rpc('resolve_short_link') → 307 轉址或 404，不進 App Router
-     ├─ 主站：next-intl 語系處理；/studio/*、/tools/* 回 404；/tutoring/[token] 照一般頁面處理
+     ├─ 主站：next-intl 語系處理；/studio/*、/tools/* 回 404；/tutoring/[token]、/kb/[token] 照一般頁面處理
      └─ studio.*／tools.* 子網域：next-intl 語系處理 → 改寫到 /[locale]/studio/*、/[locale]/tools/*
          └─ /login 以外 → Supabase getUser() + rpc('is_admin')，未通過導向 /login
  └─ app/[locale]/layout.tsx（字體、i18n provider、主題、Header/Footer）
@@ -120,11 +127,13 @@ Request
 
 `/api/**` 不經過 proxy（matcher 明確排除），因此每支後台 API 需自行呼叫 `requireAdmin()`。
 
+全站回應都帶 `frame-ancestors 'none'`、`X-Frame-Options: DENY` 與 `nosniff`（`next.config.ts`），不讓別的網站用 iframe 嵌入。
+
 ### 資料存取
 
-- 三種 Supabase client 分工：`client.ts`（瀏覽器）、`server.ts`（帶 cookie、受 RLS 約束）、`public.ts`（匿名、可進 `unstable_cache`）。
+- 三種 Supabase client 分工：`client.ts`（瀏覽器）、`server.ts`（帶 cookie、受 RLS 約束）、`public.ts`（匿名、可進 `unstable_cache`）。前兩個和 proxy 都要帶 `authCookieOptions(host)`，登入才會跨子網域通用。
 - **無 service-role key。** 所有寫入均使用 anon key 加呼叫者 session，權限由 Postgres RLS 決定。
-- 課表、短網址與完善就學的資料表只有管理員能讀寫；訪客只能透過 SECURITY DEFINER 函式存取：`resolve_short_link` 解析已知的 slug，無法列出連結或點擊紀錄；`get_tutoring_board` 要 token 對上已開啟的公開連結才回資料，而且不回時段備註。時薪與身分別不存。
+- 課表、短網址、完善就學、QR Code 與知識庫的資料表只有管理員能讀寫；訪客只能透過 SECURITY DEFINER 函式存取：`resolve_short_link` 解析已知的 slug，無法列出連結或點擊紀錄；`get_tutoring_board` 要 token 對上已開啟的公開連結才回資料，而且不回時段備註；`get_kb_share`、`get_kb_shared_note` 只回分享範圍內的筆記，路徑從分享起點算起，不露出 vault 的完整路徑。時薪與身分別不存。
 - 媒體分流：文章與短文圖片存 Supabase Storage；攝影作品存 Cloudflare R2，物件 key 使用不可變的 UUID 前綴。
 
 ---
@@ -153,7 +162,7 @@ npm run dev      # predev 會先執行字型子集化
 | `npm run lint` / `npm run lint:fix` | ESLint                                                 |
 | `npm run generate:fonts`            | 產生中文字型子集至 `fonts/`；dev 與 build 前會自動執行 |
 | `node scripts/generate-og.mjs`      | 重新產生預設 OG 圖                                     |
-| `node --test <路徑>.test.mjs`       | 單元測試（課表節次、短網址 slug、完善就學時數與學期判斷）；要給檔案路徑，不能給資料夾，且需 Node 22.18+ 才能直接載入 `.ts` |
+| `node --test <路徑>.test.mjs`       | 單元測試（課表節次、短網址 slug、完善就學時數與學期判斷、假日解析、總覽、QR Code、知識庫）；要給檔案路徑，不能給資料夾，且需 Node 22.18+ 才能直接載入 `.ts` |
 
 ### 環境變數
 
@@ -173,7 +182,7 @@ npm run dev      # predev 會先執行字型子集化
 
 ### 資料庫
 
-`supabase/migrations/` 目前涵蓋攝影、文章每日瀏覽數、課表、短網址與完善就學的資料表；文章等較早建立的資料表與 RPC 函式尚未納入版控，詳見 [`supabase/README.md`](supabase/README.md)。套用方式為手動執行 SQL，未接 Supabase CLI 流程。
+`supabase/migrations/` 目前涵蓋攝影、文章每日瀏覽數、課表、假日、短網址、完善就學、QR Code 與知識庫的資料表；`supabase/tests/` 放可重跑、跑完回滾的 SQL 檢查。文章等較早建立的資料表與 RPC 函式尚未納入版控，詳見 [`supabase/README.md`](supabase/README.md)。套用方式為手動執行 SQL，未接 Supabase CLI 流程。
 
 ---
 
@@ -181,10 +190,10 @@ npm run dev      # predev 會先執行字型子集化
 
 ```txt
 app/
-  [locale]/          # 前台頁面、tutoring/ 完善就學公開頁、studio/ 後台（studio.johnlin.me）、tools/ 工具（tools.johnlin.me）
-  api/               # /api/admin/ai、/api/admin/photos/*、/api/views
+  [locale]/          # 前台頁面、tutoring/ 與 kb/ 公開分享頁、studio/ 後台（studio.johnlin.me）、tools/ 工具（tools.johnlin.me）
+  api/               # /api/admin/{ai,holidays,photos/*}、/api/admin/*/revalidate、/api/kb/og、/api/views
   components/        # 依區塊分組：home / blog / gallery / notes / admin / schedule
-  lib/               # supabase / r2 / blog / notes / photos / images / ai / schedule / shortLinks / tutoring …
+  lib/               # supabase / r2 / blog / notes / photos / images / ai / schedule / shortLinks / tutoring / holidays / overview / qr / kb …
   styles/            # 設計系統 token：_tokens / _theme / _mixins / _breakpoints
   rss/               # blog.xml、notes.xml
 content/about/       # 關於頁 Markdown（<slug>.<locale>.md）
@@ -203,8 +212,9 @@ scripts/             # 字型子集化、OG 圖產生
 | ------------------------------------------------ | -------------------------------------------------------------- |
 | [`docs/blueprint.md`](docs/blueprint.md)         | 路由地圖、資料層、認證流程、已知落差與待辦。修改程式前建議先讀 |
 | [`docs/design-system.md`](docs/design-system.md) | 設計原則與 token 規範；活頁版見 `/lab/design`                  |
-| [`docs/tools-plan.md`](docs/tools-plan.md)       | tools 子網域、課表與短網址的規劃與決策                         |
+| [`docs/tools-plan.md`](docs/tools-plan.md)       | tools 子網域、課表、假日、短網址與 QR Code 的規劃與決策        |
 | [`docs/tutoring-plan.md`](docs/tutoring-plan.md) | 完善就學排程與公開頁的規劃、資料表設計與隱私考量               |
+| [`docs/kb-plan.md`](docs/kb-plan.md)             | 知識庫的上傳、分享範圍、網址代碼與權限設計                     |
 | [`supabase/README.md`](supabase/README.md)       | migration 慣例與套用方式                                       |
 
 上述文件會隨程式演進而過期，每輪較大的改動後請一併更新。

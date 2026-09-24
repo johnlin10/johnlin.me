@@ -193,7 +193,7 @@ export default async function proxy(request: NextRequest) {
   )
   intlResponse.cookies.getAll().forEach((cookie) => response.cookies.set(cookie))
   refreshed.forEach(({ name, value, options }) => response.cookies.set(name, value, options))
-  // ponytail: 清掉改名前只寫在子網域自己身上的登入 cookie，各裝置都開過 studio、tools 一次後就能刪
+  // ponytail: 清掉 v1.13.8 改名前只寫在子網域自己身上的登入 cookie。舊 cookie 效期 400 天，2027-11 之後全部自然過期，這段就能刪
   request.cookies
     .getAll()
     .filter(({ name }) => isLegacyAuthCookie(name))
