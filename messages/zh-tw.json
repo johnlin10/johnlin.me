@@ -5,9 +5,9 @@
     "description": "歡迎來到我全新的個人網站。"
   },
   "AdminPage": {
-    "title": "後台管理系統",
+    "title": "內容後台",
     "description": "",
-    "page_title": "後台管理系統",
+    "page_title": "內容後台",
     "nav": {
       "dashboard": "儀表板",
       "posts": "文章",

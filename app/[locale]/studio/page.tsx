@@ -9,7 +9,7 @@ import Button from '@/app/components/admin/Button/Button'
 import PageHeader from '@/app/components/admin/PageHeader/PageHeader'
 import Icon, { type IconName } from '@/app/components/Icon/Icon'
 import { Link } from '@/i18n/navigation'
-import style from './admin.module.scss'
+import style from './studio.module.scss'
 
 /** 長條圖：最大值撐滿，其餘按比例。全零時不畫，避免除以零。 */
 function BarRow({ buckets, max }: { buckets: Bucket[]; max: number }) {

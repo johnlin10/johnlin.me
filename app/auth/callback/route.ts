@@ -23,7 +23,7 @@ export async function GET(request: Request) {
 /**
  * 以相對路徑轉址，由瀏覽器依實際造訪的網域解析。
  * 不用 request.url 組絕對網址：本機開發時它是 localhost:3000，
- * 不是瀏覽器所在的 admin.localhost:3000。
+ * 不是瀏覽器所在的 studio.localhost:3000。
  * @param path 站內固定路徑，不可接受外部輸入
  * @returns 307 轉址回應
  */

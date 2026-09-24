@@ -52,7 +52,7 @@
 | `tools.johnlin.me/links/{slug}` | `app/[locale]/tools/links/[slug]` | 你（單一連結的統計） |
 | `tools.johnlin.me/qr` | `app/[locale]/tools/qr` | 你 |
 | `go.johnlin.me/{slug}` | 不進 app 路由，proxy 直接回 307 | 所有人 |
-| `johnlin.me/tools` | 回 404，跟 `/admin` 一樣 | 沒有人 |
+| `johnlin.me/tools` | 回 404，跟 `/studio` 一樣 | 沒有人 |
 
 ### proxy 的改法
 
@@ -60,7 +60,7 @@
 
 ```ts
 // app/lib/siteConfigs.ts
-export function subdomainOf(host: string | null): 'admin' | 'tools' | null
+export function subdomainOf(host: string | null): 'studio' | 'tools' | null
 export function isGoHost(host: string | null): boolean
 ```
 

@@ -3,7 +3,7 @@
 個人網站，包含部落格、短文、攝影作品集、自建後台 CMS，以及私人工具（課表、短網址、完善就學排程）。
 
 - 網址：<https://johnlin.me>
-- 子網域：`admin.johnlin.me`（後台）、`tools.johnlin.me`（私人工具）、`go.johnlin.me`（短網址）
+- 子網域：`studio.johnlin.me`（後台）、`tools.johnlin.me`（私人工具）、`go.johnlin.me`（短網址）
 - 語系：繁體中文（預設，網址不帶前綴）／英文（`/en/...`）
 - 部署：Vercel
 
@@ -54,9 +54,9 @@
 | `/tutoring/[token]`              | 完善就學的公開唯讀頁，給一起參加的同學看。週時間軸、疊課表比對、這週時段列表與該月時數；只能翻前後一個月 | 不登入，資料走 SECURITY DEFINER 函式 `get_tutoring_board`，token 不對或連結關閉回 404；`noindex`、不帶 Referer，不套主站 Header／Footer |
 | `/rss/blog.xml` `/rss/notes.xml` | 兩支獨立 RSS feed                                                                                     | `force-dynamic`，目前僅中文版                                                                                              |
 
-### 後台（`admin.johnlin.me`，需管理員身分）
+### 後台（`studio.johnlin.me`，需管理員身分）
 
-後台放在獨立子網域，可單獨安裝成 PWA（John Lin Dashboard）。程式碼在 `app/[locale]/admin/`，由 proxy 依 Host 對應過去；主站的 `/admin` 一律回 404。雙語規則與主站相同（中文無前綴、英文 `/en`）。
+後台放在獨立子網域，可單獨安裝成 PWA（John Lin Studio）。程式碼在 `app/[locale]/studio/`，由 proxy 依 Host 對應過去；主站的 `/studio` 一律回 404。雙語規則與主站相同（中文無前綴、英文 `/en`）。
 
 | 路由                                  | 說明                                                                                                                                                                 |
 | ------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -70,7 +70,7 @@
 
 後台使用自行實作的元件庫（`Button`／`Input`／`Modal`／`ConfirmDialog`／`Toast`／`DataTable` 等），未引入外部 UI 套件；tools 子網域共用同一套元件與外殼。
 
-本機開發用 Chrome 開 `http://admin.localhost:3000`（Safari 不一定解析得到 `*.localhost`）。
+本機開發用 Chrome 開 `http://studio.localhost:3000`（Safari 不一定解析得到 `*.localhost`）。
 
 ### 工具（`tools.johnlin.me`，需管理員身分）
 
@@ -111,8 +111,8 @@
 Request
  └─ proxy.ts（Next 16 的 middleware）
      ├─ go.* 子網域：rpc('resolve_short_link') → 307 轉址或 404，不進 App Router
-     ├─ 主站：next-intl 語系處理；/admin/*、/tools/* 回 404；/tutoring/[token] 照一般頁面處理
-     └─ admin.*／tools.* 子網域：next-intl 語系處理 → 改寫到 /[locale]/admin/*、/[locale]/tools/*
+     ├─ 主站：next-intl 語系處理；/studio/*、/tools/* 回 404；/tutoring/[token] 照一般頁面處理
+     └─ studio.*／tools.* 子網域：next-intl 語系處理 → 改寫到 /[locale]/studio/*、/[locale]/tools/*
          └─ /login 以外 → Supabase getUser() + rpc('is_admin')，未通過導向 /login
  └─ app/[locale]/layout.tsx（字體、i18n provider、主題、Header/Footer）
  └─ page.tsx
@@ -181,7 +181,7 @@ npm run dev      # predev 會先執行字型子集化
 
 ```txt
 app/
-  [locale]/          # 前台頁面、tutoring/ 完善就學公開頁、admin/ 後台（admin.johnlin.me）、tools/ 工具（tools.johnlin.me）
+  [locale]/          # 前台頁面、tutoring/ 完善就學公開頁、studio/ 後台（studio.johnlin.me）、tools/ 工具（tools.johnlin.me）
   api/               # /api/admin/ai、/api/admin/photos/*、/api/views
   components/        # 依區塊分組：home / blog / gallery / notes / admin / schedule
   lib/               # supabase / r2 / blog / notes / photos / images / ai / schedule / shortLinks / tutoring …

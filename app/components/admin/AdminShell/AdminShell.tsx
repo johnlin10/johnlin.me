@@ -125,7 +125,7 @@ interface UserProfile {
  */
 export default function AdminShell({
   children,
-  app = 'admin',
+  app = 'studio',
 }: {
   children: React.ReactNode
   app?: Subdomain
@@ -136,7 +136,7 @@ export default function AdminShell({
   const tNav = useTranslations(`${namespace}.nav`)
   const locale = useLocale()
   const localePath = locale === routing.defaultLocale ? '' : `/${locale}`
-  const otherApp: Subdomain = app === 'tools' ? 'admin' : 'tools'
+  const otherApp: Subdomain = app === 'tools' ? 'studio' : 'tools'
   // 以後台為根的路徑（/posts/<id>/write）。不用 usePathname：子網域靠 proxy 改寫，
   // 預先渲染時看到的是 /admin/...，瀏覽器網址沒有，兩邊會對不上。
   const pathname = `/${useSelectedLayoutSegments().join('/')}`

@@ -15,14 +15,14 @@ export async function generateMetadata({
   return {
     ...(await metadata({
       title: t('title'),
-      description: 'Dashboard',
+      description: 'Studio',
       noIndex: true,
       appendSiteName: false,
     })),
-    applicationName: SITE_CONFIG.admin.name,
+    applicationName: SITE_CONFIG.studio.name,
     appleWebApp: {
       capable: true,
-      title: SITE_CONFIG.admin.shortName,
+      title: SITE_CONFIG.studio.shortName,
       statusBarStyle: 'default' as const,
     },
   }

@@ -29,12 +29,12 @@
  └─ proxy.ts（Next 16 前稱 middleware.ts），先看 Host
      ├─ 主站（johnlin.me）
      │   ├─ next-intl 語系處理（決定 /zh-tw or /en 前綴、寫 locale cookie）
-     │   ├─ /admin/*、/tools/* 一律 404（不轉址，避免洩漏子網域位置）
+     │   ├─ /studio/*、/tools/* 一律 404（不轉址，避免洩漏子網域位置）
      │   └─ /tutoring/{token} 是完善就學的公開唯讀頁：不登入，資料走 security definer 函式
      │      get_tutoring_board，token 不對就 404；不套主站的 Header 和 Footer
-     └─ 子網域：後台 admin.johnlin.me、工具 tools.johnlin.me（本機 admin.localhost:3000、tools.localhost:3000）
+     └─ 子網域：後台 studio.johnlin.me、工具 tools.johnlin.me（本機 studio.localhost:3000、tools.localhost:3000）
          ├─ 同一套 next-intl 語系處理；要轉址就照轉
-         ├─ 改寫到 /[locale]/<子網域>/*（admin 的 /posts → /zh-tw/admin/posts）
+         ├─ 改寫到 /[locale]/<子網域>/*（studio 的 /posts → /zh-tw/studio/posts）
          └─ 如果不是 /login
              └─ 用 request cookies 建一個 Supabase server client
                  ├─ getUser()          → 沒登入就導回 /login
@@ -52,7 +52,7 @@
 
 - `app/layout.tsx`：空殼，只放 `<Analytics/>`，存在只是因為 Next.js 需要一個檔案系統意義上的根 layout。
 - `app/[locale]/layout.tsx`：真正的根 layout。驗證 `locale` 合法性（不合法就 404）、載入字體（`Noto Sans TC` + 自製「GenKiMin TW」serif，字型子集是 `scripts/generate-fonts.mjs` 在 build 前產生的）、包上 `NextIntlClientProvider` → `ThemeProvider`（next-themes）→ `HeaderSubNavProvider`，渲染全站共用的 `Header`/`Footer`，掛 Google Analytics。
-- `app/[locale]/admin/layout.tsx`：`ToastProvider` → `ConfirmDialogProvider` → `AdminShell`。**這一層本身不做任何登入檢查**，完全信任 proxy 已經擋過了。
+- `app/[locale]/studio/layout.tsx`：`ToastProvider` → `ConfirmDialogProvider` → `AdminShell`。**這一層本身不做任何登入檢查**，完全信任 proxy 已經擋過了。
 - `app/[locale]/tools/layout.tsx`：跟後台同一套外殼，`AdminShell` 帶 `app="tools"` 換成工具的導覽和文案，一樣不做登入檢查。規劃見 [`tools-plan.md`](tools-plan.md)。
 
 ---
@@ -74,9 +74,9 @@
 | `/lab` | `lab/page.tsx` | 實驗頁索引，目前只有一個連到 `/lab/design` 的連結。 |
 | `/lab/design` | `lab/design/page.tsx` | 設計系統的「活頁」，把 `_tokens.scss`/`_theme.scss` 裡的 CSS 變數渲染成色票/間距/字級等等，`ColorDisplay` 元件負責解析真實算出來的值並支援點擊複製。 |
 
-### 後台頁面（`app/[locale]/admin/**`，皆為 Client Component 除非特別註明）
+### 後台頁面（`app/[locale]/studio/**`，皆為 Client Component 除非特別註明）
 
-下表路徑都是 `admin.johnlin.me` 上看到的網址，proxy 會對應到 `app/[locale]/admin/` 底下。後台裡判斷「目前在哪一頁」要用 `useSelectedLayoutSegments()`，不能用 `usePathname()`：預先渲染時看到的是改寫後的 `/admin/...`，瀏覽器網址沒有，兩邊會對不上。
+下表路徑都是 `studio.johnlin.me` 上看到的網址，proxy 會對應到 `app/[locale]/studio/` 底下。後台裡判斷「目前在哪一頁」要用 `useSelectedLayoutSegments()`，不能用 `usePathname()`：預先渲染時看到的是改寫後的 `/admin/...`，瀏覽器網址沒有，兩邊會對不上。
 
 | 路徑 | 檔案 | 說明 |
 |---|---|---|
@@ -162,7 +162,7 @@
 
 ## 五、身份驗證流程
 
-1. 後台子網域的 `/login` 按鈕呼叫 `supabase.auth.signInWithOAuth({provider:'google', redirectTo:'/auth/callback'})`。session cookie 只寫在 `admin.johnlin.me`，主站拿不到。
+1. 後台子網域的 `/login` 按鈕呼叫 `supabase.auth.signInWithOAuth({provider:'google', redirectTo:'/auth/callback'})`。session cookie 只寫在 `studio.johnlin.me`，主站拿不到。
 2. Google 導回 `/auth/callback?code=...`，`exchangeCodeForSession` 換出 session、寫入 cookie。
 3. 之後後台子網域的每個請求（`/login` 除外），`proxy.ts` 都重建一個 server client 讀 cookie、呼叫 `getUser()` + `rpc('is_admin')` 判斷放不放行。
 4. `AdminShell` 裡也會呼叫一次 `getUser()`，但那只是拿來顯示大頭貼/名字，**不是安全檢查**。

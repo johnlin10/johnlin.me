@@ -13,7 +13,7 @@ const intlMiddleware = createIntlMiddleware(routing)
 // 比對開頭的語系前綴（/en 或 /zh-tw），用來還原/組回帶前綴的路徑。
 const LOCALE_PREFIX = /^\/(en|zh-tw)(?=\/|$)/
 
-const SUBDOMAIN_PATH = /^\/(admin|tools)(?=\/|$)/
+const SUBDOMAIN_PATH = /^\/(studio|tools)(?=\/|$)/
 
 type CookieToSet = { name: string; value: string; options: CookieOptions }
 
@@ -148,7 +148,7 @@ async function redirectShortLink(request: NextRequest) {
  * Proxy（Next 16 前稱 middleware）：依 Host 分成主站、子網域（後台、工具）和短網址。
  * proxy 只能跑 Node.js runtime，不支援 edge，也不能設 runtime。
  * - 短網址（go.）：不跑 next-intl，直接查 slug 轉址。
- * - 主站：只跑 next-intl，完全不碰 Supabase。/admin、/tools 回 404，不轉址到子網域——
+ * - 主站：只跑 next-intl，完全不碰 Supabase。/studio、/tools 回 404，不轉址到子網域——
  *   轉址等於把位置告訴對方。
  * - 子網域：語系沿用主站同一套 next-intl 規則，再把 /posts 對應到
  *   app/[locale]/<子網域>/posts；除了 /login 都要通過 is_admin。

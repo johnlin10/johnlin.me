@@ -4,9 +4,9 @@
     "description": "Welcome to my new personal website."
   },
   "AdminPage": {
-    "title": "Admin",
+    "title": "Studio",
     "description": "",
-    "page_title": "Admin",
+    "page_title": "Studio",
     "nav": {
       "dashboard": "Dashboard",
       "posts": "Posts",
@@ -27,11 +27,11 @@
     "shell": {
       "backToHome": "Back to site",
       "switchApp": "Tools",
-      "brandSubtitle": "Admin",
+      "brandSubtitle": "Studio",
       "navAriaLabel": "Admin navigation",
       "menuOpen": "Open menu",
       "menuClose": "Close menu",
-      "topbarFallback": "Admin",
+      "topbarFallback": "Studio",
       "userAvatarAlt": "User avatar",
       "defaultUserName": "Admin",
       "signOut": "Sign out",
@@ -653,7 +653,7 @@
     },
     "shell": {
       "backToHome": "Back to site",
-      "switchApp": "Admin",
+      "switchApp": "Studio",
       "brandSubtitle": "Tools",
       "navAriaLabel": "Tools navigation",
       "menuOpen": "Open menu",
