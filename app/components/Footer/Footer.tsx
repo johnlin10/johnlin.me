@@ -65,7 +65,7 @@ export default async function Footer() {
         <span>
           © {year} 林昌龍 · {t('rights')}
         </span>
-        <span className={style.builtWith}>Built with Next.js</span>
+        <span>Built with Next.js</span>
       </div>
     </footer>
   )

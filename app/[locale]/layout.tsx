@@ -51,9 +51,7 @@ export async function generateMetadata({
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
-  maximumScale: 1,
   viewportFit: 'cover',
-  userScalable: false,
 }
 
 export default async function RootLayout({
