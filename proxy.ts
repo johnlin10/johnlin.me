@@ -4,6 +4,7 @@ import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import { routing } from './i18n/routing'
 import { SITE_CONFIG, isGoHost, subdomainOf } from './app/lib/siteConfigs'
 import { createPublicClient } from './app/lib/supabase/public'
+import { authCookieOptions, isLegacyAuthCookie } from './app/lib/supabase/authCookie'
 
 // next-intl 語系處理。next-intl 目前仍只提供
 // `next-intl/middleware` 這個進入點，Next 16 改名為 proxy 之後檔案位置變了、
@@ -78,6 +79,7 @@ async function isAdmin(request: NextRequest, refreshed: CookieToSet[]) {
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
+      cookieOptions: authCookieOptions(request.headers.get('host')),
       cookies: {
         getAll() {
           return request.cookies.getAll()
@@ -191,6 +193,11 @@ export default async function proxy(request: NextRequest) {
   )
   intlResponse.cookies.getAll().forEach((cookie) => response.cookies.set(cookie))
   refreshed.forEach(({ name, value, options }) => response.cookies.set(name, value, options))
+  // ponytail: 清掉改名前只寫在子網域自己身上的登入 cookie，各裝置都開過 studio、tools 一次後就能刪
+  request.cookies
+    .getAll()
+    .filter(({ name }) => isLegacyAuthCookie(name))
+    .forEach(({ name }) => response.cookies.delete(name))
 
   return response
 }

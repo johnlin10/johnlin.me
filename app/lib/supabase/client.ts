@@ -1,4 +1,5 @@
 import { createBrowserClient } from '@supabase/ssr'
+import { authCookieOptions } from './authCookie'
 
 /**
  * 瀏覽器端 Supabase client（用於 client component：登入、CMS 互動）。
@@ -7,6 +8,12 @@ import { createBrowserClient } from '@supabase/ssr'
 export function createClient() {
   return createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      // useMemo 在伺服器端渲染時也會跑，那時沒有 window
+      cookieOptions: authCookieOptions(
+        typeof window === 'undefined' ? null : window.location.host
+      ),
+    }
   )
 }

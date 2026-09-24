@@ -162,7 +162,7 @@
 
 ## 五、身份驗證流程
 
-1. 後台子網域的 `/login` 按鈕呼叫 `supabase.auth.signInWithOAuth({provider:'google', redirectTo:'/auth/callback'})`。session cookie 只寫在 `studio.johnlin.me`，主站拿不到。
+1. 後台子網域的 `/login` 按鈕呼叫 `supabase.auth.signInWithOAuth({provider:'google', redirectTo:'/auth/callback'})`。session cookie 叫 `sb-johnlin-auth`，寫在整個 `.johnlin.me`（設定在 `app/lib/supabase/authCookie.ts`），所以 studio 和 tools 登入一次就通用，登出也一起登出。主站和 go 也會收到這個 cookie，但不讀它；本機 `*.localhost` 設不了共用網域，兩邊還是各登入一次。
 2. Google 導回 `/auth/callback?code=...`，`exchangeCodeForSession` 換出 session、寫入 cookie。
 3. 之後後台子網域的每個請求（`/login` 除外），`proxy.ts` 都重建一個 server client 讀 cookie、呼叫 `getUser()` + `rpc('is_admin')` 判斷放不放行。
 4. `AdminShell` 裡也會呼叫一次 `getUser()`，但那只是拿來顯示大頭貼/名字，**不是安全檢查**。
