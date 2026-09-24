@@ -1,5 +1,6 @@
 'use client'
 
+import type { ReactNode } from 'react'
 import Image from 'next/image'
 import { SITE_CONFIG } from '@/app/lib/siteConfigs'
 import { motion, useReducedMotion } from 'motion/react'
@@ -13,7 +14,6 @@ type HeroPhoto = {
   src?: string
   srcSet?: string
   blur?: string
-  original?: string
 }
 
 type Props = {
@@ -21,7 +21,7 @@ type Props = {
   name: string
   role: string
   scrollHint: string
-  sourceCode: string
+  codeWindow: ReactNode
   papers?: Paper[]
   photos?: HeroPhoto[]
 }
@@ -31,7 +31,7 @@ export default function Hero({
   tagline,
   role,
   scrollHint,
-  sourceCode,
+  codeWindow,
   papers,
   photos,
 }: Props) {
@@ -62,7 +62,7 @@ export default function Hero({
         </motion.div>
 
         <HeroShowcase
-          sourceCode={sourceCode}
+          codeWindow={codeWindow}
           papers={papers}
           photos={photos}
         />

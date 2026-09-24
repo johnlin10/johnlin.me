@@ -1,17 +1,10 @@
 'use client'
 
-import dynamic from 'next/dynamic'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 import { motion, useReducedMotion } from 'motion/react'
 import { useTranslations } from 'next-intl'
 import Icon, { type IconName } from '@/app/components/Icon/Icon'
-import codeWindowStyle from '../HeroCodeWindow/HeroCodeWindow.module.scss'
 import style from './HeroShowcase.module.scss'
-
-const HeroCodeWindow = dynamic(() => import('../HeroCodeWindow/HeroCodeWindow'), {
-  ssr: false,
-  loading: () => <div className={codeWindowStyle.codeWindow} />,
-})
 
 // ratio = 寬 / 高。相框依此換算短邊，任何比例都完整顯示、不裁切。
 type Photo = {
@@ -21,29 +14,6 @@ type Photo = {
   src?: string
   srcSet?: string
   blur?: string
-  /** 原檔（只有 HDR 照片才給，見 OriginalOverlay） */
-  original?: string
-}
-
-/**
- * 疊在 SDR 衍生檔上的原檔，載入完成才淡入 —— HDR 在這一刻亮起來。
- * 與 GalleryWall 聚焦時的作法同一套；差別是這裡沒有「聚焦」，改由
- * 首屏空檔觸發（原檔動輒 10MB＋，不能跟首屏內容搶頻寬）。
- */
-function OriginalOverlay({ src }: { src: string }) {
-  const [loaded, setLoaded] = useState(false)
-  return (
-    // eslint-disable-next-line @next/next/no-img-element
-    <img
-      className={style.heroCardOriginal}
-      src={src}
-      alt=""
-      decoding="async"
-      draggable={false}
-      onLoad={() => setLoaded(true)}
-      style={{ opacity: loaded ? 1 : 0 }}
-    />
-  )
 }
 
 // 尚無已發布照片時的暖色調佔位卡
@@ -121,13 +91,14 @@ const PAPER_SLOTS: {
 type Paper = { title: string; excerpt: string; date: string }
 
 type Props = {
-  sourceCode: string
+  /** 伺服器端渲染好的程式碼視窗 */
+  codeWindow: ReactNode
   papers?: Paper[]
   photos?: Photo[]
 }
 
 export default function HeroShowcase({
-  sourceCode,
+  codeWindow,
   papers: papersProp,
   photos: photosProp,
 }: Props) {
@@ -141,19 +112,6 @@ export default function HeroShowcase({
     papersProp && papersProp.length > 0 ? papersProp : fallbackPapers
   const photos =
     photosProp && photosProp.length > 0 ? photosProp : PLACEHOLDERS
-
-  // 首屏排完、瀏覽器閒下來才去載原檔
-  const [showOriginals, setShowOriginals] = useState(false)
-  useEffect(() => {
-    if (typeof window.requestIdleCallback !== 'function') {
-      const id = window.setTimeout(() => setShowOriginals(true), 1500)
-      return () => window.clearTimeout(id)
-    }
-    const id = window.requestIdleCallback(() => setShowOriginals(true), {
-      timeout: 3000,
-    })
-    return () => window.cancelIdleCallback(id)
-  }, [])
 
   useEffect(() => {
     if (reduce || isPaused) return
@@ -252,9 +210,6 @@ export default function HeroShowcase({
                         <Icon name="camera" size="2x" />
                       </span>
                     )}
-                    {photo.original && showOriginals && (
-                      <OriginalOverlay src={photo.original} />
-                    )}
                   </div>
                 </motion.div>
               )
@@ -320,7 +275,7 @@ export default function HeroShowcase({
           transition={layerTransition}
           style={{ pointerEvents: active === 2 ? 'auto' : 'none' }}
         >
-          <HeroCodeWindow code={sourceCode} />
+          {codeWindow}
         </motion.div>
       </div>
 

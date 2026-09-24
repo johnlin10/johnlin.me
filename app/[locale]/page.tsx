@@ -2,6 +2,7 @@ import { readFile } from 'node:fs/promises'
 import path from 'node:path'
 import { getTranslations } from 'next-intl/server'
 import Hero from '@/app/components/home/Hero/Hero'
+import HeroCodeWindow from '@/app/components/home/HeroCodeWindow/HeroCodeWindow'
 import WhoAmI from '@/app/components/home/WhoAmI/WhoAmI'
 import ThreeThings from '@/app/components/home/ThreeThings/ThreeThings'
 import FeaturedWorks from '@/app/components/home/FeaturedWorks/FeaturedWorks'
@@ -58,7 +59,7 @@ function htmlToPlainText(html: string): string {
 
 /**
  * 讀取 HeroShowcase.tsx 原始碼供「程式」面板展示（讀檔而非 import，避免循環依賴）。
- * @returns 程式碼內容（前 200 行）
+ * @returns 程式碼內容（前 40 行，視窗只露出這麼多）
  */
 async function getShowcaseSource() {
   try {
@@ -67,7 +68,7 @@ async function getShowcaseSource() {
       'app/components/home/HeroShowcase/HeroShowcase.tsx',
     )
     const raw = await readFile(filePath, 'utf-8')
-    return raw.split('\n').slice(0, 200).join('\n')
+    return raw.split('\n').slice(0, 40).join('\n')
   } catch {
     return '// 原始碼讀取失敗，請稍後再試...\n'
   }
@@ -91,8 +92,6 @@ export default async function Home({ params }: Props) {
     src: p.derivatives.at(-1)?.url ?? p.urlOg,
     srcSet: p.derivatives.map((d) => `${d.url} ${d.w}w`).join(', '),
     blur: p.blurDataUrl,
-    // 只有 HDR 值得再載一次原檔；SDR 的衍生檔看起來一模一樣
-    original: p.isHdr ? p.urlOriginal : undefined,
   }))
   const loc = locale as SupportedLocale
   const heroPapers = latestPosts.map((p) => {
@@ -116,7 +115,7 @@ export default async function Home({ params }: Props) {
         tagline={t('tagline')}
         role={t('role')}
         scrollHint={t('hero.scrollHint')}
-        sourceCode={sourceCode}
+        codeWindow={<HeroCodeWindow code={sourceCode} />}
         papers={heroPapers}
         photos={heroPhotos}
       />

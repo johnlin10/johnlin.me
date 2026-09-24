@@ -75,17 +75,6 @@
   object-fit: cover;
 }
 
-// 疊在衍生檔上的原檔，載入後淡入（HDR 在此亮起）
-.heroCardOriginal {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  pointer-events: none;
-  @include transition(opacity var(--duration-slow) var(--ease));
-}
-
 .heroCardIcon {
   @include flexbox(row, center, center);
   position: absolute;

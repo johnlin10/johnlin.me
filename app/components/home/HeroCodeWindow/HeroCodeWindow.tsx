@@ -1,15 +1,16 @@
-'use client'
-
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
-import { oneDark } from 'react-syntax-highlighter/dist/cjs/styles/prism'
+import { PrismLight as SyntaxHighlighter } from 'react-syntax-highlighter'
+import tsx from 'react-syntax-highlighter/dist/esm/languages/prism/tsx'
+import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import style from './HeroCodeWindow.module.scss'
+
+SyntaxHighlighter.registerLanguage('tsx', tsx)
 
 type Props = {
   code: string
   fileName?: string
 }
 
-// 高度固定，截斷交給外層 overflow
+// 伺服器端上色，client 不帶高亮器；高度固定，截斷交給外層 overflow
 export default function HeroCodeWindow({
   code,
   fileName = 'HeroShowcase.tsx',
