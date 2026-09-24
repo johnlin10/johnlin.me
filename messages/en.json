@@ -26,6 +26,7 @@
     },
     "shell": {
       "backToHome": "Back to site",
+      "switchApp": "Tools",
       "brandSubtitle": "Admin",
       "navAriaLabel": "Admin navigation",
       "menuOpen": "Open menu",
@@ -652,6 +653,7 @@
     },
     "shell": {
       "backToHome": "Back to site",
+      "switchApp": "Admin",
       "brandSubtitle": "Tools",
       "navAriaLabel": "Tools navigation",
       "menuOpen": "Open menu",

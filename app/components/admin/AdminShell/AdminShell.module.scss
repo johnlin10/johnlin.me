@@ -116,6 +116,11 @@ $sidebarWidth: 232px;
   padding-bottom: var(--space-1);
 }
 
+.sidebarLinks {
+  display: flex;
+  justify-content: space-between;
+}
+
 .backHomeButton {
   display: inline-flex;
   align-items: center;

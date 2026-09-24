@@ -135,6 +135,8 @@ export default function AdminShell({
   const t = useTranslations(`${namespace}.shell`)
   const tNav = useTranslations(`${namespace}.nav`)
   const locale = useLocale()
+  const localePath = locale === routing.defaultLocale ? '' : `/${locale}`
+  const otherApp: Subdomain = app === 'tools' ? 'admin' : 'tools'
   // 以後台為根的路徑（/posts/<id>/write）。不用 usePathname：子網域靠 proxy 改寫，
   // 預先渲染時看到的是 /admin/...，瀏覽器網址沒有，兩邊會對不上。
   const pathname = `/${useSelectedLayoutSegments().join('/')}`
@@ -223,18 +225,28 @@ export default function AdminShell({
           className={`${style.sidebar} ${drawerOpen ? style.open : ''}`}
         >
           <div className={style.sidebarHeader}>
-            {/* 主站在另一個網域，用一般連結。 */}
-            <a
-              href={
-                locale === routing.defaultLocale
-                  ? SITE_CONFIG.url
-                  : `${SITE_CONFIG.url}/${locale}`
-              }
-              className={style.backHomeButton}
-            >
-              <Icon name="home" size="sm" />
-              <span>{t('backToHome')}</span>
-            </a>
+            {/* 主站和另一個子網域都是別的網域，用一般連結。 */}
+            <div className={style.sidebarLinks}>
+              <a
+                href={`${SITE_CONFIG.url}${localePath}`}
+                className={style.backHomeButton}
+              >
+                <Icon name="home" size="sm" />
+                <span>{t('backToHome')}</span>
+              </a>
+              <a
+                href={`${SITE_CONFIG.url.replace('://', `://${otherApp}.`)}${localePath}`}
+                className={style.backHomeButton}
+              >
+                <Icon
+                  name={
+                    otherApp === 'tools' ? 'table-cells-large' : 'gauge-high'
+                  }
+                  size="sm"
+                />
+                <span>{t('switchApp')}</span>
+              </a>
+            </div>
 
             <Link href="/" className={style.brand}>
               <span className={style.brandMark}>John Lin</span>

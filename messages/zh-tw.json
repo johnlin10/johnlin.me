@@ -27,6 +27,7 @@
     },
     "shell": {
       "backToHome": "返回首頁",
+      "switchApp": "個人工具",
       "brandSubtitle": "內容後台",
       "navAriaLabel": "後台導覽",
       "menuOpen": "開啟選單",
@@ -653,6 +654,7 @@
     },
     "shell": {
       "backToHome": "返回首頁",
+      "switchApp": "內容後台",
       "brandSubtitle": "個人工具",
       "navAriaLabel": "工具導覽",
       "menuOpen": "開啟選單",
