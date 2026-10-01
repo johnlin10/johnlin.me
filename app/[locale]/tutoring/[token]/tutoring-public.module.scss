@@ -98,3 +98,27 @@
   font-size: var(--text-xs);
   color: var(--text-muted);
 }
+
+// 右下角的打卡按鈕。離底部留一段，貼底的 fixed 元素會讓 iOS Safari 工具列變成實色帶
+.checkIn {
+  @include flexbox(row, center, center);
+  gap: var(--space-2);
+  position: fixed;
+  right: var(--page-gutter);
+  bottom: calc(var(--space-6) + env(safe-area-inset-bottom));
+  z-index: var(--z-sticky);
+  padding: var(--space-3) var(--space-5);
+  color: var(--text-on-accent);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  text-decoration: none;
+  background: var(--accent);
+  border-radius: var(--radius-pill);
+  box-shadow: var(--shadow-md);
+  transition: background-color var(--duration) var(--ease-out);
+
+  &:hover {
+    color: var(--text-on-accent);
+    background: var(--accent-hover);
+  }
+}

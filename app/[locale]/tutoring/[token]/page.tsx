@@ -5,6 +5,7 @@ import type { Metadata } from 'next'
 import { createPublicClient } from '@/app/lib/supabase/public'
 import { getBoard, slotsToBusy } from '@/app/lib/supabase/tutoring'
 import { metadata } from '@/app/lib/metadata'
+import Icon from '@/app/components/Icon/Icon'
 import PageHeader from '@/app/components/PageHeader/PageHeader'
 import PublicBoard from './PublicBoard'
 import style from './tutoring-public.module.scss'
@@ -12,6 +13,9 @@ import style from './tutoring-public.module.scss'
 interface TutoringPublicPageProps {
   params: Promise<{ locale: string; token: string }>
 }
+
+const CHECK_IN_URL =
+  'https://docs.google.com/forms/d/e/1FAIpQLSerEHDVUKUD6_ZVP3B8x_fh5edqDph47M0iJtR6-Kkq2e51JA/viewform'
 
 // metadata 和頁面各要一次，同一個請求裡只打一次資料庫
 const loadBoard = cache((token: string) => getBoard(createPublicClient(), token))
@@ -52,7 +56,7 @@ export default async function TutoringPublicPage({ params }: TutoringPublicPageP
 
   return (
     <main className={style.shell}>
-      <PageHeader size="md" title={t('title')} lead={t('lead')} />
+      <PageHeader size="md" title={t('title')} />
       <PublicBoard
         month={board.month}
         people={board.people}
@@ -62,6 +66,10 @@ export default async function TutoringPublicPage({ params }: TutoringPublicPageP
         sessions={board.sessions}
         licenseHours={board.license_hours}
       />
+      <a className={style.checkIn} href={CHECK_IN_URL} target="_blank" rel="noopener">
+        {t('checkIn')}
+        <Icon name="arrow-right" aria-hidden />
+      </a>
     </main>
   )
 }

@@ -1140,6 +1140,7 @@
       },
       "public": {
         "title": "完善就學 schedule",
+        "checkIn": "Check in",
         "lead": "Scheduled tutoring sessions and this month’s hours. Pick your name to see only your timetable and sessions.",
         "weekList": "This week’s sessions",
         "weekEmpty": "No sessions this week.",
