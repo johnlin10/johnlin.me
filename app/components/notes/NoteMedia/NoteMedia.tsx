@@ -4,11 +4,7 @@ import { useRef, useState, type CSSProperties } from 'react'
 import Image from 'next/image'
 import { useTranslations } from 'next-intl'
 import type { NoteImage } from '@/app/types/note'
-import {
-  NOTE_RATIO_FALLBACK,
-  noteImageSizes,
-  noteLayoutRatio,
-} from '@/app/lib/notes/imageRatio'
+import { NOTE_RATIO_FALLBACK, noteLayoutRatio } from '@/app/lib/notes/imageRatio'
 import NoteLightbox from '@/app/components/notes/NoteLightbox/NoteLightbox'
 import style from './NoteMedia.module.scss'
 
@@ -19,6 +15,7 @@ interface NoteMediaProps {
 
 /**
  * 短文圖片渲染（前後台共用）：不論張數都是等高橫排，放不下才橫向滑動。
+ * 圖片是 R2 上已經縮好的小圖，unoptimized 直接讀，不經過 Vercel 的圖片最佳化。
  * 點擊任一張圖片開啟燈箱；燈箱狀態放在這裡而非 provider——同時只會開一個，
  * 而且 FLIP 開闔動畫需要的 trigger rect 本來就要由這裡持有。
  */
@@ -66,7 +63,7 @@ export default function NoteMedia({ images, noteId }: NoteMediaProps) {
                 src={img.url}
                 alt={img.alt ?? ''}
                 fill
-                sizes={noteImageSizes(ratio)}
+                unoptimized
                 className={style.img}
               />
             </button>

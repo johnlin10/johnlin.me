@@ -49,6 +49,16 @@
   user-select: none;
 }
 
+// 原檔疊在小圖上，同樣 contain，兩張完全對齊
+.original {
+  opacity: 0;
+  @include transition(opacity var(--duration-slow));
+}
+
+.originalLoaded {
+  opacity: 1;
+}
+
 .chrome {
   position: fixed;
   inset: 0;

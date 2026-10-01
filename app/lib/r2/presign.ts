@@ -35,14 +35,19 @@ export async function presignOriginalPut(params: {
 }): Promise<PresignedUpload> {
   const ext = extForPhotoMime(params.contentType)
   if (!ext) throw new Error(`不支援的格式：${params.contentType}`)
+  return presignPut(originalKey(params.assetId, ext), params.contentType)
+}
 
-  const key = originalKey(params.assetId, ext)
+/**
+ * 對指定 key 簽一個 PUT。key 由呼叫端用 keys.ts 推導，大小與格式也由呼叫端先驗過。
+ */
+export async function presignPut(key: string, contentType: string): Promise<PresignedUpload> {
   const uploadUrl = await getSignedUrl(
     r2Client(),
     new PutObjectCommand({
       Bucket: r2Env().bucket,
       Key: key,
-      ContentType: params.contentType,
+      ContentType: contentType,
     }),
     { expiresIn: EXPIRES_IN }
   )

@@ -8,7 +8,7 @@ import {
   updateNote,
   deleteNote,
 } from '@/app/lib/supabase/notes'
-import { deleteImages } from '@/app/lib/supabase/storage'
+import { deleteNoteMedia } from '@/app/lib/notes/media'
 import { readImageSizeFromUrl } from '@/app/lib/images/dimensions'
 import type { Note } from '@/app/types/note'
 import Button from '@/app/components/admin/Button/Button'
@@ -57,12 +57,10 @@ export default function NotesTool({ initial }: { initial: Note[] | null }) {
     if (!ok) return
     try {
       await deleteNote(supabase, note.id)
-      if (note.images.length > 0) {
-        await deleteImages(
-          supabase,
-          note.images.map((img) => img.url),
-        )
-      }
+      await deleteNoteMedia([
+        ...note.images.map((img) => img.url),
+        ...(note.linkPreview?.image ? [note.linkPreview.image] : []),
+      ])
       await fetch('/api/admin/notes/revalidate', { method: 'POST' }).catch(
         () => {},
       )

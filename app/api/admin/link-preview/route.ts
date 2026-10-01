@@ -1,9 +1,12 @@
+import { randomUUID } from 'node:crypto'
 import { lookup } from 'node:dns/promises'
 import { BlockList, isIP } from 'node:net'
 import { NextResponse, type NextRequest } from 'next/server'
 import { z } from 'zod'
 import { requireAdmin } from '@/app/lib/supabase/requireAdmin'
-import { createClient } from '@/app/lib/supabase/server'
+import { LINK_COVER_EDGE, toWebp } from '@/app/lib/images/noteDerivatives'
+import { noteLinkCoverKey } from '@/app/lib/r2/keys'
+import { putObject } from '@/app/lib/r2/objects'
 import type { LinkPreview } from '@/app/types/note'
 
 const TIMEOUT_MS = 5000
@@ -13,13 +16,8 @@ const MAX_IMAGE_BYTES = 5 * 1024 * 1024
 const MAX_REDIRECTS = 3
 const USER_AGENT = 'Mozilla/5.0 (compatible; johnlin.me link preview; +https://johnlin.me)'
 
-const IMAGE_EXT: Record<string, string> = {
-  'image/jpeg': 'jpg',
-  'image/png': 'png',
-  'image/webp': 'webp',
-  'image/gif': 'gif',
-  'image/avif': 'avif',
-}
+// 對方的封面圖只收這幾種，一律轉成 webp 存
+const IMAGE_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/avif'])
 
 // 本機、內網、鏈路本地、保留位址：伺服器幫忙抓網址時不能被拿來打這些地方
 const blocked = new BlockList()
@@ -127,24 +125,18 @@ function clip(text: string | undefined, max: number): string | undefined {
   return clean.length > max ? `${clean.slice(0, max - 1)}…` : clean || undefined
 }
 
-/** 封面圖轉存到 notes bucket；任何一步失敗就回 undefined，卡片照樣可以沒有圖。 */
+/** 封面圖轉成 webp 存到 R2 notes/links/；任何一步失敗就回 undefined，卡片照樣可以沒有圖。 */
 async function copyImage(src: string): Promise<string | undefined> {
   try {
     const res = await safeFetch(src, 'image/*')
     const type = res.headers.get('content-type')?.split(';')[0].trim().toLowerCase() ?? ''
-    const ext = IMAGE_EXT[type]
-    if (!ext) return undefined
+    if (!IMAGE_TYPES.has(type)) return undefined
     if (Number(res.headers.get('content-length') ?? 0) > MAX_IMAGE_BYTES) return undefined
     const bytes = await readCapped(res, MAX_IMAGE_BYTES + 1)
     if (bytes.byteLength > MAX_IMAGE_BYTES) return undefined
 
-    const supabase = await createClient()
-    const path = `link_${Date.now()}_${Math.random().toString(36).slice(2, 8)}.${ext}`
-    const { error } = await supabase.storage
-      .from('notes')
-      .upload(path, bytes, { contentType: type, upsert: false })
-    if (error) throw error
-    return supabase.storage.from('notes').getPublicUrl(path).data.publicUrl
+    const { body } = await toWebp(bytes, LINK_COVER_EDGE)
+    return await putObject(noteLinkCoverKey(randomUUID()), body, 'image/webp')
   } catch (error) {
     console.warn('[api/admin/link-preview] image', src, error)
     return undefined
@@ -154,7 +146,7 @@ async function copyImage(src: string): Promise<string | undefined> {
 const requestBody = z.object({ url: z.string().url() })
 
 /**
- * 短文編輯器的網址預覽：讀對方網頁的 OG／Twitter／<title>，封面圖轉存到自己的 bucket。
+ * 短文編輯器的網址預覽：讀對方網頁的 OG／Twitter／<title>，封面圖轉存到 R2。
  * proxy 保護不到 /api，權限檢查靠 requireAdmin()。
  */
 export async function POST(request: NextRequest) {

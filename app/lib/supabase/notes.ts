@@ -19,7 +19,7 @@ type NoteRow = {
 }
 
 /**
- * images 是未經驗證的 jsonb，渲染端會拿 w/h 算比例、拿 url 當 next/image src。
+ * images 是未經驗證的 jsonb，渲染端會拿 w/h 算比例、拿 url／original 當圖片來源。
  * 這裡把畸形資料濾掉、把 w/h 收斂成正有限數字或 undefined，避免除以非法值。
  */
 function normalizeNoteImages(images: unknown): NoteImage[] {
@@ -27,9 +27,10 @@ function normalizeNoteImages(images: unknown): NoteImage[] {
   const result: NoteImage[] = []
   for (const item of images) {
     if (!item || typeof item !== 'object') continue
-    const { url, alt, w, h } = item as Record<string, unknown>
+    const { url, original, alt, w, h } = item as Record<string, unknown>
     if (typeof url !== 'string' || url.length === 0) continue
     const image: NoteImage = { url }
+    if (typeof original === 'string' && original.length > 0) image.original = original
     if (typeof alt === 'string' && alt.length > 0) image.alt = alt
     if (typeof w === 'number' && Number.isFinite(w) && w > 0) image.w = w
     if (typeof h === 'number' && Number.isFinite(h) && h > 0) image.h = h

@@ -7,7 +7,7 @@
 
 .strip {
   // 圖片顯示高度屬視覺尺寸而非版面間距，設計系統允許跳出 --space-N 階梯。
-  // 上限 480 = 720 欄寬的 3:2 橫圖，單張橫圖剛好填滿；改這裡要同步 NOTE_MAX_HEIGHT。
+  // 上限 480 = 720 欄寬的 3:2 橫圖，單張橫圖剛好填滿；改這裡要同步 noteDerivatives 的 NOTE_DISPLAY_EDGE。
   --note-max-h: 480px;
   --note-min-h: 190px;
 

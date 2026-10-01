@@ -118,6 +118,8 @@ function NoteLightboxStage({
   // onDragEnd 就先讀到舊值——ref 是同步寫入/讀取，不受渲染時機影響。
   const axisRef = useRef<'x' | 'y' | null>(null)
   const [measuredRatios, setMeasuredRatios] = useState<Record<number, number>>({})
+  // 原檔載好的圖片：之後就一直掛著，滑走再滑回來不會又從小圖淡入一次
+  const [loadedOriginals, setLoadedOriginals] = useState<Record<string, true>>({})
   const [exitFlip, setExitFlip] = useState<ReturnType<typeof computeFlip>>(null)
 
   const zoom = useLightboxZoom(!!reduce)
@@ -301,6 +303,9 @@ function NoteLightboxStage({
         >
           {images.map((img, i) => {
             const isCurrent = i === index
+            const original =
+              img.original && img.original !== img.url ? img.original : null
+            const originalLoaded = original !== null && loadedOriginals[original]
             return (
               <div
                 key={img.url}
@@ -323,7 +328,7 @@ function NoteLightboxStage({
                     src={img.url}
                     alt={img.alt ?? ''}
                     fill
-                    sizes="100vw"
+                    unoptimized
                     className={style.img}
                     priority={isCurrent}
                     onLoad={(e) => {
@@ -337,6 +342,22 @@ function NoteLightboxStage({
                       }
                     }}
                   />
+                  {/* 小圖先顯示，原檔在背後載，載好才淡入蓋上去；只載目前這一張 */}
+                  {original && (isCurrent || originalLoaded) && (
+                    <Image
+                      src={original}
+                      alt=""
+                      fill
+                      unoptimized
+                      loading="eager"
+                      className={`${style.img} ${style.original} ${originalLoaded ? style.originalLoaded : ''}`}
+                      onLoad={() =>
+                        setLoadedOriginals((prev) =>
+                          prev[original] ? prev : { ...prev, [original]: true }
+                        )
+                      }
+                    />
+                  )}
                 </motion.div>
               </div>
             )
@@ -414,7 +435,7 @@ function NoteLightboxStage({
                   aria-label={t('goTo', { n: i + 1 })}
                   aria-current={i === index}
                 >
-                  <Image src={img.url} alt="" fill sizes="64px" className={style.thumbImg} />
+                  <Image src={img.url} alt="" fill unoptimized className={style.thumbImg} />
                 </button>
               ))}
             </div>

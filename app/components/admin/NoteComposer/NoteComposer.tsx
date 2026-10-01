@@ -4,8 +4,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { createClient } from '@/app/lib/supabase/client'
 import { createNote, updateNote } from '@/app/lib/supabase/notes'
-import { uploadImage, deleteImages } from '@/app/lib/supabase/storage'
-import { readImageSize } from '@/app/lib/images/dimensions'
+import { deleteNoteMedia, uploadNoteImage } from '@/app/lib/notes/media'
+import { PHOTO_ACCEPT_ATTR, isSupportedPhotoMime } from '@/app/lib/photos/mime'
 import { findFirstUrl, stripTrailingUrl } from '@/app/lib/notes/links'
 import type { LinkPreview, Note, NoteImage, NoteStatus } from '@/app/types/note'
 import { useToast } from '@/app/components/admin/Toast/ToastProvider'
@@ -23,8 +23,8 @@ interface NoteComposerProps {
 }
 
 /**
- * 短文編輯表單：建立與編輯共用同一套 UI。圖片上傳時當場讀取 w/h 存進 NoteImage，
- * 讓前台版面能算出正確比例；移除圖片在 create 模式立刻清 Storage，
+ * 短文編輯表單：建立與編輯共用同一套 UI。圖片原檔直傳 R2，伺服器產生小圖並回傳 w/h，
+ * 讓前台版面能算出正確比例；移除圖片在 create 模式立刻清 R2，
  * edit 模式延後到儲存成功後才清（使用者可能會取消編輯）。
  * 內文第一個網址停手 0.6 秒後自動抓預覽卡；按 × 之後同一個網址不再抓，換網址才重抓。
  */
@@ -67,12 +67,12 @@ export default function NoteComposer({
         prev.image !== next?.image &&
         prev.image !== originalPreview.current?.image
       ) {
-        void deleteImages(supabase, [prev.image])
+        void deleteNoteMedia([prev.image])
       }
       previewRef.current = next
       setLinkPreview(next)
     },
-    [supabase]
+    []
   )
 
   useEffect(() => {
@@ -91,7 +91,7 @@ export default function NoteComposer({
         const data = await res.json().catch(() => ({}))
         if (cancelled) {
           // 抓的途中網址又變了，這張封面圖已經用不到
-          if (data.result?.image) void deleteImages(supabase, [data.result.image])
+          if (data.result?.image) void deleteNoteMedia([data.result.image])
           return
         }
         if (!res.ok || !data.result) {
@@ -107,7 +107,7 @@ export default function NoteComposer({
       cancelled = true
       clearTimeout(timer)
     }
-  }, [wantedUrl, failedUrl, replacePreview, supabase])
+  }, [wantedUrl, failedUrl, replacePreview])
 
   // 預覽卡本身由上面的 effect 拿掉
   const dismissPreview = () => setDismissedUrl(firstUrl)
@@ -119,15 +119,17 @@ export default function NoteComposer({
 
   const addFiles = async (files: FileList | null) => {
     if (!files || files.length === 0) return
+    // HEIC、GIF 這類格式先在這裡擋掉，伺服器也會再驗一次
+    const accepted = Array.from(files).filter((f) => isSupportedPhotoMime(f.type))
+    const rejected = files.length - accepted.length
+    if (rejected > 0) toast.error(t('unsupportedFormat', { count: rejected }))
+    if (accepted.length === 0) {
+      if (fileRef.current) fileRef.current.value = ''
+      return
+    }
     setUploading(true)
     try {
-      const results = await Promise.allSettled(
-        Array.from(files).map(async (file) => {
-          const { w, h } = await readImageSize(file)
-          const url = await uploadImage(supabase, file, '', 'notes')
-          return { url, w, h } satisfies NoteImage
-        })
-      )
+      const results = await Promise.allSettled(accepted.map(uploadNoteImage))
       const ok = results.flatMap((r) => (r.status === 'fulfilled' ? [r.value] : []))
       if (ok.length > 0) setImages((prev) => [...prev, ...ok])
       const failed = results.length - ok.length
@@ -162,10 +164,10 @@ export default function NoteComposer({
   const handleRemoveImage = (index: number) => {
     const removed = images[index]
     setImages((prev) => prev.filter((_, i) => i !== index))
-    // create 模式下這張圖還沒被任何 note 記錄引用，可以立刻清掉；
+    // create 模式下這張圖還沒被任何 note 記錄引用，可以立刻清掉（原檔和小圖整個資料夾）；
     // edit 模式要等儲存成功才清（使用者可能按取消，見 save() 裡的 diff）。
     if (mode === 'create' && removed) {
-      void deleteImages(supabase, [removed.url])
+      void deleteNoteMedia([removed.url])
     }
   }
 
@@ -233,7 +235,7 @@ export default function NoteComposer({
           .map((img) => img.url)
         const oldCover = originalPreview.current?.image
         if (oldCover && oldCover !== linkPreview?.image) removedUrls.push(oldCover)
-        if (removedUrls.length > 0) await deleteImages(supabase, removedUrls)
+        if (removedUrls.length > 0) await deleteNoteMedia(removedUrls)
         toast.success(targetStatus === 'published' ? t('publishSuccess') : t('saveSuccess'))
       }
       await fetch('/api/admin/notes/revalidate', { method: 'POST' }).catch(
@@ -302,7 +304,7 @@ export default function NoteComposer({
         <input
           ref={fileRef}
           type="file"
-          accept="image/*"
+          accept={PHOTO_ACCEPT_ATTR}
           multiple
           style={{ display: 'none' }}
           onChange={(e) => void addFiles(e.target.files)}

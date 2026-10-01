@@ -8,20 +8,6 @@ export const NOTE_RATIO_FALLBACK = 3 / 2
 /** 版面上最直只到 2:3，比這更直的圖片會被置中裁切，避免卡片被拉得過長。 */
 export const NOTE_MIN_RATIO = 2 / 3
 
-/** 桌機版面的圖片高度上限（px），跟 NoteMedia.module.scss 的 --note-max-h 同步。 */
-export const NOTE_MAX_HEIGHT = 480
-
-/** 桌機內文欄寬（px），即 --width-content。 */
-const NOTE_COLUMN_WIDTH = 720
-
-/**
- * next/image 的 sizes：手機整個視窗寬，桌機取「高度上限 × 比例」與欄寬的較小值。
- */
-export function noteImageSizes(ratio: number): string {
-  const desktop = Math.min(NOTE_COLUMN_WIDTH, Math.round(NOTE_MAX_HEIGHT * ratio))
-  return `(max-width: 600px) 100vw, ${desktop}px`
-}
-
 /**
  * 版面用：已 clamp 在 [2/3, +∞)。回傳 null 代表沒有可用尺寸，
  * 呼叫端改用 NOTE_RATIO_FALLBACK。

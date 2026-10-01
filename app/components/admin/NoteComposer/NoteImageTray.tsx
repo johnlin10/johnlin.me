@@ -104,7 +104,7 @@ function TrayItem({
         className={`${style.thumb} ${showAltPopover ? style.activePopover : ''}`}
         onClick={onOpenLightbox}
       >
-        <Image src={img.url} alt={img.alt ?? ''} fill sizes="120px" className={style.thumbImg} />
+        <Image src={img.url} alt={img.alt ?? ''} fill unoptimized className={style.thumbImg} />
 
         {/* 靜態已設定 Alt 的標籤標誌 (非 hover 時顯現) */}
         {img.alt && !showAltPopover && (

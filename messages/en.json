@@ -352,6 +352,7 @@
       "dragHandle": "Drag to reorder",
       "moveLeft": "Move earlier",
       "moveRight": "Move later",
+      "unsupportedFormat": "{count} file(s) skipped: only JPEG, PNG, WebP and AVIF are supported",
       "uploadPartialError": "{count} image(s) failed to upload",
       "imageCount": "{count} image(s)",
       "backfillDims": "Backfill image sizes",

@@ -35,7 +35,7 @@ export default function NoteLinkCard({ preview, variant }: NoteLinkCardProps) {
             src={image}
             alt=""
             fill
-            sizes={variant === 'large' ? '(max-width: 600px) 100vw, 720px' : '200px'}
+            unoptimized
             className={style.img}
           />
         </span>

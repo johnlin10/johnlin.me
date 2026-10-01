@@ -353,6 +353,7 @@
       "dragHandle": "拖曳排序",
       "moveLeft": "往前移",
       "moveRight": "往後移",
+      "unsupportedFormat": "有 {count} 個檔案格式不支援（只收 JPEG、PNG、WebP、AVIF）",
       "uploadPartialError": "有 {count} 張圖片上傳失敗",
       "imageCount": "{count} 張圖片",
       "backfillDims": "修補圖片尺寸",

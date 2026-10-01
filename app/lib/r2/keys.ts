@@ -49,6 +49,49 @@ export function ogKey(assetId: string): string {
   return `${photoPrefix(assetId)}og.jpg`
 }
 
+//* ==================== 短文媒體 ====================
+// notes/images/<id>/ 放短文圖片的原檔與顯示用小圖，notes/links/<id>.webp 放網址預覽卡的封面。
+
+/** 所有短文物件的共同根前綴，含部署命名空間。 */
+export function notesRootPrefix(): string {
+  return `${r2Env().keyPrefix}notes/`
+}
+
+/** `notes/images/<id>/`，一張短文圖片的資料夾。 */
+export function noteImagePrefix(id: string): string {
+  return `${notesRootPrefix()}images/${id}/`
+}
+
+/** 短文圖片原檔，原樣保存不重新編碼。 */
+export function noteOriginalKey(id: string, ext: string): string {
+  return `${noteImagePrefix(id)}original.${ext}`
+}
+
+/** 短文裡顯示用的小圖。 */
+export function noteDisplayKey(id: string): string {
+  return `${noteImagePrefix(id)}display.webp`
+}
+
+/** 網址預覽卡的封面。 */
+export function noteLinkCoverKey(id: string): string {
+  return `${notesRootPrefix()}links/${id}.webp`
+}
+
+/**
+ * 短文媒體網址 → 要刪的前綴：圖片刪整個資料夾、封面刪單一物件。
+ * 不是本站短文媒體的網址回 null；id 段一定要是 UUID，免得空字串把整個 notes/ 掃掉。
+ */
+export function noteMediaDeletePrefix(url: string): string | null {
+  const key = keyFromPublicUrl(url)
+  if (!key) return null
+  const root = notesRootPrefix()
+  const uuid = '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'
+  const image = key.match(new RegExp(`^${root}images/(${uuid})/[^/]+$`))
+  if (image) return noteImagePrefix(image[1])
+  if (new RegExp(`^${root}links/${uuid}\\.webp$`).test(key)) return key
+  return null
+}
+
 /** 自訂網域綁在 bucket 根，所以不含 bucket 區段。 */
 export function publicUrl(key: string): string {
   return `${r2Env().publicBase}/${key}`

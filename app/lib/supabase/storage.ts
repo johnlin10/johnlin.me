@@ -3,7 +3,7 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 /**
  * 上傳單張圖片，回傳公開 URL。
  * @param folder bucket 內的資料夾（可空字串），如 'covers'、'images/<postId>'
- * @param bucket 目標 bucket，預設 'blog'（短文用 'notes'）
+ * @param bucket 目標 bucket，預設 'blog'
  */
 export async function uploadImage(
   supabase: SupabaseClient,
