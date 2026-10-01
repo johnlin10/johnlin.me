@@ -1,3 +1,4 @@
+import type { Viewport } from 'next'
 import { getTranslations } from 'next-intl/server'
 import AdminShell from '@/app/components/admin/AdminShell/AdminShell'
 import { ToastProvider } from '@/app/components/admin/Toast/ToastProvider'
@@ -26,6 +27,11 @@ export async function generateMetadata({
       statusBarStyle: 'default' as const,
     },
   }
+}
+
+// iOS 輸入框字小於 16px 聚焦會自動放大；maximumScale 只擋這個，捏合縮放照常
+export const viewport: Viewport = {
+  maximumScale: 1,
 }
 
 /**
