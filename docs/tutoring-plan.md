@@ -95,7 +95,8 @@ create table if not exists public.tutoring_sessions (
   location text,
   -- 指導老師；老師刪掉時段留著
   teacher_id uuid references public.tutoring_people(id) on delete set null,
-  note text,
+  content text,                    -- 輔導內容，時數記錄表要填，公開頁看得到（0023）
+  note text,                       -- 只給站主看
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
   constraint tutoring_sessions_program_check
@@ -146,7 +147,7 @@ create table if not exists public.tutoring_share (
 - `semesters`：全部學期和起訖日期，前端照編輯頁同一套規則（`slotInEffect`）判斷哪一天套哪份課表。
 - `slots`：課表工具的格子，帶課名和學期。節次換成時間在 server component 做（`slotsToBusy`），跟編輯頁共用。
 - `busy`：課表以外的忙碌時間。
-- `sessions`：上個月前一週到下個月後一週的時段，**不含 `note`**，參與者攤平成 id 陣列。
+- `sessions`：上個月前一週到下個月後一週的時段，帶 `content`、**不含 `note`**，參與者攤平成 id 陣列。
 - `license_hours`：每人證照輔導的累計時數，不限月份。
 
 一次來回拿完，資料量幾十筆。
@@ -194,7 +195,7 @@ create table if not exists public.tutoring_share (
 
 新增時段時，日期預設落在**目前顯示的那一週**，不是今天——不然切到下個月還得再改一次日期。
 
-**新增／編輯時段 Modal**：方案、日期、開始、結束、地點、指導老師、參與者、備註。
+**新增／編輯時段 Modal**：方案、日期、開始、結束、地點、指導老師、參與者、輔導內容、備註。
 
 - 開始時間是原生 `<input type="time">`，任意分鐘都填得進去；接著選**時長**（1 到 8 小時，0.5 一階），結束時間推算出來顯示在旁邊。規定的顆粒度是長度的顆粒度，15:20 開始上兩小時完全合規，所以不要把它套在開始時間上。
 - 參與者是一排可點的名字 chip，只列學生。
@@ -213,8 +214,8 @@ create table if not exists public.tutoring_share (
 編輯頁和公開頁共用 `app/components/schedule/TutoringBoard/`：`useWeekPicker`（月份和週的狀態）、`WeekPicker`（月份切換加週次滾動選擇器）、`TutoringBoard`（時間軸、疊課表比對、該月時數）。編輯頁多傳 `onItemClick` 和 `onEmptyClick`，公開頁不傳，時段就不能點。
 
 - 上面：月份和週的滾動選擇器，月份只有上個月、這個月、下個月；在時間軸上左右滑也能換週，滑到範圍外拉不動。
-- 時間軸上方一顆藥丸，寫正在看的同學，點開單選（只列同學）。預設成員清單的第一位，選過就存在那支手機的 `localStorage`。選了誰，時間軸、這週的時段列表、該月時數都只剩他的。
-- 中間：時間軸和比對，下面接這週的時段列表（日期、時間、方案、地點、指導老師、參與者），手機上比時間軸好讀。
+- 時間軸上方一顆藥丸，寫正在看的同學，點開單選（只列同學）。預設成員清單的第一位，選過就存在那支手機的 `localStorage`。選了誰，時間軸、該月的時段表、該月時數都只剩他的。
+- 中間：時間軸和比對，下面接該月的時段表（日期、星期、時間段、時數、輔導內容、參與人），一次看一個方案，用膠囊按鈕切換，只列他那個月有參加的方案。對完善就學的時數記錄表時照抄就好。
 - 下面：該月時數，跟編輯頁同一張表。
 
 資料在 server component 用匿名 client 呼叫 `get_tutoring_board`，metadata 和頁面用 React `cache` 共用同一次查詢。月份切換在前端做，不用再來回。
@@ -240,7 +241,7 @@ create table if not exists public.tutoring_share (
 完善就學的參加資格本身就是經濟狀況的資訊。頁面會被貼進群組、截圖轉傳，所以：
 
 - 不顯示身分別、時薪、金額，這些資料庫裡根本不存。
-- 不顯示計劃名稱以外的任何個人備註；`note` 欄位只給你自己看。
+- 不顯示計劃名稱以外的任何個人備註；`note` 欄位只給你自己看。要公開的輔導內容寫在 `content`。
 - token 保護加 `noIndex`，但這只擋搜尋引擎和亂猜，**拿到連結的人就看得到**。連結當成「群組內部的東西」，不要貼到公開場合。
 
 ---

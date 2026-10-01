@@ -29,6 +29,8 @@ export type SessionFields = {
   end_time: string
   location: string | null
   teacher_id: string | null
+  // 輔導內容，公開頁看得到
+  content: string | null
   note: string | null
 }
 
@@ -74,7 +76,7 @@ export type Tutoring = Members &
   }
 
 const SESSION_COLUMNS =
-  'id, program, date, start_time, end_time, location, teacher_id, note, tutoring_attendees(person_id)'
+  'id, program, date, start_time, end_time, location, teacher_id, content, note, tutoring_attendees(person_id)'
 
 type SessionRow = Omit<Session, 'attendees'> & { tutoring_attendees: { person_id: string }[] }
 

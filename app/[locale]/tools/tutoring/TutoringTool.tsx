@@ -23,6 +23,7 @@ import {
 } from '@/app/lib/supabase/tutoring'
 import type { CalendarDay } from '@/app/lib/supabase/calendar'
 import { SITE_CONFIG } from '@/app/lib/siteConfigs'
+import { courseColorStyle } from '@/app/lib/schedule/colors'
 import {
   DURATION_OPTIONS,
   PROGRAMS,
@@ -31,6 +32,7 @@ import {
   durationHours,
   endOf,
   minutesOf,
+  programColor,
   slotInEffect,
   sumHours,
   timeOverlaps,
@@ -62,6 +64,7 @@ type SessionForm = {
   duration: number
   location: string
   teacherId: string
+  content: string
   note: string
   attendees: string[]
 }
@@ -187,6 +190,7 @@ export default function TutoringTool({ initial }: { initial: Tutoring | null }) 
       duration: 2,
       location: '',
       teacherId: '',
+      content: '',
       note: '',
       attendees: [],
     })
@@ -203,6 +207,7 @@ export default function TutoringTool({ initial }: { initial: Tutoring | null }) 
       duration: durationHours(session.start_time, session.end_time) ?? 1,
       location: session.location ?? '',
       teacherId: session.teacher_id ?? '',
+      content: session.content ?? '',
       note: session.note ?? '',
       attendees: session.attendees,
     })
@@ -273,6 +278,7 @@ export default function TutoringTool({ initial }: { initial: Tutoring | null }) 
           end_time: end,
           location: sessionForm.location.trim() || null,
           teacher_id: sessionForm.teacherId || null,
+          content: sessionForm.content.trim() || null,
           note: sessionForm.note.trim() || null,
         },
         sessionForm.attendees,
@@ -688,16 +694,22 @@ export default function TutoringTool({ initial }: { initial: Tutoring | null }) 
           {sessionForm && (
             <div className={style.form}>
               <Field label={t('session.program')}>
-                <DropdownSelect
-                  clearable={false}
-                  value={sessionForm.program}
-                  onChange={(program) => setSessionForm({ ...sessionForm, program })}
-                  options={PROGRAMS.map((program) => ({
-                    value: program.key,
-                    label: t(`programs.${program.key}`),
-                  }))}
-                  placeholder={t('session.program')}
-                />
+                <div className={style.chips}>
+                  {PROGRAMS.map(({ key }) => (
+                    <button
+                      key={key}
+                      type="button"
+                      aria-pressed={sessionForm.program === key}
+                      className={`${boardStyle.chip} ${boardStyle.programChip} ${
+                        sessionForm.program === key ? boardStyle.chipOn : ''
+                      }`}
+                      style={courseColorStyle(programColor(key))}
+                      onClick={() => setSessionForm({ ...sessionForm, program: key })}
+                    >
+                      {t(`programs.${key}`)}
+                    </button>
+                  ))}
+                </div>
               </Field>
 
               <div className={style.row}>
@@ -772,6 +784,14 @@ export default function TutoringTool({ initial }: { initial: Tutoring | null }) 
                 label={t('session.location')}
                 value={sessionForm.location}
                 onChange={(location) => setSessionForm({ ...sessionForm, location })}
+              />
+
+              <Textarea
+                label={t('session.content')}
+                rows={2}
+                value={sessionForm.content}
+                onChange={(content) => setSessionForm({ ...sessionForm, content })}
+                helper={t('session.contentHelper')}
               />
 
               <Textarea

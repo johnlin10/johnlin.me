@@ -111,7 +111,7 @@ export type WeekPickerState = ReturnType<typeof useWeekPicker>
  * @param today 'YYYY-MM-DD'
  * @returns 例如「10月」「2027年1月」
  */
-function monthLabel(format: ReturnType<typeof useFormatter>, month: string, today: string) {
+export function monthLabel(format: ReturnType<typeof useFormatter>, month: string, today: string) {
   return format.dateTime(
     new Date(`${month}-01T12:00:00`),
     month.slice(0, 4) === today.slice(0, 4)

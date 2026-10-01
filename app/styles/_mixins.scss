@@ -259,6 +259,19 @@ $fade-curve: (
     color: var(--text-muted);
   }
 
+  // iOS Safari 的原生日期、時間欄位有自己的最小寬度，窄的時候會撐出容器。
+  // 拿掉原生外觀後值會置中、沒值時高度塌掉，所以補靠左和最小高度
+  &[type='date'],
+  &[type='time'] {
+    min-width: 0;
+    appearance: none;
+
+    &::-webkit-date-and-time-value {
+      min-height: 1.5em;
+      text-align: left;
+    }
+  }
+
   &:focus {
     outline: none;
     border-color: var(--accent);

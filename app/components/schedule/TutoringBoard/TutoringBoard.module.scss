@@ -150,6 +150,19 @@ $tab-width: 7.5rem;
   border-color: var(--accent);
 }
 
+// 方案的膠囊選起來用方案的顏色，跟時間軸上的輔導卡片同一組
+.programChip.chipOn {
+  color: oklch(0.36 calc(0.08 * var(--course-chroma)) var(--course-hue));
+  background: oklch(0.93 calc(0.045 * var(--course-chroma)) var(--course-hue));
+  border-color: oklch(0.62 calc(0.14 * var(--course-chroma)) var(--course-hue));
+
+  :global(.dark) & {
+    color: oklch(0.9 calc(0.05 * var(--course-chroma)) var(--course-hue));
+    background: oklch(0.33 calc(0.05 * var(--course-chroma)) var(--course-hue));
+    border-color: oklch(0.7 calc(0.13 * var(--course-chroma)) var(--course-hue));
+  }
+}
+
 // 選人的藥丸：名字太多時截掉，不撐破一行
 .pickerTrigger {
   @include flexbox(row, flex-start, center);

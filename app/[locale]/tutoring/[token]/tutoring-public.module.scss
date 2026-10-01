@@ -38,58 +38,62 @@
   }
 }
 
-//* 這週的時段
-
-.list {
-  ul {
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-}
+//* 這個月的時段
 
 .listTitle {
-  margin: 0 0 var(--space-2);
-  padding-bottom: var(--space-2);
+  margin: 0 0 var(--space-3);
   font-family: var(--font-sans);
   font-size: var(--text-xs);
   font-weight: 600;
   color: var(--text-secondary);
-  border-bottom: 1px solid var(--border);
 }
 
-.row {
-  display: grid;
-  grid-template-columns: 11rem 6rem minmax(0, 1fr);
-  gap: var(--space-3);
-  align-items: baseline;
-  padding: var(--space-2) 0;
+.programs {
+  @include flexbox(row, flex-start, center);
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-bottom: var(--space-2);
+}
+
+// 手機上欄位擠不下就整張表左右捲，捲到螢幕邊緣
+.tableWrap {
+  margin-inline: calc(-1 * var(--page-gutter));
+  padding-inline: var(--page-gutter);
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
   font-size: var(--text-sm);
-  border-bottom: 1px solid var(--border);
-
-  // 手機上時間和方案一列，細節換到下一列
-  @include respond-to('phone') {
-    grid-template-columns: auto minmax(0, 1fr);
-    gap: 2px var(--space-3);
-  }
-}
-
-.when {
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
-}
 
-.program {
-  font-weight: 600;
-}
-
-.details {
-  color: var(--text-muted);
-  font-size: var(--text-xs);
-
-  @include respond-to('phone') {
-    grid-column: 1 / -1;
+  th,
+  td {
+    padding: var(--space-2) var(--space-3);
+    text-align: left;
+    vertical-align: top;
+    border-bottom: 1px solid var(--border);
   }
+
+  th {
+    font-family: var(--font-sans);
+    font-size: var(--text-2xs);
+    font-weight: 500;
+    color: var(--text-muted);
+  }
+
+  th:first-child,
+  td:first-child {
+    padding-left: 0;
+  }
+}
+
+// 輔導內容和參與人可能很長，換行而不是把表撐寬
+.content {
+  min-width: 10rem;
+  white-space: normal;
 }
 
 .empty {
