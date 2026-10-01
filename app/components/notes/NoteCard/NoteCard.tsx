@@ -3,6 +3,8 @@ import { Link } from '@/i18n/navigation'
 import type { Note } from '@/app/types/note'
 import type { SupportedLocale } from '@/app/types/blog'
 import NoteMedia from '@/app/components/notes/NoteMedia/NoteMedia'
+import NoteLinkCard from '@/app/components/notes/NoteLinkCard/NoteLinkCard'
+import { splitLinks, stripTrailingUrl } from '@/app/lib/notes/links'
 import { getTaipeiYear } from '@/app/lib/blog/formatPostDate'
 import style from './NoteCard.module.scss'
 
@@ -25,7 +27,8 @@ function formatDate(iso: string, locale: SupportedLocale) {
 }
 
 /**
- * 短文卡片（X/Threads 式）。左欄日期、右欄內文與多圖，手機收合成上下堆疊。
+ * 短文卡片（X/Threads 式）。左欄日期、右欄內文、網址預覽卡與多圖，手機收合成上下堆疊。
+ * 有預覽卡時，內文結尾的同一個網址交給卡片呈現、不重複顯示。
  * asLink=true 時日期本身就是永久連結（分享用）；永久連結頁自身用 asLink=false。
  */
 export default async function NoteCard({
@@ -40,6 +43,10 @@ export default async function NoteCard({
   const t = await getTranslations({ locale, namespace: 'NotesPage' })
   const iso = note.publishedAt ?? note.createdAt
   const { day, year } = formatDate(iso, locale)
+  const { linkPreview } = note
+  const content = linkPreview
+    ? stripTrailingUrl(note.content, linkPreview.url)
+    : note.content
 
   const date = (
     <time className={style.date} dateTime={iso}>
@@ -61,14 +68,33 @@ export default async function NoteCard({
         )}
 
         <div className={style.body}>
-          {note.content && (
+          {content && (
             <div className={style.content}>
-              {note.content
+              {content
                 .split(/\n+/)
                 .filter(Boolean)
                 .map((paragraph, i) => (
-                  <p key={i}>{paragraph}</p>
+                  <p key={i}>
+                    {splitLinks(paragraph).map((seg, j) =>
+                      seg.type === 'link' ? (
+                        <a key={j} href={seg.value} target="_blank" rel="noopener noreferrer">
+                          {seg.value}
+                        </a>
+                      ) : (
+                        seg.value
+                      )
+                    )}
+                  </p>
                 ))}
+            </div>
+          )}
+
+          {linkPreview && (
+            <div className={style.link}>
+              <NoteLinkCard
+                preview={linkPreview}
+                variant={note.images.length > 0 ? 'compact' : 'large'}
+              />
             </div>
           )}
 

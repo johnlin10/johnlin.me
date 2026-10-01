@@ -1,5 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type {
+  LinkPreview,
   Note,
   NoteImage,
   NoteStatus,
@@ -11,6 +12,7 @@ type NoteRow = {
   id: string
   content: string
   images: NoteImage[]
+  link_preview: unknown
   status: NoteStatus
   created_at: string
   published_at: string | null
@@ -36,11 +38,25 @@ function normalizeNoteImages(images: unknown): NoteImage[] {
   return result
 }
 
+/** link_preview 也是未經驗證的 jsonb；url、title 缺一就當沒有卡片。 */
+function normalizeLinkPreview(value: unknown): LinkPreview | null {
+  if (!value || typeof value !== 'object') return null
+  const { url, title, description, siteName, image } = value as Record<string, unknown>
+  if (typeof url !== 'string' || !/^https?:\/\//.test(url)) return null
+  if (typeof title !== 'string' || title.length === 0) return null
+  const preview: LinkPreview = { url, title }
+  if (typeof description === 'string' && description.length > 0) preview.description = description
+  if (typeof siteName === 'string' && siteName.length > 0) preview.siteName = siteName
+  if (typeof image === 'string' && image.length > 0) preview.image = image
+  return preview
+}
+
 function mapNote(row: NoteRow): Note {
   return {
     id: row.id,
     content: row.content,
     images: normalizeNoteImages(row.images),
+    linkPreview: normalizeLinkPreview(row.link_preview),
     status: row.status,
     createdAt: row.created_at,
     publishedAt: row.published_at ?? undefined,
@@ -111,6 +127,7 @@ export async function createNote(
     .insert({
       content: input.content,
       images: input.images,
+      link_preview: input.linkPreview ?? null,
       status,
       published_at: status === 'published' ? now : null,
     })
@@ -127,6 +144,7 @@ export async function updateNote(
   const patch: Record<string, unknown> = {}
   if (input.content !== undefined) patch.content = input.content
   if (input.images !== undefined) patch.images = input.images
+  if (input.linkPreview !== undefined) patch.link_preview = input.linkPreview
   if (input.status !== undefined) {
     patch.status = input.status
     if (input.status === 'published') {

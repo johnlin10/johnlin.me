@@ -17,6 +17,7 @@ import { useToast } from '@/app/components/admin/Toast/ToastProvider'
 import { useConfirm } from '@/app/components/admin/ConfirmDialog/ConfirmDialog'
 import NoteComposer from '@/app/components/admin/NoteComposer/NoteComposer'
 import NoteMedia from '@/app/components/notes/NoteMedia/NoteMedia'
+import NoteLinkCard from '@/app/components/notes/NoteLinkCard/NoteLinkCard'
 import style from './notes.module.scss'
 
 /**
@@ -194,6 +195,15 @@ export default function NotesTool({ initial }: { initial: Note[] | null }) {
 
                 {note.content && (
                   <p className={style.itemContent}>{note.content}</p>
+                )}
+
+                {note.linkPreview && (
+                  <div className={style.itemMedia}>
+                    <NoteLinkCard
+                      preview={note.linkPreview}
+                      variant={note.images.length > 0 ? 'compact' : 'large'}
+                    />
+                  </div>
                 )}
 
                 {note.images.length > 0 && (

@@ -39,6 +39,27 @@
   flex: 1;
 }
 
+//* ==================== 網址預覽卡 ====================
+
+.linkPreview {
+  position: relative;
+  margin-top: var(--space-4);
+}
+
+.removeLink {
+  position: absolute;
+  top: var(--space-2);
+  right: var(--space-2);
+  z-index: 1;
+}
+
+.linkStatus {
+  margin: var(--space-2) 0 0;
+  font-family: var(--font-sans);
+  font-size: var(--text-3xs);
+  color: var(--text-muted);
+}
+
 //* ==================== 圖片編輯盤 ====================
 
 .tray {
@@ -114,7 +135,8 @@
   z-index: 2;
 }
 
-.removeThumb {
+.removeThumb,
+.removeLink {
   align-self: flex-end;
   width: 22px;
   height: 22px;
