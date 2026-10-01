@@ -178,9 +178,19 @@ $tab-width: 7.5rem;
   text-overflow: ellipsis;
 }
 
+// 整塊一起捲。清單沿用下拉選單的樣式會各自限高，同學一多就變成框裡還有框在捲
 .pickerPanel {
   @include flexbox(column, flex-start, stretch);
   gap: var(--space-1);
+  max-height: min(24rem, 60vh);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+
+  ul {
+    flex-shrink: 0;
+    max-height: none;
+    overflow: visible;
+  }
 }
 
 .pickerGroup {
