@@ -1,74 +1,60 @@
 @use '@/app/styles/design' as *;
 
-//* ==================== 單張圖片：全寬，最直 clamp 在 2:3 ====================
-
-.single {
-  display: block;
-  width: 100%;
-}
-
-.singleTrigger {
-  display: block;
-  position: relative;
-  width: 100%;
-  aspect-ratio: var(--note-ratio, 3 / 2); // 沒有 w/h 的舊圖用 3:2 fallback
-  overflow: hidden;
-  border-radius: var(--radius-md);
-  background: var(--surface-3); // 圖片解碼前的佔位色
-  padding: 0;
-  border: 0;
-  margin: 0;
-  cursor: zoom-in;
-  appearance: none;
-  @include focus-ring;
-}
-
-//* ==================== 多張圖片：等高橫向滑動 ====================
+//* ==================== 等高橫排：張數不限，同一套規則 ====================
+// 每張的 flex-grow 與最小／最大寬度都按自身比例給，整列永遠等高：
+// 先填滿欄寬；高過 --note-max-h 就停在上限、靠左留白；
+// 矮過 --note-min-h 就停在下限、改成橫向滑動。
 
 .strip {
   // 圖片顯示高度屬視覺尺寸而非版面間距，設計系統允許跳出 --space-N 階梯。
-  // 刻意壓低：卡片寬度有限，太高的話一兩張圖就會撐滿整個寬度，看不到下一張的邊。
-  --note-strip-height: 190px;
+  // 上限 480 = 720 欄寬的 3:2 橫圖，單張橫圖剛好填滿；改這裡要同步 NOTE_MAX_HEIGHT。
+  --note-max-h: 480px;
+  --note-min-h: 190px;
 
   // 出血距離＝所在容器的左右內距，預設對齊 NoteCard 的 --space-6；
-  // 其他情境（例如後台列表 padding 不同）由外層容器覆寫這個變數即可。
-  --note-media-bleed: var(--space-6);
+  // 其他情境由外層容器設定 --note-media-bleed。這裡不能直接宣告，否則會蓋掉外層的值。
+  --bleed: var(--note-media-bleed, var(--space-6));
 
   display: flex;
+  align-items: flex-start;
   gap: var(--space-2);
   overflow-x: auto;
   overflow-y: hidden;
   overscroll-behavior-x: contain;
   scroll-snap-type: x mandatory;
 
-  margin-inline: calc(var(--note-media-bleed) * -1);
-  padding-inline: var(--note-media-bleed);
-  scroll-padding-inline: var(--note-media-bleed);
+  margin-inline: calc(var(--bleed) * -1);
+  padding-inline: var(--bleed);
+  scroll-padding-inline: var(--bleed);
 
   scrollbar-width: none;
   &::-webkit-scrollbar {
     display: none;
   }
 
-  // 兩側淡出提示可橫向捲動
-  @include edge-fade-mask($start: var(--space-10), $end: var(--space-10));
+  // 兩側淡出提示可橫向捲動；放得下時不淡出，免得單張圖邊緣被吃掉
+  &[data-scrollable] {
+    @include edge-fade-mask($start: var(--space-10), $end: var(--space-10));
+  }
 
   @include respond-to('phone') {
-    --note-strip-height: 160px;
+    --note-max-h: 360px;
+    --note-min-h: 160px;
   }
 }
 
 .slide {
   display: block;
   position: relative;
-  flex: 0 0 auto;
-  width: auto; // 由 height × aspect-ratio 推導
-  height: var(--note-strip-height);
-  aspect-ratio: var(--note-ratio, 3 / 2);
+  // ×100：grow 加總小於 1 時只分得到同比例的剩餘空間，單張直圖會填不滿
+  flex: calc(var(--note-ratio) * 100) 0 0;
+  min-width: calc(var(--note-min-h) * var(--note-ratio));
+  max-width: calc(var(--note-max-h) * var(--note-ratio));
+  aspect-ratio: var(--note-ratio);
   scroll-snap-align: start;
   overflow: hidden;
   border-radius: var(--radius-md);
-  background: var(--surface-3);
+  background: var(--surface-3); // 圖片解碼前的佔位色
   padding: 0;
   border: 0;
   margin: 0;
