@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState, type CSSProperties } from 'react'
+import { useRef, useState, type CSSProperties } from 'react'
 import Image from 'next/image'
 import { useTranslations } from 'next-intl'
 import type { NoteImage } from '@/app/types/note'
@@ -27,20 +27,6 @@ export default function NoteMedia({ images, noteId }: NoteMediaProps) {
   const [openIndex, setOpenIndex] = useState<number | null>(null)
   const triggers = useRef<(HTMLButtonElement | null)[]>([])
   const closingIndexRef = useRef<number | null>(null)
-  const stripRef = useRef<HTMLDivElement>(null)
-  const [scrollable, setScrollable] = useState(false)
-
-  // 放不放得下取決於欄寬，CSS 判斷不了，只好量。
-  useEffect(() => {
-    const el = stripRef.current
-    if (!el) return
-    const measure = () => setScrollable(el.scrollWidth > el.clientWidth)
-    // 子圖也要觀察：容器尺寸不變時，子圖的寬度仍可能在樣式載入後才定下來
-    const ro = new ResizeObserver(measure)
-    ro.observe(el)
-    for (const child of el.children) ro.observe(child)
-    return () => ro.disconnect()
-  }, [images.length])
 
   const handleClose = () => {
     closingIndexRef.current = openIndex
@@ -59,10 +45,8 @@ export default function NoteMedia({ images, noteId }: NoteMediaProps) {
   return (
     <>
       <div
-        ref={stripRef}
         className={style.strip}
         data-note-id={noteId}
-        data-scrollable={scrollable || undefined}
       >
         {images.map((img, i) => {
           const ratio = noteLayoutRatio(img) ?? NOTE_RATIO_FALLBACK

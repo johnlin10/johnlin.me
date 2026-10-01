@@ -11,7 +11,7 @@
   --note-max-h: 480px;
   --note-min-h: 190px;
 
-  // 出血距離＝所在容器的左右內距，預設對齊 NoteCard 的 --space-6；
+  // 出血距離＝所在容器的左右內距，預設 --space-6（NoteCard 的頁距、桌機日期欄的 gap）；
   // 其他情境由外層容器設定 --note-media-bleed。這裡不能直接宣告，否則會蓋掉外層的值。
   --bleed: var(--note-media-bleed, var(--space-6));
 
@@ -32,10 +32,9 @@
     display: none;
   }
 
-  // 兩側淡出提示可橫向捲動；放得下時不淡出，免得單張圖邊緣被吃掉
-  &[data-scrollable] {
-    @include edge-fade-mask($start: var(--space-10), $end: var(--space-10));
-  }
+  // 兩側淡出提示可橫向捲動。寬度等於出血，只蓋在出血那一段：
+  // 滑到兩端時圖片貼齊內文欄，不會被吃掉；放得下時出血區是空的，淡出也看不出來。
+  @include edge-fade-mask($start: var(--bleed), $end: var(--bleed));
 
   @include respond-to('phone') {
     --note-max-h: 360px;
