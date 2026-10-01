@@ -1051,8 +1051,18 @@
       "week": {
         "label": "Pick a week"
       },
-      "overlay": {
-        "title": "Overlay timetables"
+      "picker": {
+        "timetable": "Timetables",
+        "sessions": "Sessions",
+        "none": "None",
+        "all": "All",
+        "value": "{label}: {value}",
+        "more": "{names}, {count} in all",
+        "person": "Whose schedule",
+        "groups": {
+          "student": "Students",
+          "teacher": "Teachers"
+        }
       },
       "programs": {
         "after_class": "課後輔導",
@@ -1130,7 +1140,7 @@
       },
       "public": {
         "title": "完善就學 schedule",
-        "lead": "Scheduled tutoring sessions and everyone’s hours this month. Pick a name to lay their timetable over the week.",
+        "lead": "Scheduled tutoring sessions and this month’s hours. Pick your name to see only your timetable and sessions.",
         "weekList": "This week’s sessions",
         "weekEmpty": "No sessions this week.",
         "teacher": "with {name}"
@@ -1150,7 +1160,11 @@
         "regenerateMessage": "The old link stops working right away, so you’ll need to send everyone the new one."
       },
       "board": {
-        "makeup": "{day}'s classes"
+        "makeup": "{day}'s classes",
+        "allBusy": "All busy",
+        "free": "Free",
+        "busy": "Busy",
+        "closeDetail": "Close"
       }
     },
     "kb": {

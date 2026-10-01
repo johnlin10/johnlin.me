@@ -14,6 +14,9 @@ export interface PopoverProps {
   placement?: 'top' | 'bottom'
   width?: number | 'max-content'
   className?: string
+  /** 滑鼠移進、移出面板，給滑過就打開的觸發鈕判斷要不要收起來 */
+  onPointerEnter?: (e: React.PointerEvent) => void
+  onPointerLeave?: (e: React.PointerEvent) => void
 }
 
 /**
@@ -29,6 +32,8 @@ export default function Popover({
   placement = 'top',
   width = 280,
   className = '',
+  onPointerEnter,
+  onPointerLeave,
 }: PopoverProps) {
   const [mounted, setMounted] = useState(false)
   const popoverRef = useRef<HTMLDivElement>(null)
@@ -157,6 +162,8 @@ export default function Popover({
         width: typeof width === 'number' ? `${width}px` : width,
       }}
       onPointerDown={(e) => e.stopPropagation()}
+      onPointerEnter={onPointerEnter}
+      onPointerLeave={onPointerLeave}
       onClick={(e) => e.stopPropagation()}
     >
       {/* 指向 Trigger 元素的邊框箭頭 */}

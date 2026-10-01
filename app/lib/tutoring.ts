@@ -241,6 +241,39 @@ export function layoutLanes(
   return lanes
 }
 
+export type BusyEvent = { person: string; start: number; end: number; label: string | null }
+
+/**
+ * 同一天好幾個人的忙碌時間，照「這段時間誰在忙」上下切段，不並排。
+ * 在忙的人和事都沒變就接成同一段，有人下課或上課就切開。
+ * @param events 這一天選到的人的忙碌時間，start/end 是分鐘
+ * @returns 依時間排好的段，沒人在忙的時間不會出現
+ */
+export function busySegments(
+  events: BusyEvent[],
+): { start: number; end: number; events: BusyEvent[] }[] {
+  const points = [...new Set(events.flatMap((event) => [event.start, event.end]))].sort(
+    (a, b) => a - b,
+  )
+  const segments: { start: number; end: number; events: BusyEvent[] }[] = []
+  for (let i = 0; i < points.length - 1; i++) {
+    const [start, end] = [points[i], points[i + 1]]
+    const on = events.filter((event) => event.start < end && event.end > start)
+    if (!on.length) continue
+    const last = segments.at(-1)
+    if (
+      last?.end === start &&
+      last.events.length === on.length &&
+      on.every((event) => last.events.includes(event))
+    ) {
+      last.end = end
+    } else {
+      segments.push({ start, end, events: on })
+    }
+  }
+  return segments
+}
+
 // capped 的三個方案每人每月合計不能超過 MONTHLY_CAP；證照輔導是另一套級距，不進合計
 // 顏色對照 app/lib/schedule/colors.ts 的 key
 export const PROGRAMS = [

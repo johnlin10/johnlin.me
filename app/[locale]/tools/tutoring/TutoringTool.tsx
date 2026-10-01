@@ -41,6 +41,7 @@ import TutoringBoard, {
   useWeekPicker,
 } from '@/app/components/schedule/TutoringBoard/TutoringBoard'
 import boardStyle from '@/app/components/schedule/TutoringBoard/TutoringBoard.module.scss'
+import PeoplePicker from '@/app/components/schedule/TutoringBoard/PeoplePicker'
 import Icon from '@/app/components/Icon/Icon'
 import PageHeader from '@/app/components/admin/PageHeader/PageHeader'
 import Button from '@/app/components/admin/Button/Button'
@@ -123,6 +124,12 @@ export default function TutoringTool({ initial }: { initial: Tutoring | null }) 
   const [personForm, setPersonForm] = useState<PersonForm | null>(null)
   const [busyForm, setBusyForm] = useState<BusyForm | null>(null)
   const [holidaysOpen, setHolidaysOpen] = useState(false)
+  // 疊誰的課表、只看誰的輔導；一進來疊自己的課表、看全部的輔導
+  const [timetable, setTimetable] = useState<string[]>(() =>
+    (initial?.people ?? []).filter((person) => person.is_me).map((person) => person.id),
+  )
+  // null 是全部，之後新增的成員也算在內
+  const [focusPicked, setFocus] = useState<string[] | null>(null)
 
   const calendar = useMemo(() => calendarMap(calendarDays), [calendarDays])
 
@@ -157,6 +164,7 @@ export default function TutoringTool({ initial }: { initial: Tutoring | null }) 
 
   // 自己維護的加上課表工具換算來的，比對和檢查都看這一份
   const allBusy = [...busy, ...scheduleBusy]
+  const focus = focusPicked ?? people.map((person) => person.id)
   const semesterIds = semesters.map((item) => item.id)
   // 課表只在自己那個學期的期間有效，開學前和寒暑假不算有課
   const inEffect = (slot: BusySlot, date: string) => slotInEffect(slot.semester_id, date, semesters)
@@ -455,9 +463,30 @@ export default function TutoringTool({ initial }: { initial: Tutoring | null }) 
               calendar={calendar}
               sessions={sessions}
               licenseHours={licenseHours}
+              timetable={timetable}
+              focus={focus}
+              toolbar={
+                people.length > 0 && (
+                  <>
+                    <PeoplePicker
+                      people={people}
+                      value={timetable}
+                      onChange={setTimetable}
+                      multiple
+                      label={t('picker.timetable')}
+                    />
+                    <PeoplePicker
+                      people={people}
+                      value={focus}
+                      onChange={(ids) => setFocus(ids.length === people.length ? null : ids)}
+                      multiple
+                      label={t('picker.sessions')}
+                    />
+                  </>
+                )
+              }
               onItemClick={openSession}
               onEmptyClick={students.length > 0 ? openNewSession : undefined}
-              pickMe
             />
 
             <details className={style.manage}>

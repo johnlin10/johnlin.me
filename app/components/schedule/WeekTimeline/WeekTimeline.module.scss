@@ -196,7 +196,8 @@ button.cell {
   width: 100%;
   padding-left: var(--space-1);
   color: var(--text-secondary);
-  background: color-mix(in oklch, var(--text-muted) 24%, transparent);
+  // --shade 是 0–1 的深淺，沒給就是一個人的預設深度（24%）
+  background: color-mix(in oklch, var(--text-muted) calc(36% * var(--shade, 0.667)), transparent);
   border: 0;
   border-radius: 0;
 
@@ -206,7 +207,11 @@ button.cell {
 
   // 深色主題的 --text-muted 本身偏亮，同樣比例會變成一塊搶眼的淺灰，壓過輔導時段
   :global(.dark) & {
-    background-color: color-mix(in oklch, var(--text-muted) 13%, transparent);
+    background-color: color-mix(
+      in oklch,
+      var(--text-muted) calc(20% * var(--shade, 0.667)),
+      transparent
+    );
   }
 
   .itemTitle {
@@ -221,6 +226,10 @@ button.item {
     filter: brightness(0.97);
   }
 
+  &.muted:hover {
+    filter: brightness(0.92);
+  }
+
   &:focus-visible {
     outline: 2px solid var(--accent);
     outline-offset: 1px;
@@ -229,6 +238,7 @@ button.item {
 
 // 時間領頭，標題在第二行
 .itemTime {
+  flex-shrink: 0;
   overflow: hidden;
   font-size: 0.625rem;
   font-weight: 600;
@@ -252,6 +262,7 @@ button.item {
 }
 
 .itemTitle {
+  flex-shrink: 0;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -262,11 +273,42 @@ button.item {
   line-height: 1.25;
 }
 
+// 參與者多就換行，名字只在「、」處斷開；整個名字都擠不下的窄欄才拆字。
+// 放不下的被區塊底部切掉，時間和方案不讓它擠
 .itemMeta {
+  min-height: 0;
   overflow: hidden;
   font-size: 0.625rem;
   line-height: 1.2;
-  white-space: nowrap;
-  text-overflow: ellipsis;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+  opacity: 0.8;
+}
+
+//* 輔導時段放大後的浮層（ExpandPopup），跟區塊同一套樣式，只是不截字
+
+.expanded {
+  padding: var(--space-2) var(--space-3) var(--space-2) var(--space-4);
+  gap: 3px;
+  overflow-y: auto;
+
+  &::before {
+    top: var(--space-2);
+    bottom: var(--space-2);
+    left: 6px;
+  }
+
+  .itemTitle {
+    display: block;
+  }
+
+  .itemMeta {
+    overflow: visible;
+  }
+}
+
+.itemDetail {
+  font-size: 0.625rem;
+  line-height: 1.3;
   opacity: 0.8;
 }

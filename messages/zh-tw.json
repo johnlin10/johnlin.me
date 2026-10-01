@@ -1052,8 +1052,18 @@
       "week": {
         "label": "選擇週次"
       },
-      "overlay": {
-        "title": "疊課表比對"
+      "picker": {
+        "timetable": "課表",
+        "sessions": "輔導",
+        "none": "未選",
+        "all": "全部",
+        "value": "{label}：{value}",
+        "more": "{names} 等 {count} 人",
+        "person": "看誰的安排",
+        "groups": {
+          "student": "同學",
+          "teacher": "老師"
+        }
       },
       "programs": {
         "after_class": "課後輔導",
@@ -1131,7 +1141,7 @@
       },
       "public": {
         "title": "完善就學輔導時間",
-        "lead": "排定的輔導時段和每個人這個月的時數。點名字可以疊上那個人的課表比對。",
+        "lead": "排定的輔導時段和這個月的時數。選你的名字，就只看你的課表和輔導。",
         "weekList": "這週的時段",
         "weekEmpty": "這週沒有排輔導。",
         "teacher": "{name} 老師"
@@ -1151,7 +1161,11 @@
         "regenerateMessage": "舊連結會立刻失效，要把新的連結重新傳給大家。"
       },
       "board": {
-        "makeup": "補{day}"
+        "makeup": "補{day}",
+        "allBusy": "都沒空",
+        "free": "有空",
+        "busy": "有事",
+        "closeDetail": "關閉"
       }
     },
     "kb": {

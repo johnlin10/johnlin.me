@@ -1,14 +1,18 @@
 'use client'
 
 import {
+  useCallback,
+  useEffect,
   useLayoutEffect,
   useRef,
+  useState,
   useSyncExternalStore,
   type CSSProperties,
   type PointerEvent,
 } from 'react'
 import { useFormatter } from 'next-intl'
 import { courseColorStyle } from '@/app/lib/schedule/colors'
+import ExpandPopup from '@/app/components/ExpandPopup/ExpandPopup'
 import {
   DAY_END,
   DAY_START,
@@ -36,6 +40,12 @@ export type TimelineItem = {
   muted?: boolean
   // 接在時間後面的補充（輔導時段放時數）
   badge?: string
+  // 忙碌時段的深淺，0–1，越多人在忙越深；不給是一個人的預設深度
+  shade?: number
+  // 忙碌時段能不能點（交給 onItemClick）；輔導時段一律能點或滑過放大
+  clickable?: boolean
+  // 放大後才看得到的補充，一行一項（地點、指導老師）
+  details?: string[]
 }
 
 // 完善就學的規定是週末不能排，週末畫出來也只是佔掉五天的寬度
@@ -45,6 +55,9 @@ const SPAN = DAY_END - DAY_START
 // 半小時一格，格線和可以點的空白都是這些格子
 const CELLS = SPAN / STEP
 
+// 滑鼠停在輔導時段上這麼久（ms）才放大，掃過去不會一路跳出來
+const HOVER_DELAY = 200
+
 // 手指拖超過這個距離（px）放開才換週
 const SWIPE_THRESHOLD = 60
 // 換週時整週滑動的距離，相對於五天的總寬
@@ -53,10 +66,12 @@ const SLIDE = 40
 /**
  * 週時間軸：週一到週五各一欄，縱軸是 08:00–22:00 的實際時間。
  * 輔導時段照顏色畫、重疊就並排；忙碌時段鋪滿整欄墊在底下，沒有灰塊的地方就是有空。
+ * 外框設了 --session-inset 的話，輔導時段左邊讓出這麼寬，露出底下的灰塊。
  * @param props.weekStart 這一週的週一
  * @param props.items 要畫的時段
  * @param props.dayNotes 日期 → 放假或補課的注記，沒有的日子照常
- * @param props.onItemClick 點時段時呼叫，不給就不能點
+ * @param props.onItemClick 點時段時呼叫
+ * @param props.expand 輔導時段怎麼放大成浮層：'hover' 滑過放大、點了交給 onItemClick；'click' 點了放大
  * @param props.onEmptyClick 點空白時呼叫，帶那一格的日期和時間，不給就不能點
  * @param props.onPrev 手指往右滑時呼叫，不給就滑不過去
  * @param props.onNext 手指往左滑時呼叫，不給就滑不過去
@@ -67,6 +82,7 @@ export default function WeekTimeline({
   items,
   dayNotes,
   onItemClick,
+  expand = 'click',
   onEmptyClick,
   onPrev,
   onNext,
@@ -76,6 +92,7 @@ export default function WeekTimeline({
   items: TimelineItem[]
   dayNotes?: Map<string, DayNote>
   onItemClick?: (id: string) => void
+  expand?: 'hover' | 'click'
   onEmptyClick?: (date: string, time: string) => void
   onPrev?: () => void
   onNext?: () => void
@@ -88,6 +105,17 @@ export default function WeekTimeline({
     () => dateKey(new Date()),
     () => '',
   )
+
+  // 放大的是哪一塊；關掉時留著，縮回去的動畫還要用
+  const [expanded, setExpanded] = useState<{ id: string; el: HTMLElement } | null>(null)
+  const [expandOpen, setExpandOpen] = useState(false)
+  const hoverTimer = useRef<number | undefined>(undefined)
+  const closeExpand = useCallback(() => setExpandOpen(false), [])
+  const openExpand = (id: string, el: HTMLElement) => {
+    setExpanded({ id, el })
+    setExpandOpen(true)
+  }
+  useEffect(() => () => window.clearTimeout(hoverTimer.current), [])
 
   const daysRef = useRef<HTMLDivElement>(null)
   const drag = useRef<{
@@ -174,6 +202,36 @@ export default function WeekTimeline({
       .finished.then(go, () => {})
   }
 
+  /**
+   * 區塊裡的字。放大後的浮層用同一份，多畫結束時間和補充，不截字。
+   * @param item 時段
+   * @param full 放大後的版本
+   */
+  const itemContent = (item: TimelineItem, full = false) => {
+    const start = timeLabel(minutesOf(item.start))
+    const end = timeLabel(minutesOf(item.end))
+    return (
+      <>
+        <span className={style.itemTime}>
+          {start}
+          <span className={full ? '' : style.itemEnd}>–{end}</span>
+          {item.badge && <span className={style.itemBadge}>{item.badge}</span>}
+        </span>
+        <span className={style.itemTitle}>{item.title}</span>
+        {item.meta && <span className={style.itemMeta}>{item.meta}</span>}
+        {full &&
+          item.details?.map((line) => (
+            <span key={line} className={style.itemDetail}>
+              {line}
+            </span>
+          ))}
+      </>
+    )
+  }
+
+  // 換週之後原本那塊不在了，浮層跟著收掉
+  const expandedItem = expanded ? items.find((item) => item.id === expanded.id) : undefined
+
   const days = DAYS.map((day) => addDays(weekStart, day - 1))
   const hours = Array.from({ length: SPAN / 60 }, (_, i) => DAY_START + i * 60)
 
@@ -254,57 +312,107 @@ export default function WeekTimeline({
                   lane: 0,
                   lanes: 1,
                 }
-                const start = timeLabel(minutesOf(item.start))
-                const end = timeLabel(minutesOf(item.end))
-                const text = [item.title, `${start}–${end}`, item.badge, item.meta]
-                  .filter(Boolean)
-                  .join(' · ')
                 const props = {
                   className: `${style.item} ${item.muted ? style.muted : ''}`,
-                  title: text,
+                  // 輔導時段放大就看得到全部，不需要原生提示
+                  title: item.muted
+                    ? [item.title, `${item.start.slice(0, 5)}–${item.end.slice(0, 5)}`, item.meta]
+                        .filter(Boolean)
+                        .join(' · ')
+                    : undefined,
                   style: {
                     top: `${((top - DAY_START) / SPAN) * 100}%`,
                     height: `${((bottom - top) / SPAN) * 100}%`,
                     ...(item.muted
-                      ? {}
+                      ? { '--shade': item.shade }
                       : {
-                          left: `${(lane / count) * 100}%`,
-                          width: `${100 / count}%`,
+                          left: `calc(var(--session-inset, 0px) + (100% - var(--session-inset, 0px)) * ${lane / count})`,
+                          width: `calc((100% - var(--session-inset, 0px)) / ${count})`,
                         }),
                     ...courseColorStyle(item.muted ? 'gray' : item.color),
                   } as CSSProperties,
                 }
-                const content = (
-                  <>
-                    <span className={style.itemTime}>
-                      {start}
-                      <span className={style.itemEnd}>–{end}</span>
-                      {item.badge && <span className={style.itemBadge}>{item.badge}</span>}
-                    </span>
-                    <span className={style.itemTitle}>{item.title}</span>
-                    {item.meta && <span className={style.itemMeta}>{item.meta}</span>}
-                  </>
-                )
 
-                return onItemClick && !item.muted ? (
+                if (item.muted) {
+                  return onItemClick && item.clickable ? (
+                    <button
+                      key={item.id}
+                      type="button"
+                      {...props}
+                      onClick={() => onItemClick(item.id)}
+                    >
+                      {itemContent(item)}
+                    </button>
+                  ) : (
+                    <div key={item.id} {...props}>
+                      {itemContent(item)}
+                    </div>
+                  )
+                }
+
+                const isOpen = expandOpen && expanded?.id === item.id
+                return (
                   <button
                     key={item.id}
                     type="button"
                     {...props}
-                    onClick={() => onItemClick(item.id)}
+                    aria-expanded={expand === 'click' ? isOpen : undefined}
+                    onPointerEnter={(event) => {
+                      if (expand !== 'hover' || event.pointerType !== 'mouse') return
+                      const el = event.currentTarget
+                      window.clearTimeout(hoverTimer.current)
+                      hoverTimer.current = window.setTimeout(
+                        () => openExpand(item.id, el),
+                        HOVER_DELAY,
+                      )
+                    }}
+                    onPointerLeave={() => window.clearTimeout(hoverTimer.current)}
+                    onClick={(event) => {
+                      if (expand === 'hover') {
+                        window.clearTimeout(hoverTimer.current)
+                        onItemClick?.(item.id)
+                      } else if (isOpen) {
+                        closeExpand()
+                      } else {
+                        openExpand(item.id, event.currentTarget)
+                      }
+                    }}
                   >
-                    {content}
+                    {itemContent(item)}
                   </button>
-                ) : (
-                  <div key={item.id} {...props}>
-                    {content}
-                  </div>
                 )
               })}
             </div>
           )
         })}
       </div>
+
+      <ExpandPopup
+        open={expandOpen && Boolean(expandedItem)}
+        anchor={expanded?.el ?? null}
+        onClose={closeExpand}
+        minWidth={200}
+        label={expandedItem?.title}
+        className={`${style.item} ${style.expanded}`}
+        style={courseColorStyle(expandedItem?.color ?? null) as CSSProperties}
+        onClick={
+          expand === 'hover' && onItemClick && expandedItem
+            ? () => {
+                closeExpand()
+                onItemClick(expandedItem.id)
+              }
+            : undefined
+        }
+        onPointerLeave={
+          expand === 'hover'
+            ? (event) => {
+                if (event.pointerType === 'mouse') closeExpand()
+              }
+            : undefined
+        }
+      >
+        {expandedItem && itemContent(expandedItem, true)}
+      </ExpandPopup>
     </div>
   )
 }

@@ -1,0 +1,11 @@
+@use '@/app/styles/design' as *;
+
+// 放大後浮在頁面上：加陰影，內容太長就自己捲
+.popup {
+  box-shadow: var(--shadow-lg);
+  overflow-y: auto;
+}
+
+.clickable {
+  cursor: pointer;
+}

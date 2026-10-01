@@ -1,12 +1,13 @@
 'use client'
 
-import { Fragment, useEffect, useRef, useState, useSyncExternalStore } from 'react'
+import { useEffect, useRef, useState, useSyncExternalStore } from 'react'
 import { useFormatter, useTranslations } from 'next-intl'
 import type { BusySlot, Person, PublicSession } from '@/app/lib/supabase/tutoring'
 import {
   MONTHLY_CAP,
   PROGRAMS,
   addDays,
+  busySegments,
   classDay,
   dateKey,
   dayOfWeek,
@@ -17,10 +18,13 @@ import {
   shiftMonth,
   slotInEffect,
   sumHours,
+  timeLabel,
   weeksOfMonth,
+  type BusyEvent,
   type CalendarDay,
   type Term,
 } from '@/app/lib/tutoring'
+import Icon from '@/app/components/Icon/Icon'
 import WeekTimeline, { type DayNote, type TimelineItem } from '../WeekTimeline/WeekTimeline'
 import style from './TutoringBoard.module.scss'
 
@@ -252,6 +256,7 @@ export function WeekPicker({
 
 /**
  * 完善就學的主畫面：週時間軸、疊課表比對、該月時數。編輯頁和公開頁共用。
+ * 疊一個人的課表就畫他的課；疊兩個人以上，每天照「誰有課」上下切段，點一段在下面列出各人的課。
  * @param props.picker useWeekPicker 的回傳值
  * @param props.people 全部成員
  * @param props.busy 所有人的忙碌時段，含課表換算來的
@@ -259,10 +264,13 @@ export function WeekPicker({
  * @param props.calendar 放假和補課的日子
  * @param props.sessions 這個月前後的輔導時段
  * @param props.licenseHours 每人證照輔導的累計時數
- * @param props.onItemClick 點時段時呼叫，不給就不能點
+ * @param props.timetable 疊誰的課表
+ * @param props.focus 只看誰的輔導（參加或指導），空的就一場都不顯示，每個人都選就是全部
+ * @param props.hoursOf 時數表只列這些人，不給就列全部同學
+ * @param props.toolbar 放在時間軸上方，選人的按鈕
+ * @param props.onItemClick 點輔導時段時呼叫，不給就不能點
  * @param props.onEmptyClick 點空白時呼叫，不給就不能點
  * @param props.children 放在時間軸和時數表之間
- * @param props.pickMe 後台用：一進來疊上自己的課表，自己跟其他人中間畫線；分享頁不給，讓看的人自己選
  */
 export default function TutoringBoard({
   picker,
@@ -272,10 +280,13 @@ export default function TutoringBoard({
   calendar,
   sessions,
   licenseHours,
+  timetable,
+  focus,
+  hoursOf,
+  toolbar,
   onItemClick,
   onEmptyClick,
   children,
-  pickMe = false,
 }: {
   picker: WeekPickerState
   people: Person[]
@@ -284,22 +295,27 @@ export default function TutoringBoard({
   calendar: Map<string, CalendarDay>
   sessions: PublicSession[]
   licenseHours: Record<string, number>
+  timetable: string[]
+  focus: string[]
+  hoursOf?: string[]
+  toolbar?: React.ReactNode
   onItemClick?: (id: string) => void
   onEmptyClick?: (date: string, time: string) => void
   children?: React.ReactNode
-  pickMe?: boolean
 }) {
   const t = useTranslations('ToolsPage.tutoring')
   const format = useFormatter()
-  // 一次只疊一個人的課表；分左右欄會跟「不同天也是左右排」混在一起
-  const [overlay, setOverlay] = useState(() =>
-    pickMe ? (people.find((person) => person.is_me)?.id ?? '') : '',
-  )
+  // 點開的那一段；那一段不在畫面上了（換週、換人）就自然不顯示
+  const [detail, setDetail] = useState('')
   const { month, weeks, weekIndex, weekDates } = picker
   if (!month) return null
 
+  const students = people.filter(
+    (person) => person.role === 'student' && (!hoursOf || hoursOf.includes(person.id)),
+  )
   const personById = new Map(people.map((person) => [person.id, person]))
-  const students = people.filter((person) => person.role === 'student')
+  // 照成員清單的順序排，刪掉的人不留在選擇裡
+  const overlaid = people.filter((person) => timetable.includes(person.id))
   // 照成員清單的順序排，不照加入的先後，同一群人每次都同一個順序
   const namesOf = (ids: string[]) =>
     people
@@ -307,29 +323,72 @@ export default function TutoringBoard({
       .map((person) => person.name)
       .join('、')
 
+  const segments = new Map<string, { date: string; start: number; end: number; events: BusyEvent[] }>()
+  const busyItems = weekDates.flatMap((date, index): TimelineItem[] => {
+    const day = classDay(date, calendar)
+    if (day === null || !overlaid.length) return []
+    const events = busy
+      .filter(
+        (slot) =>
+          timetable.includes(slot.person_id) &&
+          slot.day === day &&
+          slotInEffect(slot.semester_id, date, terms),
+      )
+      .map((slot) => ({
+        person: slot.person_id,
+        start: minutesOf(slot.start_time),
+        end: minutesOf(slot.end_time),
+        label: slot.label,
+      }))
+
+    // 一個人沒有擠的問題，直接畫課名
+    if (overlaid.length === 1) {
+      return events.map((event, i) => ({
+        id: `busy-${date}-${i}`,
+        day: index + 1,
+        start: timeLabel(event.start),
+        end: timeLabel(event.end),
+        title: event.label ?? overlaid[0].name,
+        color: null,
+        muted: true,
+      }))
+    }
+
+    return busySegments(events).map((segment) => {
+      const id = `segment-${date}-${segment.start}`
+      segments.set(id, { date, ...segment })
+      const who = overlaid.filter((person) =>
+        segment.events.some((event) => event.person === person.id),
+      )
+      return {
+        id,
+        day: index + 1,
+        start: timeLabel(segment.start),
+        end: timeLabel(segment.end),
+        title:
+          who.length === overlaid.length
+            ? t('board.allBusy')
+            : who.map((person) => person.name).join('、'),
+        color: null,
+        muted: true,
+        shade: 0.35 + 0.65 * (who.length / overlaid.length),
+        clickable: true,
+      }
+    })
+  })
+
+  // 每個人都選就不篩，連參與者都被刪光的時段也留著
+  const shown = people.some((person) => !focus.includes(person.id))
+    ? sessions.filter(
+        (session) =>
+          session.attendees.some((id) => focus.includes(id)) ||
+          (session.teacher_id !== null && focus.includes(session.teacher_id)),
+      )
+    : sessions
+
   const items: TimelineItem[] = [
-    ...weekDates.flatMap((date, index) => {
-      const day = classDay(date, calendar)
-      if (day === null) return []
-      return busy
-        .filter(
-          (slot) =>
-            slot.person_id === overlay &&
-            slot.day === day &&
-            slotInEffect(slot.semester_id, date, terms),
-        )
-        .map((slot) => ({
-          id: `busy-${slot.id}`,
-          day: index + 1,
-          start: slot.start_time,
-          end: slot.end_time,
-          title: personById.get(slot.person_id)?.name ?? '',
-          meta: slot.label ?? undefined,
-          color: null,
-          muted: true,
-        }))
-    }),
-    ...sessions
+    ...busyItems,
+    ...shown
       .filter((session) => weekDates.includes(session.date))
       .map((session) => ({
         id: session.id,
@@ -341,9 +400,17 @@ export default function TutoringBoard({
           hours: (minutesOf(session.end_time) - minutesOf(session.start_time)) / 60,
         }),
         meta: namesOf(session.attendees) || undefined,
+        details: [
+          session.location,
+          session.teacher_id &&
+            personById.get(session.teacher_id) &&
+            t('public.teacher', { name: personById.get(session.teacher_id)!.name }),
+        ].filter((line): line is string => Boolean(line)),
         color: programColor(session.program),
       })),
   ]
+
+  const opened = segments.get(detail)
 
   const dayNotes = new Map<string, DayNote>(
     weekDates.flatMap((date) => {
@@ -366,35 +433,61 @@ export default function TutoringBoard({
   return (
     <>
       <div className={style.board}>
+        {toolbar && <div className={style.toolbar}>{toolbar}</div>}
+
         <WeekTimeline
           weekStart={weeks[weekIndex]}
           items={items}
           dayNotes={dayNotes}
-          onItemClick={onItemClick}
+          expand={onItemClick ? 'hover' : 'click'}
+          onItemClick={(id) => {
+            if (segments.has(id)) setDetail(detail === id ? '' : id)
+            else onItemClick?.(id)
+          }}
           onEmptyClick={onEmptyClick}
           onPrev={picker.prevWeek}
           onNext={picker.nextWeek}
-          className={style.timeline}
+          className={`${style.timeline} ${overlaid.length ? style.inset : ''}`}
         />
 
-        {people.length > 0 && (
-          <div className={style.overlayBar}>
-            <span className={style.overlayLabel}>{t('overlay.title')}</span>
-            {people.map((person) => (
-              <Fragment key={person.id}>
-                <button
-                  type="button"
-                  aria-pressed={overlay === person.id}
-                  className={`${style.chip} ${overlay === person.id ? style.chipOn : ''}`}
-                  onClick={() => setOverlay(overlay === person.id ? '' : person.id)}
-                >
-                  {person.name}
-                </button>
-                {pickMe && person.is_me && <span className={style.chipDivider} aria-hidden />}
-              </Fragment>
-            ))}
+        {opened && (
+          <div className={style.detail}>
+            <div className={style.detailHead}>
+              <span>
+                {format.dateTime(new Date(`${opened.date}T12:00:00`), {
+                  month: 'numeric',
+                  day: 'numeric',
+                  weekday: 'short',
+                })}{' '}
+                {timeLabel(opened.start)}–{timeLabel(opened.end)}
+              </span>
+              <button
+                type="button"
+                className={style.detailClose}
+                aria-label={t('board.closeDetail')}
+                onClick={() => setDetail('')}
+              >
+                <Icon name="xmark" size="xs" />
+              </button>
+            </div>
+            <ul>
+              {overlaid.map((person) => {
+                const labels = opened.events
+                  .filter((event) => event.person === person.id)
+                  .map((event) => event.label ?? t('board.busy'))
+                return (
+                  <li key={person.id} className={style.detailRow}>
+                    <span>{person.name}</span>
+                    <span className={labels.length ? '' : style.detailFree}>
+                      {labels.length ? labels.join('、') : t('board.free')}
+                    </span>
+                  </li>
+                )
+              })}
+            </ul>
           </div>
         )}
+
       </div>
 
       {children}

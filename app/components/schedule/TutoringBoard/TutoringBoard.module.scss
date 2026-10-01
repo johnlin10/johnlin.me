@@ -13,7 +13,7 @@ $tab-width: 7.5rem;
 // 時間軸和比對列是同一組，頁面容器那個區塊之間的大間距不該插進來
 .board {
   @include flexbox(column, flex-start, stretch);
-  gap: var(--space-1);
+  gap: var(--space-2);
 }
 
 // 捲到哪一格就選哪一格；兩側遮罩淡出，暗示還有更多
@@ -107,17 +107,21 @@ $tab-width: 7.5rem;
   }
 }
 
-// 在時間軸底下：勾誰就把誰的課疊上去，用來找大家都有空的時間
-.overlayBar {
+// 時間軸上方選人的按鈕
+.toolbar {
   @include flexbox(row, flex-start, center);
   flex-wrap: wrap;
   gap: var(--space-2);
   margin-top: var(--space-2);
 }
 
-.overlayLabel {
-  font-size: var(--text-2xs);
-  color: var(--text-muted);
+// 疊了課表時，輔導時段左邊讓出一條，露出底下的灰塊，那條也點得到
+.inset {
+  --session-inset: 0.5rem;
+
+  @include respond-to('phone') {
+    --session-inset: 0.375rem;
+  }
 }
 
 .chip {
@@ -140,18 +144,98 @@ $tab-width: 7.5rem;
   }
 }
 
-// 自己跟其他人中間的分隔線
-.chipDivider {
-  align-self: stretch;
-  width: 1px;
-  margin-block: var(--space-1);
-  background: var(--border);
-}
-
 .chipOn {
   color: var(--text);
   background: var(--accent-soft);
   border-color: var(--accent);
+}
+
+// 選人的藥丸：名字太多時截掉，不撐破一行
+.pickerTrigger {
+  @include flexbox(row, flex-start, center);
+  gap: var(--space-1);
+  max-width: 100%;
+  min-width: 0;
+}
+
+.pickerText {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.pickerPanel {
+  @include flexbox(column, flex-start, stretch);
+  gap: var(--space-1);
+}
+
+.pickerGroup {
+  margin: var(--space-2) 0 var(--space-1);
+  padding: 0 var(--space-3);
+  font-size: var(--text-3xs);
+  color: var(--text-muted);
+}
+
+.pickerOption {
+  @include flexbox(row, space-between, center);
+  gap: var(--space-2);
+}
+
+//* 點一段灰塊，列出那段時間每個人在上什麼
+
+// 黏在視窗底部，點晚上的段也不用捲下去看；捲過時間軸就回到原位
+.detail {
+  position: sticky;
+  bottom: calc(var(--page-gutter) + env(safe-area-inset-bottom));
+  z-index: var(--z-sticky);
+  margin-top: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--text-sm);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+
+  ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+}
+
+.detailHead {
+  @include flexbox(row, space-between, center);
+  margin-bottom: var(--space-1);
+  font-size: var(--text-2xs);
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.detailClose {
+  @include flexbox(row, center, center);
+  padding: var(--space-1);
+  color: var(--text-muted);
+  background: none;
+  border: none;
+  border-radius: var(--radius-xs);
+  cursor: pointer;
+  @include focus-ring;
+
+  &:hover {
+    color: var(--text);
+  }
+}
+
+.detailRow {
+  display: grid;
+  grid-template-columns: 5rem minmax(0, 1fr);
+  gap: var(--space-3);
+  padding: 2px 0;
+}
+
+.detailFree {
+  color: var(--accent);
 }
 
 //* 這個月的時數

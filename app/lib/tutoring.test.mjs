@@ -2,6 +2,7 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import {
+  busySegments,
   calendarMap,
   classDay,
   durationHours,
@@ -121,4 +122,27 @@ test('放假的日子不套課表，補課日套被補的那一天', () => {
   assert.equal(classDay('2026-10-10', calendar), 6)
   assert.equal(classDay('2026-10-11', calendar), 7)
   assert.equal(classDay('2026-10-12', new Map()), 1)
+})
+
+test('多人的忙碌時間照誰在忙上下切段', () => {
+  const a = { person: 'a', start: 540, end: 660, label: '微積分' }
+  const b = { person: 'b', start: 600, end: 720, label: '英文' }
+  const c = { person: 'c', start: 540, end: 660, label: '物理' }
+  const d = { person: 'd', start: 800, end: 860, label: null }
+  const shape = (events) =>
+    busySegments(events).map((seg) => [seg.start, seg.end, seg.events.map((e) => e.person).join('')])
+
+  assert.deepEqual(shape([a, b]), [
+    [540, 600, 'a'],
+    [600, 660, 'ab'],
+    [660, 720, 'b'],
+  ])
+  // 同時上課、同時下課就是同一段
+  assert.deepEqual(shape([a, c]), [[540, 660, 'ac']])
+  // 中間沒人在忙就斷開
+  assert.deepEqual(shape([a, d]), [
+    [540, 660, 'a'],
+    [800, 860, 'd'],
+  ])
+  assert.deepEqual(shape([]), [])
 })
