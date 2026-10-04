@@ -24,6 +24,23 @@
   }
 }
 
+.dropzoneCompact {
+  @include flexbox(row, center, center);
+  width: 64px;
+  height: 64px;
+  flex-shrink: 0;
+  border: 1.5px dashed var(--border-strong);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: border-color var(--duration-fast) var(--ease);
+
+  &:hover,
+  &:focus-visible,
+  &.dragging {
+    border-color: var(--accent);
+  }
+}
+
 .hiddenInput {
   display: none;
 }
@@ -46,35 +63,309 @@
   margin: 0;
 }
 
-//* ==================== StagedPhotoRow ====================
+//* ==================== StagedPhotoEditor ====================
 
-.row {
+.editor {
+  flex: 1;
   display: grid;
-  grid-template-columns: 96px 1fr;
-  gap: var(--space-4);
-  padding: var(--space-4);
-  border: 1px solid var(--border);
-  border-radius: var(--card-radius);
-  background: var(--surface);
+  grid-template-columns: minmax(0, 1fr) 340px;
+  gap: var(--space-8);
+
+  @include respond-to('tablet') {
+    grid-template-columns: minmax(0, 1fr) 300px;
+    gap: var(--space-6);
+  }
 
   @include respond-to('phone') {
+    flex: none;
     grid-template-columns: 1fr;
+    gap: var(--space-5);
   }
 }
 
-.row_done {
-  opacity: 0.6;
+.stage {
+  @include flexbox(column, center, center);
+  gap: var(--space-5);
+  padding: var(--space-8) var(--space-6);
+  border-radius: var(--radius-lg);
+  background: var(--surface-2);
+  min-width: 0;
+
+  @include respond-to('phone') {
+    padding: var(--space-6) var(--space-4);
+  }
 }
 
-.row_error,
-.row_invalid {
-  border-color: var(--danger-soft);
-}
-
-.rowThumb {
+// 沖印白邊：跟照片頁檢閱欄同一個做法，相框縮到跟圖片一樣大，四邊才會等寬。
+.print {
   position: relative;
-  width: 96px;
-  height: 72px;
+  display: inline-flex;
+  max-width: 100%;
+  padding: 14px;
+  box-sizing: border-box;
+  // 紙本的白不隨深色模式變暗，刻意不用語意 token。
+  background: #fff;
+  box-shadow: var(--shadow-md);
+
+  img {
+    display: block;
+    max-width: 100%;
+    // 扣掉控制欄、頁面內距、照片區內距、白邊、說明與底部縮圖列，
+    // 一個畫面就能看完整張。
+    max-height: clamp(240px, calc(100dvh - 500px), 720px);
+    width: auto;
+    height: auto;
+  }
+
+  @include respond-to('phone') {
+    padding: 8px;
+
+    img {
+      max-height: 46vh;
+    }
+  }
+}
+
+.hdrBadge {
+  position: absolute;
+  bottom: var(--space-4);
+  right: var(--space-4);
+  padding: 1px var(--space-1);
+  border-radius: var(--radius-xs);
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: var(--tracking-wide);
+}
+
+.panel {
+  @include flexbox(column, flex-start, stretch);
+  align-self: start;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+.fieldWithAction {
+  @include flexbox(column, flex-start, stretch);
+  gap: var(--space-1);
+}
+
+.textAction {
+  align-self: flex-start;
+  padding: 0;
+  border: none;
+  background: none;
+  font-family: var(--font-sans);
+  font-size: var(--text-xs);
+  color: var(--accent);
+  cursor: pointer;
+
+  &:hover {
+    color: var(--accent-hover);
+  }
+}
+
+.dateGroup {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: var(--space-2);
+  align-items: end;
+}
+
+.gpsRow {
+  @include flexbox(row, flex-start, center);
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  font-family: var(--font-sans);
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.gpsHelper {
+  color: var(--text-muted);
+  font-size: var(--text-2xs);
+}
+
+.facts {
+  @include flexbox(column, flex-start, stretch);
+  gap: var(--space-2);
+  margin: 0;
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--border);
+}
+
+.factRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+  font-family: var(--font-sans);
+  font-size: var(--text-xs);
+
+  dt {
+    flex-shrink: 0;
+    color: var(--text-muted);
+  }
+
+  dd {
+    @include flexbox(row, flex-end, baseline);
+    gap: var(--space-2);
+    min-width: 0;
+    margin: 0;
+    color: var(--text-secondary);
+  }
+}
+
+.slugText,
+.fileName {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.removeRow {
+  @include flexbox(row, flex-start, center);
+}
+
+.statusRow {
+  @include flexbox(row, space-between, center);
+  gap: var(--space-3);
+}
+
+.statusText {
+  @include flexbox(row, flex-start, center);
+  gap: var(--space-1);
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.statusDone {
+  color: var(--success);
+}
+
+.statusError {
+  color: var(--danger);
+  white-space: normal;
+}
+
+//* ==================== Filmstrip ====================
+
+.filmstrip {
+  @include flexbox(row, flex-start, center);
+  gap: var(--space-2);
+  min-width: 0;
+  // 外框留 3px 給選中的外框，不然 overflow 會把它切掉。
+  padding: 3px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.filmThumb {
+  position: relative;
+  width: 64px;
+  height: 64px;
+  flex-shrink: 0;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background: var(--surface-3);
+  cursor: pointer;
+  opacity: 0.7;
+  transition: opacity var(--duration-fast) var(--ease);
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  &:hover {
+    opacity: 1;
+  }
+}
+
+.filmCurrent {
+  opacity: 1;
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.filmMark {
+  @include flexbox(row, center, center);
+  position: absolute;
+  right: 3px;
+  bottom: 3px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  font-size: 9px;
+}
+
+.filmMarkDone {
+  background: var(--success);
+  color: #fff;
+}
+
+.filmMarkWarn {
+  background: var(--warning);
+  color: #2a1d05;
+}
+
+//* ==================== UploadReview ====================
+
+.review {
+  @include flexbox(column, flex-start, stretch);
+  gap: var(--space-5);
+  width: 100%;
+  max-width: var(--width-content);
+  margin: 0 auto;
+}
+
+.reviewHead {
+  @include flexbox(column, flex-start, stretch);
+  gap: var(--space-2);
+}
+
+.reviewTitle {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: var(--text-2xl);
+  font-weight: 600;
+  color: var(--text);
+}
+
+.reviewHint {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+}
+
+.reviewList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.reviewRow {
+  display: grid;
+  grid-template-columns: 56px minmax(0, 1fr) auto;
+  gap: var(--space-3);
+  align-items: center;
+  padding: var(--space-3) 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.reviewThumb {
+  width: 56px;
+  height: 56px;
   border-radius: var(--radius-sm);
   overflow: hidden;
   background: var(--surface-3);
@@ -87,40 +378,14 @@
   }
 }
 
-.hdrBadge {
-  position: absolute;
-  bottom: var(--space-1);
-  right: var(--space-1);
-  padding: 1px var(--space-1);
-  border-radius: var(--radius-xs);
-  background: rgba(0, 0, 0, 0.55);
-  color: #fff;
-  font-size: 9px;
-  font-weight: 600;
-  letter-spacing: var(--tracking-wide);
-}
-
-.rowBody {
+.reviewBody {
   @include flexbox(column, flex-start, stretch);
-  gap: var(--space-3);
+  gap: 2px;
   min-width: 0;
 }
 
-.rowHeader {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  flex-wrap: wrap;
-}
-
-.rowFileInfo {
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-  flex: 1;
-}
-
-.rowFilename {
+.reviewName {
+  margin: 0;
   font-family: var(--font-sans);
   font-size: var(--text-sm);
   color: var(--text);
@@ -129,32 +394,19 @@
   white-space: nowrap;
 }
 
-.rowFilesize {
+.reviewSub {
+  margin: 0;
   font-family: var(--font-sans);
   font-size: var(--text-2xs);
   color: var(--text-muted);
 }
 
-.rowStatusText {
-  @include flexbox(row, flex-start, center);
-  gap: var(--space-1);
-  font-family: var(--font-sans);
-  font-size: var(--text-xs);
-  color: var(--text-secondary);
-  white-space: nowrap;
+.reviewSubWarn {
+  color: var(--warning);
 }
 
-.rowStatusDone {
-  color: var(--success);
-}
-
-.rowStatusError {
-  color: var(--danger);
-}
-
-.rowActions {
+.reviewStatus {
   @include flexbox(row, flex-end, center);
-  gap: var(--space-2);
 }
 
 .progressTrack {
@@ -170,76 +422,22 @@
   transition: width var(--duration-fast) var(--ease);
 }
 
-.rowFields {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--space-3);
-
-  @include respond-to('phone') {
-    grid-template-columns: 1fr;
-  }
-}
-
-.rowDateGroup {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: var(--space-2);
-  align-items: end;
-}
-
-.rowExif {
-  @include flexbox(row, flex-start, center);
-  gap: var(--space-3);
-  font-family: var(--font-sans);
-  font-size: var(--text-2xs);
-  color: var(--text-muted);
-  margin: 0;
-}
-
-.rowGps {
-  @include flexbox(row, flex-start, center);
-  gap: var(--space-2);
-  font-family: var(--font-sans);
-  font-size: var(--text-xs);
-  color: var(--text-secondary);
-  cursor: pointer;
-}
-
-.rowGpsHelper {
-  color: var(--text-muted);
-  font-size: var(--text-2xs);
-}
-
-//* ==================== UploadSummaryBar ====================
-
-.summaryBar {
-  position: sticky;
-  bottom: 0;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-4);
-  padding: var(--space-4) var(--space-5);
-  border: 1px solid var(--border);
-  border-radius: var(--card-radius);
-  background: var(--surface-raised);
-  box-shadow: var(--shadow-md);
+.actionBar {
+  @include flexbox(row, flex-end, center);
   flex-wrap: wrap;
+  gap: var(--space-2);
 }
 
-.summaryText {
-  @include flexbox(row, flex-start, center);
-  gap: var(--space-3);
+.actionSpacer {
+  flex: 1;
+}
+
+.doneLink {
   font-family: var(--font-sans);
   font-size: var(--text-sm);
-  color: var(--text-secondary);
-}
+  color: var(--accent);
 
-.summaryProblem {
-  color: var(--warning);
-}
-
-.summaryActions {
-  @include flexbox(row, flex-end, center);
-  gap: var(--space-2);
+  &:hover {
+    color: var(--accent-hover);
+  }
 }

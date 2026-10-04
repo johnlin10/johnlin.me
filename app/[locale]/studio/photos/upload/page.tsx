@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslations } from 'next-intl'
-import { Link } from '@/i18n/navigation'
 import { createClient } from '@/app/lib/supabase/client'
 import PageHeader from '@/app/components/admin/PageHeader/PageHeader'
 import { getTakenSlugs } from '@/app/lib/supabase/photos'
@@ -19,9 +18,13 @@ import {
   readExifDraft,
   toTakenAt,
 } from '@/app/lib/photos/exifDraft'
+import type { SupportedLocale } from '@/app/types/blog'
+import Button from '@/app/components/admin/Button/Button'
+import Icon from '@/app/components/Icon/Icon'
 import DropZone from '@/app/components/admin/PhotoUpload/DropZone'
-import StagedPhotoRow from '@/app/components/admin/PhotoUpload/StagedPhotoRow'
-import UploadSummaryBar from '@/app/components/admin/PhotoUpload/UploadSummaryBar'
+import Filmstrip from '@/app/components/admin/PhotoUpload/Filmstrip'
+import StagedPhotoEditor from '@/app/components/admin/PhotoUpload/StagedPhotoEditor'
+import UploadReview from '@/app/components/admin/PhotoUpload/UploadReview'
 import { useUploadQueue } from '@/app/components/admin/PhotoUpload/useUploadQueue'
 import type { StagedPhoto } from '@/app/components/admin/PhotoUpload/stagedPhoto'
 import style from './upload.module.scss'
@@ -31,7 +34,8 @@ interface RejectedFile {
 }
 
 /**
- * 上傳預檢表：拖進檔案 → 瀏覽器解 EXIF → 確認欄位 → 才送出第一個位元組。
+ * 上傳預檢表：拖進檔案 → 瀏覽器解 EXIF → 一張一張確認欄位 → 檢查清單
+ * → 才送出第一個位元組。
  *
  * 獨立路由而不是 modal：預檢表需要整頁寬度來排欄位，而且上傳到一半誤觸
  * 上一頁是很致命的操作，獨立路由至少讓瀏覽器的離開確認機制幫得上忙。
@@ -41,6 +45,10 @@ export default function PhotoUploadPage() {
   const supabase = useMemo(() => createClient(), [])
   const [photos, setPhotos] = useState<StagedPhoto[]>([])
   const [rejected, setRejected] = useState<RejectedFile[]>([])
+  const [currentId, setCurrentId] = useState('')
+  const [step, setStep] = useState<'edit' | 'review'>('edit')
+  // 放在頁面層而不是每張的編輯器裡：補英文時一路按下一張，語言不該被重設回中文。
+  const [editLocale, setEditLocale] = useState<SupportedLocale>('zh-tw')
   const photosRef = useRef<StagedPhoto[]>([])
   photosRef.current = photos
 
@@ -90,6 +98,8 @@ export default function PhotoUploadPage() {
       isHdr: false,
     }))
     setPhotos((prev) => [...prev, ...staged])
+    setCurrentId(staged[0].localId)
+    setStep('edit')
 
     const reads = await Promise.allSettled(
       staged.map(async (p) => {
@@ -146,15 +156,46 @@ export default function PhotoUploadPage() {
   }
 
   const removePhoto = (localId: string) => {
-    const target = photos.find((p) => p.localId === localId)
-    if (target) URL.revokeObjectURL(target.previewUrl)
-    setPhotos((prev) => prev.filter((p) => p.localId !== localId))
+    const index = photos.findIndex((p) => p.localId === localId)
+    if (index === -1) return
+    URL.revokeObjectURL(photos[index].previewUrl)
+    const rest = photos.filter((p) => p.localId !== localId)
+    setPhotos(rest)
+    if (localId === currentId) {
+      setCurrentId(rest[Math.min(index, rest.length - 1)]?.localId ?? '')
+    }
   }
 
   const clearAll = () => {
     for (const p of photos) URL.revokeObjectURL(p.previewUrl)
     setPhotos([])
     setRejected([])
+    setCurrentId('')
+    setStep('edit')
+  }
+
+  const isLocked = (p: StagedPhoto) =>
+    p.status === 'uploading' ||
+    p.status === 'processing' ||
+    p.status === 'done' ||
+    p.status === 'invalid'
+
+  // 地名常常一整批都一樣：中英兩個語言一起帶給後面還能改的照片。
+  const applyLocationAfter = (localId: string) => {
+    const index = photos.findIndex((p) => p.localId === localId)
+    const source = photos[index]
+    if (!source) return
+    setPhotos((prev) =>
+      prev.map((p, i) =>
+        i > index && !isLocked(p)
+          ? {
+              ...p,
+              locationNameZh: source.locationNameZh,
+              locationNameEn: source.locationNameEn,
+            }
+          : p
+      )
+    )
   }
 
   // 逐列驗證：格式合法、同批不重複。DB 層的撞號機率極低（單一管理員的站台），
@@ -173,24 +214,30 @@ export default function PhotoUploadPage() {
 
   const confirmableIds = useMemo(
     () =>
-      photos
-        .filter(
-          (p) =>
-            p.status === 'ready' &&
-            p.hasExifDate &&
-            p.slug.length > 0 &&
-            !slugErrors[p.localId]
-        )
-        .map((p) => p.localId),
+      new Set(
+        photos
+          .filter(
+            (p) =>
+              p.status === 'ready' &&
+              p.hasExifDate &&
+              p.slug.length > 0 &&
+              !slugErrors[p.localId]
+          )
+          .map((p) => p.localId)
+      ),
     [photos, slugErrors]
   )
 
-  const problemCount = photos.filter(
-    (p) =>
-      p.status === 'error' ||
-      p.status === 'invalid' ||
-      (p.status === 'ready' && !confirmableIds.includes(p.localId))
-  ).length
+  const problemIds = new Set(
+    photos
+      .filter(
+        (p) =>
+          p.status === 'error' ||
+          p.status === 'invalid' ||
+          (p.status === 'ready' && !confirmableIds.has(p.localId))
+      )
+      .map((p) => p.localId)
+  )
 
   const allDone = photos.length > 0 && photos.every((p) => p.status === 'done')
 
@@ -216,22 +263,34 @@ export default function PhotoUploadPage() {
   }, [running])
 
   const handleConfirm = () => {
-    if (confirmableIds.length === 0) return
-    void run(confirmableIds)
+    if (confirmableIds.size === 0) return
+    setStep('review')
+    void run([...confirmableIds])
   }
 
   const retryOne = (localId: string) => {
     void run([localId])
   }
 
+  const currentIndex = Math.max(
+    0,
+    photos.findIndex((p) => p.localId === currentId)
+  )
+  const current = photos[currentIndex]
+  const isLast = currentIndex === photos.length - 1
+  const goTo = (index: number) => setCurrentId(photos[index]?.localId ?? '')
+
   return (
     <div className={style.upload_page}>
       <PageHeader
         title={t('heading')}
+        subtitle={
+          step === 'edit' && photos.length > 1
+            ? t('stepOf', { current: currentIndex + 1, total: photos.length })
+            : undefined
+        }
         back={{ href: '/photos', label: t('back') }}
       />
-
-      <DropZone onFiles={(files) => void stageFiles(files)} />
 
       {rejected.length > 0 && (
         <div className={style.rejected}>
@@ -247,37 +306,78 @@ export default function PhotoUploadPage() {
         </div>
       )}
 
-      {photos.length > 0 && (
-        <div className={style.rows}>
-          {photos.map((photo) => (
-            <StagedPhotoRow
-              key={photo.localId}
-              photo={photo}
-              slugError={slugErrors[photo.localId]}
-              onChange={(next) => patch(photo.localId, next)}
-              onRemove={() => removePhoto(photo.localId)}
-              onRetry={() => retryOne(photo.localId)}
+      {!current ? (
+        <DropZone onFiles={(files) => void stageFiles(files)} />
+      ) : step === 'review' ? (
+        <UploadReview
+          photos={photos}
+          confirmableIds={confirmableIds}
+          slugErrors={slugErrors}
+          running={running}
+          allDone={allDone}
+          onEdit={(localId) => {
+            setCurrentId(localId)
+            setStep('edit')
+          }}
+          onBack={() => setStep('edit')}
+          onConfirm={handleConfirm}
+          onCancel={cancel}
+          onClearAll={clearAll}
+          onRetry={retryOne}
+        />
+      ) : (
+        <>
+          <StagedPhotoEditor
+            key={current.localId}
+            photo={current}
+            slugError={slugErrors[current.localId]}
+            editLocale={editLocale}
+            onEditLocaleChange={setEditLocale}
+            onChange={(next) => patch(current.localId, next)}
+            onRemove={() => removePhoto(current.localId)}
+            onRetry={() => retryOne(current.localId)}
+            applyCount={photos.slice(currentIndex + 1).filter((p) => !isLocked(p)).length}
+            onApplyLocation={() => applyLocationAfter(current.localId)}
+          />
+
+          <div className={style.footer}>
+            <Filmstrip
+              photos={photos}
+              currentId={current.localId}
+              problemIds={problemIds}
+              onSelect={setCurrentId}
+              onFiles={(files) => void stageFiles(files)}
             />
-          ))}
-        </div>
-      )}
-
-      <UploadSummaryBar
-        pendingCount={confirmableIds.length}
-        problemCount={problemCount}
-        running={running}
-        allDone={allDone}
-        onConfirm={handleConfirm}
-        onClearAll={clearAll}
-        onCancel={cancel}
-      />
-
-      {allDone && (
-        <div className={style.doneBar}>
-          <Link href="/photos" className={style.doneLink}>
-            {t('viewList')}
-          </Link>
-        </div>
+            <div className={style.footerActions}>
+              {photos.length > 1 && (
+                <Button
+                  variant="secondary"
+                  onClick={() => goTo(currentIndex - 1)}
+                  disabled={currentIndex === 0}
+                >
+                  <Icon name="arrow-left" size="xs" />
+                  {t('prev')}
+                </Button>
+              )}
+              {!isLast ? (
+                <Button onClick={() => goTo(currentIndex + 1)}>
+                  {t('next')}
+                  <Icon name="arrow-right" size="xs" />
+                </Button>
+              ) : photos.length === 1 && !running && !allDone ? (
+                <Button onClick={handleConfirm} disabled={confirmableIds.size === 0}>
+                  <Icon name="upload" size="xs" />
+                  {t('uploadCount', { count: 1 })}
+                </Button>
+              ) : (
+                <Button onClick={() => setStep('review')}>
+                  {t('review')}
+                  <Icon name="arrow-right" size="xs" />
+                </Button>
+              )}
+            </div>
+          </div>
+        </>
       )}
     </div>
   )

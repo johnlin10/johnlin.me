@@ -8,13 +8,15 @@ import style from './PhotoUpload.module.scss'
 
 interface DropZoneProps {
   onFiles: (files: File[]) => void
+  /** 縮圖列尾端的小方格版本：只有圖示，加入更多照片用。 */
+  compact?: boolean
 }
 
 /**
  * 拖放／選檔入口。accept 只寫 PHOTO_ACCEPT_ATTR 的白名單 —— 這是體驗層的
  * 第一道防線，真正擋住 HEIC／DNG 的是呼叫端用 isSupportedPhotoMime 篩選。
  */
-export default function DropZone({ onFiles }: DropZoneProps) {
+export default function DropZone({ onFiles, compact = false }: DropZoneProps) {
   const t = useTranslations('AdminPage.photos.upload')
   const [dragging, setDragging] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
@@ -26,7 +28,7 @@ export default function DropZone({ onFiles }: DropZoneProps) {
 
   return (
     <div
-      className={`${style.dropzone} ${dragging ? style.dragging : ''}`}
+      className={`${compact ? style.dropzoneCompact : style.dropzone} ${dragging ? style.dragging : ''}`}
       onDragOver={(e) => {
         e.preventDefault()
         setDragging(true)
@@ -40,6 +42,7 @@ export default function DropZone({ onFiles }: DropZoneProps) {
       onClick={() => inputRef.current?.click()}
       role="button"
       tabIndex={0}
+      aria-label={compact ? t('addMore') : undefined}
       onKeyDown={(e) => {
         if (e.key === 'Enter' || e.key === ' ') inputRef.current?.click()
       }}
@@ -55,9 +58,15 @@ export default function DropZone({ onFiles }: DropZoneProps) {
           e.target.value = ''
         }}
       />
-      <Icon name="upload" size="xl" className={style.dropzoneIcon} />
-      <p className={style.dropzoneTitle}>{t('dropTitle')}</p>
-      <p className={style.dropzoneHint}>{t('dropHint')}</p>
+      {compact ? (
+        <Icon name="plus" className={style.dropzoneIcon} />
+      ) : (
+        <>
+          <Icon name="upload" size="xl" className={style.dropzoneIcon} />
+          <p className={style.dropzoneTitle}>{t('dropTitle')}</p>
+          <p className={style.dropzoneHint}>{t('dropHint')}</p>
+        </>
+      )}
     </div>
   )
 }
