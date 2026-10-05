@@ -180,7 +180,6 @@ $photo-shadow:
   font-size: var(--text-2xl);
   font-weight: 200;
   cursor: pointer;
-  backdrop-filter: blur(10px);
   transition:
     color var(--duration) var(--ease),
     border-color var(--duration) var(--ease);
@@ -191,7 +190,9 @@ $photo-shadow:
   }
 }
 
+// 牆內不放 backdrop-filter 或 transform／opacity 動畫：Safari 會因此把整面牆升成合成圖層，縮放後文字和照片都糊掉
 .prefaceCtaArrow {
+  position: relative;
   display: inline-block;
   animation: prefaceCtaNudge 1.6s ease-in-out infinite;
 }
@@ -199,10 +200,10 @@ $photo-shadow:
 @keyframes prefaceCtaNudge {
   0%,
   100% {
-    transform: translateX(0);
+    left: 0;
   }
   50% {
-    transform: translateX(4px);
+    left: 4px;
   }
 }
 

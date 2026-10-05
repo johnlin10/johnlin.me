@@ -114,6 +114,7 @@ Every public page is served from the Vercel cache, and a broken cache fails sile
 
 - MapLibre stays on v5: v6's worker fails to load once Next bundles it.
 - The photo wall gets no `will-change: transform`. Headless traces show a big win, but on real GPUs the wall blurs when zoomed. Confirm any compositing change on a real device.
+- Nothing inside the photo wall's scaled layer gets `backdrop-filter` or a `transform` / `opacity` animation. Safari (macOS, iPhone, iPad) then composites the whole wall and blurs text and photos when zoomed; animate `left` / `top` instead.
 - `photoDerivatives.ts` imports sharp; keep it out of client code.
 
 ## Writing code
