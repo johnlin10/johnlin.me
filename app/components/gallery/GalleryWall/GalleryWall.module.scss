@@ -105,9 +105,10 @@ $photo-shadow:
 // 聚焦照片的完整資訊卡（與照片同平面、隨牆縮放）。高度由內容決定、由 JS 量測。
 // 給不透明底與高 z-index：焦點框把卡片展開進欄間隙時，會蓋到同欄下一張照片，
 // 底色讓文字落在乾淨表面、不疊在照片上，z-index 確保卡片在鄰片之上。
+// 比聚焦照片（10）低一層，照片的陰影才會投在卡片上，不會只剩兩側露出來。
 .focusCard {
   position: absolute;
-  z-index: 10;
+  z-index: 9;
   padding-top: var(--space-3);
   padding-bottom: var(--space-3);
   background: var(--surface);
@@ -242,7 +243,7 @@ $photo-shadow:
   justify-content: center;
   border: none;
   border-radius: var(--radius-pill);
-  background: color-mix(in oklch, var(--surface) 70%, transparent);
+  background: color-mix(in srgb, var(--surface) 70%, transparent);
   color: var(--text);
   font-size: var(--text-lg);
   cursor: pointer;
@@ -264,7 +265,7 @@ $photo-shadow:
   // 同 .modeToggle 的膠囊外觀：聚焦時模式切換收起，導覽列接手同一個位置
   border: 1px solid var(--border-strong);
   border-radius: var(--radius-pill);
-  background: color-mix(in oklch, var(--surface-2) 85%, transparent);
+  background: color-mix(in srgb, var(--surface-2) 85%, transparent);
   box-shadow: var(--shadow-sm);
   backdrop-filter: blur(8px);
   pointer-events: auto;
@@ -313,7 +314,7 @@ $photo-shadow:
   transform: translateX(-50%);
   padding: var(--space-1) var(--space-3);
   border-radius: var(--radius-pill);
-  background: color-mix(in oklch, var(--surface) 70%, transparent);
+  background: color-mix(in srgb, var(--surface) 70%, transparent);
   color: var(--text-muted);
   font-size: var(--text-xs);
   backdrop-filter: blur(8px);
@@ -354,7 +355,7 @@ $photo-shadow:
   padding: var(--space-3) var(--space-5);
   border: 1px solid var(--border-strong);
   border-radius: var(--radius-pill);
-  background: color-mix(in oklch, var(--surface-2) 90%, transparent);
+  background: color-mix(in srgb, var(--surface-2) 90%, transparent);
   color: var(--text-secondary);
   font-family: var(--font-sans);
   font-size: var(--text-sm);
@@ -388,7 +389,7 @@ $photo-shadow:
   padding: 3px;
   border: 1px solid var(--border-strong);
   border-radius: var(--radius-pill);
-  background: color-mix(in oklch, var(--surface-2) 85%, transparent);
+  background: color-mix(in srgb, var(--surface-2) 85%, transparent);
   box-shadow: var(--shadow-sm);
   backdrop-filter: blur(8px);
 }

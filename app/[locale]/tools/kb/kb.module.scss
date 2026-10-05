@@ -109,7 +109,7 @@
 
   // 畫面寬的時候，靠底色才看得出右邊的按鈕屬於哪一列
   &:hover {
-    background: color-mix(in oklch, var(--text) 6%, transparent);
+    background: color-mix(in srgb, var(--text) 6%, transparent);
   }
 
   // 手機放不下固定寬的資訊欄：改成跟著內容寬，筆記的更新日期不顯示

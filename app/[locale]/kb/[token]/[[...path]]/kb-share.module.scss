@@ -225,7 +225,7 @@
 
   // 用半透明混色：桌機側欄在頁面底色上、抽屜在 surface-raised 上，兩種底都要分得出來
   &:hover {
-    background: color-mix(in oklch, var(--text) 6%, transparent);
+    background: color-mix(in srgb, var(--text) 6%, transparent);
   }
 
   // 目前這篇只換字色，不加底色，側欄才不會搶走內文的注意

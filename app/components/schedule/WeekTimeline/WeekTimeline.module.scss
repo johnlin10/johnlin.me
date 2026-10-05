@@ -84,7 +84,7 @@
 }
 
 .column.off {
-  background: color-mix(in oklch, var(--text-muted) 8%, transparent);
+  background: color-mix(in srgb, var(--text-muted) 8%, transparent);
 }
 
 .axis {
@@ -197,7 +197,7 @@ button.cell {
   padding-left: var(--space-1);
   color: var(--text-secondary);
   // --shade 是 0–1 的深淺，沒給就是一個人的預設深度（24%）
-  background: color-mix(in oklch, var(--text-muted) calc(36% * var(--shade, 0.667)), transparent);
+  background: color-mix(in srgb, var(--text-muted) calc(36% * var(--shade, 0.667)), transparent);
   border: 0;
   border-radius: 0;
 
