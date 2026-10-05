@@ -100,7 +100,7 @@ export default async function PhotographyGlimpse({
                         }
                       />
                     </Link>
-                    <PhotoMeta photo={photo} locale={loc} showExif={false} />
+                    <PhotoMeta photo={photo} locale={loc} showExif={false} showMap={false} />
                   </figure>
                 </ScatterCard>
               )

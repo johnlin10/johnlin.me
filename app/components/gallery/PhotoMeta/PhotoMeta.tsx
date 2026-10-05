@@ -9,6 +9,7 @@ import {
   photoCaption,
   photoLocationName,
 } from '@/app/lib/photos/format'
+import PhotoMap from './PhotoMap'
 import styles from './PhotoMeta.module.scss'
 
 interface PhotoMetaProps {
@@ -25,6 +26,8 @@ interface PhotoMetaProps {
   compact?: boolean
   /** 相機參數。首頁一瞥只給辨識用的最小資訊，其餘留給單張頁。 */
   showExif?: boolean
+  /** 有公開座標時，地點變成可打開地圖的按鈕。 */
+  showMap?: boolean
   className?: string
 }
 
@@ -41,6 +44,7 @@ export default function PhotoMeta({
   heading = false,
   compact = false,
   showExif = true,
+  showMap = true,
   className,
 }: PhotoMetaProps) {
   const t = useTranslations('GalleryPage')
@@ -53,6 +57,7 @@ export default function PhotoMeta({
     locale
   )
   const exifItems = formatExifItems(photo.exif)
+  const coords = showMap ? photo.location : undefined
 
   const Tag = as
   const titleText = caption || location || date
@@ -77,10 +82,12 @@ export default function PhotoMeta({
           </dd>
         </div>
 
-        {location && (
+        {(location || coords) && (
           <div className={styles.field}>
             <dt className={styles.srOnly}>{t('meta.location')}</dt>
-            <dd>{location}</dd>
+            <dd>
+              {coords ? <PhotoMap location={coords} label={location} /> : location}
+            </dd>
           </div>
         )}
       </dl>

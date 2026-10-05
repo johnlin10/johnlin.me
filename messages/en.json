@@ -1405,6 +1405,11 @@
       "aperture": "Aperture",
       "shutter": "Shutter",
       "iso": "ISO"
+    },
+    "map": {
+      "open": "View on map",
+      "close": "Close map",
+      "note": "Location is accurate to about 100 m. The photo was taken somewhere inside the circle."
     }
   },
   "NotesPage": {
