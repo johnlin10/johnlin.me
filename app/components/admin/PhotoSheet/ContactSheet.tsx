@@ -63,13 +63,37 @@ export default function ContactSheet({
     thumbRefs.current.get(selectedId)?.focus()
   }, [selectedId])
 
+  // 掛載後第一次排好版時，把選到的那張捲進畫面：從單張檢視回來時，
+  // 單張裡可能已經往後翻了好幾張。要等量到寬度、縮圖真的排出來才捲得準。
+  // 初次載入選的是第一張，本來就在最上面，捲了也不會動。
+  const revealedRef = useRef(false)
+  useEffect(() => {
+    if (revealedRef.current || !selectedId || width === 0) return
+    revealedRef.current = true
+    thumbRefs.current.get(selectedId)?.scrollIntoView({ block: 'center' })
+  }, [selectedId, width])
+
   const rowsByYear = useMemo(
     () =>
       groups.map((group) => ({
         year: group.year,
+        // 最後一列張數不夠時，computeJustifiedRows 會等比放大到撐滿整列
+        // （前台要這樣），印象表則縮回一般列高、靠左排，不然一張直幅會
+        // 被放到快一個螢幕高。
         rows:
           width > 0
-            ? computeJustifiedRows(group.photos, width, ROW_HEIGHT, GAP, MIN_HEIGHT)
+            ? computeJustifiedRows(group.photos, width, ROW_HEIGHT, GAP, MIN_HEIGHT).map(
+                (row) =>
+                  row.height <= ROW_HEIGHT
+                    ? row
+                    : {
+                        height: ROW_HEIGHT,
+                        items: row.items.map((item) => ({
+                          ...item,
+                          width: (item.width * ROW_HEIGHT) / row.height,
+                        })),
+                      }
+              )
             : [],
       })),
     [groups, width]

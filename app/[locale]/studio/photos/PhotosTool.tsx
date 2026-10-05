@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useLocale, useTranslations } from 'next-intl'
 import { useRouter } from '@/i18n/navigation'
 import { createClient } from '@/app/lib/supabase/client'
@@ -17,29 +17,28 @@ import {
   PHOTO_FILTER_KEYS,
   type PhotoFilterKey,
 } from '@/app/lib/photos/adminFilters'
-import { useIsDesktop } from '@/app/lib/hooks/useIsDesktop'
 import type { Photo, PhotoStatus } from '@/app/types/photo'
 import type { SupportedLocale } from '@/app/types/blog'
 import Button from '@/app/components/admin/Button/Button'
 import PageHeader from '@/app/components/admin/PageHeader/PageHeader'
-import Modal from '@/app/components/admin/Modal/Modal'
 import { useToast } from '@/app/components/admin/Toast/ToastProvider'
 import { useConfirm } from '@/app/components/admin/ConfirmDialog/ConfirmDialog'
-import { photoCaption } from '@/app/lib/photos/format'
 import ContactSheet from '@/app/components/admin/PhotoSheet/ContactSheet'
 import FilterChips from '@/app/components/admin/PhotoSheet/FilterChips'
 import PhotoInspector from '@/app/components/admin/PhotoSheet/PhotoInspector'
+import Filmstrip from '@/app/components/admin/PhotoEditLayout/Filmstrip'
 import BulkActionBar from '@/app/components/admin/PhotoSheet/BulkActionBar'
 import OrphanReport from '@/app/components/admin/PhotoSheet/OrphanReport'
 import { usePhotoSelection } from '@/app/components/admin/PhotoSheet/usePhotoSelection'
 import style from './photos.module.scss'
 
 /**
- * 攝影管理：印象表（唯讀）＋ 檢閱欄。
+ * 攝影管理：全寬的印象表 ＋ 單張檢視。
  *
- * 桌機雙欄，檢閱欄固定在右側；平板／手機沒有側欄空間，點縮圖改用 Modal
- * 開檢閱欄。表格視圖留給之後的批次操作用（見規劃 Phase 7），這裡先专注在
- * 「一眼看出哪些還沒弄完」——所以主要互動是篩選 chips，不是排序或搜尋。
+ * 印象表負責瀏覽、篩選和批次操作；點一張就進單張檢視（網址帶 ?photo=slug，
+ * 重整或按上一頁都回得來），底部縮圖列只放目前篩出來的照片，篩選完就是
+ * 一份待辦清單。主要互動是篩選 chips，不是排序或搜尋——日常要找的是
+ * 「哪些還沒弄完」。
  */
 export default function PhotosTool({ initial }: { initial: Photo[] | null }) {
   const t = useTranslations('AdminPage.photos')
@@ -48,7 +47,6 @@ export default function PhotosTool({ initial }: { initial: Photo[] | null }) {
   const toast = useToast()
   const confirm = useConfirm()
   const router = useRouter()
-  const isDesktop = useIsDesktop()
 
   const [photos, setPhotos] = useState<Photo[]>(initial ?? [])
   // 篩選條件放在網址上，重整後不會被打回未篩選。不認得的 key 直接丟掉
@@ -65,7 +63,17 @@ export default function PhotosTool({ initial }: { initial: Photo[] | null }) {
   // 而產生兩種網址。
   const setActiveFilters = (next: ReadonlySet<PhotoFilterKey>) =>
     setFilterParam(PHOTO_FILTER_KEYS.filter((key) => next.has(key)).join(','))
-  const [mobileModalOpen, setMobileModalOpen] = useState(false)
+  const [photoParam, setPhotoParam] = useSearchParamState('photo')
+  // 單張檢視以 id 為準，網址的 slug 只負責重整／上一頁：改 slug 自動存檔
+  // 的那一瞬間，photos 已經是新 slug、網址還是舊的，拿 slug 當事實來源
+  // 會讓單張檢視以為照片不見了而關掉。
+  const [focusId, setFocusId] = useState<string | null>(
+    () => (initial ?? []).find((p) => p.slug === photoParam)?.id ?? null,
+  )
+  // 這次打開單張時有沒有推一筆歷程；有的話「返回」走 history.back()，
+  // 不然歷程裡會多一筆重複的印象表。
+  const pushedRef = useRef(false)
+  const [editLocale, setEditLocale] = useState<SupportedLocale>('zh-tw')
   const [bulkBusy, setBulkBusy] = useState(false)
   const [orphansOpen, setOrphansOpen] = useState(false)
 
@@ -100,13 +108,11 @@ export default function PhotosTool({ initial }: { initial: Photo[] | null }) {
   const {
     selectedId,
     select,
-    moveBy,
     checkedIds,
     toggleChecked,
     clearChecked,
     handleKeyDown,
   } = usePhotoSelection(filtered)
-  const selectedPhoto = filtered.find((p) => p.id === selectedId) ?? null
 
   const toggleFilter = (key: PhotoFilterKey) => {
     const next = new Set(activeFilters)
@@ -115,20 +121,97 @@ export default function PhotosTool({ initial }: { initial: Photo[] | null }) {
     setActiveFilters(next)
   }
 
-  const handleSelect = (id: string) => {
+  // 上一頁／下一頁換了網址：跟著開關單張。找不到這個 slug 就不動——
+  // 可能是剛改完 slug、網址還沒跟上。
+  useEffect(() => {
+    if (!photoParam) {
+      setFocusId(null)
+      return
+    }
+    const match = photos.find((p) => p.slug === photoParam)
+    if (match) setFocusId(match.id)
+  }, [photoParam, photos])
+
+  const focusPhoto = photos.find((p) => p.id === focusId) ?? null
+
+  // 單張的縮圖列 = 目前篩出來的照片。正在看的這張就算剛補完、已經不符合
+  // 篩選條件也要留著，不然補完英文說明的當下它就從清單裡消失了；換到下一張
+  // 之後它才會退出清單。
+  const queue = useMemo(() => {
+    if (!focusPhoto) return []
+    const visible = new Set(filtered.map((p) => p.id))
+    return sorted.filter((p) => visible.has(p.id) || p.id === focusPhoto.id)
+  }, [focusPhoto, filtered, sorted])
+  const focusIndex = queue.findIndex((p) => p.id === focusId)
+
+  const openFocus = (id: string) => {
+    const photo = photos.find((p) => p.id === id)
+    if (!photo) return
     select(id)
-    if (!isDesktop) setMobileModalOpen(true)
+    setFocusId(id)
+    pushedRef.current = true
+    setPhotoParam(photo.slug, { push: true })
+    window.scrollTo(0, 0)
   }
 
-  // 檢閱欄自己存進 DB 之後回報上來，讓縮圖角標／篩選計數／年份分組立刻反映
+  const moveFocus = (id: string) => {
+    const photo = photos.find((p) => p.id === id)
+    if (!photo) return
+    select(id)
+    setFocusId(id)
+    setPhotoParam(photo.slug)
+  }
+
+  const closeFocus = () => {
+    if (pushedRef.current) {
+      pushedRef.current = false
+      window.history.back()
+      return
+    }
+    setFocusId(null)
+    setPhotoParam(null)
+  }
+
+  // 單張的鍵盤：Esc 回印象表、←／→ 換張。焦點在輸入框、下拉選單或對話框
+  // 裡時不攔，不然打字移游標或關選單都會跳照片。
+  useEffect(() => {
+    if (!focusId) return
+    const handler = (e: KeyboardEvent) => {
+      if (e.defaultPrevented) return
+      const target = e.target
+      if (
+        target instanceof HTMLElement &&
+        (target.tagName === 'INPUT' ||
+          target.tagName === 'TEXTAREA' ||
+          target.tagName === 'SELECT' ||
+          target.isContentEditable ||
+          target.closest('[role="listbox"], [role="dialog"]'))
+      ) {
+        return
+      }
+      if (e.key === 'Escape') closeFocus()
+      else if (e.key === 'ArrowLeft' && queue[focusIndex - 1]) moveFocus(queue[focusIndex - 1].id)
+      else if (e.key === 'ArrowRight' && queue[focusIndex + 1]) moveFocus(queue[focusIndex + 1].id)
+    }
+    window.addEventListener('keydown', handler)
+    return () => window.removeEventListener('keydown', handler)
+  })
+
+  // 單張自己存進 DB 之後回報上來，讓縮圖角標／篩選計數／年份分組立刻反映
   // 最新內容，不必整頁重新 load()。
   const handlePatched = (id: string, patch: Partial<Photo>) => {
     setPhotos((prev) => prev.map((p) => (p.id === id ? { ...p, ...patch } : p)))
+    if (id === focusId && patch.slug) setPhotoParam(patch.slug)
   }
 
+  // 刪掉正在看的那張：換到清單裡的下一張，沒有了才回印象表。
   const handleDeleted = (id: string) => {
+    const index = queue.findIndex((p) => p.id === id)
+    const neighbor = queue[index + 1] ?? queue[index - 1]
     setPhotos((prev) => prev.filter((p) => p.id !== id))
-    setMobileModalOpen(false)
+    if (id !== focusId) return
+    if (neighbor) moveFocus(neighbor.id)
+    else closeFocus()
   }
 
   const bulkStatus = async (next: PhotoStatus) => {
@@ -188,6 +271,41 @@ export default function PhotosTool({ initial }: { initial: Photo[] | null }) {
     }
   }
 
+  if (focusPhoto) {
+    return (
+      <div className={style.photos_page}>
+        {/* key：換照片整顆重掛載，見 PhotoInspector 檔案頂端註解。 */}
+        <PhotoInspector
+          key={focusPhoto.id}
+          photo={focusPhoto}
+          editLocale={editLocale}
+          onEditLocaleChange={setEditLocale}
+          onPatched={handlePatched}
+          onDeleted={handleDeleted}
+          back={{ onClick: closeFocus, label: t('upload.back') }}
+          subtitle={t('upload.stepOf', { current: focusIndex + 1, total: queue.length })}
+          filmstrip={
+            <Filmstrip
+              items={queue.map((p, i) => ({
+                id: p.id,
+                src: p.derivatives[0]?.url ?? '',
+                label: t('upload.stepOf', { current: i + 1, total: queue.length }),
+              }))}
+              currentId={focusPhoto.id}
+              onSelect={moveFocus}
+            />
+          }
+          onPrev={focusIndex > 0 ? () => moveFocus(queue[focusIndex - 1].id) : undefined}
+          onNext={
+            focusIndex < queue.length - 1
+              ? () => moveFocus(queue[focusIndex + 1].id)
+              : undefined
+          }
+        />
+      </div>
+    )
+  }
+
   return (
     <div className={style.photos_page}>
       <div className={style.container}>
@@ -205,7 +323,6 @@ export default function PhotosTool({ initial }: { initial: Photo[] | null }) {
               {t('upload.cta')}
             </Button>
           }
-          subbarClassName={style.subbar}
           subbar={
             photos.length > 0 ? (
               <FilterChips
@@ -239,57 +356,17 @@ export default function PhotosTool({ initial }: { initial: Photo[] | null }) {
             <p>{t('empty')}</p>
           </div>
         ) : (
-          <div className={style.layout}>
-            <div className={style.sheetPane}>
-              <ContactSheet
-                groups={groups}
-                locale={locale}
-                selectedId={selectedId}
-                checkedIds={checkedIds}
-                onSelect={handleSelect}
-                onToggleChecked={toggleChecked}
-                onKeyDown={handleKeyDown}
-              />
-            </div>
-
-            {isDesktop && selectedPhoto && (
-              <aside className={style.inspectorPane}>
-                {/* key：換照片整顆重掛載，見 PhotoInspector 檔案頂端註解。 */}
-                <PhotoInspector
-                  key={selectedPhoto.id}
-                  photo={selectedPhoto}
-                  locale={locale}
-                  onPrev={() => moveBy(-1)}
-                  onNext={() => moveBy(1)}
-                  onPatched={handlePatched}
-                  onDeleted={handleDeleted}
-                />
-              </aside>
-            )}
-          </div>
+          <ContactSheet
+            groups={groups}
+            locale={locale}
+            selectedId={selectedId}
+            checkedIds={checkedIds}
+            onSelect={openFocus}
+            onToggleChecked={toggleChecked}
+            onKeyDown={handleKeyDown}
+          />
         )}
       </div>
-
-      {!isDesktop && selectedPhoto && (
-        <Modal
-          isOpen={mobileModalOpen}
-          onClose={() => setMobileModalOpen(false)}
-          title={photoCaption(selectedPhoto, locale) ?? selectedPhoto.slug}
-          size="large"
-          // PhotoInspector 自帶內距，Modal 不要再疊一層
-          bodyPadding={false}
-        >
-          <PhotoInspector
-            key={selectedPhoto.id}
-            photo={selectedPhoto}
-            locale={locale}
-            onPrev={() => moveBy(-1)}
-            onNext={() => moveBy(1)}
-            onPatched={handlePatched}
-            onDeleted={handleDeleted}
-          />
-        </Modal>
-      )}
 
       <OrphanReport
         isOpen={orphansOpen}

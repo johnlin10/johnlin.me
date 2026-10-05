@@ -22,7 +22,7 @@ import type { SupportedLocale } from '@/app/types/blog'
 import Button from '@/app/components/admin/Button/Button'
 import Icon from '@/app/components/Icon/Icon'
 import DropZone from '@/app/components/admin/PhotoUpload/DropZone'
-import Filmstrip from '@/app/components/admin/PhotoUpload/Filmstrip'
+import Filmstrip from '@/app/components/admin/PhotoEditLayout/Filmstrip'
 import StagedPhotoEditor from '@/app/components/admin/PhotoUpload/StagedPhotoEditor'
 import UploadReview from '@/app/components/admin/PhotoUpload/UploadReview'
 import { useUploadQueue } from '@/app/components/admin/PhotoUpload/useUploadQueue'
@@ -277,7 +277,6 @@ export default function PhotoUploadPage() {
     photos.findIndex((p) => p.localId === currentId)
   )
   const current = photos[currentIndex]
-  const isLast = currentIndex === photos.length - 1
   const goTo = (index: number) => setCurrentId(photos[index]?.localId ?? '')
 
   return (
@@ -290,6 +289,23 @@ export default function PhotoUploadPage() {
             : undefined
         }
         back={{ href: '/photos', label: t('back') }}
+        // 主要操作放右上角，跟照片頁的「發布」同一個位置：只有一張時直接
+        // 上傳，多張時隨時可以去檢查清單。
+        action={
+          current && step === 'edit' ? (
+            photos.length === 1 && !running && !allDone ? (
+              <Button onClick={handleConfirm} disabled={confirmableIds.size === 0}>
+                <Icon name="upload" size="xs" />
+                {t('uploadCount', { count: 1 })}
+              </Button>
+            ) : (
+              <Button onClick={() => setStep('review')}>
+                {t('review')}
+                <Icon name="arrow-right" size="xs" />
+              </Button>
+            )
+          ) : undefined
+        }
       />
 
       {rejected.length > 0 && (
@@ -326,58 +342,39 @@ export default function PhotoUploadPage() {
           onRetry={retryOne}
         />
       ) : (
-        <>
-          <StagedPhotoEditor
-            key={current.localId}
-            photo={current}
-            slugError={slugErrors[current.localId]}
-            editLocale={editLocale}
-            onEditLocaleChange={setEditLocale}
-            onChange={(next) => patch(current.localId, next)}
-            onRemove={() => removePhoto(current.localId)}
-            onRetry={() => retryOne(current.localId)}
-            applyCount={photos.slice(currentIndex + 1).filter((p) => !isLocked(p)).length}
-            onApplyLocation={() => applyLocationAfter(current.localId)}
-          />
-
-          <div className={style.footer}>
+        <StagedPhotoEditor
+          key={current.localId}
+          photo={current}
+          slugError={slugErrors[current.localId]}
+          editLocale={editLocale}
+          onEditLocaleChange={setEditLocale}
+          onChange={(next) => patch(current.localId, next)}
+          onRemove={() => removePhoto(current.localId)}
+          onRetry={() => retryOne(current.localId)}
+          applyCount={photos.slice(currentIndex + 1).filter((p) => !isLocked(p)).length}
+          onApplyLocation={() => applyLocationAfter(current.localId)}
+          filmstrip={
             <Filmstrip
-              photos={photos}
+              items={photos.map((p, i) => ({
+                id: p.localId,
+                src: p.previewUrl,
+                label: t('stepOf', { current: i + 1, total: photos.length }),
+                mark:
+                  p.status === 'done'
+                    ? 'done'
+                    : problemIds.has(p.localId)
+                      ? 'warn'
+                      : undefined,
+              }))}
               currentId={current.localId}
-              problemIds={problemIds}
               onSelect={setCurrentId}
-              onFiles={(files) => void stageFiles(files)}
-            />
-            <div className={style.footerActions}>
-              {photos.length > 1 && (
-                <Button
-                  variant="secondary"
-                  onClick={() => goTo(currentIndex - 1)}
-                  disabled={currentIndex === 0}
-                >
-                  <Icon name="arrow-left" size="xs" />
-                  {t('prev')}
-                </Button>
-              )}
-              {!isLast ? (
-                <Button onClick={() => goTo(currentIndex + 1)}>
-                  {t('next')}
-                  <Icon name="arrow-right" size="xs" />
-                </Button>
-              ) : photos.length === 1 && !running && !allDone ? (
-                <Button onClick={handleConfirm} disabled={confirmableIds.size === 0}>
-                  <Icon name="upload" size="xs" />
-                  {t('uploadCount', { count: 1 })}
-                </Button>
-              ) : (
-                <Button onClick={() => setStep('review')}>
-                  {t('review')}
-                  <Icon name="arrow-right" size="xs" />
-                </Button>
-              )}
-            </div>
-          </div>
-        </>
+            >
+              <DropZone onFiles={(files) => void stageFiles(files)} compact />
+            </Filmstrip>
+          }
+          onPrev={currentIndex > 0 ? () => goTo(currentIndex - 1) : undefined}
+          onNext={currentIndex < photos.length - 1 ? () => goTo(currentIndex + 1) : undefined}
+        />
       )}
     </div>
   )

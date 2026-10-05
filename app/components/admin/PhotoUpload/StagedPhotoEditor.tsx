@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, type ReactNode } from 'react'
 import { useTranslations } from 'next-intl'
 import type { Photo, PhotoTakenAtPrecision } from '@/app/types/photo'
 import type { SupportedLocale } from '@/app/types/blog'
@@ -11,6 +11,7 @@ import Input from '@/app/components/admin/Input/Input'
 import Button from '@/app/components/admin/Button/Button'
 import DropdownSelect from '@/app/components/admin/Selector/DropdownSelect'
 import LocaleToggle from '@/app/components/admin/LocaleToggle/LocaleToggle'
+import PhotoEditLayout from '@/app/components/admin/PhotoEditLayout/PhotoEditLayout'
 import Icon from '@/app/components/Icon/Icon'
 import type { StagedPhoto } from './stagedPhoto'
 import style from './PhotoUpload.module.scss'
@@ -26,6 +27,9 @@ interface StagedPhotoEditorProps {
   /** 後面還能被套用地名的張數；0 就不顯示「套用到後面」。 */
   applyCount: number
   onApplyLocation: () => void
+  filmstrip: ReactNode
+  onPrev?: () => void
+  onNext?: () => void
 }
 
 function formatBytes(bytes: number): string {
@@ -73,6 +77,9 @@ export default function StagedPhotoEditor({
   onRetry,
   applyCount,
   onApplyLocation,
+  filmstrip,
+  onPrev,
+  onNext,
 }: StagedPhotoEditorProps) {
   const t = useTranslations('AdminPage.photos.upload')
   const tFields = useTranslations('AdminPage.photos.fields')
@@ -95,23 +102,23 @@ export default function StagedPhotoEditor({
   ]
 
   return (
-    <div className={style.editor}>
-      <div className={style.stage}>
-        <div className={style.print}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={photo.previewUrl} alt="" />
-          {photo.isHdr && <span className={style.hdrBadge}>{tFields('hdr')}</span>}
-        </div>
-        {photo.status !== 'reading' && photo.status !== 'invalid' && (
-          <PhotoMeta
-            photo={toPreviewPhoto(photo)}
-            locale={editLocale}
-            as="div"
-          />
-        )}
-      </div>
-
-      <div className={style.panel}>
+    <PhotoEditLayout
+      // 上傳頁顯示的就是原始檔案，HDR 本來就在，不必再疊一層。
+      src={photo.previewUrl}
+      width={photo.width}
+      height={photo.height}
+      isHdr={photo.isHdr}
+      meta={
+        photo.status !== 'reading' &&
+        photo.status !== 'invalid' && (
+          <PhotoMeta photo={toPreviewPhoto(photo)} locale={editLocale} as="div" />
+        )
+      }
+      filmstrip={filmstrip}
+      onPrev={onPrev}
+      onNext={onNext}
+      panel={
+        <>
         {photo.status === 'reading' && (
           <p className={style.statusText}>{t('reading')}</p>
         )}
@@ -236,7 +243,7 @@ export default function StagedPhotoEditor({
             ) : (
               <dl className={style.facts}>
                 <div className={style.factRow}>
-                  <dt>{t('url')}</dt>
+                  <dt>{tFields('url')}</dt>
                   <dd>
                     <span className={style.slugText}>/photography/{photo.slug}</span>
                     {!locked && photo.slug && (
@@ -245,7 +252,7 @@ export default function StagedPhotoEditor({
                         className={style.textAction}
                         onClick={() => setEditingSlug(true)}
                       >
-                        {t('editSlug')}
+                        {tFields('editSlug')}
                       </button>
                     )}
                   </dd>
@@ -280,7 +287,8 @@ export default function StagedPhotoEditor({
               </Button>
             </div>
           )}
-      </div>
-    </div>
+        </>
+      }
+    />
   )
 }

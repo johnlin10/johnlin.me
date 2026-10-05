@@ -1,0 +1,357 @@
+@use '@/app/styles/design' as *;
+
+// AdminShell .page 底部內距的同一條算式，抵銷用。
+$shell-bottom: clamp(var(--space-6), 4vw, var(--space-12));
+
+// 平板以下（含直向平板）上下疊、整頁捲：右欄固定寬度時，左邊照片區窄到
+// 照片只剩三百多 px 寬。
+@mixin stacked {
+  @include respond-by-max-width($bp-lg) {
+    @content;
+  }
+}
+
+//* ==================== 版面 ====================
+
+// 電腦：剛好一個視窗高，整頁不捲——照片吃掉剩下的空間，右欄太長就
+// 自己捲，縮圖列永遠在底部。聚焦頁不需要 AdminShell 那套隨視窗寬度伸縮的
+// 頁面內距，用負邊距抵掉，換成固定的 --pad。
+//
+// 平板以下：整頁捲動。小螢幕上再切出內層捲動框，欄位只剩兩格看得到，iOS 的
+// 工具列與鍵盤還會再吃掉高度（後台本來就刻意走文件捲動）。照片貼齊寬度、
+// 欄位往下排，縮圖列與上一張／下一張黏在底部。
+.layout {
+  --pad: var(--space-6);
+
+  @include flexbox(column, flex-start, stretch);
+  gap: var(--space-4);
+  box-sizing: border-box;
+  height: calc(100dvh - var(--admin-header-height));
+  // 視窗矮到放不下時寧可讓頁面捲，也不要把照片擠到看不見。
+  min-height: 560px;
+  margin: 0 calc(-1 * var(--page-gutter)) calc(-1 * #{$shell-bottom});
+  padding: var(--pad);
+
+  // 只有排在最上面時才吃掉頂部內距；上傳頁有「無法使用的檔案」提示排在
+  // 前面時，不能往上蓋過它。
+  &:first-child {
+    margin-top: calc(-1 * var(--page-top-gap));
+  }
+
+  @include stacked {
+    height: auto;
+    min-height: 0;
+    margin: 0;
+    padding: 0;
+    gap: var(--space-5);
+
+    &:first-child {
+      margin-top: 0;
+    }
+  }
+}
+
+.editor {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  gap: var(--pad);
+
+  @include stacked {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+  }
+}
+
+.stage {
+  @include flexbox(column, center, center);
+  gap: var(--space-5);
+  min-width: 0;
+  min-height: 0;
+  padding: var(--space-8);
+  border-radius: var(--radius-lg);
+  background: var(--surface-2);
+
+  @include stacked {
+    align-items: stretch;
+    gap: var(--space-4);
+    padding: 0;
+    border-radius: 0;
+    background: none;
+  }
+}
+
+.meta {
+  flex-shrink: 0;
+}
+
+// 照片能用的空間，設成 container，下面的圖片才能用 cqw／cqh 直接拿這塊的
+// 寬高當上限——百分比的 max-height 在高度由內容決定的相框裡會失效，
+// container query 單位不會。電腦是 size container；平板以下高度由照片
+// 決定，只能當 inline-size container（size 會塌成 0）。
+.printArea {
+  flex: 1;
+  min-height: 0;
+  align-self: stretch;
+  @include flexbox(row, center, center);
+  container-type: size;
+
+  @include stacked {
+    flex: none;
+    container-type: inline-size;
+  }
+}
+
+// 沖印白邊：相框縮到跟圖片一樣大，四邊才會等寬。
+.print {
+  --mat: 14px;
+  // 平板以下照片的高度上限（電腦由照片區的高度決定）。
+  --max-h: 62svh;
+
+  position: relative;
+  display: inline-flex;
+  max-width: 100%;
+  padding: var(--mat);
+  box-sizing: border-box;
+  // 紙本的白不隨深色模式變暗，刻意不用語意 token。
+  background: #fff;
+  box-shadow: var(--shadow-md);
+
+  img {
+    display: block;
+    max-width: calc(100cqw - var(--mat) * 2);
+    max-height: calc(100cqh - var(--mat) * 2);
+    width: auto;
+    height: auto;
+  }
+
+  @include stacked {
+    img {
+      max-height: var(--max-h);
+    }
+  }
+
+  // 手機上直幅照片撐滿寬度會比半個螢幕還高，欄位被推到第二屏；
+  // 壓在半個螢幕內，寬度跟著讓。
+  @include respond-to('phone') {
+    --mat: 8px;
+    --max-h: 50svh;
+  }
+}
+
+// 知道寬高比時直接算出顯示寬度：圖還沒載好也有正確大小，底下的模糊圖
+// 才墊得出來，換照片時不會先塌成一條白邊再彈開。
+.sized > img:first-child {
+  width: min(
+    calc(100cqw - var(--mat) * 2),
+    calc((100cqh - var(--mat) * 2) * var(--ratio))
+  );
+  height: auto;
+  aspect-ratio: var(--ratio);
+
+  @include stacked {
+    width: min(calc(100cqw - var(--mat) * 2), calc(var(--max-h) * var(--ratio)));
+  }
+}
+
+// 疊在 SDR 衍生檔上的 HDR 原檔，載入後淡入。選擇器要比上面的
+// `.print img` 具體，不然尺寸上限會蓋過這裡的 none。
+.print > .original {
+  position: absolute;
+  inset: var(--mat);
+  width: calc(100% - var(--mat) * 2);
+  height: calc(100% - var(--mat) * 2);
+  max-width: none;
+  max-height: none;
+  object-fit: cover;
+  transition: opacity var(--duration-slow) var(--ease);
+}
+
+.hdrBadge {
+  position: absolute;
+  bottom: var(--space-4);
+  right: var(--space-4);
+  padding: 1px var(--space-1);
+  border-radius: var(--radius-xs);
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: var(--tracking-wide);
+}
+
+.panel {
+  @include flexbox(column, flex-start, stretch);
+  gap: var(--space-4);
+  min-width: 0;
+  min-height: 0;
+  overflow-y: auto;
+  // 外框留 2px，輸入框的 focus 外框才不會被捲動區切掉。
+  padding: 2px;
+
+  @include stacked {
+    overflow: visible;
+    padding: 0;
+  }
+}
+
+.footer {
+  // 縮圖列往兩側延伸進跟箭頭之間的 gap，淡出只蓋在這一段（見 .filmstrip）。
+  --film-bleed-start: var(--space-3);
+  --film-bleed-end: var(--space-3);
+
+  // 上一張 ‹ 縮圖列 › 下一張，一排。箭頭跟縮圖、「加入照片」同尺寸同圓角，
+  // 只放圖示，不會有「格子大、字小」的比例問題。
+  @include flexbox(row, flex-start, center);
+  flex-shrink: 0;
+  gap: var(--space-3);
+  // 跟下方版面內距同寬，分隔線到縮圖、縮圖到視窗底部的距離一致。
+  padding-top: var(--pad);
+  border-top: 1px solid var(--border);
+
+  > .filmstrip {
+    flex: 1;
+  }
+
+  // 平板以下：黏在視窗底部，蓋過 AdminShell .page 的底部內距。四邊內距
+  // 都用頁面左右邊距，跟上方內容的邊緣對齊。
+  @include stacked {
+    position: sticky;
+    bottom: 0;
+    z-index: 1;
+    margin: 0 calc(-1 * var(--page-gutter)) calc(-1 * #{$shell-bottom});
+    padding: var(--page-gutter) var(--page-gutter)
+      calc(var(--page-gutter) + env(safe-area-inset-bottom));
+    background: var(--surface);
+  }
+
+  @include respond-to('phone') {
+    --film-bleed-start: var(--space-2);
+    --film-bleed-end: var(--space-2);
+
+    gap: var(--space-2);
+  }
+}
+
+.navTile {
+  @include flexbox(row, center, center);
+  // 跟縮圖同高：縮圖 64px，上下各多 3px 是縮圖列留給選中外框的空間。
+  width: 64px;
+  height: 64px;
+  flex-shrink: 0;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  color: var(--text);
+  cursor: pointer;
+  transition:
+    background-color var(--duration-fast) var(--ease),
+    border-color var(--duration-fast) var(--ease);
+
+  &:hover:not(:disabled) {
+    border-color: var(--border-strong);
+    background: var(--surface-3);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+  }
+
+  &:disabled {
+    color: var(--text-muted);
+    opacity: 0.4;
+    cursor: default;
+  }
+
+  @include respond-to('phone') {
+    width: 48px;
+    height: 48px;
+  }
+}
+
+//* ==================== Filmstrip ====================
+
+.filmstrip {
+  @include flexbox(row, flex-start, center);
+  gap: var(--space-2);
+  min-width: 0;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+
+  // 往兩側留白延伸，再用內距把縮圖推回原位；上下留 3px 給選中的外框，
+  // 不然 overflow 會把它切掉。
+  margin-inline: calc(var(--film-bleed-start) * -1) calc(var(--film-bleed-end) * -1);
+  padding: 3px var(--film-bleed-end) 3px var(--film-bleed-start);
+  scroll-padding-inline: var(--film-bleed-start) var(--film-bleed-end);
+
+  // 兩側淡出提示可以橫向捲動。只蓋在延伸出去的那一段：滑到兩端時第一張和
+  // 最後一張完整露出，放得下時延伸區是空的，淡出也看不出來（同短文圖片列）。
+  @include edge-fade-mask($start: var(--film-bleed-start), $end: var(--film-bleed-end));
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.filmThumb {
+  position: relative;
+  width: 64px;
+  height: 64px;
+  flex-shrink: 0;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background: var(--surface-3);
+  cursor: pointer;
+  opacity: 0.7;
+  transition: opacity var(--duration-fast) var(--ease);
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  &:hover {
+    opacity: 1;
+  }
+
+  @include respond-to('phone') {
+    width: 48px;
+    height: 48px;
+  }
+}
+
+.filmCurrent {
+  opacity: 1;
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.filmMark {
+  @include flexbox(row, center, center);
+  position: absolute;
+  right: 3px;
+  bottom: 3px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  font-size: 9px;
+}
+
+.filmMarkDone {
+  background: var(--success);
+  color: #fff;
+}
+
+.filmMarkWarn {
+  background: var(--warning);
+  color: #2a1d05;
+}

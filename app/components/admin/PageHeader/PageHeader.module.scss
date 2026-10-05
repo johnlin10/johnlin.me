@@ -42,8 +42,11 @@
   width: 36px;
   height: 36px;
   flex-shrink: 0;
+  background: transparent;
   color: var(--text);
+  border: none;
   border-radius: var(--radius-md);
+  cursor: pointer;
   margin-left: calc(-1 * var(--space-2));
 
   &:hover {

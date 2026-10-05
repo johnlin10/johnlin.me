@@ -418,7 +418,9 @@
         "gpsHelper": "四捨五入至約 110 公尺：{lat}, {lng}",
         "camera": "相機",
         "lens": "鏡頭",
-        "hdr": "HDR"
+        "hdr": "HDR",
+        "url": "網址",
+        "editSlug": "修改"
       },
       "inspector": {
         "slug": "Slug",
@@ -500,8 +502,6 @@
         "review": "檢查",
         "uploadCount": "上傳 {count} 張",
         "applyLocation": "套用到後面 {count} 張",
-        "url": "網址",
-        "editSlug": "修改",
         "original": "原檔",
         "fileName": "檔名",
         "removeThis": "不上傳這張",

@@ -1,7 +1,7 @@
 'use client'
 
-import { useMemo, useRef, useState } from 'react'
-import { useTranslations } from 'next-intl'
+import { useMemo, useRef, useState, type ReactNode } from 'react'
+import { useLocale, useTranslations } from 'next-intl'
 import { Link } from '@/i18n/navigation'
 import { createClient } from '@/app/lib/supabase/client'
 import { updatePhoto } from '@/app/lib/supabase/photos'
@@ -19,19 +19,29 @@ import type {
 } from '@/app/types/photo'
 import type { SupportedLocale } from '@/app/types/blog'
 import PhotoMeta from '@/app/components/gallery/PhotoMeta/PhotoMeta'
+import PageHeader from '@/app/components/admin/PageHeader/PageHeader'
+import { formatTakenAt, photoCaption, photoLocationName } from '@/app/lib/photos/format'
 import Icon from '@/app/components/Icon/Icon'
 import Button from '@/app/components/admin/Button/Button'
 import Input from '@/app/components/admin/Input/Input'
 import DropdownSelect from '@/app/components/admin/Selector/DropdownSelect'
 import SaveIndicator from '@/app/components/admin/SaveIndicator/SaveIndicator'
 import LocaleToggle from '@/app/components/admin/LocaleToggle/LocaleToggle'
+import PhotoEditLayout from '@/app/components/admin/PhotoEditLayout/PhotoEditLayout'
 import style from './PhotoSheet.module.scss'
 
 interface PhotoInspectorProps {
   photo: Photo
-  locale: SupportedLocale
-  onPrev: () => void
-  onNext: () => void
+  /** 正在編輯、也是預覽顯示的語言。放在呼叫端：換下一張時不該被重設回中文。 */
+  editLocale: SupportedLocale
+  onEditLocaleChange: (locale: SupportedLocale) => void
+  /** 頂部控制欄：返回印象表、「第幾張，共幾張」。 */
+  back: { onClick: () => void; label: string }
+  subtitle: string
+  /** 底部列：縮圖列與上一張／下一張，由呼叫端決定範圍。 */
+  filmstrip: ReactNode
+  onPrev?: () => void
+  onNext?: () => void
   /** 把已經存進資料庫的變更也反映回印象表（縮圖角標、篩選計數、年份分組）。 */
   onPatched: (id: string, patch: Partial<Photo>) => void
   onDeleted: (id: string) => void
@@ -73,10 +83,10 @@ function toPhotoPatch(patch: PhotoPatch): Partial<Photo> {
 }
 
 /**
- * 檢閱欄（可編輯版）。上半是前台會看到的樣子，即時反映草稿內容——
- * 「後台看到的就是訪客會看到的」，打字的當下就能預覽。下半是事實區，
- * 只有 EXIF／尺寸／檔案大小是真的唯讀（上傳後不再變動，見 UpdatePhotoInput
- * 的設計），其餘都接了自動存檔。
+ * 照片頁的單張檢視：照片放大在左，下面是前台會看到的說明，即時反映草稿
+ * 內容——「後台看到的就是訪客會看到的」。右欄是欄位，只有尺寸／檔案大小
+ * 是真的唯讀（上傳後不再變動，見 UpdatePhotoInput 的設計），其餘都接了
+ * 自動存檔；發布與刪除放在右欄最下面。
  *
  * key={photo.id} 由呼叫端負責：換照片時整顆重掛載，草稿狀態才不會把
  * 上一張的編輯內容帶到下一張。useAutosave 既有的 unmount flush 因此
@@ -84,7 +94,11 @@ function toPhotoPatch(patch: PhotoPatch): Partial<Photo> {
  */
 export default function PhotoInspector({
   photo,
-  locale,
+  editLocale,
+  onEditLocaleChange,
+  back,
+  subtitle,
+  filmstrip,
   onPrev,
   onNext,
   onPatched,
@@ -93,6 +107,7 @@ export default function PhotoInspector({
   const t = useTranslations('AdminPage.photos.inspector')
   const tStatus = useTranslations('AdminPage.photos.status')
   const tFields = useTranslations('AdminPage.photos.fields')
+  const uiLocale = useLocale() as SupportedLocale
   const supabase = useMemo(() => createClient(), [])
   const toast = useToast()
   const confirm = useConfirm()
@@ -106,7 +121,6 @@ export default function PhotoInspector({
   // 這次 session 裡如果已經成功改過一次，不該把那次成功的編輯也撤銷掉。
   const lastGoodSlugRef = useRef(photo.slug)
 
-  const [editLocale, setEditLocale] = useState<SupportedLocale>('zh-tw')
   const [captionZh, setCaptionZh] = useState(photo.locales['zh-tw']?.caption ?? '')
   const [captionEn, setCaptionEn] = useState(photo.locales.en?.caption ?? '')
   const [locationNameZh, setLocationNameZh] = useState(
@@ -125,12 +139,7 @@ export default function PhotoInspector({
   const [status, setStatus] = useState(photo.status)
   const [statusSaving, setStatusSaving] = useState(false)
   const [deleting, setDeleting] = useState(false)
-  const [scrolled, setScrolled] = useState(false)
-
-  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
-    const isPastThreshold = e.currentTarget.scrollTop >= 6
-    setScrolled((prev) => (prev !== isPastThreshold ? isPastThreshold : prev))
-  }
+  const [editingSlug, setEditingSlug] = useState(false)
 
   const autosave = useAutosave<PhotoPatch>({
     save: async (patch) => {
@@ -179,20 +188,40 @@ export default function PhotoInspector({
   const handleCaptionChange = (value: string) => {
     if (editLocale === 'zh-tw') {
       setCaptionZh(value)
-      scheduleLocales({ captionZh: value, captionEn, locationNameZh, locationNameEn })
+      scheduleLocales({
+        captionZh: value,
+        captionEn,
+        locationNameZh,
+        locationNameEn,
+      })
     } else {
       setCaptionEn(value)
-      scheduleLocales({ captionZh, captionEn: value, locationNameZh, locationNameEn })
+      scheduleLocales({
+        captionZh,
+        captionEn: value,
+        locationNameZh,
+        locationNameEn,
+      })
     }
   }
 
   const handleLocationNameChange = (value: string) => {
     if (editLocale === 'zh-tw') {
       setLocationNameZh(value)
-      scheduleLocales({ captionZh, captionEn, locationNameZh: value, locationNameEn })
+      scheduleLocales({
+        captionZh,
+        captionEn,
+        locationNameZh: value,
+        locationNameEn,
+      })
     } else {
       setLocationNameEn(value)
-      scheduleLocales({ captionZh, captionEn, locationNameZh, locationNameEn: value })
+      scheduleLocales({
+        captionZh,
+        captionEn,
+        locationNameZh,
+        locationNameEn: value,
+      })
     }
   }
 
@@ -254,7 +283,9 @@ export default function PhotoInspector({
       // 已排程但還沒送出的編輯要丟掉，不然 unmount flush 會對著一筆
       // 已經被刪掉的 row 發 UPDATE。
       autosave.markClean()
-      const res = await fetch(`/api/admin/photos/${photo.id}`, { method: 'DELETE' })
+      const res = await fetch(`/api/admin/photos/${photo.id}`, {
+        method: 'DELETE',
+      })
       if (!res.ok) {
         const json = await res.json().catch(() => ({}))
         toast.error(json.error ?? t('deleteError'))
@@ -276,7 +307,12 @@ export default function PhotoInspector({
     slug,
     takenAtLocal,
     takenAtPrecision,
-    locales: buildPhotoLocales({ captionZh, captionEn, locationNameZh, locationNameEn }),
+    locales: buildPhotoLocales({
+      captionZh,
+      captionEn,
+      locationNameZh,
+      locationNameEn,
+    }),
     location: includeGps ? photo.location : undefined,
   }
 
@@ -286,162 +322,179 @@ export default function PhotoInspector({
     { value: 'year', label: tFields('precisionYear') },
   ]
 
+  // 標題跟前台單張頁同一套退回順序：說明 → 地名 → 日期。用介面語言，
+  // 不跟著編輯語言切換——標題是用來認照片的，不是預覽。
+  const title =
+    photoCaption(draftAsPhoto, uiLocale) ||
+    photoLocationName(draftAsPhoto, uiLocale) ||
+    formatTakenAt(takenAtLocal, takenAtPrecision, uiLocale) ||
+    slug
+
   return (
-    <div className={style.inspector}>
-      <div
-        className={`${style.inspectorNav} ${scrolled ? style.inspectorNavScrolled : ''}`}
-      >
-        <Button variant="ghost" size="small" onClick={onPrev}>
-          <Icon name="arrow-left" size="xs" />
-        </Button>
-        <SaveIndicator
-          state={autosave.state}
-          lastSavedAt={autosave.lastSavedAt}
-          onRetry={autosave.retry}
-        />
-        <Button variant="ghost" size="small" onClick={onNext}>
-          <Icon name="arrow-right" size="xs" />
-        </Button>
-      </div>
-
-      <div className={style.inspectorBody} onScroll={handleScroll}>
-        <div className={style.inspectorPreview}>
-          {/* 白邊要貼著照片實際渲染出來的尺寸、四邊等寬，所以 .inspectorPrint
-              是縮到跟圖片一樣大的相框，不是撐滿 .inspectorPreview 的固定框——
-              後者的話橫幅/直幅照片會因為 letterbox 留白不同而讓白邊看起來厚薄不一。
-              不疊模糊底圖：檢閱欄的目的是看清構圖與邊緣，模糊底圖只會讓
-              照片邊界跟背景混在一起。 */}
-          <div className={style.inspectorPrint}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={preview?.url} alt="" />
+    <>
+      <PageHeader
+        title={title}
+        subtitle={subtitle}
+        back={back}
+        action={
+          <div className={style.statusAction}>
+            <span
+              className={`${style.statusLabel} ${status === 'published' ? style.statusPublished : style.statusDraft}`}
+            >
+              <Icon name={status === 'published' ? 'eye' : 'eye-slash'} size="xs" />
+              {tStatus(status)}
+            </span>
+            <Button
+              variant={status === 'published' ? 'secondary' : 'primary'}
+              onClick={() => void toggleStatus()}
+              disabled={statusSaving}
+            >
+              {status === 'published' ? t('unpublish') : t('publish')}
+            </Button>
           </div>
-        </div>
-
-        <PhotoMeta photo={draftAsPhoto} locale={locale} as="div" />
-
-        <div className={style.inspectorEdit}>
-          <LocaleToggle
-            value={editLocale}
-            onChange={setEditLocale}
-            filled={{
-              'zh-tw': Boolean(captionZh.trim() || locationNameZh.trim()),
-              en: Boolean(captionEn.trim() || locationNameEn.trim()),
-            }}
-          />
-
-          <Input
-            label={tFields('caption')}
-            value={editLocale === 'zh-tw' ? captionZh : captionEn}
-            onChange={handleCaptionChange}
-            compact
-          />
-          <Input
-            label={tFields('locationName')}
-            value={editLocale === 'zh-tw' ? locationNameZh : locationNameEn}
-            onChange={handleLocationNameChange}
-            compact
-          />
-
-          <Input
-            label={t('slug')}
-            value={slug}
-            onChange={handleSlugChange}
-            error={slugError}
-            compact
-          />
-
-          <div className={style.inspectorDateRow}>
-            <Input
-              label={tFields('date')}
-              value={takenAtLocal}
-              onChange={handleTakenAtLocalChange}
-              placeholder={tFields('datePlaceholder')}
-              error={takenAtLocalError}
-              compact
-            />
-            <DropdownSelect
-              value={takenAtPrecision}
-              onChange={handlePrecisionChange}
-              options={precisionOptions}
-              placeholder={tFields('precisionDay')}
-              clearable={false}
-              compact
-            />
-          </div>
-
-          {photo.location && (
-            <label className={style.gpsRow}>
-              <input
-                type="checkbox"
-                checked={includeGps}
-                onChange={(e) => handleGpsToggle(e.target.checked)}
+        }
+      />
+      <PhotoEditLayout
+        src={preview?.url ?? ''}
+        width={photo.width}
+        height={photo.height}
+        placeholder={photo.blurDataUrl}
+        hdrSrc={photo.isHdr ? photo.urlOriginal : undefined}
+        isHdr={photo.isHdr}
+        meta={<PhotoMeta photo={draftAsPhoto} locale={editLocale} as="div" />}
+        filmstrip={filmstrip}
+        onPrev={onPrev}
+        onNext={onNext}
+        panel={
+          <>
+            <div className={style.panelTop}>
+              <LocaleToggle
+                value={editLocale}
+                onChange={onEditLocaleChange}
+                filled={{
+                  'zh-tw': Boolean(captionZh.trim() || locationNameZh.trim()),
+                  en: Boolean(captionEn.trim() || locationNameEn.trim()),
+                }}
               />
-              <span>{tFields('includeGps')}</span>
-              {includeGps && (
-                <span className={style.gpsPublicNote}>
-                  {photo.location.lat}, {photo.location.lng}
-                </span>
+              <SaveIndicator
+                state={autosave.state}
+                lastSavedAt={autosave.lastSavedAt}
+                onRetry={autosave.retry}
+              />
+            </div>
+
+            <Input
+              label={tFields('caption')}
+              value={editLocale === 'zh-tw' ? captionZh : captionEn}
+              onChange={handleCaptionChange}
+              compact
+            />
+            <Input
+              label={tFields('locationName')}
+              value={editLocale === 'zh-tw' ? locationNameZh : locationNameEn}
+              onChange={handleLocationNameChange}
+              compact
+            />
+
+            <div className={style.inspectorDateRow}>
+              <Input
+                label={tFields('date')}
+                value={takenAtLocal}
+                onChange={handleTakenAtLocalChange}
+                placeholder={tFields('datePlaceholder')}
+                error={takenAtLocalError}
+                compact
+              />
+              <DropdownSelect
+                value={takenAtPrecision}
+                onChange={handlePrecisionChange}
+                options={precisionOptions}
+                placeholder={tFields('precisionDay')}
+                clearable={false}
+                compact
+              />
+            </div>
+
+            {photo.location && (
+              <label className={style.gpsRow}>
+                <input
+                  type="checkbox"
+                  checked={includeGps}
+                  onChange={(e) => handleGpsToggle(e.target.checked)}
+                />
+                <span>{tFields('includeGps')}</span>
+                {includeGps && (
+                  <span className={style.gpsPublicNote}>
+                    {photo.location.lat}, {photo.location.lng}
+                  </span>
+                )}
+              </label>
+            )}
+
+            {(editingSlug || slugError) && (
+              <Input
+                label={t('slug')}
+                value={slug}
+                onChange={handleSlugChange}
+                error={slugError}
+                compact
+              />
+            )}
+
+            <dl className={style.inspectorFacts}>
+              {!editingSlug && !slugError && (
+                <div className={style.factRow}>
+                  <dt>{tFields('url')}</dt>
+                  <dd>
+                    <span className={style.slugText}>/photography/{slug}</span>
+                    <button
+                      type="button"
+                      className={style.textAction}
+                      onClick={() => setEditingSlug(true)}
+                    >
+                      {tFields('editSlug')}
+                    </button>
+                  </dd>
+                </div>
               )}
-            </label>
-          )}
-        </div>
+              <div className={style.factRow}>
+                <dt>{t('dimensions')}</dt>
+                <dd>
+                  {photo.width} × {photo.height}
+                  {photo.isHdr && <span className={style.hdrTag}>HDR</span>}
+                </dd>
+              </div>
+              <div className={style.factRow}>
+                <dt>{t('fileSize')}</dt>
+                <dd>{formatBytes(photo.originalBytes)}</dd>
+              </div>
+            </dl>
 
-        <dl className={style.inspectorFacts}>
-          <div className={style.factRow}>
-            <dt>{t('status')}</dt>
-            <dd>
+            <div className={style.dangerZone}>
+              {status === 'published' && (
+                <Link
+                  href={`/photography/${slug}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={style.openOnSite}
+                >
+                  <Icon name="arrow-right" size="xs" />
+                  {t('openOnSite')}
+                </Link>
+              )}
               <Button
-                variant="secondary"
+                variant="danger"
                 size="small"
-                onClick={() => void toggleStatus()}
-                disabled={statusSaving}
+                onClick={() => void handleDelete()}
+                disabled={deleting}
               >
-                {status === 'published' ? t('unpublish') : t('publish')}
+                <Icon name="trash" size="xs" />
+                {t('delete')}
               </Button>
-              <span
-                className={`${style.statusPill} ${status === 'published' ? style.statusPublished : style.statusDraft}`}
-              >
-                {tStatus(status)}
-              </span>
-            </dd>
-          </div>
-          <div className={style.factRow}>
-            <dt>{t('dimensions')}</dt>
-            <dd>
-              {photo.width} × {photo.height}
-              {photo.isHdr && <span className={style.hdrTag}>HDR</span>}
-            </dd>
-          </div>
-          <div className={style.factRow}>
-            <dt>{t('fileSize')}</dt>
-            <dd>{formatBytes(photo.originalBytes)}</dd>
-          </div>
-        </dl>
-
-        {status === 'published' && (
-          <Link
-            href={`/photography/${slug}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className={style.openOnSite}
-          >
-            <Icon name="arrow-right" size="xs" />
-            {t('openOnSite')}
-          </Link>
-        )}
-
-        <div className={style.dangerZone}>
-          <Button
-            variant="danger"
-            size="small"
-            onClick={() => void handleDelete()}
-            disabled={deleting}
-          >
-            <Icon name="trash" size="xs" />
-            {t('delete')}
-          </Button>
-        </div>
-      </div>
-    </div>
+            </div>
+          </>
+        }
+      />
+    </>
   )
 }

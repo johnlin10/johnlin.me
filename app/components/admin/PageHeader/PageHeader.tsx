@@ -17,9 +17,10 @@ interface PageHeaderProps {
   subbarClassName?: string
   /**
    * 第二層頁面（例如上傳預檢表）用來取代漢堡選單的返回連結，顯示在
-   * 標題左側。href 是列表頁路徑，label 供螢幕閱讀器使用。
+   * 標題左側。href 是列表頁路徑；同一頁裡的返回（照片頁的單張檢視）
+   * 改給 onClick。label 供螢幕閱讀器使用。
    */
-  back?: { href: string; label: string }
+  back?: { href: string; label: string } | { onClick: () => void; label: string }
 }
 
 /**
@@ -57,10 +58,19 @@ export default function PageHeader({
 
   const mainBar = (
     <div className={style.mainBar}>
-      {back ? (
+      {back && 'href' in back ? (
         <Link href={back.href} className={style.backButton} aria-label={back.label}>
           <Icon name="arrow-left" size="lg" />
         </Link>
+      ) : back ? (
+        <button
+          type="button"
+          className={style.backButton}
+          onClick={back.onClick}
+          aria-label={back.label}
+        >
+          <Icon name="arrow-left" size="lg" />
+        </button>
       ) : (
         <button
           type="button"

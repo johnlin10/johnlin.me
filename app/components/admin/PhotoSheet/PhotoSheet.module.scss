@@ -254,77 +254,9 @@
 
 //* ==================== PhotoInspector ====================
 
-.inspector {
-  @include flexbox(column, flex-start, stretch);
-  height: 100%;
-  min-height: 0;
-  overflow: hidden;
-}
-
-.inspectorNav {
-  @include flexbox(row, flex-end, center);
-  gap: var(--space-1);
-  padding: var(--space-3) var(--space-4);
-  background: var(--surface);
-  border-bottom: 1px solid transparent;
-  flex-shrink: 0;
-  z-index: 1;
-  transition: border-color var(--duration-fast) var(--ease);
-
-  &.inspectorNavScrolled {
-    border-bottom-color: var(--border);
-  }
-}
-
-.inspectorBody {
-  @include flexbox(column, flex-start, stretch);
-  gap: var(--space-4);
-  padding: var(--space-6);
-  flex: 1;
-  min-height: 0;
-  overflow-y: auto;
-}
-
-// 相片可用的最大顯示高度：連同 $matPadding 一起決定 .inspectorPreview 的
-// 固定總高，換照片時下方的事實區塊不會跟著跳動。是「上限」不是照片實際
-// 一定會撐到的高度——比例太寬的照片會先撞到寬度上限，見下面 img 的註解。
-$photoHeight: 296px;
-// 白邊寬度，.inspectorPrint 的 padding 四邊都用這個值，實際看起來才會等寬——
-// 白邊要是套在 .inspectorPreview 這個固定框上，橫幅／直幅照片因為 letterbox
-// 留白不同，四邊的視覺留白就會厚薄不一。
-
-$matPadding: 12px;
-
-.inspectorPreview {
-  height: calc(#{$photoHeight} + #{$matPadding} * 2);
-  @include flexbox(row, center, center);
-}
-
-.inspectorPrint {
-  // inline-flex 讓這層縮到跟裡面的圖片一樣大，padding 才會貼著圖片的實際邊緣。
-  display: inline-flex;
-  padding: $matPadding;
-  max-width: 100%;
-  box-sizing: border-box;
-  // 半擬態：模擬沖印相片的白邊 —— 刻意用實色白而非語意 token，
-  // 紙本的白不該隨深色模式變暗，這是這個元件唯一的裝飾性例外。
-  background: #fff;
-  box-shadow: var(--shadow-md);
-  // 直角，不是卡片圓角：沖印相片的邊是直的。
-  border-radius: 0;
-
-  img {
-    display: block;
-    // width/height 都是 auto，靠 max-width／max-height 兩個上限一起夾出
-    // 「撐滿高度或撐滿寬度，取先撞到的那個」—— 這才是 object-fit: contain
-    // 的語意。之前寫死 height 會在寬版照片撞到 max-width 時把圖硬拉伸成
-    // 錯的比例（看起來像被裁掉兩側），因為 height 沒有跟著讓步。
-    max-width: 100%;
-    max-height: $photoHeight;
-    width: auto;
-    height: auto;
-    object-fit: contain;
-  }
+.panelTop {
+  @include flexbox(row, space-between, center);
+  gap: var(--space-3);
 }
 
 .inspectorFacts {
@@ -344,23 +276,18 @@ $matPadding: 12px;
   font-size: var(--text-xs);
 
   dt {
+    flex-shrink: 0;
     color: var(--text-muted);
   }
 
   dd {
     @include flexbox(row, flex-end, center);
-    gap: var(--space-1);
+    gap: var(--space-2);
+    min-width: 0;
     color: var(--text-secondary);
     margin: 0;
     text-align: right;
   }
-}
-
-.inspectorEdit {
-  @include flexbox(column, flex-start, stretch);
-  gap: var(--space-3);
-  padding-top: var(--space-3);
-  border-top: 1px solid var(--border);
 }
 
 .inspectorDateRow {
@@ -379,20 +306,33 @@ $matPadding: 12px;
   cursor: pointer;
 }
 
-.statusPill {
-  display: inline-block;
-  padding: 2px var(--space-2);
-  border-radius: var(--radius-pill);
-  font-size: var(--text-3xs);
+.statusAction {
+  @include flexbox(row, flex-end, center);
+  gap: var(--space-4);
+
+  // 手機控制欄放不下兩樣，按鈕文字（發布／取消發布）本身就看得出狀態。
+  @include respond-to('phone') {
+    .statusLabel {
+      display: none;
+    }
+  }
+}
+
+// 沒有底色的文字＋圖示：控制欄裡只有按鈕是「可以按的」，狀態只是說明，
+// 不該長得像另一顆按鈕或標籤。眼睛＝訪客看得到，劃線＝看不到。
+.statusLabel {
+  @include flexbox(row, flex-start, center);
+  gap: var(--space-1);
+  font-family: var(--font-sans);
+  font-size: var(--text-xs);
+  white-space: nowrap;
 }
 
 .statusPublished {
-  background: var(--success-soft);
   color: var(--success);
 }
 
 .statusDraft {
-  background: var(--surface-3);
   color: var(--text-muted);
 }
 
@@ -400,6 +340,27 @@ $matPadding: 12px;
   margin-left: var(--space-2);
   font-size: var(--text-3xs);
   color: var(--text-muted);
+}
+
+.slugText {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.textAction {
+  flex-shrink: 0;
+  padding: 0;
+  border: none;
+  background: none;
+  font-family: var(--font-sans);
+  font-size: var(--text-xs);
+  color: var(--accent);
+  cursor: pointer;
+
+  &:hover {
+    color: var(--accent-hover);
+  }
 }
 
 .gpsPublicNote {
@@ -415,6 +376,7 @@ $matPadding: 12px;
 
 .openOnSite {
   @include flexbox(row, center, center);
+  margin-right: auto;
   gap: var(--space-1);
   font-family: var(--font-sans);
   font-size: var(--text-sm);
