@@ -22,8 +22,6 @@ interface PhotoMetaProps {
   as?: 'figcaption' | 'div'
   /** heading 為 true 時 caption 用 <h1>（單張頁只該有一個 h1）。 */
   heading?: boolean
-  /** compact：牆上聚焦卡專用的較小級距（卡片會被牆 transform 放大，需壓小字級）。 */
-  compact?: boolean
   /** 相機參數。首頁一瞥只給辨識用的最小資訊，其餘留給單張頁。 */
   showExif?: boolean
   /** 有公開座標時，地點變成可打開地圖的按鈕。 */
@@ -42,7 +40,6 @@ export default function PhotoMeta({
   locale,
   as = 'figcaption',
   heading = false,
-  compact = false,
   showExif = true,
   showMap = true,
   className,
@@ -64,7 +61,7 @@ export default function PhotoMeta({
 
   return (
     <Tag
-      className={[styles.meta, compact && styles.compact, className]
+      className={[styles.meta, className]
         .filter(Boolean)
         .join(' ')}
     >

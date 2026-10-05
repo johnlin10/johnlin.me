@@ -180,17 +180,6 @@ function clampRectAxis(
   return clamp(value, min, max)
 }
 
-/** 某個牆座標矩形 fit 進視窗所需的 scale（不平移，只算縮放）。 */
-export function fitScaleForRect(
-  rect: Rect,
-  viewport: Size,
-  padding = FIT_PADDING
-): number {
-  const vw = viewport.width * (1 - padding * 2)
-  const vh = viewport.height * (1 - padding * 2)
-  return Math.min(vw / rect.w, vh / rect.h)
-}
-
 /**
  * 目前視窗在牆座標下的可視矩形，含 margin 圈（以視窗尺寸為單位）緩衝。
  * 給解析度升級與 DOM 裁切用：反向把視窗四角變換回牆座標。

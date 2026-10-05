@@ -107,7 +107,7 @@ function focalLengthValue(exif: PhotoExif): number | undefined {
 
 export interface ExifItem {
   /** i18n key 後綴，對應 GalleryPage.exif.<key> 的無障礙標籤 */
-  key: 'aperture' | 'shutter' | 'iso' | 'focalLength' | 'camera' | 'lens'
+  key: 'aperture' | 'shutter' | 'iso' | 'focalLength' | 'camera'
   value: string
 }
 
@@ -119,7 +119,6 @@ export function formatExifItems(exif: PhotoExif | undefined): ExifItem[] {
   if (!exif) return []
   const items: ExifItem[] = []
   if (exif.model) items.push({ key: 'camera', value: exif.model })
-  if (exif.lens) items.push({ key: 'lens', value: exif.lens })
   const focal = focalLengthValue(exif)
   if (focal !== undefined) {
     items.push({ key: 'focalLength', value: `${trimNumber(focal)}mm` })

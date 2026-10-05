@@ -1398,7 +1398,6 @@
     },
     "exif": {
       "camera": "Camera",
-      "lens": "Lens",
       "focalLength": "Focal length",
       "aperture": "Aperture",
       "shutter": "Shutter",

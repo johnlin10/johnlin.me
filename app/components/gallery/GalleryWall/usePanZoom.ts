@@ -5,7 +5,6 @@ import {
   clampScale,
   clampTranslate,
   clampTranslateToRect,
-  fitScaleForRect,
   type Rect,
   type Size,
   type Transform,
@@ -101,6 +100,8 @@ export function usePanZoom({
   const clampRect = useRef<Rect | null>(null)
   // focus 中該照片自己的放大上限（看原檔細節用）；與 maxScale 取大者，0 = 不放寬
   const focusMaxScale = useRef(0)
+  // focus 中鏡頭的 fit 倍率，判斷是否還停在 fit（左右滑換照片）
+  const focusFitScale = useRef(0)
 
   const pointers = useRef(new Map<number, { x: number; y: number }>())
   const panStart = useRef<{ x: number; y: number; tx: number; ty: number } | null>(
@@ -215,10 +216,14 @@ export function usePanZoom({
   )
 
   /** focus 時設照片矩形與該照片的放大上限；退出時傳 null。 */
-  const setClampRect = useCallback((rect: Rect | null, maxScale = 0) => {
-    clampRect.current = rect
-    focusMaxScale.current = rect ? maxScale : 0
-  }, [])
+  const setClampRect = useCallback(
+    (rect: Rect | null, maxScale = 0, fitScale = 0) => {
+      clampRect.current = rect
+      focusMaxScale.current = rect ? maxScale : 0
+      focusFitScale.current = rect ? fitScale : 0
+    },
+    []
+  )
 
   /** 以螢幕像素平移（給鍵盤方向鍵）。 */
   const panByScreen = useCallback(
@@ -426,8 +431,7 @@ export function usePanZoom({
           // 左右滑換照片只在「還停在 fit、沒放大看細節」時成立。放大之後的拖曳是
           // 要看照片的其他部分，一放手就跳下一張是錯的——而且 fit 通常是被高度決
           // 定的，照片放大到兩倍水平仍可能沒超過視窗寬，光看 horizPinned 判不出來。
-          const atFit =
-            !!cr && t.scale <= fitScaleForRect(cr, cfg.current.stage) * 1.05
+          const atFit = !!cr && t.scale <= focusFitScale.current * 1.05
           // focus 中、照片縮放後寬度沒超過視窗（水平不能平移，拖了也只會彈回置中）
           const horizPinned =
             atFit && !!cr && cr.w * t.scale <= cfg.current.stage.width + 1

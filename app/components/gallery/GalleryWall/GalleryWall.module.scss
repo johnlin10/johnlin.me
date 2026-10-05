@@ -58,6 +58,7 @@ $photo-shadow:
   border: 1px solid rgba(0, 0, 0, 0.06);
   box-shadow: $photo-shadow;
   transition:
+    top var(--duration-slow) var(--ease),
     box-shadow var(--duration) var(--ease),
     border-color var(--duration) var(--ease);
   @include focus-ring;
@@ -94,6 +95,7 @@ $photo-shadow:
   gap: 2px;
   padding-top: var(--space-2);
   overflow: hidden;
+  transition: top var(--duration-slow) var(--ease);
 }
 
 // 遠景 LOD：縮到看整面牆時卡片字只剩幾 px，讀不出來卻仍要逐張光柵化文字。
@@ -102,13 +104,21 @@ $photo-shadow:
   display: none;
 }
 
+// 聚焦時隔壁照片只留照片本身。淡出走文字顏色，opacity 動畫會讓 Safari 把牆升成合成圖層
+.isFocusing .cardCaption,
+.isFocusing .cardDate {
+  color: transparent;
+}
+
 // 聚焦照片的完整資訊卡（與照片同平面、隨牆縮放）。高度由內容決定、由 JS 量測。
+// 寬度與 transform 由 JS 依 fit 倍率反向縮放，字級在 fit 時等於螢幕上的實際大小。
 // 給不透明底與高 z-index：焦點框把卡片展開進欄間隙時，會蓋到同欄下一張照片，
 // 底色讓文字落在乾淨表面、不疊在照片上，z-index 確保卡片在鄰片之上。
 // 比聚焦照片（10）低一層，照片的陰影才會投在卡片上，不會只剩兩側露出來。
 .focusCard {
   position: absolute;
   z-index: 9;
+  transform-origin: 0 0;
   padding-top: var(--space-3);
   padding-bottom: var(--space-3);
   background: var(--surface);
@@ -123,6 +133,7 @@ $photo-shadow:
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  transition: color var(--duration) var(--ease);
 }
 
 .cardDate {
@@ -130,6 +141,7 @@ $photo-shadow:
   font-size: 12px;
   color: var(--text-muted);
   font-variant-numeric: tabular-nums;
+  transition: color var(--duration) var(--ease);
 }
 
 .preface {

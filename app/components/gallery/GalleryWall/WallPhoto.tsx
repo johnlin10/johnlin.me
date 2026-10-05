@@ -21,6 +21,8 @@ interface WallPhotoProps {
   cell: WallCell
   locale: SupportedLocale
   isFocused: boolean
+  /** 聚焦時鏡頭的 fit 倍率，資訊卡用它反向縮放 */
+  focusScale?: number
   /** srcSet 目標寬度（由縮放級別決定，只升不降） */
   tier: number
   /** 聚焦時回報詳細資訊卡的實測高度（牆座標），供聚焦框校正 fit */
@@ -37,6 +39,7 @@ function WallPhoto({
   cell,
   locale,
   isFocused,
+  focusScale = 1,
   tier,
   onFocusCardResize,
   onActivate,
@@ -137,9 +140,14 @@ function WallPhoto({
         <div
           ref={focusCardRef}
           className={styles.focusCard}
-          style={{ left: x, top: cardY, width: w }}
+          style={{
+            left: x,
+            top: cardY,
+            width: w * focusScale,
+            transform: `scale(${1 / focusScale})`,
+          }}
         >
-          <PhotoMeta photo={photo} locale={locale} as="div" compact />
+          <PhotoMeta photo={photo} locale={locale} as="div" />
         </div>
       ) : (
         // 牆上瀏覽：固定尺寸的簡卡（標題＋日期），隨牆同步縮放

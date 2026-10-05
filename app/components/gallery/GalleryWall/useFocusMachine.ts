@@ -1,17 +1,21 @@
 import { useCallback, useMemo, useRef, useState } from 'react'
 import {
   centerTransform,
-  fitScaleForRect,
-  fitTransform,
+  FIT_PADDING,
   fitWallTransform,
   wallRectToScreen,
   type Rect,
   type Size,
 } from '@/app/lib/photos/geometry'
-import { CARD_H, type WallCell } from '@/app/lib/photos/wallLayout'
+import type { WallCell } from '@/app/lib/photos/wallLayout'
 import type { SupportedLocale } from '@/app/types/blog'
 import { useWallUrlSync } from './useWallUrlSync'
 import type { usePanZoom } from './usePanZoom'
+
+/** 聚焦資訊卡量到之前的高度估值（螢幕像素）。 */
+const FOCUS_CARD_H_ESTIMATE = 140
+/** 資訊卡再高，照片也至少保有 fit 區域這個比例的高度（矮視窗，例如手機橫拿）。 */
+const MIN_PHOTO_SHARE = 0.5
 
 /** 縮放到某張照片 r >= 此值就磁吸進 focus（限位器）。 */
 const SNAP_IN = 0.85
@@ -55,15 +59,19 @@ export function useFocusMachine({
   reduceMotion,
 }: FocusMachineOptions) {
   const [focusedSlug, setFocusedSlug] = useState<string | null>(null)
+  // 鏡頭最近一次對準的 fit 倍率；聚焦資訊卡用它反向縮放，字級才固定在螢幕上
+  const [focusScale, setFocusScale] = useState(1)
+  // 聚焦資訊卡實測高度的呈現用副本（螢幕像素），同欄下方照片據此讓位
+  const [focusCardHeight, setFocusCardHeight] = useState(FOCUS_CARD_H_ESTIMATE)
   const focusedRef = useRef<string | null>(null)
   focusedRef.current = focusedSlug
 
   // 進 focus 前的牆 transform，退出時動畫回這裡（跨換照片維持不變）
   const preFocus = useRef<ReturnType<PanZoom['getTransform']> | null>(null)
 
-  // 聚焦照片的詳細資訊卡實測高度（牆座標）。聚焦框把「照片＋這張卡」一起 fit 進視窗，
-  // 卡片內容高度隨照片而異，故由呈現層量測後回報，再校正 fit。預設用牆上簡卡高度墊底。
-  const focusCardH = useRef(CARD_H)
+  // 聚焦資訊卡的實測高度（螢幕像素）。卡片反向縮放、字級固定在螢幕上，
+  // fit 先扣掉它，剩下的空間給照片；內容高度隨照片而異，由呈現層量測後回報。
+  const focusCardH = useRef(FOCUS_CARD_H_ESTIMATE)
   // 剛進 focus（或換照片）時，等資訊卡量測回來要重新對準一次 fit。
   const pendingRefit = useRef(false)
 
@@ -72,19 +80,29 @@ export function useFocusMachine({
     [cells]
   )
 
-  // 聚焦框含照片下方的詳細資訊卡，讓兩者同框、同平面地 fit 進視窗
+  /** 照片塞進「fit 區域扣掉資訊卡高度」後的倍率。 */
+  const fitScaleOf = useCallback(
+    (cell: WallCell) => {
+      const vw = stage.width * (1 - FIT_PADDING * 2)
+      const vh = stage.height * (1 - FIT_PADDING * 2)
+      const room = Math.max(vh - focusCardH.current, vh * MIN_PHOTO_SHARE)
+      return Math.max(1e-3, Math.min(vw / cell.w, room / cell.photoH))
+    },
+    [stage]
+  )
+  // 聚焦框＝照片＋下方資訊卡（卡片在牆座標的高度是螢幕高度除以 fit 倍率）
   const rectOf = useCallback(
     (cell: WallCell): Rect => ({
       x: cell.x,
       y: cell.y,
       w: cell.w,
-      h: cell.photoH + focusCardH.current,
+      h: cell.photoH + focusCardH.current / fitScaleOf(cell),
     }),
-    []
+    [fitScaleOf]
   )
-  const fitScaleOf = useCallback(
-    (cell: WallCell) => fitScaleForRect(rectOf(cell), stage),
-    [rectOf, stage]
+  const fitOf = useCallback(
+    (cell: WallCell) => centerTransform(rectOf(cell), fitScaleOf(cell), stage),
+    [rectOf, fitScaleOf, stage]
   )
 
   /** 對準某張照片（設 clamp、動畫到 fit、更新 focusedSlug）。 */
@@ -93,24 +111,28 @@ export function useFocusMachine({
       // 資訊卡高度要等該照片的卡片掛載後才量得到；先用目前的估值動畫過去，
       // 卡片一回報就用 spring 平滑重定目標（見 reportFocusCardHeight）。
       pendingRefit.current = true
-      pz.setClampRect(rectOf(cell), nativeScaleOf(cell))
-      pz.animateTo(fitTransform(rectOf(cell), stage), {
+      pz.setClampRect(rectOf(cell), nativeScaleOf(cell), fitScaleOf(cell))
+      pz.animateTo(fitOf(cell), {
         instant: reduceMotion,
       })
+      setFocusScale(fitScaleOf(cell))
       setFocusedSlug(cell.photo.slug)
     },
-    [pz, rectOf, stage, reduceMotion]
+    [pz, rectOf, fitOf, fitScaleOf, reduceMotion]
   )
 
   /**
-   * 呈現層回報聚焦資訊卡的實測高度（牆座標；offsetHeight 不受牆 transform 影響）。
+   * 呈現層回報聚焦資訊卡的實測高度（螢幕像素；offsetHeight 不含 transform）。
    * 剛進 focus 時無條件校正 fit；之後只有「使用者仍在 fit 附近、未放大看細節」時才校正
    * （避免在使用者放大檢視時被拉回）。retarget 走 spring，過程連貫不跳。
    */
   const reportFocusCardHeight = useCallback(
     (h: number) => {
       if (!Number.isFinite(h) || h <= 0) return
-      if (Math.abs(h - focusCardH.current) >= 1) focusCardH.current = h
+      if (Math.abs(h - focusCardH.current) >= 1) {
+        focusCardH.current = h
+        setFocusCardHeight(h)
+      }
       // 只在剛進 focus（pendingRefit）時用實測高度校正一次 fit；
       // 之後不再因量測回報而重對焦，避免與使用者的縮放（含 +/- 按鈕）互相拉扯。
       if (!pendingRefit.current) return
@@ -119,12 +141,13 @@ export function useFocusMachine({
       const cell = cellBySlug.get(cur)
       if (!cell) return
       pendingRefit.current = false
-      pz.setClampRect(rectOf(cell), nativeScaleOf(cell))
-      pz.animateTo(fitTransform(rectOf(cell), stage), {
+      pz.setClampRect(rectOf(cell), nativeScaleOf(cell), fitScaleOf(cell))
+      pz.animateTo(fitOf(cell), {
         instant: reduceMotion,
       })
+      setFocusScale(fitScaleOf(cell))
     },
-    [cellBySlug, pz, rectOf, stage, reduceMotion]
+    [cellBySlug, pz, rectOf, fitOf, fitScaleOf, reduceMotion]
   )
 
   /**
@@ -207,13 +230,13 @@ export function useFocusMachine({
     if (!cell) return
     const r = pz.getTransform().scale / fitScaleOf(cell)
     if (r > ZOOMED_THRESHOLD) {
-      pz.animateTo(fitTransform(rectOf(cell), stage), {
+      pz.animateTo(fitOf(cell), {
         instant: reduceMotion,
       })
     } else {
       exit(false)
     }
-  }, [cellBySlug, pz, fitScaleOf, rectOf, stage, reduceMotion, exit])
+  }, [cellBySlug, pz, fitScaleOf, fitOf, reduceMotion, exit])
 
   // 只在「放大」手勢後才評估磁吸進場；記住上次沉降的 scale 判斷是否放大
   const lastSettled = useRef(0)
@@ -278,6 +301,8 @@ export function useFocusMachine({
 
   return {
     focusedSlug,
+    focusScale,
+    focusCardHeight,
     activate,
     navigate,
     stepBack,

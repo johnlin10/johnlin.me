@@ -16,6 +16,7 @@ import {
   useMotionValueEvent,
 } from 'motion/react'
 import {
+  CARD_H,
   COL_W,
   GAP_X,
   packWall,
@@ -410,7 +411,20 @@ export default function GalleryWall({
   const yearOpacity = useTransform(pz.scale, (s) => yearMarkerOpacity(s))
 
   // 控制列淡出的基準：聚焦照片（含資訊卡）fit 進視窗所需的 scale
-  const focusFitScale = focusedCell ? fm.fitScaleOf(focusedCell) : 1
+  const focusFitScale = fm.focusScale
+
+  // 聚焦資訊卡在牆上比簡卡高出的部分，同欄下方的照片往下讓出這段，不被卡片蓋住
+  const focusPush = focusedCell
+    ? Math.max(0, fm.focusCardHeight / focusFitScale - CARD_H)
+    : 0
+  const renderCells = useMemo(() => {
+    if (!focusedCell || focusPush === 0) return visibleCells
+    return visibleCells.map((c) =>
+      c.col === focusedCell.col && c.row > focusedCell.row
+        ? { ...c, y: c.y + focusPush, cardY: c.cardY + focusPush }
+        : c
+    )
+  }, [visibleCells, focusedCell, focusPush])
 
   // 縮到最小倍率（牆高滿版）。錨在視窗中心而不是把整面牆置中——橫向已經看不完，
   // 縮小的同時還把人丟到牆的正中間只會失去方位感。
@@ -578,7 +592,13 @@ export default function GalleryWall({
       onBlurCapture={handleBlurCapture}
     >
       <motion.div
-        className={`${styles.wall} ${farLod ? styles.isFarLod : ''}`}
+        className={[
+          styles.wall,
+          farLod && styles.isFarLod,
+          fm.focusedSlug && styles.isFocusing,
+        ]
+          .filter(Boolean)
+          .join(' ')}
         style={{
           width: wall.width,
           height: wall.height,
@@ -606,12 +626,15 @@ export default function GalleryWall({
           />
         ))}
 
-        {visibleCells.map((cell) => (
+        {renderCells.map((cell) => (
           <WallPhoto
             key={cell.photo.id}
             cell={cell}
             locale={locale}
             isFocused={cell.photo.slug === fm.focusedSlug}
+            focusScale={
+              cell.photo.slug === fm.focusedSlug ? focusFitScale : undefined
+            }
             tier={sizesPx}
             onFocusCardResize={fm.reportFocusCardHeight}
             onActivate={fm.activate}
