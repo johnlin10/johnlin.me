@@ -1385,12 +1385,10 @@
       "label": "View mode"
     },
     "hint": {
-      "explore": "Drag to explore · pinch to zoom · tap a photo"
+      "explore": "Drag to explore · pinch to zoom · tap a photo",
+      "exploreMouse": "Drag to explore · scroll to zoom · click a photo"
     },
     "controls": {
-      "zoomIn": "Zoom in",
-      "zoomOut": "Zoom out",
-      "fitWall": "Zoom out fully",
       "prevPhoto": "Previous photo",
       "nextPhoto": "Next photo"
     },

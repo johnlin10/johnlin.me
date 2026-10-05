@@ -16,6 +16,8 @@ interface PanZoomOptions {
   wall: Size
   /** 目前 viewport 尺寸；resize 時傳新值進來 */
   viewport: Size
+  /** focus 時照片能用的區域：視窗扣掉底部導覽列（左上對齊視窗） */
+  stage: Size
   minScale: number
   maxScale: number
   /** 手勢開始／結束回呼（供上層收起提示、凍住 hover、判定磁吸／退出 focus） */
@@ -69,6 +71,7 @@ const CAMERA_SPRING = { type: 'spring' as const, duration: 0.6, bounce: 0 }
 export function usePanZoom({
   wall,
   viewport,
+  stage,
   minScale,
   maxScale,
   onGestureStart,
@@ -82,8 +85,8 @@ export function usePanZoom({
   const [viewportEl, setViewportEl] = useState<HTMLElement | null>(null)
 
   // 最新的尺寸與縮放界限放進 ref，事件處理器才不會抓到舊 closure
-  const cfg = useRef({ wall, viewport, minScale, maxScale })
-  cfg.current = { wall, viewport, minScale, maxScale }
+  const cfg = useRef({ wall, viewport, stage, minScale, maxScale })
+  cfg.current = { wall, viewport, stage, minScale, maxScale }
 
   // 回呼放 ref：wheel 原生 listener 與手勢處理器才不會因 prop 每次變動而重掛
   const callbacks = useRef({
@@ -96,6 +99,8 @@ export function usePanZoom({
 
   // focus 中把平移夾在照片矩形內（而非整面牆）；null = 用整面牆的 clamp
   const clampRect = useRef<Rect | null>(null)
+  // focus 中該照片自己的放大上限（看原檔細節用）；與 maxScale 取大者，0 = 不放寬
+  const focusMaxScale = useRef(0)
 
   const pointers = useRef(new Map<number, { x: number; y: number }>())
   const panStart = useRef<{ x: number; y: number; tx: number; ty: number } | null>(
@@ -133,9 +138,9 @@ export function usePanZoom({
 
   /** 依目前是整面牆還是 focus 照片，選對的 clamp。 */
   const clampT = useCallback((t: Transform): Transform => {
-    const { wall, viewport } = cfg.current
+    const { wall, viewport, stage } = cfg.current
     return clampRect.current
-      ? clampTranslateToRect(t, clampRect.current, viewport)
+      ? clampTranslateToRect(t, clampRect.current, stage)
       : clampTranslate(t, wall, viewport)
   }, [])
 
@@ -143,7 +148,7 @@ export function usePanZoom({
   const apply = useCallback(
     (t: Transform) => {
       const { minScale, maxScale } = cfg.current
-      const s = clampScale(t.scale, minScale, maxScale)
+      const s = clampScale(t.scale, minScale, Math.max(maxScale, focusMaxScale.current))
       const clamped = clampT({ ...t, scale: s })
       x.set(clamped.x)
       y.set(clamped.y)
@@ -156,7 +161,7 @@ export function usePanZoom({
   const zoomAtPoint = useCallback(
     (nextScale: number, point: { x: number; y: number }, animated = false) => {
       const { minScale, maxScale } = cfg.current
-      const s = clampScale(nextScale, minScale, maxScale)
+      const s = clampScale(nextScale, minScale, Math.max(maxScale, focusMaxScale.current))
       const zoomed = anchorZoom(current(), s, point)
       const clamped = clampT(zoomed)
       if (animated) {
@@ -191,7 +196,7 @@ export function usePanZoom({
   const animateTo = useCallback(
     (t: Transform, opts?: { instant?: boolean; clampToWall?: boolean }) => {
       const { wall, viewport, minScale, maxScale } = cfg.current
-      const s = clampScale(t.scale, minScale, maxScale)
+      const s = clampScale(t.scale, minScale, Math.max(maxScale, focusMaxScale.current))
       // 進出 focus 的動畫目標可能超出當前 clamp 模式，允許指定用整面牆 clamp
       const clamped = opts?.clampToWall
         ? clampTranslate({ ...t, scale: s }, wall, viewport)
@@ -209,8 +214,10 @@ export function usePanZoom({
     [x, y, scale, clampT]
   )
 
-  const setClampRect = useCallback((rect: Rect | null) => {
+  /** focus 時設照片矩形與該照片的放大上限；退出時傳 null。 */
+  const setClampRect = useCallback((rect: Rect | null, maxScale = 0) => {
     clampRect.current = rect
+    focusMaxScale.current = rect ? maxScale : 0
   }, [])
 
   /** 以螢幕像素平移（給鍵盤方向鍵）。 */
@@ -336,7 +343,7 @@ export function usePanZoom({
         const nextScale = clampScale(
           start.scale * (distance() / start.dist),
           minScale,
-          maxScale
+          Math.max(maxScale, focusMaxScale.current)
         )
         apply({
           scale: nextScale,
@@ -420,10 +427,10 @@ export function usePanZoom({
           // 要看照片的其他部分，一放手就跳下一張是錯的——而且 fit 通常是被高度決
           // 定的，照片放大到兩倍水平仍可能沒超過視窗寬，光看 horizPinned 判不出來。
           const atFit =
-            !!cr && t.scale <= fitScaleForRect(cr, cfg.current.viewport) * 1.05
+            !!cr && t.scale <= fitScaleForRect(cr, cfg.current.stage) * 1.05
           // focus 中、照片縮放後寬度沒超過視窗（水平不能平移，拖了也只會彈回置中）
           const horizPinned =
-            atFit && !!cr && cr.w * t.scale <= cfg.current.viewport.width + 1
+            atFit && !!cr && cr.w * t.scale <= cfg.current.stage.width + 1
           const dx = start ? e.clientX - start.x : 0
           const dy = start ? e.clientY - start.y : 0
           if (

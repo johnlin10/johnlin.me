@@ -35,7 +35,6 @@ import { useFocusMachine } from './useFocusMachine'
 import WallPhoto from './WallPhoto'
 import PrefacePanel from './PrefacePanel'
 import YearMarker from './YearMarker'
-import WallControls from './WallControls'
 import FocusOverlay from './FocusOverlay'
 import GalleryModeToggle, { type GalleryViewMode } from './GalleryModeToggle'
 import WallHint from './WallHint'
@@ -54,6 +53,8 @@ const VIEW_PHOTOS_PEEK_PX = 180
 const COACH_STORAGE_KEY = 'gallery:coach-seen'
 const COACH_AUTO_HIDE_MS = 6000
 const VIRTUAL_OVERSCAN_PX = 900
+/** 聚焦時底部導覽列的高度（列高 44 + 下緣 20），照片 fit 時讓出來；改了要同步 .focusNav。 */
+const FOCUS_NAV_RESERVE_PX = 64
 /** 低於這個 scale 就收起照片下方的資訊卡（此時卡片字高不到 7px）。 */
 const CARD_LOD_SCALE = 0.5
 /** 放大後隔多久才把 sizes 升上去（縮小一律立即生效，見 sizesPx）。 */
@@ -150,6 +151,13 @@ export default function GalleryWall({
   const viewportRef = useRef<HTMLDivElement | null>(null)
   const [viewport, setViewport] = useState<Size>({ width: 0, height: 0 })
   const [isInteracting, setIsInteracting] = useState(false)
+  const stage = useMemo<Size>(
+    () => ({
+      width: viewport.width,
+      height: Math.max(0, viewport.height - FOCUS_NAV_RESERVE_PX),
+    }),
+    [viewport]
+  )
 
   // 首訪 coach mark：互動或計時到就淡出並記住
   const [showCoach, setShowCoach] = useState(false)
@@ -188,6 +196,7 @@ export default function GalleryWall({
   const pz = usePanZoom({
     wall,
     viewport,
+    stage,
     minScale,
     maxScale,
     onGestureStart: () => {
@@ -230,6 +239,7 @@ export default function GalleryWall({
     cells: layout.cells,
     wall,
     viewport,
+    stage,
     locale,
     reduceMotion,
   })
@@ -613,25 +623,14 @@ export default function GalleryWall({
         <FocusOverlay
           scale={pz.scale}
           fitScale={focusFitScale}
-          canPrev={
-            layout.cells.findIndex((c) => c.photo.slug === fm.focusedSlug) > 0
-          }
-          canNext={
-            layout.cells.findIndex((c) => c.photo.slug === fm.focusedSlug) <
-            layout.cells.length - 1
-          }
+          index={layout.cells.indexOf(focusedCell)}
+          total={layout.cells.length}
           onClose={() => fm.exit(false)}
           onPrev={() => fm.navigate(-1)}
           onNext={() => fm.navigate(1)}
           escHint={false}
         />
       )}
-
-      <WallControls
-        onZoomIn={() => zoomBy(1.4)}
-        onZoomOut={() => zoomBy(1 / 1.4)}
-        onFitWall={handleFitWall}
-      />
 
       {/* 牆↔清單切換：聚焦單張時淡出，不干擾看照片 */}
       {!fm.focusedSlug && (

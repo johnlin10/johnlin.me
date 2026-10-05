@@ -24,11 +24,18 @@ const ZOOMED_THRESHOLD = 1.05
 
 type PanZoom = ReturnType<typeof usePanZoom>
 
+/** 原檔一個像素對到螢幕一個 CSS 像素的倍率，聚焦時最多放大到這裡看細節。 */
+function nativeScaleOf(cell: WallCell): number {
+  return cell.photo.width / cell.w
+}
+
 interface FocusMachineOptions {
   pz: PanZoom
   cells: WallCell[]
   wall: Size
   viewport: Size
+  /** 照片 fit 用的區域：視窗扣掉底部導覽列 */
+  stage: Size
   locale: SupportedLocale
   reduceMotion: boolean
 }
@@ -43,6 +50,7 @@ export function useFocusMachine({
   cells,
   wall,
   viewport,
+  stage,
   locale,
   reduceMotion,
 }: FocusMachineOptions) {
@@ -75,8 +83,8 @@ export function useFocusMachine({
     []
   )
   const fitScaleOf = useCallback(
-    (cell: WallCell) => fitScaleForRect(rectOf(cell), viewport),
-    [rectOf, viewport]
+    (cell: WallCell) => fitScaleForRect(rectOf(cell), stage),
+    [rectOf, stage]
   )
 
   /** 對準某張照片（設 clamp、動畫到 fit、更新 focusedSlug）。 */
@@ -85,13 +93,13 @@ export function useFocusMachine({
       // 資訊卡高度要等該照片的卡片掛載後才量得到；先用目前的估值動畫過去，
       // 卡片一回報就用 spring 平滑重定目標（見 reportFocusCardHeight）。
       pendingRefit.current = true
-      pz.setClampRect(rectOf(cell))
-      pz.animateTo(fitTransform(rectOf(cell), viewport), {
+      pz.setClampRect(rectOf(cell), nativeScaleOf(cell))
+      pz.animateTo(fitTransform(rectOf(cell), stage), {
         instant: reduceMotion,
       })
       setFocusedSlug(cell.photo.slug)
     },
-    [pz, rectOf, viewport, reduceMotion]
+    [pz, rectOf, stage, reduceMotion]
   )
 
   /**
@@ -111,12 +119,12 @@ export function useFocusMachine({
       const cell = cellBySlug.get(cur)
       if (!cell) return
       pendingRefit.current = false
-      pz.setClampRect(rectOf(cell))
-      pz.animateTo(fitTransform(rectOf(cell), viewport), {
+      pz.setClampRect(rectOf(cell), nativeScaleOf(cell))
+      pz.animateTo(fitTransform(rectOf(cell), stage), {
         instant: reduceMotion,
       })
     },
-    [cellBySlug, pz, rectOf, viewport, reduceMotion]
+    [cellBySlug, pz, rectOf, stage, reduceMotion]
   )
 
   /**
@@ -199,13 +207,13 @@ export function useFocusMachine({
     if (!cell) return
     const r = pz.getTransform().scale / fitScaleOf(cell)
     if (r > ZOOMED_THRESHOLD) {
-      pz.animateTo(fitTransform(rectOf(cell), viewport), {
+      pz.animateTo(fitTransform(rectOf(cell), stage), {
         instant: reduceMotion,
       })
     } else {
       exit(false)
     }
-  }, [cellBySlug, pz, fitScaleOf, rectOf, viewport, reduceMotion, exit])
+  }, [cellBySlug, pz, fitScaleOf, rectOf, stage, reduceMotion, exit])
 
   // 只在「放大」手勢後才評估磁吸進場；記住上次沉降的 scale 判斷是否放大
   const lastSettled = useRef(0)

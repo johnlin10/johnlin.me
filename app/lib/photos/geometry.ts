@@ -43,6 +43,9 @@ export function fitWallTransform(
   }
 }
 
+/** 聚焦照片與視窗邊緣的留白（佔視窗長寬的比例）。fit 與放大後拖到底共用，留白才連續。 */
+export const FIT_PADDING = 0.06
+
 /**
  * 讓某個牆座標矩形（通常是一張照片）置中塞進 viewport 的 transform。
  * padding 讓照片不貼齊視窗邊緣；照片不會超出視窗（取 min）。
@@ -50,7 +53,7 @@ export function fitWallTransform(
 export function fitTransform(
   rect: Rect,
   viewport: Size,
-  padding = 0.06
+  padding = FIT_PADDING
 ): Transform {
   const vw = viewport.width * (1 - padding * 2)
   const vh = viewport.height * (1 - padding * 2)
@@ -143,7 +146,8 @@ function clamp(v: number, lo: number, hi: number): number {
 /**
  * 夾住平移，讓某個牆座標子矩形（focus 中的照片）維持覆蓋視窗。
  * 比整面牆的 clampTranslate 精準：放大後往旁邊拖時，中心照片不會漂到隔壁那張。
- * 矩形（在該 scale 下）比視窗大 → 邊緣不離開視窗內側；比視窗小 → 置中。
+ * 矩形（在該 scale 下）加上兩側 FIT_PADDING 留白後比視窗大 → 拖到底時邊緣停在留白處；
+ * 否則置中。兩段在交界處位置相同，放大過程留白不會突然消失。
  */
 export function clampTranslateToRect(
   t: Transform,
@@ -165,13 +169,14 @@ function clampRectAxis(
   viewportLength: number
 ): number {
   const scaled = rectLength * scale
-  if (scaled <= viewportLength) {
-    // 矩形比視窗小 → 置中：screen 起點 = (viewport - scaled)/2
+  const margin = viewportLength * FIT_PADDING
+  if (scaled + margin * 2 <= viewportLength) {
+    // 連同留白都塞得下 → 置中：screen 起點 = (viewport - scaled)/2
     return (viewportLength - scaled) / 2 - rectStart * scale
   }
-  // 矩形比視窗大 → 起點 <= 0（不露左/上）、終點 >= viewport（不露右/下）
-  const min = viewportLength - (rectStart + rectLength) * scale
-  const max = -rectStart * scale
+  // 塞不下 → 起點 <= margin、終點 >= viewport - margin
+  const min = viewportLength - margin - (rectStart + rectLength) * scale
+  const max = margin - rectStart * scale
   return clamp(value, min, max)
 }
 
@@ -179,7 +184,7 @@ function clampRectAxis(
 export function fitScaleForRect(
   rect: Rect,
   viewport: Size,
-  padding = 0.06
+  padding = FIT_PADDING
 ): number {
   const vw = viewport.width * (1 - padding * 2)
   const vh = viewport.height * (1 - padding * 2)
