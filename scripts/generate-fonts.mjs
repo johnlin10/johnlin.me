@@ -5,11 +5,12 @@
 // 因此不入庫（見 .gitignore），改由本腳本在 predev / prebuild 時生成。
 //
 // 來源：fonts/src/GenKiMin2TW-SB.otf（SIL OFL，源自 ButTaiwan/genyo-font v2.100）
-// 產物：public/fonts/genkimin/（*.woff2 + genkimin.css）
+// 產物：public/fonts/genkimin/（*.woff2 + genkimin.css + OFL.txt）
 //
 // 產物已存在則直接略過（冪等，很快）。要強制重生請先刪除 public/fonts/genkimin/。
 
 import {
+  copyFileSync,
   existsSync,
   mkdirSync,
   readdirSync,
@@ -27,6 +28,9 @@ const ROOT = resolve(__dirname, '..')
 const SRC = join(ROOT, 'fonts/src/GenKiMin2TW-SB.otf')
 const OUT = join(ROOT, 'public/fonts/genkimin')
 const CSS = join(OUT, 'genkimin.css')
+// OFL 要求散佈的字型（含分片）附上版權聲明與授權全文
+const LICENSE_SRC = join(ROOT, 'fonts/src/SIL_Open_Font_License_1.1.txt')
+const LICENSE_OUT = join(OUT, 'OFL.txt')
 
 const FAMILY = 'GenKiMinTW'
 const WEIGHT = '600' // 只自架 SemiBold 一個字重當作顯示襯線
@@ -35,6 +39,7 @@ const log = (msg) => console.log(`[fonts] ${msg}`)
 
 // 冪等：產物已在就跳過
 if (existsSync(CSS) && readdirSync(OUT).some((f) => f.endsWith('.woff2'))) {
+  copyFileSync(LICENSE_SRC, LICENSE_OUT)
   log('分片已存在，略過生成。')
   process.exit(0)
 }
@@ -69,7 +74,7 @@ await fontSplit({
 
 // 清掉非字型產物（manifest 等），只留 woff2 + css
 for (const f of readdirSync(OUT)) {
-  if (!f.endsWith('.woff2') && f !== 'genkimin.css') {
+  if (!f.endsWith('.woff2') && f !== 'genkimin.css' && f !== 'OFL.txt') {
     rmSync(join(OUT, f), { force: true })
   }
 }
@@ -80,6 +85,8 @@ if (css.includes('local(')) {
   css = css.replace(/local\("[^"]*"\),?/g, '')
   writeFileSync(CSS, css, 'utf8')
 }
+
+copyFileSync(LICENSE_SRC, LICENSE_OUT)
 
 const count = readdirSync(OUT).filter((f) => f.endsWith('.woff2')).length
 log(`完成：${count} 片 woff2 + genkimin.css → public/fonts/genkimin/`)

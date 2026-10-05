@@ -235,4 +235,10 @@ These docs drift as the code changes; update them after each larger change.
 
 ## License
 
-The code is MIT licensed; see [LICENSE](LICENSE). The site's writing, photos, and design are not covered by the license.
+The code is licensed under [AGPL-3.0-or-later](LICENSE). You are welcome to study it and borrow ideas; if you run a modified copy as a website, you must publish its full source under the same license and keep the copyright notice.
+
+Not covered by that license (see [LICENSE](LICENSE) for details):
+
+- **Content**: posts, notes, and photos are all rights reserved.
+- **Visual identity**: the name, logo, icons, and images under `public/assets/` are all rights reserved; a copy must replace them.
+- **Third-party files**: the GenKiMin2 TW font is under the SIL Open Font License 1.1 ([`fonts/src/SIL_Open_Font_License_1.1.txt`](fonts/src/SIL_Open_Font_License_1.1.txt)); npm packages keep their own licenses.
