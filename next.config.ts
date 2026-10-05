@@ -4,6 +4,8 @@ import createNextIntlPlugin from 'next-intl/plugin'
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+  // 別讓 next dev 把官方區塊寫回 AGENTS.md，該段內容已併入文件。
+  agentRules: false,
   // 本機用 studio.localhost:3000、tools.localhost:3000 開子網域，不列進來 dev server 會擋掉它們的 HMR 與開發資源。
   allowedDevOrigins: ['studio.localhost', 'tools.localhost'],
   typescript: {

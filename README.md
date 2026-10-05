@@ -1,226 +1,238 @@
 # johnlin.me
 
-個人網站，包含部落格、短文、攝影作品集、自建後台 CMS，以及私人工具（課表、完善就學排程、知識庫、短網址、QR Code）。
+Personal website with a blog, short notes, a photography portfolio, a self-built CMS, and private tools (class schedule, tutoring scheduler, knowledge base, short links, QR codes).
 
-- 網址：<https://johnlin.me>
-- 子網域：`studio.johnlin.me`（後台）、`tools.johnlin.me`（私人工具）、`go.johnlin.me`（短網址）
-- 語系：繁體中文（預設，網址不帶前綴）／英文（`/en/...`）
-- 部署：Vercel
-
----
-
-## 目錄
-
-- [技術棧](#技術棧)
-- [功能總覽](#功能總覽)
-- [架構](#架構)
-- [開發](#開發)
-- [專案結構](#專案結構)
-- [延伸文件](#延伸文件)
-- [授權](#授權)
+- Site: <https://johnlin.me>
+- Subdomains: `studio.johnlin.me` (CMS), `tools.johnlin.me` (private tools), `go.johnlin.me` (short links)
+- Languages: Traditional Chinese (default, no URL prefix) / English (`/en/...`)
+- Hosting: Vercel
 
 ---
 
-## 技術棧
+## Contents
 
-| 分類         | 使用                                                                               |
-| ------------ | ---------------------------------------------------------------------------------- |
-| 框架         | Next.js 16（App Router）、React 19、TypeScript 5                                   |
-| 樣式         | Sass/SCSS Modules（三層 token 架構）、Tailwind CSS 4（少量使用）                   |
-| 資料庫／認證 | Supabase：Postgres + Auth（Google OAuth）+ Storage，`@supabase/ssr` cookie session |
-| 物件儲存     | Cloudflare R2（攝影原檔與衍生圖，公開網域 `img.johnlin.me`）                       |
-| 編輯器       | Tiptap 3                                                                           |
-| AI           | Vercel AI SDK + AI Gateway（後台欄位輔助）                                         |
-| i18n         | next-intl 4（`localePrefix: 'as-needed'`）                                         |
-| 影像處理     | sharp（伺服器端衍生圖）、exifr（瀏覽器端 EXIF 解析）                               |
-| 其他         | Motion（動效）、KaTeX（數學式）、next-themes（主題切換）                           |
+- [Tech stack](#tech-stack)
+- [Features](#features)
+- [Architecture](#architecture)
+- [Development](#development)
+- [Project structure](#project-structure)
+- [Further docs](#further-docs)
+- [License](#license)
 
 ---
 
-## 功能總覽
+## Tech stack
 
-### 前台
-
-| 路由                             | 說明                                                                                                  | 關鍵實作                                                                                                                   |
-| -------------------------------- | ----------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
-| `/`                              | 首頁。Hero、自介、精選作品、最新文章、攝影入口                                                        | 快取頁；Hero 的程式碼視窗於執行期以 `fs.readFile` 讀取自身元件原始碼                                                     |
-| `/blog`                          | 文章列表                                                                                              | `getPublishedPosts()`，單頁 30 篇                                                                                          |
-| `/blog/[slug]`                   | 文章內頁。雙語內容獨立撰寫，缺英文版時退回中文並提示                                                  | Tiptap 產出的 HTML 直接注入；目錄於儲存時預先計算，前台以 `IntersectionObserver` 高亮；KaTeX 補渲染；瀏覽數走 Postgres RPC |
-| `/notes` `/notes/[id]`           | 短文動態牆。純文字加最多數張圖，無標題／草稿／分類                                                    | 與文章完全獨立的資料流；原生 `<img>` 圖片網格 + 自製燈箱                                                                   |
-| `/photography`                       | 攝影。預設為可拖曳縮放的照片牆，可切換齊行清單（偏好存 localStorage）；SSR／無 JS／爬蟲取得簡化清單 | 視窗虛擬化 + 遠景 LOD；`<img srcSet>` 直連 R2 的 8 階 WebP，繞過 Vercel 圖片最佳化                                         |
-| `/photography/[slug]`                | 單張作品頁。拍攝時間、相機鏡頭、地點、HDR                                                             | ISR + `generateStaticParams`；LCP 圖以 `fetchPriority="high"` 載入，聚焦時載原檔                                           |
-| `/about`                         | 分章節自介，切章節不換網址                                                                            | `content/about/<slug>.<locale>.md` + react-markdown                                                                        |
-| `/lab/design`                    | 設計系統活頁，即時渲染 CSS 變數為色票／間距／字級，可點擊複製                                         | `getComputedStyle` 解析實際計算值                                                                                          |
-| `/tutoring/[token]`              | 完善就學的公開唯讀頁，給一起參加的同學看。週時間軸、疊課表比對、這週時段列表與該月時數；只能翻前後一個月 | 不登入，資料走 SECURITY DEFINER 函式 `get_tutoring_board`，token 不對或連結關閉回 404；`noindex`、不帶 Referer，不套主站 Header／Footer |
-| `/kb/[token]/[代碼]`              | 知識庫分享頁。顯示分享的筆記或資料夾，加上順著連結、經過「知識資料夾」連得到的筆記；滑過連結可預覽該篇 | 每篇筆記一組 6 碼代碼，網址不帶中文；資料走 SECURITY DEFINER 函式 `get_kb_share`、`get_kb_shared_note`，只回分享範圍內的路徑；OG 圖由 `/api/kb/og` 即時產生；`noindex`、不帶 Referer，不套主站 Header／Footer |
-| `/rss/blog.xml` `/rss/notes.xml` | 兩支獨立 RSS feed                                                                                     | `force-dynamic`，目前僅中文版                                                                                              |
-
-公開頁全部走快取：資料用不帶 cookie 的 `createPublicClient()`、每 300 秒重新產生，後台一寫入就打 `/api/admin/{posts,notes,photos}/revalidate` 立即清掉。頁面不能讀 cookie、header 或查詢字串，讀者偏好（Blog 卡片／列表、About 的章節）改由 inline script 在畫面顯示前套用。改完公開頁要跑 `next build`，看路由表有沒有變成 ƒ（每次請求才算）。
-
-### 後台（`studio.johnlin.me`，需管理員身分）
-
-後台放在獨立子網域，可單獨安裝成 PWA（John Lin Studio）。程式碼在 `app/[locale]/studio/`，由 proxy 依 Host 對應過去；主站的 `/studio` 一律回 404。雙語規則與主站相同（中文無前綴、英文 `/en`）。
-
-| 路由                                  | 說明                                                                                                                                                                 |
-| ------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `/`                                   | 儀表板：總數與瀏覽數、熱門文章、相機／焦段／年份分布、近期動態，以及待補的項目（缺英文版、久沒動的草稿、照片缺說明或地點）                                         |
-| `/posts`                              | 文章 CRUD。Tiptap 編輯器；草稿階段自動存檔（1.2s debounce／8s 上限），發布後改為手動更新；離開未編輯過的空草稿會自動刪除                                             |
-| `/photos`                             | 依年份分段的縮圖牆 + 檢閱欄，支援鍵盤巡覽與批次操作；欄位自動存檔                                                                                                    |
-| `/photos/upload`                      | 上傳預檢。瀏覽器端解 EXIF 並產生 slug，確認後才上傳；原檔以 presigned PUT 直傳 R2（避開函式 4.5 MB body 上限），再由 ingest 端點以 sharp 產出各尺寸、OG 圖與模糊佔位 |
-| `/notes`                              | 短文發布與刪除                                                                                                                                                       |
-| `/categories` `/tags` `/series`       | 分類／標籤／系列管理（系列前台頁面尚未實作）                                                                                                                         |
-| `/login`                              | Google OAuth 單一登入方式                                                                                                                                            |
-
-後台使用自行實作的元件庫（`Button`／`Input`／`Modal`／`ConfirmDialog`／`Toast`／`DataTable` 等），未引入外部 UI 套件；tools 子網域共用同一套元件與外殼。側邊欄上方有「返回首頁」和切到另一個子網域的連結。
-
-登入 cookie（`sb-johnlin-auth`）寫在整個 `.johnlin.me`，studio 和 tools 登入一次就通用，登出也一起登出，設定在 `app/lib/supabase/authCookie.ts`。本機 `*.localhost` 設不了共用網域，兩邊要各登入一次。
-
-本機開發用 Chrome 開 `http://studio.localhost:3000`（Safari 不一定解析得到 `*.localhost`）。
-
-### 工具（`tools.johnlin.me`，需管理員身分）
-
-私人工具箱，編輯與顯示在同一頁，不經過後台。沿用後台的外殼、側邊欄與 Google 登入，可單獨安裝成 PWA（John Lin Tools）。程式碼在 `app/[locale]/tools/`，分流與守衛規則同後台；主站的 `/tools` 一律回 404。
-
-| 路由            | 說明                                                                                                                                         |
-| --------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| `/`             | 工具總覽：今天（或下一個有課的日子）的課和輔導時間軸、學期進度與期中期末倒數，每張工具卡片帶一行即時摘要                                     |
-| `/schedule`     | 週課表，依成員與學期切換，每個人一份課表，課程與老師跨人共用。點空格新增時段、點課程編輯，同一天節次重疊會擋下；可整份複製別人的課表。學期有起訖日期與期中、期末週，課程有 15 種預設顏色與選填學分。國定假日可從 Google 台灣假日行事曆匯入，補課日手動填；放假那天不長課 |
-| `/tutoring`     | 完善就學排程。月份與週次切換、週一到週五的時間軸，點空白新增輔導時段（任意開始時間、1–8 小時每 0.5 一階）；存檔前檢查週末、參與者與老師的課、重複排程。疊一個人的課表找空檔，下方是每人該月時數（受 40 小時上限的三個方案合計、證照輔導另計）。管理區放成員、課表以外的忙碌時間與公開連結 |
-| `/links`        | 短網址管理。沒填 slug 時自動產生 6 碼（避開 l／o／0／1），建立後自動複製；列出總點擊與近 7 天點擊。每列的選單可直接開 QR Code 編輯器       |
-| `/links/[slug]` | 單一短網址統計：總計／30 天／7 天點擊、90 天每日長條圖、來源網域與國家排行                                                                  |
-| `/qr`           | QR Code 產生器。網址、文字、Wi-Fi、聯絡人、Email、簡訊、電話、位置 8 種格式；可調容錯等級、點陣與定位點圓角、顏色（背景可透明），下載 PNG 或 SVG，存的是表單欄位，叫回來還能改 |
-| `/kb`           | 知識庫。選 Obsidian 的頂層資料夾（目前只收 `學校/`）整包上傳，只送新增和改過的筆記；標記知識資料夾、對任一篇或資料夾開分享連結，可改名、撤銷。上傳要用電腦，iPhone Safari 不能選資料夾 |
-| `/login`        | 與後台相同的 Google 登入                                                                                                                     |
-
-週課表的網格是獨立元件 `app/components/schedule/ScheduleGrid`，之後主站要展示課表時直接沿用。完善就學的時間軸是 `WeekTimeline`，時間軸、比對與時數表整組是 `TutoringBoard`，編輯頁與公開頁共用；課表的節次經 `app/lib/schedule/periods.ts` 換算成學校的上課時間（1–10 節，加午休 A、第 8、9 節之間的 B）。放假與補課由 `classDay()` 判斷，總覽、週看板和排程檢查都走它。方案名稱學校沒有官方英文，英文介面也用中文。
-
-本機開發開 `http://tools.localhost:3000`。
-
-### 短網址（`go.johnlin.me`）
-
-`go.johnlin.me/<slug>` 由 proxy 直接處理，不進 App Router：呼叫 `resolve_short_link` 查目標並記一筆點擊，查到就 307 轉址（不用 301，改了目標網址馬上生效），查不到回簡單的 404 頁，根路徑轉回主站。slug 不分大小寫。
-
-連結預覽爬蟲與 HEAD 請求照轉但不計點擊；點擊只記來源網域與國家（`x-vercel-ip-country`），不存完整 referrer、IP 或 user agent。每個 slug 每小時最多記 200 筆，超過照樣轉址，只是不再記錄。
-
-本機開發開 `http://go.localhost:3000/<slug>`。
-
-### AI 輔助
-
-`POST /api/admin/ai` 僅支援四種任務：slug 建議、摘要、封面圖 alt 文字（多模態）、SEO 關鍵字。以 Zod discriminated union 驗證輸入，經 AI Gateway 呼叫模型。欄位為空時直接套用，已有內容時顯示建議卡片供確認，不會覆寫既有內容。
+| Area           | Uses                                                                                  |
+| -------------- | ------------------------------------------------------------------------------------- |
+| Framework      | Next.js 16 (App Router), React 19, TypeScript 5                                       |
+| Styling        | Sass/SCSS Modules (three-layer token system), Tailwind CSS 4 (light use)              |
+| Database, auth | Supabase: Postgres + Auth (Google OAuth) + Storage, `@supabase/ssr` cookie session    |
+| Object storage | Cloudflare R2 (photo originals and derivatives, public domain `img.johnlin.me`)       |
+| Editor         | Tiptap 3                                                                              |
+| AI             | Vercel AI SDK + AI Gateway (CMS field assist)                                         |
+| i18n           | next-intl 4 (`localePrefix: 'as-needed'`)                                             |
+| Images         | sharp (server-side derivatives), exifr (EXIF parsing in the browser)                  |
+| Other          | Motion (animation), KaTeX (math), next-themes (theme switching)                       |
 
 ---
 
-## 架構
+## Features
 
-### 請求流程
+### Public site
+
+| Route                            | What it is                                                                                                                                  | Key implementation                                                                                                                       |
+| -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| `/`                              | Home. Hero, intro, featured work, latest posts, photography entry                                                                          | Cached page; the hero's code window reads its own component source at runtime with `fs.readFile`                                        |
+| `/blog`                          | Post list                                                                                                                                   | `getPublishedPosts()`, 30 posts per page                                                                                                 |
+| `/blog/[slug]`                   | Post page. Each language is written separately; a missing English version falls back to Chinese with a notice                              | Tiptap HTML injected directly; table of contents computed on save and highlighted with `IntersectionObserver`; KaTeX rendered on the client; view count via a Postgres RPC |
+| `/notes` `/notes/[id]`           | Short-note feed. Plain text plus a few images, with no title, drafts, or categories                                                         | Data flow fully separate from posts; native `<img>` grid and a custom lightbox                                                           |
+| `/photography`                   | Photography. Defaults to a draggable, zoomable photo wall, with a justified list as an alternative (preference kept in localStorage); SSR, no-JS, and crawlers get a simple list | Viewport virtualization + far-view LOD; `<img srcSet>` straight from R2's 8-step WebP ladder, bypassing Vercel image optimization |
+| `/photography/[slug]`            | Single photo page. Capture time, camera and lens, location, HDR                                                                            | ISR + `generateStaticParams`; the LCP image loads with `fetchPriority="high"`, the original loads when focused                          |
+| `/about`                         | Chaptered about page; switching chapters keeps the URL                                                                                     | `content/about/<slug>.<locale>.md` + react-markdown                                                                                      |
+| `/lab/design`                    | Living design-system page that renders CSS variables as swatches, spacing, and type sizes, click to copy                                   | Reads computed values with `getComputedStyle`                                                                                            |
+| `/tutoring/[token]`              | Read-only public tutoring board for classmates in the program. Week timeline, schedule overlay, this week's sessions, and the month's hours; pages one month back or forward only | No login; data from the SECURITY DEFINER function `get_tutoring_board`, 404 on a wrong token or closed link; `noindex`, no Referer, no site Header/Footer |
+| `/kb/[token]/[code]`             | Knowledge-base share page. Shows the shared note or folder, plus notes reachable by following links through "knowledge folders"; hovering a link previews that note | Each note has a 6-character code, so URLs carry no Chinese; data from the SECURITY DEFINER functions `get_kb_share` and `get_kb_shared_note`, which return only paths inside the shared scope; OG images generated on demand by `/api/kb/og`; `noindex`, no Referer, no site Header/Footer |
+| `/rss/blog.xml` `/rss/notes.xml` | Two separate RSS feeds                                                                                                                      | `force-dynamic`; Chinese only for now                                                                                                    |
+
+Every public page is cached: data comes from the cookieless `createPublicClient()` and regenerates every 300 seconds, and any CMS write calls `/api/admin/{posts,notes,photos}/revalidate` to clear it at once. Pages cannot read cookies, headers, or query strings, so reader preferences (blog cards or list, the about chapter) are applied by an inline script before paint. After changing a public page, run `next build` and check that the route table has not turned it into ƒ (computed per request).
+
+### CMS (`studio.johnlin.me`, admin only)
+
+The CMS lives on its own subdomain and installs as a separate PWA (John Lin Studio). The code is in `app/[locale]/studio/`, reached through a Host-based proxy rewrite; `/studio` on the main site always returns 404. Language rules match the main site (Chinese without prefix, English at `/en`).
+
+| Route                           | What it is                                                                                                                                                                          |
+| ------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `/`                             | Dashboard: totals and views, top posts, camera / focal length / year breakdowns, recent activity, and items to fill in (missing English, stale drafts, photos without a caption or location) |
+| `/posts`                        | Post CRUD. Tiptap editor; drafts autosave (1.2s debounce, 8s cap), published posts switch to manual updates; an untouched empty draft is deleted when you leave                   |
+| `/photos`                       | Thumbnail wall grouped by year plus an inspector, with keyboard navigation and batch actions; fields autosave                                                                      |
+| `/photos/upload`                | Upload preflight. EXIF is parsed and a slug generated in the browser before anything uploads; originals go straight to R2 by presigned PUT (avoiding the function's 4.5 MB body limit), then an ingest endpoint builds every size, the OG image, and the blur placeholder with sharp |
+| `/notes`                        | Publish and delete notes                                                                                                                                                            |
+| `/categories` `/tags` `/series` | Category, tag, and series management (series has no public page yet)                                                                                                                |
+| `/login`                        | Google OAuth, the only sign-in method                                                                                                                                               |
+
+The CMS uses its own component library (`Button`, `Input`, `Modal`, `ConfirmDialog`, `Toast`, `DataTable`, and others) with no external UI package; the tools subdomain shares the same components and shell. The top of the sidebar links back to the home page and to the other subdomain.
+
+The login cookie (`sb-johnlin-auth`) is set on all of `.johnlin.me`, so one sign-in covers studio and tools, and signing out ends both. It is configured in `app/lib/supabase/authCookie.ts`. Locally, `*.localhost` cannot share a cookie domain, so each needs its own sign-in.
+
+For local development, open `http://studio.localhost:3000` in Chrome (Safari does not always resolve `*.localhost`).
+
+### Tools (`tools.johnlin.me`, admin only)
+
+A private toolbox where editing and viewing happen on the same page, outside the CMS. It reuses the CMS shell, sidebar, and Google sign-in, and installs as a separate PWA (John Lin Tools). The code is in `app/[locale]/tools/`, with the same routing and guard as the CMS; `/tools` on the main site always returns 404.
+
+| Route           | What it is                                                                                                                                                                                                                       |
+| --------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `/`             | Overview: a timeline of today's (or the next class day's) classes and tutoring, semester progress with midterm and final countdowns, and a one-line live summary on each tool card                                              |
+| `/schedule`     | Weekly class schedule, switchable by member and semester. Each person has a schedule, while courses and teachers are shared. Click an empty cell to add a slot, click a course to edit; overlapping periods on the same day are blocked; a whole schedule can be copied from someone else. Semesters have start and end dates and midterm and final weeks; courses have 15 preset colors and optional credits. National holidays import from Google's Taiwan holiday calendar, make-up days are entered by hand, and no classes appear on days off |
+| `/tutoring`     | Tutoring scheduler. Month and week switching, a Monday–Friday timeline, click empty space to add a session (any start time, 1–8 hours in 0.5 steps); saving checks for weekends, conflicts with the participants' and teachers' classes, and duplicates. Overlay one person's schedule to find gaps; below are each person's hours for the month (the three programs under the 40-hour cap summed, certificate tutoring counted separately). The management area holds members, non-class busy times, and the public link |
+| `/links`        | Short-link management. Without a slug, a 6-character one is generated (avoiding l, o, 0, 1) and copied after creation; lists total clicks and clicks in the last 7 days. Each row's menu opens the QR code editor directly      |
+| `/links/[slug]` | Stats for one short link: total, 30-day, and 7-day clicks, a 90-day daily bar chart, and top referrer domains and countries                                                                                                     |
+| `/qr`           | QR code generator with 8 formats: URL, text, Wi-Fi, contact, email, SMS, phone, location. Adjustable error correction, rounded dots and finder patterns, colors (transparent background allowed); downloads PNG or SVG. It saves the form fields, so a saved code can be reopened and edited |
+| `/kb`           | Knowledge base. Pick a top-level Obsidian folder (only `學校/` for now) and upload it whole; only new and changed notes are sent. Mark knowledge folders and open a share link on any note or folder, which can be renamed or revoked. Uploading needs a computer, since iPhone Safari cannot pick folders |
+| `/login`        | The same Google sign-in as the CMS                                                                                                                                                                                               |
+
+The weekly grid is a standalone component, `app/components/schedule/ScheduleGrid`, ready for the main site to reuse when it shows a schedule. The tutoring timeline is `WeekTimeline`, and the whole timeline, overlay, and hours table set is `TutoringBoard`, shared by the edit page and the public page. Class periods map to the school's bell times through `app/lib/schedule/periods.ts` (periods 1–10, plus A at lunch and B between periods 8 and 9). Days off and make-up days are decided by `classDay()`, which the overview, the week board, and the scheduling checks all use. The program names have no official English, so the English UI keeps them in Chinese.
+
+For local development, open `http://tools.localhost:3000`.
+
+### Short links (`go.johnlin.me`)
+
+`go.johnlin.me/<slug>` is handled directly in the proxy and never reaches the App Router. It calls `resolve_short_link` to look up the target and record a click, then 307-redirects on a hit (not 301, so a changed target takes effect immediately) or shows a plain 404 page on a miss; the root path redirects to the main site. Slugs are case-insensitive.
+
+Link-preview crawlers and HEAD requests are redirected but not counted. A click records only the referrer domain and country (`x-vercel-ip-country`), never the full referrer, IP, or user agent. Each slug records at most 200 clicks per hour; beyond that it still redirects but stops recording.
+
+For local development, open `http://go.localhost:3000/<slug>`.
+
+### AI assist
+
+`POST /api/admin/ai` supports only four tasks: slug suggestion, summary, cover image alt text (multimodal), and SEO keywords. Input is validated with a Zod discriminated union, and the model is called through AI Gateway. An empty field is filled directly; a field with content shows a suggestion card to confirm, so existing content is never overwritten.
+
+---
+
+## Architecture
+
+### Request flow
 
 ```txt
 Request
- └─ proxy.ts（Next 16 的 middleware）
-     ├─ go.* 子網域：rpc('resolve_short_link') → 307 轉址或 404，不進 App Router
-     ├─ 主站：next-intl 語系處理；/studio/*、/tools/* 回 404；/tutoring/[token]、/kb/[token] 照一般頁面處理
-     └─ studio.*／tools.* 子網域：next-intl 語系處理 → 改寫到 /[locale]/studio/*、/[locale]/tools/*
-         └─ /login 以外 → Supabase getUser() + rpc('is_admin')，未通過導向 /login
- └─ app/[locale]/layout.tsx（字體、i18n provider、主題、Header/Footer）
+ └─ proxy.ts (Next 16's middleware)
+     ├─ go.* subdomain: rpc('resolve_short_link') → 307 redirect or 404, never reaches the App Router
+     ├─ main site: next-intl locale handling; /studio/* and /tools/* return 404; /tutoring/[token] and /kb/[token] render as normal pages
+     └─ studio.* / tools.* subdomains: next-intl locale handling → rewrite to /[locale]/studio/* or /[locale]/tools/*
+         └─ everything except /login → Supabase getUser() + rpc('is_admin'), redirect to /login on failure
+ └─ app/[locale]/layout.tsx (fonts, i18n provider, theme, Header/Footer)
  └─ page.tsx
 ```
 
-`/api/**` 不經過 proxy（matcher 明確排除），因此每支後台 API 需自行呼叫 `requireAdmin()`。
+`/api/**` skips the proxy (explicitly excluded by its matcher), so every admin API calls `requireAdmin()` itself.
 
-全站回應都帶 `frame-ancestors 'none'`、`X-Frame-Options: DENY` 與 `nosniff`（`next.config.ts`），不讓別的網站用 iframe 嵌入。
+Every response carries `frame-ancestors 'none'`, `X-Frame-Options: DENY`, and `nosniff` (`next.config.ts`), so no other site can embed it in an iframe.
 
-### 資料存取
+### Data access
 
-- 三種 Supabase client 分工：`client.ts`（瀏覽器）、`server.ts`（帶 cookie、受 RLS 約束）、`public.ts`（匿名、可進 `unstable_cache`）。前兩個和 proxy 都要帶 `authCookieOptions(host)`，登入才會跨子網域通用。
-- **無 service-role key。** 所有寫入均使用 anon key 加呼叫者 session，權限由 Postgres RLS 決定。
-- 課表、短網址、完善就學、QR Code 與知識庫的資料表只有管理員能讀寫；訪客只能透過 SECURITY DEFINER 函式存取：`resolve_short_link` 解析已知的 slug，無法列出連結或點擊紀錄；`get_tutoring_board` 要 token 對上已開啟的公開連結才回資料，而且不回時段備註；`get_kb_share`、`get_kb_shared_note` 只回分享範圍內的筆記，路徑從分享起點算起，不露出 vault 的完整路徑。時薪與身分別不存。
-- 媒體分流：文章與短文圖片存 Supabase Storage；攝影作品存 Cloudflare R2，物件 key 使用不可變的 UUID 前綴。
+- Three Supabase clients split the work: `client.ts` (browser), `server.ts` (with cookies, bound by RLS), `public.ts` (anonymous, usable inside `unstable_cache`). The first two and the proxy must pass `authCookieOptions(host)` for sign-in to carry across subdomains.
+- **No service-role key.** Every write uses the anon key plus the caller's session, and Postgres RLS decides permissions.
+- The schedule, short-link, tutoring, QR code, and knowledge-base tables are readable and writable by the admin only; visitors reach them only through SECURITY DEFINER functions. `resolve_short_link` resolves a known slug and cannot list links or clicks; `get_tutoring_board` returns data only when the token matches an open public link, and leaves out session notes; `get_kb_share` and `get_kb_shared_note` return only notes inside the shared scope, with paths counted from the share root so the vault's full paths stay hidden. Hourly pay and identity categories are not stored.
+- Media split: post and note images live in Supabase Storage; photography lives in Cloudflare R2 under immutable UUID-prefixed object keys.
 
 ---
 
-## 開發
+## Development
 
-### 需求
+### Requirements
 
 - Node.js 20+
-- Supabase 專案與 Cloudflare R2 bucket（本機開發同樣連遠端服務）
+- A Supabase project and a Cloudflare R2 bucket (local development connects to the remote services too)
 
-### 啟動
+### Getting started
 
 ```bash
 npm install
-npm run dev      # predev 會先執行字型子集化
+npm run dev      # predev runs font subsetting first
 ```
 
-### 指令
+### Commands
 
-| 指令                                | 說明                                                   |
-| ----------------------------------- | ------------------------------------------------------ |
-| `npm run dev`                       | 開發伺服器                                             |
-| `npm run build`                     | 正式建置                                               |
-| `npm run start`                     | 啟動建置後的伺服器                                     |
-| `npm run lint` / `npm run lint:fix` | ESLint                                                 |
-| `npm run generate:fonts`            | 產生中文字型子集至 `fonts/`；dev 與 build 前會自動執行 |
-| `node scripts/generate-og.mjs`      | 重新產生預設 OG 圖                                     |
-| `node --test <路徑>.test.mjs`       | 單元測試（課表節次、短網址 slug、完善就學時數與學期判斷、假日解析、總覽、QR Code、知識庫）；要給檔案路徑，不能給資料夾，且需 Node 22.18+ 才能直接載入 `.ts` |
+| Command                             | What it does                                                                                                                                                                    |
+| ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `npm run dev`                       | Dev server                                                                                                                                                                      |
+| `npm run build`                     | Production build                                                                                                                                                                |
+| `npm run start`                     | Serve the production build                                                                                                                                                      |
+| `npm run lint` / `npm run lint:fix` | ESLint                                                                                                                                                                          |
+| `npm run generate:fonts`            | Build the Chinese font subsets into `fonts/`; runs automatically before dev and build                                                                                           |
+| `node scripts/generate-og.mjs`      | Regenerate the default OG image                                                                                                                                                 |
+| `node --test <path>.test.mjs`       | Unit tests (schedule periods, short-link slugs, tutoring hours and semester logic, holiday parsing, overview, QR codes, knowledge base); takes a file path, not a folder, and needs Node 22.18+ to load `.ts` directly |
 
-### 環境變數
+### Environment variables
 
-於專案根目錄建立 `.env`：
+Create `.env` at the project root:
 
-| 變數                                        | 用途                                                            |
-| ------------------------------------------- | --------------------------------------------------------------- |
-| `NEXT_PUBLIC_SITE_URL`                      | RSS 與 canonical URL                                            |
-| `NEXT_PUBLIC_SUPABASE_URL`                  | Supabase 專案網址                                               |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY`             | Supabase anon key                                               |
-| `AI_GATEWAY_API_KEY`                        | AI Gateway 金鑰，由 AI SDK 依慣例讀取                           |
-| `R2_BUCKET`                                 | R2 bucket 名稱                                                  |
-| `R2_S3_ENDPOINT`                            | R2 的 S3 相容端點                                               |
-| `R2_ACCESS_KEY_ID` / `R2_SECRET_ACCESS_KEY` | R2 憑證                                                         |
-| `NEXT_PUBLIC_R2_PUBLIC_BASE`                | R2 公開存取網域                                                 |
-| `R2_KEY_PREFIX`                             | 選用。為物件 key 加上命名空間；本機設定會一併影響實際上傳的照片 |
+| Variable                                    | Purpose                                                                       |
+| ------------------------------------------- | ----------------------------------------------------------------------------- |
+| `NEXT_PUBLIC_SITE_URL`                      | RSS and canonical URLs                                                        |
+| `NEXT_PUBLIC_SUPABASE_URL`                  | Supabase project URL                                                          |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY`             | Supabase anon key                                                             |
+| `AI_GATEWAY_API_KEY`                        | AI Gateway key, read by the AI SDK by convention                              |
+| `R2_BUCKET`                                 | R2 bucket name                                                                |
+| `R2_S3_ENDPOINT`                            | R2's S3-compatible endpoint                                                   |
+| `R2_ACCESS_KEY_ID` / `R2_SECRET_ACCESS_KEY` | R2 credentials                                                                |
+| `NEXT_PUBLIC_R2_PUBLIC_BASE`                | R2 public domain                                                              |
+| `R2_KEY_PREFIX`                             | Optional. Namespaces object keys; a local setting also affects photos actually uploaded |
 
-### 資料庫
+### Database
 
-`supabase/migrations/` 目前涵蓋攝影、文章每日瀏覽數、課表、假日、短網址、完善就學、QR Code 與知識庫的資料表；`supabase/tests/` 放可重跑、跑完回滾的 SQL 檢查。文章等較早建立的資料表與 RPC 函式尚未納入版控，詳見 [`supabase/README.md`](supabase/README.md)。套用方式為手動執行 SQL，未接 Supabase CLI 流程。
+`supabase/migrations/` currently covers the photography, daily post views, schedule, holiday, short-link, tutoring, QR code, and knowledge-base tables; `supabase/tests/` holds rerunnable SQL checks that roll back when done. Older tables such as posts, and their RPC functions, are not yet under version control; see [`supabase/README.md`](supabase/README.md). Migrations are applied by running the SQL by hand; the Supabase CLI workflow is not set up.
 
 ---
 
-## 專案結構
+## Project structure
 
 ```txt
-app/
-  [locale]/          # 前台頁面、tutoring/ 與 kb/ 公開分享頁、studio/ 後台（studio.johnlin.me）、tools/ 工具（tools.johnlin.me）
-  api/               # /api/admin/{ai,holidays,photos/*}、/api/admin/*/revalidate、/api/kb/og、/api/views
-  components/        # 依區塊分組：home / blog / gallery / notes / admin / schedule
-  lib/               # supabase / r2 / blog / notes / photos / images / ai / schedule / shortLinks / tutoring / holidays / overview / qr / kb …
-  styles/            # 設計系統 token：_tokens / _theme / _mixins / _breakpoints
-  rss/               # blog.xml、notes.xml
-content/about/       # 關於頁 Markdown（<slug>.<locale>.md）
-docs/                # 藍圖與設計系統文件
-i18n/ messages/      # next-intl 設定與翻譯字串
-proxy.ts             # 語系處理、子網域分流與守衛、go 短網址轉址
-supabase/migrations/ # SQL schema
-scripts/             # 字型子集化、OG 圖產生
+.
+├── app/
+│   ├── [locale]/            public pages
+│   │   ├── studio/          studio.johnlin.me
+│   │   ├── tools/           tools.johnlin.me
+│   │   └── tutoring/, kb/   token share pages
+│   ├── api/
+│   │   ├── admin/           ai, holidays, link-preview, photo ingest, {posts,notes,photos}/revalidate
+│   │   ├── kb/og/           share-page OG images
+│   │   └── views/           post view counter
+│   ├── components/          grouped by area: home, blog, gallery, notes, schedule
+│   │   └── admin/           UI kit shared by studio and tools
+│   ├── lib/                 domain logic, one file or folder per area; tests sit beside it as *.test.mjs
+│   │   ├── supabase/        every query, one file per table group; client factories; requireAdmin
+│   │   ├── r2/              R2 client, object keys, presigned uploads
+│   │   └── images/          sharp derivatives (server only)
+│   ├── styles/              _tokens, _theme, _mixins, _breakpoints
+│   └── rss/                 blog.xml, notes.xml
+├── docs/                    plans and design-system docs
+├── content/about/           about chapters as <slug>.<locale>.md
+├── i18n/                    next-intl config
+├── messages/                zh-tw.json, en.json
+├── supabase/                migrations/ and rerunnable tests/
+├── scripts/                 font subsetting (runs before dev and build), OG image
+└── proxy.ts                 locale handling, subdomain routing and guard, go redirects
 ```
 
 ---
 
-## 延伸文件
+## Further docs
 
-| 文件                                             | 內容                                                           |
-| ------------------------------------------------ | -------------------------------------------------------------- |
-| [`docs/blueprint.md`](docs/blueprint.md)         | 路由地圖、資料層、認證流程、已知落差與待辦。修改程式前建議先讀 |
-| [`docs/design-system.md`](docs/design-system.md) | 設計原則與 token 規範；活頁版見 `/lab/design`                  |
-| [`docs/tools-plan.md`](docs/tools-plan.md)       | tools 子網域、課表、假日、短網址與 QR Code 的規劃與決策        |
-| [`docs/tutoring-plan.md`](docs/tutoring-plan.md) | 完善就學排程與公開頁的規劃、資料表設計與隱私考量               |
-| [`docs/kb-plan.md`](docs/kb-plan.md)             | 知識庫的上傳、分享範圍、網址代碼與權限設計                     |
-| [`supabase/README.md`](supabase/README.md)       | migration 慣例與套用方式                                       |
+| Doc                                              | Covers                                                                                  |
+| ------------------------------------------------ | --------------------------------------------------------------------------------------- |
+| [`docs/blueprint.md`](docs/blueprint.md)         | Route map, data layer, auth flow, known gaps and to-dos. Worth reading before changing code |
+| [`docs/design-system.md`](docs/design-system.md) | Design principles and token rules; the live version is `/lab/design`                    |
+| [`docs/tools-plan.md`](docs/tools-plan.md)       | Plans and decisions for the tools subdomain, schedule, holidays, short links, and QR codes |
+| [`docs/tutoring-plan.md`](docs/tutoring-plan.md) | Tutoring scheduler and public board: plan, table design, and privacy considerations     |
+| [`docs/kb-plan.md`](docs/kb-plan.md)             | Knowledge base upload, share scope, URL codes, and permission design                    |
+| [`supabase/README.md`](supabase/README.md)       | Migration conventions and how to apply them                                             |
 
-上述文件會隨程式演進而過期，每輪較大的改動後請一併更新。
+These docs drift as the code changes; update them after each larger change.
 
 ---
 
-## 授權
+## License
 
-程式碼採 MIT 授權，見 [LICENSE](LICENSE)。網站的文章、照片與設計內容不在授權範圍內。
+The code is MIT licensed; see [LICENSE](LICENSE). The site's writing, photos, and design are not covered by the license.
