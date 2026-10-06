@@ -12,6 +12,7 @@ import ThemeToggle from '@/app/components/ThemeToggle/ThemeToggle'
 import postStyle from '@/app/components/blog/PostContent/PostContent.module.scss'
 import style from './kb-share.module.scss'
 import KbMarkdown from './KbMarkdown'
+import KbNavCloser from './KbNavCloser'
 import KbPreviewLink from './KbPreviewLink'
 
 interface KbSharePageProps {
@@ -178,6 +179,8 @@ export default async function KbSharePage(props: KbSharePageProps) {
           <ThemeToggle />
         </div>
       </nav>
+
+      <KbNavCloser id="kb-nav" />
 
       <button type="button" popoverTarget="kb-nav" className={style.navToggle}>
         <Icon name="list" />
