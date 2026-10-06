@@ -153,10 +153,10 @@ export default async function KbSharePage(props: KbSharePageProps) {
         </div>
       </article>
 
-      {/* 手機上目錄是抽屜，用原生 popover：點外面或按 Esc 就收起，不用寫 JS。
-          key 跟著筆記換，點了目錄裡的筆記、換頁之後抽屜會重新掛載而收起 */}
+      {/* 手機上目錄是卡片，用原生 popover：點外面或按 Esc 就收起，不用寫 JS。
+          key 跟著筆記換，點了目錄裡的筆記、換頁之後卡片會重新掛載而收起 */}
       <nav key={note.path} id="kb-nav" popover="auto" className={style.nav} aria-label={t('contents')}>
-        {/* 抽屜的標題列在捲動區外面，捲動區上緣才能淡出；桌機的標題跟著目錄捲，捲動區才能頂到視窗上緣 */}
+        {/* 卡片的標題列在捲動區外面，捲動區上緣才能淡出；桌機的標題跟著目錄捲，捲動區才能頂到視窗上緣 */}
         <div className={style.navHeader}>
           <p className={style.navTitle}>{t('contents')}</p>
           <button

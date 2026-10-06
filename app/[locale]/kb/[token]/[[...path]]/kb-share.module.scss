@@ -1,6 +1,6 @@
 @use '@/app/styles/design' as *;
 
-// 沒有個人網站的 Header 和 Footer。桌機目錄在左、內文在右；900px 以下目錄改成抽屜
+// 沒有個人網站的 Header 和 Footer。桌機目錄在左、內文在右；900px 以下目錄改成卡片
 .shell {
   display: grid;
   grid-template-columns: 15rem minmax(0, 1fr);
@@ -151,29 +151,36 @@
   background: none;
   border: 0;
 
-  // 從左邊滑出的抽屜。收起時是 display:none：淡掉但還在的 fixed 層會讓 iOS Safari 工具列一直有色帶
+  // 從右下角的目錄按鈕展開的浮動卡片，上下不貼齊 Safari 的狀態列和工具列。
+  // 收起時是 display:none：淡掉但還在的 fixed 層會讓 iOS Safari 工具列一直有色帶
   @include respond-by-max-width($bp-md) {
+    --nav-bottom: calc(var(--space-6) + env(safe-area-inset-bottom));
     position: fixed;
-    inset: 0 auto 0 0;
+    inset: auto var(--page-gutter) var(--nav-bottom) auto;
     z-index: var(--z-drawer);
-    width: min(20rem, 85vw);
+    width: min(20rem, calc(100vw - 2 * var(--page-gutter)));
+    max-height: calc(100dvh - var(--nav-bottom) - var(--space-4));
     margin: 0;
     background: var(--surface-raised);
-    border-right: 1px solid var(--border);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
     box-shadow: var(--shadow-xl);
-    transform: translateX(0);
+    transform-origin: bottom right;
     transition:
       transform var(--duration) var(--ease-out),
+      opacity var(--duration) var(--ease-out),
       overlay var(--duration) allow-discrete,
       display var(--duration) allow-discrete;
 
     &:not(:popover-open) {
       display: none;
-      transform: translateX(-100%);
+      opacity: 0;
+      transform: scale(0.3);
     }
 
     @starting-style {
-      transform: translateX(-100%);
+      opacity: 0;
+      transform: scale(0.3);
     }
 
     &::backdrop {
@@ -191,7 +198,7 @@
   padding: var(--space-12) 0 var(--space-8);
   @include edge-fade-mask($start: var(--space-12), $end: var(--space-8), $direction: to bottom);
 
-  // 抽屜：標題列在捲動區外面，捲動區上下一樣淡出
+  // 卡片：標題列在捲動區外面，捲動區上下一樣淡出
   @include respond-by-max-width($bp-md) {
     padding: var(--space-6) var(--space-6) var(--space-8);
     @include edge-fade-mask($start: var(--space-6), $end: var(--space-8), $direction: to bottom);
@@ -204,11 +211,11 @@
   padding: var(--space-2) 0 var(--space-8);
 
   @include respond-by-max-width($bp-md) {
-    padding: var(--space-2) var(--space-6) calc(var(--space-6) + env(safe-area-inset-bottom));
+    padding: var(--space-2) var(--space-6) var(--space-6);
   }
 }
 
-// 抽屜才有的標題列（標題和關閉鈕），桌機的標題在捲動區裡
+// 卡片才有的標題列（標題和關閉鈕），桌機的標題在捲動區裡
 .navHeader {
   display: none;
 
@@ -259,7 +266,7 @@
   letter-spacing: 0.08em;
 }
 
-// 桌機的標題跟著目錄捲；抽屜改用捲動區外的標題列
+// 桌機的標題跟著目錄捲；卡片改用捲動區外的標題列
 .navScrollTitle {
   margin-bottom: var(--space-3);
 
@@ -295,7 +302,7 @@
   text-decoration: none;
   border-radius: var(--radius-sm);
 
-  // 用半透明混色：桌機側欄在頁面底色上、抽屜在 surface-raised 上，兩種底都要分得出來
+  // 用半透明混色：桌機側欄在頁面底色上、卡片在 surface-raised 上，兩種底都要分得出來
   &:hover {
     background: color-mix(in srgb, var(--text) 6%, transparent);
   }
