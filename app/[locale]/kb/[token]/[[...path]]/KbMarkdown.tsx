@@ -6,6 +6,7 @@ import rehypeKatex from 'rehype-katex'
 import rehypeRaw from 'rehype-raw'
 import rehypeSanitize, { defaultSchema, type Options as SanitizeSchema } from 'rehype-sanitize'
 import { linkify, shareHref } from '@/app/lib/kb'
+import style from './kb-share.module.scss'
 
 interface KbMarkdownProps {
   token: string
@@ -41,6 +42,11 @@ export default function KbMarkdown({ token, body, links, renderLink }: KbMarkdow
       remarkPlugins={[remarkGfm, remarkMath]}
       rehypePlugins={[rehypeRaw, [rehypeSanitize, schema], rehypeKatex]}
       components={{
+        table: ({ children }) => (
+          <div className={style.tableScroll}>
+            <table>{children}</table>
+          </div>
+        ),
         a: ({ href, children }) => {
           const code = href && codes.get(href)
           return code ? (

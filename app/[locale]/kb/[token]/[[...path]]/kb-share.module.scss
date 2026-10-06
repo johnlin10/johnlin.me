@@ -39,6 +39,38 @@
   font-size: var(--text-2xs);
 }
 
+@property --table-fade-start {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+
+@property --table-fade-end {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+
+@keyframes table-fade {
+  0% {
+    --table-fade-start: 0px;
+    --table-fade-end: var(--space-8);
+  }
+
+  10% {
+    --table-fade-start: var(--space-8);
+  }
+
+  90% {
+    --table-fade-end: var(--space-8);
+  }
+
+  100% {
+    --table-fade-start: var(--space-8);
+    --table-fade-end: 0px;
+  }
+}
+
 // 沿用文章內文的排版，但內文改無襯線：源起明體只有一個字重，筆記裡大量的粗體會跟內文一樣粗。
 // 標題照全域規則用襯線
 .content {
@@ -54,6 +86,46 @@
   p,
   li {
     white-space: pre-line;
+  }
+
+  // 表格照內容長短分配欄寬，最寬到每欄約 11em，再寬就橫向捲動
+  .tableScroll {
+    overflow-x: auto;
+    margin: 1.6em 0;
+    // 浮動捲軸畫在容器底部，留空間讓它落在表格下面
+    padding-bottom: var(--space-3);
+    // 哪一側還有內容就淡出哪一側，跟著捲動位置開關；不支援的瀏覽器不淡出
+    @include edge-fade-mask($start: var(--table-fade-start), $end: var(--table-fade-end));
+
+    @supports (animation-timeline: scroll()) {
+      animation: table-fade linear both;
+      animation-timeline: scroll(self inline);
+    }
+
+    table {
+      --cols: 2;
+      display: table;
+      width: max-content;
+      min-width: 100%;
+      max-width: max(100%, calc(var(--cols) * 11em));
+      margin: 0;
+    }
+
+    table:has(tr > :nth-child(3)) {
+      --cols: 3;
+    }
+
+    table:has(tr > :nth-child(4)) {
+      --cols: 4;
+    }
+
+    table:has(tr > :nth-child(5)) {
+      --cols: 5;
+    }
+
+    table:has(tr > :nth-child(6)) {
+      --cols: 6;
+    }
   }
 }
 

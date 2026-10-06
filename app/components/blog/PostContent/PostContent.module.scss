@@ -146,6 +146,8 @@
       border: 1px solid var(--border);
       padding: 0.55em 0.85em;
       text-align: left;
+      // 欄位多時寧可橫向捲動，也別擠到一行一個字
+      min-width: 7em;
     }
     th {
       background: var(--surface-2);
