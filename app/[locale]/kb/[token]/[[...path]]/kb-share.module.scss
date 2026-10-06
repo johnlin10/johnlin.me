@@ -151,12 +151,12 @@
   background: none;
   border: 0;
 
-  // 從右下角的目錄按鈕展開的浮動卡片，上下不貼齊 Safari 的狀態列和工具列。
+  // 從左下角的目錄按鈕展開的浮動卡片，上下不貼齊 Safari 的狀態列和工具列。
   // 收起時是 display:none：淡掉但還在的 fixed 層會讓 iOS Safari 工具列一直有色帶
   @include respond-by-max-width($bp-md) {
     --nav-bottom: calc(var(--space-6) + env(safe-area-inset-bottom));
     position: fixed;
-    inset: auto var(--page-gutter) var(--nav-bottom) auto;
+    inset: auto auto var(--nav-bottom) var(--page-gutter);
     z-index: var(--z-drawer);
     width: min(20rem, calc(100vw - 2 * var(--page-gutter)));
     max-height: calc(100dvh - var(--nav-bottom) - var(--space-4));
@@ -165,7 +165,7 @@
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-xl);
-    transform-origin: bottom right;
+    transform-origin: bottom left;
     transition:
       transform var(--duration) var(--ease-out),
       opacity var(--duration) var(--ease-out),
@@ -236,11 +236,11 @@
   cursor: pointer;
 }
 
-// 手機右下角的目錄按鈕。離底部留一段，貼底的 fixed 元素會讓 iOS Safari 工具列變成實色帶
+// 手機左下角的目錄按鈕。離底部留一段，貼底的 fixed 元素會讓 iOS Safari 工具列變成實色帶
 .navToggle {
   display: none;
   position: fixed;
-  right: var(--page-gutter);
+  left: var(--page-gutter);
   bottom: calc(var(--space-6) + env(safe-area-inset-bottom));
   z-index: var(--z-sticky);
   align-items: center;
