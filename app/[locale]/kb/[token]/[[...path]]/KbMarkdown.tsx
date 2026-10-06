@@ -3,6 +3,8 @@ import Markdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import remarkMath from 'remark-math'
 import rehypeKatex from 'rehype-katex'
+import rehypeRaw from 'rehype-raw'
+import rehypeSanitize, { defaultSchema, type Options as SanitizeSchema } from 'rehype-sanitize'
 import { linkify, shareHref } from '@/app/lib/kb'
 
 interface KbMarkdownProps {
@@ -15,6 +17,20 @@ interface KbMarkdownProps {
   renderLink: (href: string, children: ReactNode, code: string) => ReactNode
 }
 
+const SVG_TAGS = ['svg', 'g', 'rect', 'line', 'circle', 'text', 'path']
+const SVG_ATTRS = ['x', 'y', 'x1', 'y1', 'x2', 'y2', 'cx', 'cy', 'r', 'rx', 'd', 'width', 'height', 'fill', 'fillOpacity', 'stroke', 'strokeOpacity', 'strokeWidth', 'strokeDasharray', 'textAnchor', 'fontSize', 'fontWeight']
+
+// 筆記裡可以內嵌 SVG 圖（如知覺圖），其餘 HTML 照 GitHub 的白名單過濾，分享頁不會跑筆記裡的 script
+const schema: SanitizeSchema = {
+  ...defaultSchema,
+  tagNames: [...(defaultSchema.tagNames ?? []), ...SVG_TAGS],
+  attributes: {
+    ...defaultSchema.attributes,
+    ...Object.fromEntries(SVG_TAGS.map((tag) => [tag, SVG_ATTRS])),
+    svg: ['viewBox', 'role', 'ariaLabel', ...SVG_ATTRS],
+  },
+}
+
 /**
  * 筆記內文。分享頁和懸停預覽共用，[[連結]] 先換成 Markdown 連結，看不到的只留文字。
  */
@@ -23,7 +39,7 @@ export default function KbMarkdown({ token, body, links, renderLink }: KbMarkdow
   return (
     <Markdown
       remarkPlugins={[remarkGfm, remarkMath]}
-      rehypePlugins={[rehypeKatex]}
+      rehypePlugins={[rehypeRaw, [rehypeSanitize, schema], rehypeKatex]}
       components={{
         a: ({ href, children }) => {
           const code = href && codes.get(href)
