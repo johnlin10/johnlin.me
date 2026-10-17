@@ -110,6 +110,19 @@ export function postStepKey(id: string, width: number): string {
   return `${postImagePrefix(id)}w${width}.webp`
 }
 
+/**
+ * 文章圖片網址 → 圖片 id。不是本站文章圖片的網址回 null；id 一定要是 UUID，免得空字串把整個 posts/ 掃掉。
+ * @param url 封面或內文 img 的網址
+ * @returns 圖片 id 或 null
+ */
+export function postImageIdFromUrl(url: string): string | null {
+  const key = keyFromPublicUrl(url)
+  if (!key) return null
+  const uuid = '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'
+  const match = key.match(new RegExp(`^${r2Env().keyPrefix}posts/images/(${uuid})/[^/]+$`))
+  return match ? match[1] : null
+}
+
 /** 自訂網域綁在 bucket 根，所以不含 bucket 區段。 */
 export function publicUrl(key: string): string {
   return `${r2Env().publicBase}/${key}`

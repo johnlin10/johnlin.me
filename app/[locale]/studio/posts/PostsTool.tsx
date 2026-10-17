@@ -9,6 +9,7 @@ import {
   updatePost,
 } from '@/app/lib/supabase/posts'
 import { createClient } from '@/app/lib/supabase/client'
+import { deletePostMedia, postImageUrls } from '@/app/lib/blog/media'
 import { useSearchParamState } from '@/app/lib/hooks/useSearchParamState'
 import type { Post, Category, Tag, SupportedLocale } from '@/app/types/blog'
 import Button from '@/app/components/admin/Button/Button'
@@ -176,6 +177,7 @@ export default function PostsTool({ initial }: { initial: PostsData | null }) {
 
     try {
       await deletePost(supabase, post.id)
+      await deletePostMedia(postImageUrls(post))
       if (post.status === 'published') await revalidateSite()
       toast.success(t('deleteSuccess'))
       loadPosts()

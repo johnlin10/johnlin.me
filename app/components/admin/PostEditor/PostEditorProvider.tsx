@@ -11,6 +11,7 @@ import {
 import { useTranslations } from 'next-intl'
 import { useRouter } from '@/i18n/navigation'
 import { createClient } from '@/app/lib/supabase/client'
+import { deletePostMedia, postImageUrls } from '@/app/lib/blog/media'
 import {
   updatePost,
   deletePost,
@@ -105,6 +106,15 @@ export function PostEditorProvider({
   const [draft, setDraft] = useState<PostDraft>(() => fromPost(initialPost))
   const draftRef = useRef(draft)
   draftRef.current = draft
+  // 這次編輯出現過的所有圖片，包含上傳後又換掉的；要不要刪由伺服器對照資料庫決定
+  const seenImagesRef = useRef<Set<string>>(new Set(postImageUrls(draft)))
+
+  /** 資料庫寫入之後呼叫：把出現過但已經沒人用的圖片從 R2 清掉。 */
+  const cleanupImages = useCallback(async () => {
+    const urls = [...seenImagesRef.current]
+    seenImagesRef.current = new Set(postImageUrls(draftRef.current))
+    await deletePostMedia(urls)
+  }, [])
 
   const [currentLocale, setCurrentLocale] = useState<SupportedLocale>('zh-tw')
 
@@ -143,6 +153,7 @@ export function PostEditorProvider({
       const next = mutate(draftRef.current)
       if (next === draftRef.current) return
       draftRef.current = next
+      for (const url of postImageUrls(next)) seenImagesRef.current.add(url)
       setDraft(next)
       const patch = toPatch(next)
       if (patch) schedule(patch)
@@ -230,8 +241,9 @@ export function PostEditorProvider({
         // 靜默失敗即可——孤兒草稿留在列表也無妨，不值得為此中斷返回動作
       }
     }
+    await cleanupImages()
     router.push('/posts')
-  }, [flush, supabase, postId, router, confirm, saveState, t])
+  }, [flush, supabase, postId, router, confirm, saveState, t, cleanupImages])
 
   const discardDraft = useCallback(async () => {
     const ok = await confirm({
@@ -241,9 +253,10 @@ export function PostEditorProvider({
     })
     if (!ok) return
     await deletePost(supabase, postId)
+    await cleanupImages()
     toast.success(t('discardSuccess'))
     router.push('/posts')
-  }, [confirm, supabase, postId, toast, router, t])
+  }, [confirm, supabase, postId, toast, router, t, cleanupImages])
 
   const publish = useCallback(async () => {
     await flush()
@@ -277,6 +290,7 @@ export function PostEditorProvider({
       await revalidateSite()
       draftRef.current = { ...finalDraft, status: 'published' }
       setDraft(draftRef.current)
+      await cleanupImages()
       toast.success(t('publishSuccess'))
       router.push('/posts')
       return { ok: true as const }
@@ -287,7 +301,7 @@ export function PostEditorProvider({
       toast.error(message)
       return { ok: false as const, errors: [{ field: 'slug' as const, message }] }
     }
-  }, [flush, supabase, postId, toast, router, goToWrite, t, tValidation])
+  }, [flush, supabase, postId, toast, router, goToWrite, t, tValidation, cleanupImages])
 
   const saveDraft = useCallback(async () => {
     await flush()
@@ -300,12 +314,14 @@ export function PostEditorProvider({
         status: 'draft',
       })
       await revalidateSite()
+      draftRef.current = finalDraft
+      await cleanupImages()
       toast.success(t('draftSaveSuccess'))
       router.push('/posts')
     } catch {
       toast.error(t('draftSaveError'))
     }
-  }, [flush, supabase, postId, toast, router, t])
+  }, [flush, supabase, postId, toast, router, t, cleanupImages])
 
   const update = useCallback(async () => {
     await flush()
@@ -321,11 +337,12 @@ export function PostEditorProvider({
       draftRef.current = finalDraft
       setDraft(finalDraft)
       markClean()
+      await cleanupImages()
       toast.success(t('updateSuccess'))
     } catch (err) {
       toast.error(isUniqueViolation(err) ? t('slugConflictSave') : t('updateGenericError'))
     }
-  }, [flush, supabase, postId, toast, markClean, t])
+  }, [flush, supabase, postId, toast, markClean, t, cleanupImages])
 
   const unpublish = useCallback(async () => {
     const ok = await confirm({
