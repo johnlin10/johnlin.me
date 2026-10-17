@@ -9,6 +9,7 @@ The README has the full route tables, commands, and environment variables. Read 
 - Tools subdomain, schedule, holidays, short links, QR codes → [docs/tools-plan.md](docs/tools-plan.md)
 - Tutoring hours and its public board → [docs/tutoring-plan.md](docs/tutoring-plan.md)
 - Knowledge base and its share links → [docs/kb-plan.md](docs/kb-plan.md)
+- Moving off Vercel to a self-hosted server → [docs/self-host-plan.md](docs/self-host-plan.md)
 - Tables and migrations → [supabase/README.md](supabase/README.md)
 
 ## Architecture

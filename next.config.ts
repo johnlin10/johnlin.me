@@ -4,6 +4,8 @@ import createNextIntlPlugin from 'next-intl/plugin'
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+  // 自架備案（docs/self-host-plan.md）才打包 standalone；Vercel 部署不設這個變數。
+  output: process.env.NEXT_OUTPUT === 'standalone' ? 'standalone' : undefined,
   // 別讓 next dev 把官方區塊寫回 AGENTS.md，該段內容已併入文件。
   agentRules: false,
   // 本機用 studio.localhost:3000、tools.localhost:3000 開子網域，不列進來 dev server 會擋掉它們的 HMR 與開發資源。
