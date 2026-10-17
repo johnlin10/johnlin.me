@@ -36,8 +36,9 @@ export interface SeoConfig {
  * 封面圖片
  */
 export interface CoverImage {
-  url: string // Supabase Storage 公開 URL
+  url: string // 最大一級的網址；貼上的外部網址就是原圖
   alt: string // 圖片描述
+  srcset?: string // R2 的四級 webp（480／960／1440／2160），外部網址沒有
 }
 
 /**

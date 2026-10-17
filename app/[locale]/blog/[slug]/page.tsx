@@ -120,7 +120,13 @@ export default async function PostPage({ params }: PostPageProps) {
         {post.coverImage && (
           <div className={style.cover}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={post.coverImage.url} alt={post.coverImage.alt} />
+            <img
+              src={post.coverImage.url}
+              srcSet={post.coverImage.srcset}
+              sizes={hasToc ? '(max-width: 1080px) 100vw, 1080px' : '(max-width: 720px) 100vw, 720px'}
+              alt={post.coverImage.alt}
+              fetchPriority="high"
+            />
           </div>
         )}
 

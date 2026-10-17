@@ -1,4 +1,3 @@
-import Image from 'next/image'
 import type { CSSProperties } from 'react'
 import { getTranslations } from 'next-intl/server'
 import { Link } from '@/i18n/navigation'
@@ -51,11 +50,14 @@ export default async function PostCard({
     >
       {post.coverImage && (
         <div className={style.cover}>
-          <Image
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
             src={post.coverImage.url}
-            alt={post.coverImage.alt}
-            fill
+            srcSet={post.coverImage.srcset}
             sizes="(max-width: 700px) 100vw, 400px"
+            alt={post.coverImage.alt}
+            loading="lazy"
+            decoding="async"
           />
         </div>
       )}
