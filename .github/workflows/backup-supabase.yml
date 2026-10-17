@@ -1,0 +1,48 @@
+# 每週把 Supabase 資料庫（roles、schema、data）備份到 R2 的 johnlin-backups，還原方式見 docs/self-host-plan.md。
+name: Backup Supabase
+
+on:
+  schedule:
+    - cron: '0 19 * * 6' # 台灣時間週日 03:00
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      # 用 Session pooler 的連線字串：免費方案的直連位址只有 IPv6，GitHub 的機器連不到。
+      SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.R2_BACKUP_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_BACKUP_SECRET_ACCESS_KEY }}
+      AWS_DEFAULT_REGION: auto
+      AWS_REQUEST_CHECKSUM_CALCULATION: when_required
+      AWS_RESPONSE_CHECKSUM_VALIDATION: when_required
+      R2_S3_ENDPOINT: ${{ secrets.R2_S3_ENDPOINT }}
+    steps:
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Dump
+        run: |
+          set -euo pipefail
+          supabase db dump --db-url "$SUPABASE_DB_URL" -f roles.sql --role-only
+          supabase db dump --db-url "$SUPABASE_DB_URL" -f schema.sql
+          supabase db dump --db-url "$SUPABASE_DB_URL" -f data.sql --use-copy --data-only
+          grep -q 'CREATE TABLE' schema.sql
+          grep -q '^COPY ' data.sql
+          gzip -9 roles.sql schema.sql data.sql
+          ls -l *.sql.gz
+
+      - name: Upload to R2
+        run: |
+          set -euo pipefail
+          DIR="supabase/$(date -u +%Y-%m-%d)"
+          for f in roles schema data; do
+            aws s3 cp "$f.sql.gz" "s3://johnlin-backups/$DIR/$f.sql.gz" --endpoint-url "$R2_S3_ENDPOINT" --only-show-errors
+          done
+          aws s3 ls "s3://johnlin-backups/$DIR/" --endpoint-url "$R2_S3_ENDPOINT"

@@ -149,7 +149,47 @@ build 期間舊版還在跑，重啟那幾秒會斷線。個人站可以接受�
 
 ---
 
-## 六、平常可以先做的
+## 六、Supabase 備份
+
+Vercel 上沒有獨一無二的東西，程式碼都在 GitHub；Supabase 上的資料卻只有那一份。免費方案沒有自己能下載的備份，posts 這些舊表的結構也還沒進 `supabase/migrations/`，所以每週備份一次。
+
+- **做法**：`.github/workflows/backup-supabase.yml` 每週日 03:00（台灣時間）跑 `supabase db dump`，匯出 `roles`、`schema`、`data` 三份，壓縮後放到 R2 的 `johnlin-backups/supabase/YYYY-MM-DD/`。這個 bucket 不公開。
+- **大小**：2026-10 資料庫 14 MB，壓縮後每週幾 MB，R2 免費額度 10 GB，不用設自動刪除。
+- **沒備到的**：Storage 裡文章和短文的圖片（`blog`、`notes` 兩個 bucket，18 個檔、141 MB），照片在 R2 不受影響。
+- **失敗通知**：排程失敗 GitHub 會寄信。公開 repo 連續 60 天沒有新 commit，排程會被自動停用。
+
+### 第一次設定
+
+1. Cloudflare → R2 → Manage API tokens → 建一把 token，權限 Object Read & Write，只勾 `johnlin-backups`。不要拿網站上傳照片用的那把，備份外洩時才不會連照片 bucket 一起賠進去。
+2. Supabase → Connect → Session pooler，複製 URI，把 `[YOUR-PASSWORD]` 換成資料庫密碼。忘了就到 Database Settings 重設，網站用的是 anon key，不受影響。
+3. 在專案根目錄設 GitHub secrets（會提示貼上，值不會留在終端機紀錄）：
+
+```bash
+gh secret set SUPABASE_DB_URL
+gh secret set R2_BACKUP_ACCESS_KEY_ID
+gh secret set R2_BACKUP_SECRET_ACCESS_KEY
+grep '^R2_S3_ENDPOINT=' .env | cut -d= -f2- | gh secret set R2_S3_ENDPOINT
+```
+
+4. push 之後手動跑一次：`gh workflow run backup-supabase.yml`，再到 Actions 看結果，最後一步會列出上傳的三個檔案。
+
+### 還原
+
+到 R2 下載某一週的三個檔、解壓縮，還原到新的 Supabase 專案或自架 Supabase：
+
+```bash
+psql --single-transaction --variable ON_ERROR_STOP=1 \
+  --file roles.sql --file schema.sql \
+  --command 'SET session_replication_role = replica' \
+  --file data.sql \
+  --dbname "<新資料庫的連線字串>"
+```
+
+還原後還要自己做：Google 登入的設定和轉址網址、新的 anon key 換進 `.env`、Storage 的圖片另外搬。自架 Supabase 預設是 Postgres 15，備份來自 17，`data.sql` 裡的 `SET transaction_timeout` 要先註解掉。細節看 Supabase 官方的 [Restore a Platform Project to Self-Hosted](https://supabase.com/docs/guides/self-hosting/restore-from-platform)。
+
+---
+
+## 七、平常可以先做的
 
 - 每半年照第二節在本機跑一次 standalone，確認新加的功能沒有偷偷綁上 Vercel。
 - 金鑰外洩比平台倒閉更急。README 的環境變數表就是輪替清單：Supabase anon key 本來就公開，不用換；R2 兩把、`R2_REST_API_TOKEN`、`AI_GATEWAY_API_KEY` 要到各自的後台換新。
