@@ -81,7 +81,16 @@ export default function RichTextEditor({
       StarterKit.configure({
         codeBlock: false, // 使用 CodeBlockLowlight 取代
       }),
-      Image.configure({
+      // 文章圖片帶 R2 四級的 srcset 與 sizes，不宣告的話打開舊文章、自動存檔就會被洗掉
+      Image.extend({
+        addAttributes() {
+          return {
+            ...this.parent?.(),
+            srcset: { default: null },
+            sizes: { default: null },
+          }
+        },
+      }).configure({
         inline: true,
         allowBase64: true,
         HTMLAttributes: {

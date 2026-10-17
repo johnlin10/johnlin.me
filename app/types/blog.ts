@@ -33,6 +33,14 @@ export interface SeoConfig {
 }
 
 /**
+ * R2 上的文章圖片：url 是最大一級，srcset 列出各級。
+ */
+export interface PostImage {
+  url: string
+  srcset: string
+}
+
+/**
  * 封面圖片
  */
 export interface CoverImage {

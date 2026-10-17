@@ -1,5 +1,4 @@
-import type { SupabaseClient } from '@supabase/supabase-js'
-import { uploadAndReplaceImagesInHtml } from '@/app/lib/supabase/storage'
+import { uploadBase64Images } from '@/app/lib/blog/media'
 import { emptyPostLocales, isPlaceholderSlug } from '@/app/lib/supabase/posts'
 import type {
   CoverImage,
@@ -96,18 +95,16 @@ export function isPristineDraft(draft: PostDraft): boolean {
 }
 
 /**
- * 把兩個語言內文裡殘留的 base64 圖片（例如貼上 Notion/Word 的 HTML 片段）
- * 上傳成 Storage URL 並替換掉。回傳全新物件，不修改傳入的 locales。
+ * 把兩個語言內文裡殘留的 base64 圖片上傳到 R2 並替換掉。回傳全新物件，不修改傳入的 locales。
+ * @param locales 兩個語言的內容
+ * @returns 內文換好網址的 locales
  */
 export async function sweepBase64(
-  supabase: SupabaseClient,
-  locales: Record<SupportedLocale, PostLocaleContent>,
-  postId: string
+  locales: Record<SupportedLocale, PostLocaleContent>
 ): Promise<Record<SupportedLocale, PostLocaleContent>> {
-  const folder = `images/${postId}`
   const [zhContent, enContent] = await Promise.all([
-    uploadAndReplaceImagesInHtml(supabase, locales['zh-tw'].content, folder),
-    uploadAndReplaceImagesInHtml(supabase, locales.en.content, folder),
+    uploadBase64Images(locales['zh-tw'].content),
+    uploadBase64Images(locales.en.content),
   ])
   return {
     'zh-tw': { ...locales['zh-tw'], content: zhContent },

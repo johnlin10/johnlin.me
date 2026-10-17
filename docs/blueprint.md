@@ -146,7 +146,7 @@
 
 分兩套，依內容類型而定：
 
-**文章與短文 → Supabase Storage。** `app/lib/supabase/storage.ts` 的 `uploadImage()` 直接呼叫 JS SDK（`supabase.storage.from(bucket).upload()` + `getPublicUrl()`），bucket 分 `blog`（封面圖、內文圖）跟 `notes`（短動態圖）。編輯器貼上/拖曳圖片如果變成 base64 內嵌，會在儲存前被 `uploadAndReplaceImagesInHtml()` 掃出來重新上傳成真正的網址。
+**文章與短文 → 也在 R2。** 跟攝影一樣是 presigned PUT 直傳原檔，再由 ingest 產生衍生圖（`app/lib/notes/media.ts` 的 `uploadMedia()` 共用）。文章圖片在 `posts/images/<id>/`，原檔加上 480／960／1440／2160 四級 webp，封面存在 `cover_image.srcset`、內文寫在 `<img srcset sizes>`，前台不經過 `next/image`。短文圖片在 `notes/images/<id>/`，原檔加一張長邊 1600 的 `display.webp`。編輯器貼上的 base64 圖片會在儲存前被 `uploadBase64Images()` 掃出來上傳。v1.21.14 前文章圖片在 Supabase Storage 的 `blog` bucket，已全部搬過來。
 
 **攝影作品 → Cloudflare R2**（`app/lib/r2/`，公開網域 `img.johnlin.me`）。原檔不經過 route handler：Vercel 的 request body 上限是 4.5 MB，一張 40 MB 的原檔進不了函式，所以瀏覽器拿 presigned PUT 直傳 R2，再由 `/api/admin/photos/ingest` 從 R2 把檔案抓回來、用 sharp 產出 8 階 SDR 階梯（320–3200px WebP）＋ 1200×630 OG 圖 ＋ 20px 模糊佔位，寫回 R2 後才建立資料列。物件 key 用不可變的 UUID 前綴（`photos/<id>/`）而不是 slug——slug 會改，改一次就得搬十幾個物件。
 
@@ -227,7 +227,7 @@ Notes 沒有標題、沒有 slug、沒有雙語、沒有草稿流程（一律直
 
 這些是探索過程中發現、**跟你原本認知或先前決策對不上**的地方，值得你自己確認一輪：
 
-1. ~~媒體儲存實際上是 Supabase Storage，不是 R2。~~ **已解決（攝影部分）。** 攝影作品現在真的走 R2，見第四節「圖片/媒體儲存」。文章與短文的圖片仍在 Supabase Storage，這是刻意的分工，不是待辦。
+1. ~~媒體儲存實際上是 Supabase Storage，不是 R2。~~ **已解決（攝影部分）。** 攝影作品現在真的走 R2，見第四節「圖片/媒體儲存」。文章與短文的圖片後來也搬到 R2 了（v1.21.14）。
 
 2. **短網址導向功能目前完全不存在。** commit 記錄裡有一次「復原短網址導向功能」，但更後面的地基整理把它整個刪掉了，commit 訊息明講是「未來以獨立模組實作」。目前 proxy、`next.config.ts`、路由裡都沒有任何 `/u/[slug]` 或短網址邏輯——如果你以為這功能還在，它其實只存在於 git 歷史裡。
 

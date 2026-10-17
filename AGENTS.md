@@ -80,7 +80,7 @@ Request
 
 ### Media
 
-- Post and note images live in Supabase Storage.
+- Post and note images live in R2 too, uploaded the same way: `posts/images/<id>/` keeps the original plus four webp widths (480–2160) read through `srcset`, `notes/images/<id>/` keeps the original plus one display webp.
 - Photos live in Cloudflare R2 (`img.johnlin.me`). Uploads go browser → R2 by presigned PUT, then an ingest endpoint builds the derivative ladder, OG image, and blur placeholder with sharp.
 - The photo wall reads the derivatives straight from R2 through `srcSet`, bypassing `next/image`.
 

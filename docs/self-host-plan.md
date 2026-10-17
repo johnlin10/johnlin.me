@@ -155,7 +155,7 @@ Vercel 上沒有獨一無二的東西，程式碼都在 GitHub；Supabase 上的
 
 - **做法**：`.github/workflows/backup-supabase.yml` 每週日 03:00（台灣時間）跑 `supabase db dump`，匯出 `roles`、`schema`、`data` 三份，壓縮後放到 R2 的 `johnlin-backups/supabase/YYYY-MM-DD/`。這個 bucket 不公開。
 - **大小**：2026-10 資料庫 14 MB，壓縮後每週幾 MB，R2 免費額度 10 GB，不用設自動刪除。
-- **沒備到的**：Storage 裡文章和短文的圖片（`blog`、`notes` 兩個 bucket，18 個檔、141 MB），照片在 R2 不受影響。
+- **不用備的**：圖片。文章、短文、攝影的圖片都在 R2，不在 Supabase 裡（v1.21.14 搬完）。
 - **失敗通知**：排程失敗 GitHub 會寄信。公開 repo 連續 60 天沒有新 commit，排程會被自動停用。
 
 ### 第一次設定
@@ -185,7 +185,7 @@ psql --single-transaction --variable ON_ERROR_STOP=1 \
   --dbname "<新資料庫的連線字串>"
 ```
 
-還原後還要自己做：Google 登入的設定和轉址網址、新的 anon key 換進 `.env`、Storage 的圖片另外搬。自架 Supabase 預設是 Postgres 15，備份來自 17，`data.sql` 裡的 `SET transaction_timeout` 要先註解掉。細節看 Supabase 官方的 [Restore a Platform Project to Self-Hosted](https://supabase.com/docs/guides/self-hosting/restore-from-platform)。
+還原後還要自己做：Google 登入的設定和轉址網址、新的 anon key 換進 `.env`。自架 Supabase 預設是 Postgres 15，備份來自 17，`data.sql` 裡的 `SET transaction_timeout` 要先註解掉。細節看 Supabase 官方的 [Restore a Platform Project to Self-Hosted](https://supabase.com/docs/guides/self-hosting/restore-from-platform)。
 
 ---
 

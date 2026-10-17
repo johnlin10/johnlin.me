@@ -44,12 +44,6 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'myxssceptrkyjsibghjr.supabase.co', // Supabase Storage
-        port: '',
-        pathname: '/storage/v1/object/public/**',
-      },
-      {
-        protocol: 'https',
         hostname: 'firebasestorage.googleapis.com', // Firebase Storage（退役後可移除）
         port: '',
         pathname: '/v0/b/**',

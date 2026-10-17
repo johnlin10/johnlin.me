@@ -1,10 +1,9 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import { useTranslations } from 'next-intl'
 import type { Editor } from '@tiptap/react'
-import { createClient } from '@/app/lib/supabase/client'
-import { uploadImage } from '@/app/lib/supabase/storage'
+import { POST_CONTENT_IMAGE_SIZES, uploadPostImage } from '@/app/lib/blog/media'
 import { htmlToPlainText } from '@/app/lib/ai/htmlToPlainText'
 import { useToast } from '@/app/components/admin/Toast/ToastProvider'
 import RichTextEditor from '@/app/components/admin/RichTextEditor/RichTextEditor'
@@ -26,10 +25,9 @@ import style from './WriteStep.module.scss'
  */
 export default function WriteStep() {
   const t = useTranslations('AdminPage.postEditor.writeStep')
-  const { postId, draft, currentLocale } = usePostEditorState()
+  const { draft, currentLocale } = usePostEditorState()
   const { setLocaleField } = usePostEditorActions()
   const { request, pending } = useAiAssist()
-  const supabase = useMemo(() => createClient(), [])
   const toast = useToast()
   const [editor, setEditor] = useState<Editor | null>(null)
   const [subtitleOpen, setSubtitleOpen] = useState(false)
@@ -58,8 +56,15 @@ export default function WriteStep() {
 
   const handleImageUpload = async (file: File) => {
     try {
-      const url = await uploadImage(supabase, file, `images/${postId}`)
-      editor?.chain().focus().setImage({ src: url }).run()
+      const img = await uploadPostImage(file)
+      editor
+        ?.chain()
+        .focus()
+        .insertContent({
+          type: 'image',
+          attrs: { src: img.url, srcset: img.srcset, sizes: POST_CONTENT_IMAGE_SIZES },
+        })
+        .run()
     } catch {
       toast.error(t('imageUploadError'))
     }

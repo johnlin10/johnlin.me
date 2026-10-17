@@ -134,7 +134,7 @@ Every response carries `frame-ancestors 'none'`, `X-Frame-Options: DENY`, and `n
 - Three Supabase clients split the work: `client.ts` (browser), `server.ts` (with cookies, bound by RLS), `public.ts` (anonymous, usable inside `unstable_cache`). The first two and the proxy must pass `authCookieOptions(host)` for sign-in to carry across subdomains.
 - **No service-role key.** Every write uses the anon key plus the caller's session, and Postgres RLS decides permissions.
 - The schedule, short-link, tutoring, QR code, and knowledge-base tables are readable and writable by the admin only; visitors reach them only through SECURITY DEFINER functions. `resolve_short_link` resolves a known slug and cannot list links or clicks; `get_tutoring_board` returns data only when the token matches an open public link, and leaves out session notes; `get_kb_share` and `get_kb_shared_note` return only notes inside the shared scope, with paths counted from the share root so the vault's full paths stay hidden. Hourly pay and identity categories are not stored.
-- Media split: post and note images live in Supabase Storage; photography lives in Cloudflare R2 under immutable UUID-prefixed object keys.
+- Media: post, note, and photography images all live in Cloudflare R2 under immutable UUID-prefixed object keys; posts get four webp widths for `srcset`, notes one display webp, photography the full derivative ladder.
 
 ---
 

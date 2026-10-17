@@ -32,4 +32,4 @@ Beta 2 要新增 `photos` 表，順勢把 schema 納入版控。
 
 - 表：`posts` / `post_tags` / `categories` / `tags` / `series` / `notes` / `admin_emails`
 - 函式：`is_admin()`、`increment_post_view_count(post_id)`（SECURITY DEFINER）
-- Storage buckets：`blog`、`notes`
+- Storage buckets：`blog`、`notes`（v1.21.14 起圖片都在 R2，這兩個 bucket 已不再使用，可以刪除）

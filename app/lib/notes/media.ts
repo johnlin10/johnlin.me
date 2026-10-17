@@ -14,23 +14,39 @@ async function postJson<T>(url: string, body: unknown): Promise<T> {
 }
 
 /**
- * 原檔直傳 R2 → 伺服器產生顯示用小圖 → 回傳 NoteImage（url 是小圖、original 是原檔）。
+ * 原檔直傳 R2 → 伺服器產生衍生圖 → 回傳 ingest 的結果。文章圖片也走這條。
  * 格式不在白名單（HEIC、GIF 等）直接拒絕，不浪費一次上傳。
+ * @param file 要上傳的圖片
+ * @param base API 根路徑，底下要有 upload-url 與 ingest
+ * @returns ingest 回傳的結果
  */
-export async function uploadNoteImage(file: File): Promise<NoteImage> {
+export async function uploadMedia<T>(
+  file: File,
+  base: '/api/admin/notes/media' | '/api/admin/posts/media'
+): Promise<T> {
   if (!isSupportedPhotoMime(file.type)) throw new Error(`不支援的格式：${file.type || file.name}`)
   const id = crypto.randomUUID()
-  const presign = await postJson<{ key: string; uploadUrl: string }>(
-    '/api/admin/notes/media/upload-url',
-    { id, contentType: file.type, contentLength: file.size }
-  )
+  const presign = await postJson<{ key: string; uploadUrl: string }>(`${base}/upload-url`, {
+    id,
+    contentType: file.type,
+    contentLength: file.size,
+  })
   const put = await fetch(presign.uploadUrl, {
     method: 'PUT',
     headers: { 'content-type': file.type },
     body: file,
   })
   if (!put.ok) throw new Error(`上傳失敗（${put.status}）`)
-  return postJson<NoteImage>('/api/admin/notes/media/ingest', { id, key: presign.key })
+  return postJson<T>(`${base}/ingest`, { id, key: presign.key })
+}
+
+/**
+ * 上傳一張短文圖片。
+ * @param file 要上傳的圖片
+ * @returns NoteImage（url 是顯示用小圖、original 是原檔）
+ */
+export function uploadNoteImage(file: File): Promise<NoteImage> {
+  return uploadMedia<NoteImage>(file, '/api/admin/notes/media')
 }
 
 /** 盡力刪除，失敗只記 log：孤兒檔案不該擋住已經成功的資料庫寫入。 */

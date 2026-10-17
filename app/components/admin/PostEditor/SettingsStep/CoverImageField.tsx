@@ -1,9 +1,8 @@
 'use client'
 
-import { useMemo, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 import { useTranslations } from 'next-intl'
-import { createClient } from '@/app/lib/supabase/client'
-import { uploadImage } from '@/app/lib/supabase/storage'
+import { uploadPostImage } from '@/app/lib/blog/media'
 import { useToast } from '@/app/components/admin/Toast/ToastProvider'
 import Button from '@/app/components/admin/Button/Button'
 import Input from '@/app/components/admin/Input/Input'
@@ -18,7 +17,6 @@ export default function CoverImageField() {
   const { draft } = usePostEditorState()
   const { setField } = usePostEditorActions()
   const { request, pending } = useAiAssist()
-  const supabase = useMemo(() => createClient(), [])
   const toast = useToast()
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [uploading, setUploading] = useState(false)
@@ -28,8 +26,8 @@ export default function CoverImageField() {
   const handleFile = async (file: File) => {
     setUploading(true)
     try {
-      const url = await uploadImage(supabase, file, 'covers')
-      setField('coverImage', { url, alt: draft.coverImage?.alt ?? '' })
+      const img = await uploadPostImage(file)
+      setField('coverImage', { ...img, alt: draft.coverImage?.alt ?? '' })
     } catch {
       toast.error(t('uploadError'))
     } finally {
@@ -52,7 +50,7 @@ export default function CoverImageField() {
       { imageUrl: draft.coverImage.url, title: draft.locales['zh-tw'].title },
       {
         current: draft.coverImage.alt,
-        apply: (alt) => setField('coverImage', { url: draft.coverImage!.url, alt }),
+        apply: (alt) => setField('coverImage', { ...draft.coverImage!, alt }),
       }
     )
   }
@@ -108,9 +106,7 @@ export default function CoverImageField() {
           <Input
             label={t('altLabel')}
             value={draft.coverImage.alt}
-            onChange={(alt) =>
-              setField('coverImage', { url: draft.coverImage!.url, alt })
-            }
+            onChange={(alt) => setField('coverImage', { ...draft.coverImage!, alt })}
             placeholder={t('altPlaceholder')}
             action={
               <AiButton

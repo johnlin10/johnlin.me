@@ -267,7 +267,7 @@ export function PostEditorProvider({
     }
 
     try {
-      const sweptLocales = await sweepBase64(supabase, draftRef.current.locales, postId)
+      const sweptLocales = await sweepBase64(draftRef.current.locales)
       const finalDraft: PostDraft = { ...draftRef.current, locales: sweptLocales }
       await updatePost(supabase, {
         id: postId,
@@ -292,7 +292,7 @@ export function PostEditorProvider({
   const saveDraft = useCallback(async () => {
     await flush()
     try {
-      const sweptLocales = await sweepBase64(supabase, draftRef.current.locales, postId)
+      const sweptLocales = await sweepBase64(draftRef.current.locales)
       const finalDraft: PostDraft = { ...draftRef.current, locales: sweptLocales }
       await updatePost(supabase, {
         id: postId,
@@ -310,7 +310,7 @@ export function PostEditorProvider({
   const update = useCallback(async () => {
     await flush()
     try {
-      const sweptLocales = await sweepBase64(supabase, draftRef.current.locales, postId)
+      const sweptLocales = await sweepBase64(draftRef.current.locales)
       const finalDraft: PostDraft = { ...draftRef.current, locales: sweptLocales }
       await updatePost(supabase, {
         id: postId,

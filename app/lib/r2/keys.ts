@@ -92,6 +92,24 @@ export function noteMediaDeletePrefix(url: string): string | null {
   return null
 }
 
+//* ==================== 文章圖片 ====================
+// posts/images/<id>/ 放封面與內文圖片的原檔和 w480／w960／w1440／w2160 四級 webp。
+
+/** `posts/images/<id>/`，一張文章圖片的資料夾，含部署命名空間。 */
+export function postImagePrefix(id: string): string {
+  return `${r2Env().keyPrefix}posts/images/${id}/`
+}
+
+/** 文章圖片原檔，原樣保存不重新編碼。 */
+export function postOriginalKey(id: string, ext: string): string {
+  return `${postImagePrefix(id)}original.${ext}`
+}
+
+/** 文章圖片的一級 webp，width 是檔案實際寬度。 */
+export function postStepKey(id: string, width: number): string {
+  return `${postImagePrefix(id)}w${width}.webp`
+}
+
 /** 自訂網域綁在 bucket 根，所以不含 bucket 區段。 */
 export function publicUrl(key: string): string {
   return `${r2Env().publicBase}/${key}`
