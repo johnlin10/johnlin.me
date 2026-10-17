@@ -110,17 +110,30 @@ export function postStepKey(id: string, width: number): string {
   return `${postImagePrefix(id)}w${width}.webp`
 }
 
+/** 所有文章圖片的共同根前綴，含部署命名空間。孤兒掃描從這裡開始。 */
+export function postImagesRootPrefix(): string {
+  return `${r2Env().keyPrefix}posts/images/`
+}
+
 /**
- * 文章圖片網址 → 圖片 id。不是本站文章圖片的網址回 null；id 一定要是 UUID，免得空字串把整個 posts/ 掃掉。
+ * 物件 key → 文章圖片 id。不是文章圖片的 key 回 null；id 一定要是 UUID，免得空字串把整個 posts/ 掃掉。
+ * @param key R2 物件 key
+ * @returns 圖片 id 或 null
+ */
+export function postImageIdFromKey(key: string): string | null {
+  const uuid = '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'
+  const match = key.match(new RegExp(`^${postImagesRootPrefix()}(${uuid})/[^/]+$`))
+  return match ? match[1] : null
+}
+
+/**
+ * 文章圖片網址 → 圖片 id。不是本站文章圖片的網址回 null。
  * @param url 封面或內文 img 的網址
  * @returns 圖片 id 或 null
  */
 export function postImageIdFromUrl(url: string): string | null {
   const key = keyFromPublicUrl(url)
-  if (!key) return null
-  const uuid = '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'
-  const match = key.match(new RegExp(`^${r2Env().keyPrefix}posts/images/(${uuid})/[^/]+$`))
-  return match ? match[1] : null
+  return key ? postImageIdFromKey(key) : null
 }
 
 /** 自訂網域綁在 bucket 根，所以不含 bucket 區段。 */

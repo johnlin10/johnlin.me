@@ -18,11 +18,11 @@ export function uploadPostImage(file: File): Promise<PostImage> {
 export { postImageUrls } from './postImageUrls'
 
 /**
- * 請伺服器清掉這些圖片裡已經沒有任何文章在用的。盡力而為，失敗只記 log：孤兒檔案不該擋住已經成功的資料庫寫入。
+ * 請伺服器清掉這些圖片裡已經沒有任何文章在用的，並順便掃一次放太久的孤兒，所以清單是空的也照樣送。
+ * 盡力而為，失敗只記 log：孤兒檔案不該擋住已經成功的資料庫寫入。
  * @param urls 可能不要了的圖片網址
  */
 export async function deletePostMedia(urls: string[]): Promise<void> {
-  if (urls.length === 0) return
   try {
     const res = await fetch('/api/admin/posts/media', {
       method: 'DELETE',

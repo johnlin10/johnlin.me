@@ -97,7 +97,18 @@ export async function getObjectBuffer(
 }
 
 export async function listKeys(prefix: string): Promise<string[]> {
-  const keys: string[] = []
+  return (await listObjects(prefix)).map((o) => o.key)
+}
+
+/**
+ * 列出前綴底下的物件與最後寫入時間。
+ * @param prefix 物件 key 的前綴
+ * @returns 每個物件的 key 與 lastModified（毫秒）
+ */
+export async function listObjects(
+  prefix: string
+): Promise<{ key: string; lastModified: number }[]> {
+  const objects: { key: string; lastModified: number }[] = []
   let token: string | undefined
   do {
     const res = await r2Client().send(
@@ -108,11 +119,11 @@ export async function listKeys(prefix: string): Promise<string[]> {
       })
     )
     for (const item of res.Contents ?? []) {
-      if (item.Key) keys.push(item.Key)
+      if (item.Key) objects.push({ key: item.Key, lastModified: item.LastModified?.getTime() ?? 0 })
     }
     token = res.IsTruncated ? res.NextContinuationToken : undefined
   } while (token)
-  return keys
+  return objects
 }
 
 /**

@@ -146,7 +146,7 @@
 
 分兩套，依內容類型而定：
 
-**文章與短文 → 也在 R2。** 跟攝影一樣是 presigned PUT 直傳原檔，再由 ingest 產生衍生圖（`app/lib/notes/media.ts` 的 `uploadMedia()` 共用）。文章圖片在 `posts/images/<id>/`，原檔加上 480／960／1440／2160 四級 webp，封面存在 `cover_image.srcset`、內文寫在 `<img srcset sizes>`，前台不經過 `next/image`。短文圖片在 `notes/images/<id>/`，原檔加一張長邊 1600 的 `display.webp`。編輯器貼上的 base64 圖片會在儲存前被 `uploadBase64Images()` 掃出來上傳。v1.21.14 前文章圖片在 Supabase Storage 的 `blog` bucket，已全部搬過來。
+**文章與短文 → 也在 R2。** 跟攝影一樣是 presigned PUT 直傳原檔，再由 ingest 產生衍生圖（`app/lib/notes/media.ts` 的 `uploadMedia()` 共用）。文章圖片在 `posts/images/<id>/`，原檔加上 480／960／1440／2160 四級 webp，封面存在 `cover_image.srcset`、內文寫在 `<img srcset sizes>`，前台不經過 `next/image`。短文圖片在 `notes/images/<id>/`，原檔加一張長邊 1600 的 `display.webp`。編輯器貼上的 base64 圖片會在儲存前被 `uploadBase64Images()` 掃出來上傳。刪文章、存檔、離開編輯器時會打 `DELETE /api/admin/posts/media`：點名的圖片沒有任何文章或系列封面在用就馬上刪，順便掃整個 `posts/images/`，沒人用而且超過 7 天的資料夾也刪（關分頁之類沒走到清理的情況）。v1.21.14 前文章圖片在 Supabase Storage 的 `blog` bucket，已全部搬過來。
 
 **攝影作品 → Cloudflare R2**（`app/lib/r2/`，公開網域 `img.johnlin.me`）。原檔不經過 route handler：Vercel 的 request body 上限是 4.5 MB，一張 40 MB 的原檔進不了函式，所以瀏覽器拿 presigned PUT 直傳 R2，再由 `/api/admin/photos/ingest` 從 R2 把檔案抓回來、用 sharp 產出 8 階 SDR 階梯（320–3200px WebP）＋ 1200×630 OG 圖 ＋ 20px 模糊佔位，寫回 R2 後才建立資料列。物件 key 用不可變的 UUID 前綴（`photos/<id>/`）而不是 slug——slug 會改，改一次就得搬十幾個物件。
 
