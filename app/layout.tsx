@@ -18,8 +18,13 @@ export default function RootLayout({ children }: Props) {
   return (
     <>
       {children}
-      <Analytics />
-      <SpeedInsights />
+      {/* 只在 Vercel 上載入，自架時不會打到不存在的統計腳本 */}
+      {process.env.VERCEL && (
+        <>
+          <Analytics />
+          <SpeedInsights />
+        </>
+      )}
     </>
   )
 }

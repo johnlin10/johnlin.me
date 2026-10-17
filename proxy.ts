@@ -134,7 +134,7 @@ async function redirectShortLink(request: NextRequest) {
   const { data: target, error } = await createPublicClient().rpc('resolve_short_link', {
     p_slug: slug,
     p_referrer_host: refererHost(request.headers.get('referer')),
-    p_country: request.headers.get('x-vercel-ip-country'),
+    p_country: request.headers.get('x-vercel-ip-country') ?? request.headers.get('cf-ipcountry'),
     p_log:
       request.method === 'GET' &&
       !BOT.test(request.headers.get('user-agent') ?? ''),
